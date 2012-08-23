@@ -1,0 +1,3 @@
+<?php
+
+include_once('petitions_user_registration.features.inc');

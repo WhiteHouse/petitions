@@ -1,0 +1,14 @@
+/**
+ * @file
+ * CSS for the petition hourly-count reports page
+ */
+
+#petition-hourly-count-page th {
+  text-align: left;
+  font-weight: bold;
+}
+
+#petition-hourly-count-page td {
+  text-align: right;
+  border-width: 1px;
+}

@@ -1,0 +1,12 @@
+name = "White House Profile Migrate"
+description = "A one-time profile migration script to initially populate the profile data."
+package = "Custom Developed"
+core = 7.x
+
+dependencies[] = migrate_extras
+dependencies[] = profile2
+dependencies[] = migrate
+dependencies[] = wh_user_profile
+
+files[] = profile_migration.inc
+

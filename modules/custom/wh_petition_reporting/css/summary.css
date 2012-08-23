@@ -1,0 +1,22 @@
+/**
+ * @file
+ * CSS for the petition summary reports page
+ */
+
+#petition-summary-page table {
+  width: auto;
+}
+
+#petition-summary-page th {
+  text-align: left;
+  font-weight: bold;
+}
+
+#petition-summary-page td {
+  text-align: right;
+  border-width: 1px;
+}
+
+#petition-summary-page td .inset {
+  margin-left: 10px;
+}

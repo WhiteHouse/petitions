@@ -1,0 +1,7 @@
+core = "7.x"
+dependencies[] = "features"
+description = "Adds fields to the User object for capturing IP Address and User Agent string when users register on the site."
+features[field][] = "user-user-field_ip_address"
+features[field][] = "user-user-field_user_agent"
+name = "WH User SS Data"
+package = "Features"

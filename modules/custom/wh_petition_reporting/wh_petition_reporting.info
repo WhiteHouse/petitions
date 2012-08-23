@@ -1,0 +1,11 @@
+name = "WH Petition Reporting"
+description = "Reporting Capabilities for We The People"
+package = "Custom"
+core = "7.x"
+version = "7.x-1.2"
+
+dependencies[] = "wh_response"
+dependencies[] = "wh_petitions"
+
+files[] = 'wh_petition_reporting.summary.inc'
+files[] = 'wh_petition_reporting.hourly.inc'

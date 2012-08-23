@@ -1,0 +1,21 @@
+name = "WH Petitions"
+description = "Core functionality for Petitions"
+package = "Custom"
+core = "7.x"
+version = "7.x-1.2"
+
+dependencies[] = "mongodb"
+dependencies[] = "pathauto"
+dependencies[] = "taxonomy"
+dependencies[] = "taxonomy_sync"
+dependencies[] = "wh_response"
+dependencies[] = "wh_user_profile"
+
+files[] = wh_petitions.admin.inc
+files[] = wh_petitions.cron.inc
+files[] = wh_petitions.form.inc
+files[] = wh_petitions.generate.inc
+files[] = wh_petitions.module
+files[] = wh_petitions.pages.inc
+files[] = wh_petitions.tokens.inc
+

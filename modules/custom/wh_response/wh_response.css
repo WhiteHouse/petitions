@@ -1,0 +1,25 @@
+.display-none {
+  display: none;
+}
+.display-block {
+  display: block;
+}
+#wh-response-node-form .petitions .form-type-textarea {
+  display:none;
+}
+#wh-response-node-form .petitions .form-type-textfield, #wh-response-node-form .notifications .form-type-textfield {
+  width:85%;
+}
+#wh-response-node-form .notifications .preview-button {
+  position:relative;
+  top:18px;
+}
+.float-right {
+  float:right;
+}
+.open-intro {
+  cursor:pointer;
+}
+#edit-field-petition-count {
+  display:none;
+}

@@ -1,0 +1,1490 @@
+<?php
+
+/**
+ * @file
+ *
+ * @todo: Note: Trending used to be a link on the /petitions page. This has been commented out, but the code is still here because we're concerned about breaking something else by removing it. Please revisit.
+ */
+
+/* Petition Workflow
+ * 
+ * -User clicks to continue after step 1 of the create a petition form - petition is saved as draft.
+ *   -Petition can only be viewed by the creator in the create a petition form process and their dashboard
+ * -User clicks to publish petition on step 4 of create a petition form - petition is published and made private.
+ *   -Petition is only visible by direct url
+ * -Petition retrieves X ( public_signatures ) signatures within X days ( review_timeframe ), is made public.
+ *    -Petition is available in lists and by direct url
+ * -Petition does not receive X ( public_signatures ) signatures within X days ( review_timeframe ) - is made closed
+ *    -Petition is only available by direct url.
+ * -Petition receives x ( review_signatures ) signatures within X days ( review_timeframe ) - is made under review
+ *   -Can still receive signatures and appears in lists until responded to, even if that's past the number of days it had ( review_timeframe )
+ * -Petition receives a response - changed to reviewed status. 
+ *   -Petition can no longer receive signatures and is removed from lists.  Available by direct url and from the response page
+ * -Petition receives X reports of abuse, made flagged status.  Only available via direct url.
+ */
+
+/********************* STATUSES ************************/
+
+/**
+ * Constants for Petition Statuses
+ */
+define('WH_PETITION_STATUS_DRAFT',        0);  // Saved as a draft, only visible to creator
+define('WH_PETITION_STATUS_PRIVATE',      1);  // Published, but does not have the required number of signatures to become public, only visible by direct url
+define('WH_PETITION_STATUS_PUBLIC',       2);  // Has the required number of signatures to become public, visible everywhere on site
+define('WH_PETITION_STATUS_CLOSED',       3);  // Did not receive the required number of signatures to receive a response, only visible by direct url
+define('WH_PETITION_STATUS_UNDER_REVIEW', 4);  // Has received the required number of signatures, visible on site
+define('WH_PETITION_STATUS_REVIEWED',     5);  // Has received a response
+define('WH_PETITION_STATUS_FLAGGED',      6);  // Has been removed from lists because of excessive abuse flags
+
+/**
+ * Constants for Response Statuses
+ */
+define('WH_PETITION_RESPONSE_STATUS_UNANSWERED', 0);  // Petition has not been reviewed
+define('WH_PETITION_RESPONSE_STATUS_PENDING',    1);  // Petition is awaiting action
+define('WH_PETITION_RESPONSE_STATUS_ANSWERED',   2);  // Petition has been responded to
+
+/**
+ * Misc Constants
+ */
+define('WH_PETITION_PETITIONS_PER_PAGE', 20);    // Petitions to display per page on the Open Petitions page
+define('WH_PETITION_NICE_URL', 'petition/[petition:title]');    
+
+/**
+ * Returns the title associated with a status
+ */
+function wh_petitions_display_status_name($status_id, $type = 'petition') {
+  switch ($type) {
+    case 'petition':
+      switch ($status_id) {
+        case WH_PETITION_STATUS_DRAFT:
+          return t('Draft');
+        case WH_PETITION_STATUS_PRIVATE: 
+          return t('Private');
+        case WH_PETITION_STATUS_PUBLIC:
+          return t('Public');
+        case WH_PETITION_STATUS_CLOSED:
+          return t('Archived');
+        case WH_PETITION_STATUS_UNDER_REVIEW:
+          return t('Under Review');          
+        case WH_PETITION_STATUS_REVIEWED:
+          return t('Reviewed');
+        case WH_PETITION_STATUS_FLAGGED:
+          return t('Removed');    
+        default:
+          return '';
+      }
+    case 'response':
+      switch ($status_id) {
+        case WH_PETITION_RESPONSE_STATUS_UNANSWERED:
+          return t('Unanswered');
+        case WH_PETITION_RESPONSE_STATUS_PENDING: 
+          return t('Awaiting Action');
+        case WH_PETITION_RESPONSE_STATUS_ANSWERED:
+          return t('Responded');        
+        default:
+          return '';
+      }
+    default:
+      return '';
+  }
+}
+
+/********************* DRUPAL HOOKS / BLOCKS ************************/
+
+/**
+ * Implements hook_perm().
+ *
+ * Creates three permissions:
+ *  -administer permission settings: needed to access the admin/config/system/petitions page
+ *  -adminster petitions: needed to access the admin/petitions page and perform actions such as bookmarking or featuring petitions.
+ *  -create petition: needed to be able to create a petition.
+ */
+function wh_petitions_permission() {
+  return array(
+    'administer petition settings' => array(
+      'title' => t('Administer petition settings'), 
+      'description' => t('Change petition and signature levels, administer block and page text.'),
+    ),
+    'administer petitions' => array(
+      'title' => t('Administer petitions'), 
+      'description' => t(''),
+    ),    
+    'create petition' => array(
+      'title' => t('Create a petition'), 
+      'description' => '',
+    ),    
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function wh_petitions_menu() {
+  // Admin - Petition Tool Settings
+  $items['admin/config/system/petitions'] = array(
+    'title' => 'Petition Tool Settings',
+    'description' => 'Manage petition settings and text.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wh_petitions_admin_petition_settings'),
+    'access arguments' => array('administer petition settings'),
+    'weight' => -10,
+    'file' => 'wh_petitions.admin.inc',
+  );
+  
+  // Admin - Petition Dashboard
+  $items['admin/petitions'] = array(
+    'title' => 'Petitions',
+    'description' => 'Administer petitions.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wh_petitions_admin_petitions'),
+    'access arguments' => array('administer petitions'),
+    'weight' => -10,
+    'file' => 'wh_petitions.admin.inc',
+  );
+
+  // Admin - Petition Dashboard
+  $items['admin/petitions/download_signatures/%'] = array(
+    'title' => 'Download Signatures',
+    'description' => 'Download petition signatures.',
+    'page callback' => 'wh_petitions_download_signatures_run_batch',
+    'page arguments' => array(3),
+    'access arguments' => array('administer petitions'),
+    'weight' => -10,
+    'file' => 'wh_petitions.admin.inc',
+  );
+  
+// Admin - Petition Dashboard
+  $items['admin/petitions/download_signatures/%/%'] = array(
+    'title' => 'Download Signatures',
+    'description' => 'Download petition signatures.',
+    'page callback' => 'wh_petitions_download_signatures',
+    'page arguments' => array(3, 4),
+    'access arguments' => array('administer petitions'),
+    'weight' => -10,
+    'file' => 'wh_petitions.admin.inc',
+  );
+ 
+ 
+  // Admin - AJAX callbacks
+  $items['admin/bookmark/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_bookmark_petitions',
+    'page arguments' => array(2),
+    'access arguments' => array('administer petitions'),
+    'file' => 'wh_petitions.admin.inc',
+  );
+  $items['admin/featured/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_feature_petitions',
+    'page arguments' => array(2),
+    'access arguments' => array('administer petitions'),
+    'file' => 'wh_petitions.admin.inc',
+  ); 
+  $items['admin/remove-lists/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_remove_lists',
+    'page arguments' => array(2),
+    'access arguments' => array('administer petitions'),
+    'file' => 'wh_petitions.admin.inc',
+  );
+  $items['admin/override-status/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_override_status',
+    'page arguments' => array(2),
+    'access arguments' => array('administer petitions'),
+    'file' => 'wh_petitions.admin.inc',
+  );    
+  
+  // Autocomplete field for Petitions on the Apply Response form
+  $items['response-autocomplete'] = array(
+    'page callback' => 'wh_petitions_response_autocomplete',
+    'page arguments' => array(),
+    'access arguments' => array('administer petitions'),    
+    'type' => MENU_CALLBACK,
+    'file' => 'wh_petitions.admin.inc',
+  );          
+  
+  // Open Petitions section
+  $items['petitions'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_show_petitions',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );
+  
+  // Petition Detail page
+  $items['petition/detail/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_petition_detail',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );  
+  // Petition Detail for Nice URL
+  $items['petition/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_petition_detail_niceurl',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );  
+  
+  // Email A Petition callbacks
+  $items['petition/email/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_email_petition',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );
+  $items['petition/email_frame/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_email_petition_frame',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );
+  $items['petition/email_thank/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_email_petition_thank_you',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );                   
+  
+  // Iframe with the create a petition form inside
+  $items['petitions/create'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_create_petition_iframe_html',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );
+  
+  // Create A Petition Form ( access control done in callback function )
+  $items['petition/create'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_create_petition_iframe',
+    //'page callback' => 'drupal_get_form',
+    'page arguments' => array('wh_petitions_create_petition'),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );
+  
+  // User Dashboard ( access control done in page callback function )
+  $items['dashboard'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_user_dashboard',
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );   
+  
+  // More Signatures AJAX call
+  $items['signatures/more/%/%/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_more_signatures',
+    'page arguments' => array(2, 3, 4),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );
+  
+  // More Petitions AJAX call
+  $items['petitions/more/%/%/%/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_more_petitions',
+    'page arguments' => array(2, 3, 4, 5),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );
+  
+  // Report as Inappropriate modal AJAX call
+  $items['petition/inappropriate/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_inappropriate_modal',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  ); 
+  
+  // Delete Petition callback
+  $items['petition/delete/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_delete_modal',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );
+  
+  // Delete Petition Page callback
+  $items['petition/deleted'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_deleted_page',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+  );  
+  
+  // Sign Petition AJAX call
+  $items['petition/sign/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_sign_modal',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );   
+  
+  // Add Comment Form
+  $items['petition/add/comment/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_add_comment_form',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );   
+  
+  // Add Comment AJA callback
+  $items['petition/comment/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_add_comment',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );   
+  
+  // Filter Issue Form Standalone Page ( for compliance - they're in hidden divs that use JS normally )
+  $items['filter-issues'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_filter_issue_standalone',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );  
+  
+  // Search Form Standalone Page ( for compliance - they're in hidden divs that use JS normally )
+  $items['filter-search'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_filter_search_standalone',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );
+  
+  // Filter/Search results callback
+  $items['filter/results/petitions'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_petitions_filter_results',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.form.inc',
+  );
+  
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function wh_petitions_theme() {
+  return array(
+    // Thank You Page after a user has published a petition.
+    'wh_petitions_page_thank_you' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-page-thank-you',
+    ),
+    // Petition Detail Page
+    'wh_petitions_page_petition' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-page-petition',
+    ),
+    // Page a user sees after they delete a petition
+    'wh_petitions_page_deleted' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-page-deleted',
+    ), 
+    // Generic archived petition page
+    'wh_petitions_page_archived' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-page-archived',
+    ),     
+    // User Dashboard page
+    'wh_petitions_user_dashboard' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-page-user-dashboard',
+    ), 
+    // Signatures display on a petition detail page
+    'wh_petitions_display_signatures' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-display-signatures',
+    ),
+    // Petition info at the top of a petition page, last page of create a petition
+    'wh_petitions_display_petition_info' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-display-petition-info',
+    ),
+    // Open Petitions page
+    'wh_petitions_display_petition_page' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-page-open-petitions',
+    ), 
+    // List view display of a petition
+    'wh_petitions_display_list_petition' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-display-list-petition',
+    ),
+    // Header on Create A Petition section
+    'wh_petitions_create_header' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-create-header',
+    ),
+    // Renders the By The Numbers block body
+    'wh_petitions_by_the_numbers' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-petitions-by-the-numbers',
+    ),
+    // Displays the title field on the create a petition form.
+    'wh_petition_title' => array(
+      'render element' => 'element',
+    ),    
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function wh_petitions_block_info() {
+  $blocks['wh_petitions_by_numbers'] = array(
+    'info' => 'By The Numbers',
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ); 
+  $blocks['wh_petitions_create_account'] = array(
+    'info' => 'Create a WH Account',
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ); 
+  $blocks['wh_petitions_create_petition'] = array(
+    'info' => 'Create Petition Button',
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+  $blocks['wh_petitions_back_to_top'] = array(
+    'info' => 'Back to top',
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+  $blocks['wh_petitions_email_signup'] = array(
+    'info' => 'Email Signup',
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );  
+  $blocks['wh_petitions_featured_petition'] = array(
+    'info' => 'Helpful Hints',
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );    
+  $blocks['wh_petitions_helpful_hints'] = array(
+    'info' => 'Helpful Hints',
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );    
+  $blocks['wh_petitions_history'] = array(
+    'info' => 'History of Petitions',
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );  
+  $blocks['wh_petitions_recent_petitions'] = array(
+    'info' => t('Recent Petitions'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+  $blocks['wh_petitions_similar_petitions'] = array(
+    'info' => t('Similar Petitions'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  ); 
+  $blocks['wh_petitions_trending_petitions'] = array(
+    'info' => t('Trending Petitions'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );   
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function wh_petitions_block_view($delta) {
+  $block = array();
+
+  switch ($delta) {
+    // By The Numbers
+    case 'wh_petitions_by_numbers':
+      $block['subject'] = t('By The Numbers');
+      $block['content'] = wh_petitions_by_the_numbers();
+      break;
+    // Create A WH Account
+    case 'wh_petitions_create_account':
+      $block['subject'] = t('Create a WH Account');
+      $block['content'] = variable_get('wh_petitions_create_account_block_text', '');
+      break;
+    // Create A Petition
+    case 'wh_petitions_create_petition':
+      $block['subject'] = '';
+      $block['content'] = l(t('Create A Petition'), 'petition/create', array('attributes' => array('class' => array('button'), 'id' => 'button-create-a-petition')));
+      break;
+    case 'wh_petitions_back_to_top':
+      $block['subject'] = '';
+      $block['content'] = '<span class="button hide" id="button-back-to-top">Back to top</span>';
+      break;
+    // Email Updates
+    case 'wh_petitions_email_signup':
+      $block['subject'] = t('Sign Up For Email Updates');
+      $block['content'] = variable_get('wh_petitions_email_updates_block_text', t('Sign Up for Updates from President Obama and Other Senior Officials.'));
+      break;
+    // History of Petitions
+    case 'wh_petitions_history':
+      $block['subject'] = t('History of Petitions');
+      $block['content'] = variable_get('wh_petitions_history_block_text', '');
+      break;
+    // Helpful Hints
+    case 'wh_petitions_helpful_hints':
+      $block['subject'] = t('Helpful Hints');
+      
+      global $user;
+      $content = '';
+      if (arg(0) == 'petition' && arg(1) == 'create') {
+        $content = variable_get('wh_petitions_hints_create_petition', '');
+      }
+      elseif (arg(0) == 'petitions') {
+        $content = variable_get('wh_petitions_hints_open_petitions', '');
+      }
+      elseif (arg(0) == 'petition' && arg(1) == 'detail') {
+        $content = variable_get('wh_petitions_hints_petition_detail', '');
+      }
+      elseif (arg(0) == 'responses') {
+        $content = variable_get('wh_petitions_hints_responses', '');
+      }  
+      elseif (arg(0) == 'response' && arg(1) == 'detail') {
+        $content = variable_get('wh_petitions_hints_response_detail', '');
+      }                 
+      elseif (arg(0) == 'dashboard' && !empty($user->uid)) {
+        $content = variable_get('wh_petitions_hints_dashboard', '');
+      } 
+      else {
+        $content = variable_get('wh_petitions_hints_misc', '');
+      }  
+
+      $block['content'] = $content;
+      break;  
+    // Recent Petitions   
+    case 'wh_petitions_recent_petitions':
+      $block['subject'] = t('Recent Petitions');
+      
+      // Get 3 most recent petitions
+      $conn = wh_petitions_mongo_petition_connection();
+      $query = array(
+        'petition_status' => array(
+          '$in' => array((int)WH_PETITION_STATUS_PUBLIC, (int)WH_PETITION_STATUS_UNDER_REVIEW)
+         ),
+        'hidden' => 0,
+      );
+      $sort_query = array(
+        'reached_public' => -1,
+      );
+      $result = $conn->find($query, array('title', 'nice_url'))->sort($sort_query)->limit(3);
+      
+      $html = '<ul>';
+      foreach ($result as $res) {
+        $html .= '<li>' . l($res['title'], $res['nice_url']) . '</li>';
+      }  
+      $html .= '</ul>';
+      
+      $block['content'] = $html;
+      break;
+    // Similar Petitions
+    case 'wh_petitions_similar_petitions':
+      $block['subject'] = t('Similar Petitions');
+      
+      // Only should display content on a petition detail page.
+      if ((arg(0) == 'petition')) {
+        $conn = wh_petitions_mongo_petition_connection();
+        $petition_id = wh_petitions_get_petition_id($conn);
+        $block['content'] = wh_petitions_similar_petitions($conn, $petition_id);
+      }
+      else {
+        $block['content'] = '';
+      }
+      break;
+    // Trending Petitions
+    case 'wh_petitions_trending_petitions':
+      $block['subject'] = t('Trending Petitions');
+      
+      // Get 3 most trending petitions
+      $conn = wh_petitions_mongo_petition_connection();
+      module_load_include('inc', 'wh_petitions', 'wh_petitions.pages');      
+      $total = 0;
+      $result = wh_petitions_trending_results($conn, 0, 3, $total);
+      
+      $html = '<ul>';
+      foreach ($result as $res) {
+        $html .= '<li>' . l($res['title'], $res['nice_url']) . '</li>';
+      }
+      $html .= '</ul>';
+      
+      $block['content'] = $html;
+      break;          
+   }   
+
+  return $block;
+}
+
+/**
+ * Implements hook_hook_info()
+ */
+function wh_petitions_hook_info() {
+  $hooks = array();
+  $hooks['wh_petitions_signature_save'] = array(
+    'group' => 'petitions',
+  );
+  return $hooks;
+}
+
+/**
+ *  Pulls a list of petitions with more signatures than the compliance review
+ *   threshold and which have not been sent compliance review notifications
+ *
+ */
+function wh_petitions_compliance_review_threshold_check($threshold, $compliance_reviewer_emails) {
+  if ($compliance_reviewer_emails && (int) $threshold) {
+    $petition_connection = wh_petitions_mongo_petition_connection();
+
+    $where = array(
+       'signature_count' => array('$gte' => (int) $threshold), //have to cast it because otherwise mongo treats it as string
+       '$or' => array(
+         array('review_threshold_mail_sent' => 0),
+         array('review_threshold_mail_sent' => array('$exists' => FALSE)),
+       ),
+       'petition_status' => array('$in' => array(WH_PETITION_STATUS_DRAFT, WH_PETITION_STATUS_PRIVATE, WH_PETITION_STATUS_PUBLIC)),
+    );
+    $fields = array(
+      '_id',
+      'signature_count',
+      'review_threshold_mail_sent',
+    );
+    $notification_list = $petition_connection->find($where, $fields);
+
+    foreach($notification_list as $notification) {
+      $petition = wh_petitions_load_slim_petition($petition_connection, $notification['_id'], array('body'));
+
+      $message = drupal_mail('wh_petitions', 'review_threshold_passed', $compliance_reviewer_emails, language_default(), array('petition' => $petition, ));
+    
+      //set the var on the petition record so we know the mail has been sent
+      $petition_connection->update(
+        array('_id' => $petition['_id']),
+        array('$set' => array('review_threshold_mail_sent' => time()))
+      );
+
+      watchdog('wh_petitions', 'Petition (@id) Review Threshold Notification Sent.', array('@id' => $notification['_id']));
+    }
+  }
+}
+
+/**
+ * By The Numbers block body
+ */
+function wh_petitions_by_the_numbers() {
+  $conn = wh_petitions_mongo_petition_connection();
+  $numbers = array();
+      
+  // Total Petitions that are open
+  if (variable_get('wh_petitions_numbers_open_petitions', FALSE)) {
+    $query = array(
+      'petition_status' => array(
+        '$in' => array((int)WH_PETITION_STATUS_PUBLIC, (int)WH_PETITION_STATUS_UNDER_REVIEW)
+       ),
+      'hidden' => 0,    
+    );
+    $total = $conn->find($query)->count();
+    array_push($numbers, array('key' => t('Open Petitions'), 'value' => check_plain(wh_petitions_format_number($total))));
+  }
+  // Total Responses that are published
+  if (variable_get('wh_petitions_numbers_responses', FALSE)) {
+    $query = db_select('node', 'n', array('target' => 'slave'));
+    $query->fields('n', array('nid'))
+      ->condition('n.type', 'wh_response')
+      ->condition('n.status', 0, '<>');  
+    $total = $query->countQuery()->execute()->fetchField();
+    array_push($numbers, array('key' => t('Total Responses'), 'value' => check_plain(wh_petitions_format_number($total))));
+  }      
+  // Signatures in Past 24 Hours
+  if (variable_get('wh_petitions_numbers_signatures_24', FALSE)) {
+    $sig_conn = wh_petitions_mongo_petition_signatures_connection();
+    $timestamp = strtotime("-1 day");
+    $query = array(
+      'timestamp' => array('$gt' => (int)$timestamp)
+    );
+    $total = $sig_conn->find($query)->count();
+    array_push($numbers, array('key' => t('Signatures in Past 24 Hours'), 'value' => check_plain(wh_petitions_format_number($total)))); 
+  }
+  
+  return theme('wh_petitions_by_the_numbers', array('numbers' => $numbers));
+}
+
+/**
+ * Similar Petitions block body
+ */
+function wh_petitions_similar_petitions(&$conn, $petition_id) {
+  $petition = wh_petitions_load_slim_petition($conn, $petition_id, array('issues', 'title_keywords'));
+  if (empty($petition)) {
+    return ''; 
+  }
+  
+  // Get the issues into an array of keys
+  $issues = array();
+  foreach ($petition['issues'] as $key => $val) {
+    if ($val > 0) { 
+      array_push($issues, intval($val));
+    }
+  }
+  
+  // Removed common words from the string of title keywords
+  $title_keywords = $petition['title_keywords'];
+  $title_terms = array();
+  foreach ($title_keywords as $term) {
+    if (!in_array($term, array("and", "in", "this", "or", "a", "the", "an", "as", "at", "but", "by", "before", "for", "from", "is", "like", "of", "on", "onto", "than", "this", "that", "to", "with"))) {
+      array_push($title_terms, $term);
+    }
+  }
+
+  // Retrive the top 3 results sorted by signature count DESC that match all the issues and at least one of the title words and are not the current petition
+  $similar = '';
+  $count = 0;
+  $query = array(
+    'petition_status' => array(
+      '$in' => array((int)WH_PETITION_STATUS_PUBLIC, (int)WH_PETITION_STATUS_UNDER_REVIEW)
+    ),
+    'hidden' => 0,
+    'issues' => array('$in' => $issues),
+    'title_keywords' => array('$in' => $title_terms),
+    '_id' => array('$ne' => $petition['_id']),
+  );
+  $result = $conn->find($query, array('title', 'nice_url'))->sort(array('signature_count' => -1))->limit(3);
+
+  $html = '';
+  foreach ($result as $res) {
+    if (empty($html)) {   
+      $html = '<ul>';
+    }
+    $html .= '<li>' . l($res['title'], $res['nice_url']) . '</li>';
+  }
+  if (!empty($html)) {
+    $html .= '</ul>';
+  }
+
+  return $html;
+}
+
+/**
+ * Implementation of hook_cron().
+ *
+ * Include the function to close any open petitions that have exceeded the limit for amount of days to be open.  This function also updates the trending petitions and the counts
+ * of how many petitions/responses are related to each issue term.
+ */
+function wh_petitions_cron() {
+  module_load_include('inc', 'wh_petitions', 'wh_petitions.cron');
+  wh_petitions_close_petitions();
+  
+  $email = variable_get('wh_petitions_compliance_reviewer_emails', FALSE);
+  $threshold = (int)variable_get('wh_petitions_compliance_review_threshold', FALSE);
+  wh_petitions_compliance_review_threshold_check($threshold, $email);
+}
+
+/**
+ * Helper function to format a number correctly.  ( no decimals, commas for thousands-separators )
+ */
+function wh_petitions_format_number($number) {
+  return number_format(intval($number), 0, '.', ',');
+}
+
+/**
+ * Helper function to format a description on the petition detail and preview pages ( step 4 - create a petition )
+ */
+function wh_petitions_format_description($description) {
+  if (!empty($description)) {
+    // Consolidate newlines
+    $description = preg_replace('/[\r\n]+/', "\n", $description);
+    $arr = explode("\n", $description);
+    
+    $new_description = '';
+    foreach ($arr as $line) {
+      $new_description .= '<p>' . check_plain(trim($line)) . '</p>';
+    }
+    $description = $new_description;
+  }
+  
+  return $description;
+}
+
+/**
+ * Emails the creator of a petition when their petition is published.
+ */
+function wh_petitions_email_published($petition_id, $uid) {
+  if (!empty($uid)) {
+    $user_load = user_load($uid);
+    
+    if (!empty($user_load)) {
+      $email = $user_load->mail;
+      $params = array('petition_id' => $petition_id);
+      $from = variable_get('wh_petitions_email_address', '');
+      drupal_mail('wh_petitions', 'published', $email, language_default(), $params, $from);
+    }    
+  }
+}
+
+/**
+ * Emails the creator of a petition when their petition becomes under review ( enough signatures to receive a response )
+ */
+function wh_petitions_email_ready_response($petition_id, $uid) {
+  if (!empty($uid)) {
+    $user_load = user_load($uid);
+    
+    if (!empty($user_load)) {
+      $email = $user_load->mail;
+      $params = array();
+      $from = variable_get('wh_petitions_email_address', '');      
+      //drupal_mail('wh_petitions', 'ready_response', $email, language_default(), $params, $from);
+    }    
+  }
+}
+
+/**
+ * Emails the creator of a petition when their petition receives a response. Currently not active.
+ */
+function wh_petitions_email_receive_response($petition_id, $uid) {
+  if (!empty($uid)) {
+    $user_load = user_load($uid);
+
+    if (!empty($user_load)) {
+      $email = $user_load->mail;
+      $params = array();
+      $from = variable_get('wh_petitions_email_address', '');
+      //drupal_mail('wh_petitions', 'receive_response', $email, language_default(), $params, $from);
+    }    
+  }
+}
+
+/**
+ * Implements hook_mail().
+ *
+ * Implements the email messages for when a petition is published, is ready for a response and receives a response.
+ */
+function wh_petitions_mail($key, &$message, $params) {
+  global $base_url;
+  $options['language'] = $message['language'];
+
+  switch ($key) {
+    case 'published':
+      $langcode = $message['language']->language;       
+      $message['subject'] = variable_get('wh_petitions_email_published_subject', '');
+      $message['body'][] = variable_get('wh_petitions_email_published_text', '');
+
+      $conn = wh_petitions_mongo_petition_connection();
+      $petition = wh_petitions_load_slim_petition($conn, $params['petition_id'], array('review_timeframe', 'response_signatures', 'public_signatures', 'published', 'body'));
+      if (!empty($petition)) {
+
+        // In case the short URL isn't available, use the absolute form of the 
+        // nice URL to use in emails, so that there's at least *something* to 
+        // click on. We don't want to store that value in the short_url of the
+        // petition so that we can regenerate it later (leave it as false).
+        $full_link = url($base_url .'/'. $petition['nice_url'], array('absolute' => TRUE));
+
+        if (empty($petition['short_url'])) $petition['short_url'] = $full_link;
+        $time = $petition['published'];
+        $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
+        $end_date = date("F d, Y", $end_date);       
+        $message['subject'] = str_replace('!shorturl', $petition['short_url'], $message['subject']);      
+        $message['subject'] = str_replace('!petition_title', $petition['title'], $message['subject']);  
+        $message['body'][0] = str_replace('!petition_description', check_plain($petition['body']), $message['body'][0]);
+        $message['body'][0] = str_replace('!shorturl', check_plain($petition['short_url']), $message['body'][0]);      
+        $message['body'][0] = str_replace('!petition_title', check_plain($petition['title']), $message['body'][0]);
+        $message['body'][0] = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message['body'][0]);
+        $message['body'][0] = str_replace('!public_signatures', wh_petitions_format_number($petition['public_signatures']), $message['body'][0]);        
+        $message['body'][0] = str_replace('!date_needed', $end_date, $message['body'][0]);  
+        $message['body'][0] = str_replace('!day_timeframe', wh_petitions_format_number($petition['review_timeframe']), $message['body'][0]);          
+      }
+      else {
+        unset($message);
+      }    
+      break;
+   case 'review_threshold_passed':
+      $langcode = $message['language']->language;       
+      $message['subject'] = variable_get('wh_petitions_review_threshold_passed_subject', '');
+      $message['body'][] = variable_get('wh_petitions_review_threshold_passed_text', '');
+
+      $petition  = $params['petition'];
+
+      if (!empty($petition)) {
+        $message['body'][0] = str_replace('!petition_id', check_plain($petition['_id']), $message['body'][0]);
+        $message['body'][0] = str_replace('!petition_edit_link', variable_get('petitions_edit_url', $base_url) . '/admin/petitions/' . check_plain($petition['_id']), $message['body'][0]);
+        $message['body'][0] = str_replace('!petition_title', check_plain($petition['title']), $message['body'][0]);
+        $message['body'][0] = str_replace('!petition_body', check_plain($petition['body']), $message['body'][0]);
+      }
+      else {
+        unset($message);
+      }
+      break; 
+ 
+   case 'ready_response':
+      $langcode = $message['language']->language;
+      $message['subject'] = variable_get('wh_petitions_email_ready_response_subject', '');
+      $message['body'][] = variable_get('wh_petitions_email_ready_response_text', '');
+      break;  
+    case 'receive_response':
+      $langcode = $message['language']->language;
+      $message['subject'] = variable_get('wh_petitions_email_receive_response_subject', '');
+      $message['body'][] = variable_get('wh_petitions_email_receive_response_text', '');
+      break;           
+    case 'status_change':
+      if ($params['petition']['petition_status'] == 6) {
+        $message['subject'] = t('Petition Removal');
+        $message['body'][] = t('Petition @title (@id), has been removed by @remover', array('@title' => $params['petition']['title'], '@id' => $params['petition']['_id'], '@remover' => $params['remover']));
+        $message['body'][] = t("The creator's email is @mail", array('@mail' => $params['creator_email']));
+        break;
+      }
+      return FALSE;  //we're only sending mail for removals, so don't do anything else
+   }
+}
+
+/**************** MONGO HELPER FUNCTIONS ******************/
+
+/**
+ * Creates a connection to the petitions collection
+ */
+function wh_petitions_mongo_petition_connection() {
+  $collection = mongodb_collection('petitions');
+  return $collection;
+}
+
+/**
+ * Creates a connection to the archive_petitions collection
+ */
+function wh_petitions_mongo_archive_petition_connection() {
+  $collection = mongodb_collection('archive_petitions');
+  return $collection;
+}
+
+/**
+ * Creates a connection to the petition signatures collection
+ */
+function wh_petitions_mongo_petition_signatures_connection() {
+  $collection = mongodb_collection('petition_signatures');
+  return $collection;
+}
+
+/**
+ * Saves a petition object to the petitions collection.  It's more efficient to use the $set operator unless there are major changes or this is the first save.
+ */
+function wh_petitions_save_petition(&$collection, $petition) {
+  if (!empty($petition) && !empty($collection)) {
+    // Explicitly cast the uid as an integer.
+    $petition['uid'] = (int)$petition['uid'];
+    if ($petition['created'] == 0) {
+       $petition['created'] = (int) time();
+    }
+    $collection->save($petition);
+    return $petition['_id']->__toString();
+  }
+}
+
+/**
+ * Saves a signature object to the petition_signatures collection
+ *
+ * @todo: Fix the return. For a new object, there is no _id value.
+ */
+function wh_petitions_save_signature($signature, $collection = '') {
+  if (empty($collection)) {
+    $collection = wh_petitions_mongo_petition_signatures_connection();
+  }
+  if (!empty($signature) && !empty($collection)) {
+    $collection->save($signature);    
+    module_invoke_all('wh_petitions_signature_save', $signature);
+    return $signature['_id']->__toString();
+  }
+}
+
+/**
+ * Deletes a petition object.
+ *
+ * Saves it to the archive_petition collection, removes from petition collection.
+ */
+function wh_petitions_delete_petition(&$collection, $petition_id) {
+  global $user;
+
+  if (!empty($petition_id) && !empty($collection)) {
+    $archive = wh_petitions_mongo_archive_petition_connection();
+    $petition = array();
+    $petition = wh_petitions_load_petition($collection, $petition_id);
+    if (!empty($petition) && $user->uid == $petition['uid'] && $petition['petition_status'] == WH_PETITION_STATUS_DRAFT) {
+      if ($archive->save($petition)) {
+        // We successfully saved the petition to the archive, can now safely remove it.
+        $collection->remove(array('_id' => new MongoId($petition_id)));
+ 
+        return TRUE;
+      }
+    }
+  }
+  
+  return FALSE;
+}
+
+/**
+ * Gets a petition id from a nice url
+ */
+function wh_petitions_get_petition_id(&$collection) {
+  if (!empty($collection)) {
+    $petition_id = '';
+    $petition = $collection->findOne(array('nice_url' => 'petition/' . arg(1)), array('title'));
+    if (!empty($petition)) {
+      return $petition['_id']->__toString();
+    }
+  }
+  
+  return '';
+}
+
+/**
+ * Loads the minimum number of fields from the petition object.  Use this instead of load_petition when we don't need access to all ( or a majority ) of fields.
+ */
+function wh_petitions_load_slim_petition(&$collection, $petition_id, $extra_fields = array()) {
+  if (!empty($petition_id) && !empty($collection)) {
+    // Convert to a Mongo ID if we got a string
+    if (!is_object($petition_id)) {
+      $petition_id = new MongoId($petition_id);
+    }
+    
+    $retrieve_fields = array('title', 'nice_url', 'short_url');
+    $retrieve_fields = array_merge($retrieve_fields, $extra_fields);
+
+    $petition = array();
+    $petition = $collection->findOne(array('_id' => $petition_id), $retrieve_fields);
+    return $petition;
+  }
+  
+  return array();
+}
+
+/**
+ * Loads a petition object and merges it with the default petition.
+ */
+function wh_petitions_load_petition(&$collection, $petition_id, $extra_fields = array()) {
+  if (!empty($petition_id) && !empty($collection)) {
+    // Convert to a Mongo ID if we got a string
+    if (!is_object($petition_id)) {
+      $petition_id = new MongoId($petition_id);
+    }
+    
+    $petition = array();
+    $petition = $collection->findOne(array('_id' => $petition_id));
+
+    if (!empty($petition)) {
+      // Merge the default object with the one retrieved to pick up any new fields
+      $default = wh_petitions_default_petition();
+      $petition = array_merge($default, $petition);    // Note: Fields with the same string keys from later arrays override those from earlier arrays
+      return $petition;
+    }
+  }
+  
+  return array();
+}
+
+/**
+ * Gets a petition title.
+ */
+function wh_petitions_load_petition_title(&$collection, $petition_id) {
+  if (!empty($petition_id) && !empty($collection)) {
+    // Convert to a Mongo ID if we got a string
+    if (!is_object($petition_id)) {
+      $petition_id = new MongoId($petition_id);
+    }
+    
+    $petition = array();
+    $petition = $collection->findOne(array('_id' => $petition_id), array('title'));
+    return $petition['title'];
+  }
+}
+
+/**
+ * Generate keywords for title_keywords, body_keywords and keywords ( public and private ) fields.
+ */
+function wh_petitions_generate_keywords($string, $delimiter = ' ') {
+  $words = array();
+
+  if (!empty($string)) {
+    $arr = explode($delimiter, $string);
+    foreach ($arr as $word) {
+      // Strip all nonalphanumeric, whitespace, etc.
+      if ($delimiter != ' ') {
+        $word = trim(preg_replace('/[^A-Za-z0-9\s]/', '', $word));
+      }
+      else {
+        $word = preg_replace('/[^A-Za-z0-9]/', '', $word);
+      }
+      array_push($words, (string)strtolower(trim($word)));
+    }
+  }  
+  
+  return $words;
+}
+
+/**
+ * Generate a nice url for this petition using pathauto URL cleaning
+ */
+function wh_petitions_generate_nice_url(&$petition) {
+  $pattern = variable_get('wh_petitions_nice_url_pattern', WH_PETITION_NICE_URL);
+
+  // Generate path using the pathauto configuration
+  module_load_include('inc', 'pathauto');
+  $alias = token_replace($pattern, array('petition' => $petition), array(
+    'clear' => TRUE,
+    'callback' => 'pathauto_clean_token_values',
+  )) . '/' . wh_petitions_generate_hash(8);
+  
+  if (_wh_petitions_nice_url_exists($alias, $petition)) {
+    $separator = variable_get('pathauto_separator', '-');
+    $original_alias = $alias;
+
+    $i = 0;
+    do {
+      // Append an incrementing numeric suffix until we find a unique alias.
+      $alias = $original_alias . $separator . $i;
+      $i++;
+    } while (_wh_petitions_nice_url_exists($alias, $petition));
+  }
+
+  $petition['nice_url'] = $alias;
+}
+
+/**
+ * Generate a random 8-char hash to append to the end of the url for obfuscation
+ */
+function wh_petitions_generate_hash($length = 8) {
+  $characters = 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ0123456789';
+  $count = mb_strlen($characters) - 1;
+  $hash = '';
+
+  for ($i=0;$i<$length;$i++) {
+    $hash .= $characters[mt_rand(0, $count)];
+  }
+
+  return $hash;
+}
+
+/**
+ * Check to see if the same alias exists for a different Petition
+ */
+function _wh_petitions_nice_url_exists($alias, $petition) {
+  $collection = wh_petitions_mongo_petition_connection();
+  
+  $query = array('nice_url' => $alias);
+  if (isset($petition['_id'])) {
+    $query['_id'] = array('$ne' => $petition['_id']);
+  }
+  
+  $petitions = $collection->find($query);
+  return $petitions->count() > 0;
+}
+
+/**
+ * Generate a short url for this petition.
+ */
+function wh_petitions_generate_short_url(&$petition) {
+  if (empty($petition['nice_url'])) {
+    wh_petitions_generate_nice_url($petition);
+  }
+  $petition['short_url'] = wh_petition_tool_shortenurl($petition['nice_url']);
+}
+
+/**
+ * Returns a default petition object.
+ */
+function wh_petitions_default_petition() {
+  $petition = array(
+    'uid'               => 0,       // Drupal UID of the creator
+    'title'             => '',      // Display title of the petition
+    'title_keywords'    => array(), // Array of words from the title for searching
+    'body'              => '',      // The body/description of the petition
+    'body_keywords'     => array(), // Array of words from the body for searching
+    'body_revisions'    => array(), // Array of previous petition object ids; only admins can edit a non-draft petition
+    'issues'            => array(), // Array of taxonomy term IDs
+    'user_tags'         => array(), // Array of taxonomy term IDs for user-submitted keywords
+    'private_tags'      => array(), // Array of taxonomy term IDs for private admin-added keywords
+    'related_petitions' => array(), // Array of Mongo IDs of related petitions
+    'petition_status'   => 0,       // State of the petition: public, private, in review, reviewed
+    'response_status'   => 0,       // state of the response: none, presidential, etc.
+    'published'         => 0,       // timestamp for when this petition was published
+    'reached_public'    => 0,       // timestamp for when this petition reached the required signatures to become public
+    'reached_ready'     => 0,       // timestamp for when this petition reached the required signatures to receive a review
+    'closed'            => 0,       // timestamp for when this petition was responded to
+    'signature_count'   => 0,       // count of signatures
+    'abuse_flags'       => array(), // Drupal UIDs of people who have flagged this as abuse
+    'review_timeframe'  => 0,       // Number of days the petition has to reach X signatures and receive a review
+    'response_signatures' => 0,     // Number of signatures required to receive a response
+    'public_signatures' => 0,       // Number of signatures needed to become public
+    'bookmarked'        => array(), // Array of Drupal UID's of people who have bookmarked this
+    'featured'          => 0,       // Whether this is a featured petition ( 0 or 1 )
+    'hidden'            => 0,       // Whether this petition has been removed from lists
+    'nice_url'          => '',      // Nice url to display the petition detail page at
+    'short_url'         => '',      // WH.gov shorturl
+    'created'           => 0,       // timestamp for when petition was created
+  );
+
+  return $petition;
+}
+
+/**
+ * Log admin activity (removing/re-enabling) on petitions or signatures
+ *
+ * @param $user The drupal user object of the admin
+ * @param $entity_type String of type of entity
+ * @param $entity_acted_upon the petition or signature object the admin acted upon
+ *
+ * @return mongo id of log entry
+ */
+function wh_petitions_admin_log($acting_user, $entity_type, $entity_acted_upon) {
+  //get collection
+  $collection = mongodb_collection('admin_log');
+  
+  switch ($entity_type) {
+    case 'petition':
+      $status = $entity_acted_upon['petition_status']; 
+      break;
+    case 'petition_signature':
+      $status = $entity_acted_upon['status']; 
+      break;
+    default:
+      $status = $entity_acted_upon['status']; 
+      watchdog('WH Petitions', 'Unknown entity_type (%type) in !file::!line', array('%type' => $entity_type, '!file' => __FILE__, '!line' => __LINE__));      
+  }
+
+  //build log entry
+  $entry = array(
+    'uid'         => $acting_user->uid,
+    'timestamp'   => time(),
+    'entity_type' => $entity_type,
+    'entity_id'   => $entity_acted_upon['_id'],
+    'status'      => $status,
+  );
+  
+  $collection->save($entry);
+  
+  return $entry['_id']->__toString();
+}
+
+/**
+ * Prepare and send a notification when a petition is removed or re-enabled
+ */
+function wh_petitions_removal_notification($user, $petition) {
+  $to_email = variable_get('wh_petitions_admin_removal_notification_emails');
+
+  if (!$to_email) {
+    //we can't send mail without a to address, but this may be deliberate, so just end
+    return;
+  }
+  $creator = user_load($petition['uid']);
+  $params = array(
+    'creator_email' => $creator->mail,
+    'remover' => $user->mail,
+    'petition' => $petition,
+  );
+  $from = variable_get('wh_petitions_email_address', '');
+  drupal_mail('wh_petitions', 'status_change', $to_email, language_default(), $params, $from);
+}
+
+/**
+ * Wrapper for invoking all the functionality that needs to be triggered
+ * when a petition is signed.
+ *
+ * @param $petition_id 
+ *   The id of the petition being signed.
+ * @param $user_id
+ *   The id of the user signing the petition.
+ * @param $ip_address (optional)
+ *   The IP address from which the user is signing the petition.
+ * @param $user_agent (optional)
+ *   The user agent string of the signer's browser.
+ *
+ * @return boolean
+ *   TRUE on success, FALSE otherwise
+ */
+function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $user_agent = '') {
+  
+  // setup connections for signatures and petitions
+  $connection = wh_petitions_mongo_petition_connection();
+  $connection->setSlaveOkay(FALSE);
+  $sig_connection = wh_petitions_mongo_petition_signatures_connection();
+  $sig_connection->setSlaveOkay(FALSE);
+  
+  // Load the petition
+  $petition = wh_petitions_load_slim_petition($connection, $petition_id, array('petition_status', 'signature_count', 'response_signatures', 'public_signatures')); 
+ 
+  // If it wasn't a valid petition id, exit
+  if (empty($petition)) {
+    return FALSE;
+  }
+  
+  //load user
+  $user = user_load($user_id);
+
+  if(!wh_petitions_create_signature($petition, $user, $sig_connection, $ip_address, $user_agent)) {
+    watchdog('wh_petitions', 'Failed to create signature for @user on @petition', array('@user' => $user->uid, '@petition' => $petition['_id']));
+    return FALSE;
+  };
+
+  //up the signature_count on the petition
+  wh_petitions_increment_signature_count($petition, $connection);
+
+  // Check for GovDelivery list and add the topic id if it wasn't in the petition object previously
+  $topic_title = 'petitions_' . $petition['_id']->__toString();
+  $topic_id = '';
+
+  ///COMMENTED OUT BECAUSE WE AREN'T IMPLEMENTING CURRENTLY///
+  /*
+  if (empty($petition['govdelivery_id'])) {
+    $topic_id = govdelivery_subscriber_get_topic_id($topic_title);
+    if (!empty($topic_id)) {
+      $connection->update(
+        array('_id' => $petition['_id']), 
+        array('$set' => array('govdelivery_id' => $topic_id))
+      ); 
+    }    
+  }
+  else {
+    $topic_id = $petition['govdelivery_id'];
+  }
+  */
+    
+  // Add their email to GovDelivery
+  govdelivery_subscriber_api_add_subscriber($user->mail, $topic_title, $topic_id);
+}
+
+/**
+ * Create and save a signature object for the given user and petition.
+ *
+ * @param $petition 
+ *   The petition object being signed.
+ * @param $user_id
+ *   The user object signing the petition.
+ * @param $signature_collection_connection
+ *   Connection to be used for querying and storing the signature.
+ * @param $ip_address (optional)
+ *   The IP address from which the user is signing the petition.
+ * @param $user_agent (optional)
+ *   The user agent string of the signer's browser.
+ * 
+ * @return string
+ *   ID of created signature or FALSE on failure
+ */
+function wh_petitions_create_signature($petition, $user, $signature_collection_connection, $ip_address = '', $user_agent = '') {
+  // Can only sign petitions that are open - private, public, under review
+  if ($petition['petition_status'] != WH_PETITION_STATUS_PRIVATE && $petition['petition_status'] != WH_PETITION_STATUS_PUBLIC && $petition['petition_status'] != WH_PETITION_STATUS_UNDER_REVIEW) {
+    watchdog('wh_petitions', 'unable to create signature on @petition because of invliad petition status (@status)', array('@petition' => $petition['_id'], '@status' => $petition['petition_status']));
+    return FALSE;
+  }
+  
+  // Determine if this user has already signed the petition   
+  $query = array(
+    'uid' => (int)$user->uid,
+    'petition_id' => (string)$petition['_id'],
+  );
+  $result = $signature_collection_connection->findOne($query);
+  if (!empty($result)) {
+    watchdog('wh_petitions', 'unable to create signature, user @user has already signed @petition', array('@petition' => $petition['_id'], '@user' => $user->uid));
+    return FALSE;
+  }
+
+  // Load the profile for this user
+  // @todo: refactor this to not bomb if profile2 isn't installed
+  $profile = profile2_load_by_user($user);
+ 
+  // Sign the petition without a comment
+  $signature_count = $petition['signature_count'] + 1;  
+  $signature = array(
+    'petition_id' => (string)$petition['_id'],
+    'timestamp'   => (int)time(),
+    'ip_address'  => (string) $ip_address,
+    'user_agent'  => (string) $user_agent,
+    'comment'     => '', 
+    'uid'         => (int)$user->uid, 
+    'abuse_flags' => array(), 
+    'status'      => 1,
+    'number'      => $signature_count,
+    'user'        => array(
+      'first_name'  => $profile['main']->field_first_name['und'][0]['value'],
+      'last_name'   => $profile['main']->field_last_name['und'][0]['value'],
+      'city'        => $profile['main']->field_city['und'][0]['value'],
+      'state'       => $profile['main']->field_state['und'][0]['value'],
+      'zip'         => $profile['main']->field_zip['und'][0]['value'],
+      'username'    => $user->name,
+      'country'     => $profile['main']->field_country['und'][0]['value'],
+    ),
+  );
+  
+  return wh_petitions_save_signature($signature);
+}
+
+/**
+ * Increment the signature_count of a petition and check to see if has passed any milestones
+ *
+ * @param $petition
+ *  The petition object which will will be incremented
+ * @param $connection
+ *  A connection to the petition dataset
+ */
+function wh_petitions_increment_signature_count(&$petition, $connection) {
+  $connection->update(
+    array('_id' => $petition['_id']), 
+    array('$inc' => array('signature_count' => 1))
+  );
+ 
+  $petition = wh_petitions_load_slim_petition($connection, $petition['_id'], array('petition_status', 'signature_count', 'response_signatures', 'public_signatures')); 
+  
+  // Update to public petition
+  $reached_response = FALSE;
+  if ($petition['petition_status'] == WH_PETITION_STATUS_PRIVATE && $petition['signature_count'] == $petition['public_signatures']) {
+    $connection->update(
+      array('_id' => $petition['_id']), 
+      array('$set' => array('petition_status' => (int)WH_PETITION_STATUS_PUBLIC, 'reached_public' => (int)time()))
+    );    
+  }
+  // Record the time the petition became eligible for a response
+  elseif ($petition['petition_status'] == WH_PETITION_STATUS_PUBLIC && $petition['signature_count'] == $petition['response_signatures']) {
+    $connection->update(
+      array('_id' => $petition['_id']), 
+      array('$set' => array('petition_status' => (int)WH_PETITION_STATUS_UNDER_REVIEW, 'response_status' => (int)WH_PETITION_RESPONSE_STATUS_PENDING, 'reached_ready' => (int)time()))
+    );  
+    $reached_response = TRUE;
+  }      
+
+  // Email the creator if the petition is ready for a response
+  if($reached_response) {
+    wh_petitions_email_ready_response($petition['_id']->__toString(), $petition['uid']);
+  }
+
+  //reload petition object
+  $petition = wh_petitions_load_slim_petition($connection, $petition['_id'], array('petition_status', 'signature_count', 'response_signatures', 'public_signatures')); 
+}

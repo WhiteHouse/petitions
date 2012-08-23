@@ -1,0 +1,1047 @@
+<?php
+
+/**
+ * Misc Constants
+ */
+define('WH_RESPONSE_RESPONSES_PER_PAGE', 8);    // Responses to display per page on the Responses page
+define('WH_RESPONSE_SHORTURL_DEFAULT', 'Created on publish');
+
+/**
+ * Implements hook_menu().
+ */
+function wh_response_menu() {
+  // Responses section
+  $items['responses'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_response_show_responses',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_response.pages.inc',
+  );
+
+  // More Responses AJAX call
+  $items['responses/more/%/%/%/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_response_more_responses',
+    'page arguments' => array(2, 3, 4, 5),
+    'access arguments' => array('access content'),
+    'file' => 'wh_response.pages.inc',
+  );
+  
+  // Autocomplete field for Petitions on the Response form
+  $items['petition-autocomplete'] = array(
+    'page callback' => 'wh_response_petition_autocomplete',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),    
+    'type' => MENU_CALLBACK,
+  );     
+  
+  // Issues Form Page ( for compliance - they're in hidden divs that use JS normally )
+  $items['filter-issues/responses'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_response_filter_issue_standalone',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_response.form.inc',
+  );  
+  
+  // Search Form Page ( for compliance - they're in hidden divs that use JS normally )
+  $items['filter-search/responses'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_response_filter_search_standalone',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_response.form.inc',
+  ); 
+  
+  // Callback for the standalone search/filter pages above.
+  $items['filter/results/responses'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_response_filter_results',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_response.form.inc',
+  );   
+  
+  // Email A Response Pages
+  $items['response/email/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_response_email_response',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_response.pages.inc',
+  );
+  $items['response/email_frame/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_response_email_response_frame',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_response.pages.inc',
+  );
+  $items['response/email_thank/%'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'wh_response_email_response_thank_you',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'file' => 'wh_response.pages.inc',
+  );           
+  
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function wh_response_theme() {
+  return array(
+    // Responses list page
+    'wh_response_display_responses_page' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-response-page-responses',
+    ), 
+    // List view display of a response
+    'wh_response_display_list_response' => array(
+      'arguments' => array(),
+      'template' => 'templates/wh-response-display-list-response',
+    ),     
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function wh_response_block_info() {
+  $blocks['wh_response_featured_block'] = array(
+    'info' => t('Featured Petition & Response'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+  $blocks['wh_response_recent_responses'] = array(
+    'info' => t('Recent Responses'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function wh_response_block_view($delta) {
+  $block = array();
+
+  switch ($delta) { 
+    // Featured Petition & Response
+    case 'wh_response_featured_block':
+      $block['subject'] = t('Featured Petition & Response');
+      
+      // Get a random featured response
+      $query = db_select('node', 'n', array('target' => 'slave'))
+        ->fields('n', array('nid', 'title'))
+        ->condition('n.type', 'wh_response')
+        ->condition('n.status', 0, '<>');
+      $query->innerJoin('field_data_field_is_featured', 'f', 'n.nid = f.entity_id');
+      $query->addField('f', 'field_is_featured_value', 'field_is_featured_value');
+      $query->orderRandom()
+        ->condition('f.field_is_featured_value', 1);
+      $result = $query->range(0, 1)
+        ->execute();
+
+      $html = '<ul>';
+      foreach ($result as $res) {
+        $html .= '<li>' . l($res->title, 'node/' . $res->nid) . '</li>';
+      }
+      
+      // Get a random featured petition - Get a random timestamp, try to find petition closest to that to simulate random since mongo has no random sort operator
+      $conn = wh_petitions_mongo_petition_connection();
+      $days = variable_get('wh_petitions_review_timeframe', 30);
+      $days = rand(1, $days);
+      $timestamp = strtotime("- " . $days . " days");
+      $query = array(
+        'petition_status' => array(
+          '$in' => array((int)WH_PETITION_STATUS_PUBLIC, (int)WH_PETITION_STATUS_UNDER_REVIEW)
+        ),
+        'hidden' => 0,
+        'featured' => 1,
+        'published' => array('$gte' => $timestamp),
+      );
+      $retrieve_fields = array('title', 'nice_url');
+      $results = $conn->findOne($query, $retrieve_fields);
+      if (empty($results)) {
+        $query['published'] = array('$lte' => $timestamp);
+        $results = $conn->findOne($query, $retrieve_fields);
+      }
+      if (!empty($results)) {
+        $html .= '<li>' . l($results['title'], $results['nice_url']) . '</li>';
+      } 
+      $html .= '</ul>';
+      
+      $block['content'] = $html;
+      break;  
+    // Recent Responses
+    case 'wh_response_recent_responses':
+      $block['subject'] = t('Recent Responses');
+      
+      // Get 3 most recent responses
+      $query = db_select('node', 'n', array('target' => 'slave'))
+        ->fields('n', array('nid', 'title'))
+        ->condition('n.type', 'wh_response')
+        ->condition('n.status', 0, '<>')
+        ->orderBy('n.created', 'DESC')
+        ->orderBy('n.title', 'ASC');
+      $result = $query->range(0, 3)
+        ->execute();
+
+      $html = '<ul>';
+      $count = 0;
+      foreach ($result as $res) {
+        $html .= '<li>' . l($res->title, 'node/' . $res->nid) . '</li>';
+        $count++;
+      }  
+      $html .= '</ul>';
+      
+      if ($count == 0) { 
+        $block['subject'] = '';
+        $block['content'] = '';
+      }
+      else {
+        $block['content'] = $html;
+      }
+      break;
+   }   
+
+  return $block;
+}
+
+/**
+ * Menu callback for the autocomplete results.
+ * 
+ * Retrieves all petitions that match the string that has been typed in and have the required amount of signatures but have not been responded to.  ( UNDER_REVIEW status )
+ */
+function wh_response_petition_autocomplete($string = '') {
+  $matches = array();
+  
+  $conn = wh_petitions_mongo_petition_connection();
+  $regex = new MongoRegex('/^' . $string . '/i'); 
+  $query = array(
+    'petition_status' => array(
+      '$in' => array((int)WH_PETITION_STATUS_PUBLIC, (int)WH_PETITION_STATUS_UNDER_REVIEW)
+    ),
+    'title' => array('$regex' => $regex),
+  );
+  $sort = array(
+    'title' => 1,
+  );
+  $result = $conn->find($query, array('title'))->sort($sort);
+  
+  foreach ($result as $res) {
+    $matches[check_plain($res['title']) . '  [' . check_plain($res['_id']->__toString()) . ']'] = check_plain($res['title']);
+  }
+  
+  drupal_json_output($matches);
+}
+
+/**
+ * Validation function for response node form.  Moves two fields that I put into vertical tabs into the location that is expected of them.
+ */
+function wh_response_notifications_validate($form, &$form_state) {
+  $form_state['values']['field_response_email'] = $form_state['values']['response_notifications']['field_response_email'];
+  $form_state['values']['field_response_email_subject'] = $form_state['values']['response_notifications']['field_response_email_subject'];  
+}
+
+/**
+ * Submit function for the preview button.  Sends a copy of the response notification to the users whose email addresses were entered.
+ */
+function wh_response_preview_notification($form, &$form_state) { 
+  if ($form_state['values']['op'] == 'Preview') {
+    // Retrieve body and subject from node ( rather than form_state )
+    $node = node_load($form_state['values']['nid']);
+    $email_body = $node->field_response_email[$node->language][0]['value'];
+    $email_subject = $node->field_response_email_subject[$node->language][0]['value'];
+    
+    // Send preview emails 
+    $count = 0;
+    $emails = $form_state['values']['response_notifications']['preview_emails'];
+    $email_arr = explode(",", $emails);
+    foreach ($email_arr as $email) {
+      $email = trim($email);
+      $params = array('body' => $email_body, 'subject' => $email_subject);
+      if (valid_email_address($email)) {
+        drupal_mail('wh_response', 'response', $email, language_default(), $params, variable_get('site_mail', ''));
+        $count++;
+      }
+    }
+    
+    if ($count == 1) {
+      drupal_set_message(t('!count preview email has been sent.', array('!count' => $count)), 'status');
+    }
+    else {
+      drupal_set_message(t('!count preview emails have been sent.', array('!count' => $count)), 'status');
+    }
+  }
+}
+
+/**
+ * Submit function for the Send button.  Sends a copy of the response notification to all users who have signed the petition. ( includes the creator )
+ */
+function wh_response_send_response_notification($form, &$form_state) { 
+  $response_id = $form_state['values']['nid'];
+  $node = node_load($response_id);
+  $email_body = $node->field_response_email[$node->language][0]['value'];
+  $email_subject = $node->field_response_email_subject[$node->language][0]['value'];
+  $params = array('body' => $email_body, 'subject' => $email_subject);  
+  $petition_pos = strpos($form_state['values']['op'], "(");
+  if ($petition_pos) {
+    $petition_id = substr($form_state['values']['op'], ($petition_pos + 1), 24);
+  }
+  $count = 0;
+  
+  if (!empty($node) && !empty($petition_id)) {
+    // Get signatures
+    $sig_conn = wh_petitions_mongo_petition_signatures_connection();
+    $query = array(
+      'petition_id' => (string)$petition_id,
+    );
+    $result = $sig_conn->find($query, array('uid'));
+    foreach ($result as $res) {
+      if (!empty($res['uid'])) {
+        // Retrieve email
+        $email_obj = db_select('users', 'u', array('target' => 'slave'))
+        ->fields('u', array('mail'))
+        ->condition('u.uid', $res['uid'])
+        ->condition('u.status', 0, '<>')
+        ->execute()
+        ->fetchObject();
+        
+        // If we got a valid email, queue up a response email
+        if (!empty($email_obj)) {
+          if (valid_email_address($email_obj->mail)) {
+            drupal_mail('wh_response', 'response', $email_obj->mail, language_default(), $params, variable_get('site_mail', ''));
+            $count++;
+          }
+        }
+      }
+    }
+  }
+  
+  if ($count == 1) {
+    drupal_set_message(t('!count response notification has been sent.', array('!count' => $count)), 'status');
+  }
+  else {
+    drupal_set_message(t('!count response notifications have been sent.', array('!count' => $count)), 'status');
+  }  
+}
+
+/**
+ * Implements hook_mail().
+ */
+function wh_response_mail($key, &$message, $params) {
+  $options['language'] = $message['language'];
+
+  switch ($key) {
+    case 'response':
+      $langcode = $message['language']->language;
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      break;         
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Diplays fields on the response form based on the value of the Media dropdown.
+ * Adds petitions to the form in a vertical tab.
+ */
+function wh_response_form_wh_response_node_form_alter(&$form, &$form_state) {
+  // Add our specific css and js that displays and hides fields based on the value of the Media dropdown
+  drupal_add_css(drupal_get_path('module', 'wh_response') . "/wh_response.css", array('scope' => 'header', 'weight' => 50));
+  drupal_add_js(drupal_get_path('module', 'wh_response') . "/wh_response.js", array('scope' => 'header', 'weight' => 50));
+
+  // Retrieve the tids for each of the Media types
+  $language = $form['field_response_media']['#language'];
+  $options = $form['field_response_media'][$language]['#options'];
+  $default = 0;
+  if (!empty($form['field_response_media'][$language]['#default_value'])) {
+    $default = $form['field_response_media'][$language]['#default_value'][0];
+  }
+  foreach ($options as $tid => $name) {
+    switch ($name) {
+      case 'Audio/Speech':
+        $audio_tid = $tid;
+        break;
+      case 'Blog':
+        $blog_tid = $tid;
+        break;
+      case 'Transcript':
+        $transcript_tid = $tid;
+        break;
+      case 'Video':
+        $video_tid = $tid;
+        break;                    
+    }
+  }
+  
+  // Add classes to the fields that the js can use
+  array_push($form['field_audio_embed']['#attributes']['class'], 'media-id-' . $audio_tid);
+  array_push($form['field_video_embed']['#attributes']['class'], 'media-id-' . $video_tid);  
+  array_push($form['field_audio_embed']['#attributes']['class'], 'media-type');
+  array_push($form['field_video_embed']['#attributes']['class'], 'media-type');  
+  
+  // Hide the fields that aren't associated with this media type
+  if ($default != $audio_tid) {
+    array_push($form['field_audio_embed']['#attributes']['class'], 'display-none');
+  }
+  if ($default != $video_tid) {
+    array_push($form['field_video_embed']['#attributes']['class'], 'display-none');
+  }
+
+  // Split the issue checkboxes into multiple columns
+  $form['field_issues']['#after_build'] = array('wh_response_column_checks');
+  
+  // Make the Short URL field read-only and add a handler to create the short url
+  $form['field_shorturl']['#disabled'] = TRUE;
+  $form['actions']['submit']['#submit'][] = 'wh_response_handle_node_submit';
+  
+  // Add the Preview email field and button
+  $form['response_notifications'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Response Notifications'),
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+    '#weight' => 90,
+    '#attributes' => array('class' => array('notifications')),    
+  ); 
+  $form['response_notifications']['markup'] = array(
+    '#type' => 'markup',
+    '#markup' => '<p>' . t('Enter the body of the email that will be sent to signors of petitions associated with this response.  To preview the email, enter email addresss(es) in the field below and click <b>Preview</b>') . '</p><br />',
+  );  
+  $form['response_notifications']['field_response_email'] = $form['field_response_email'];
+  unset($form['field_response_email']);
+  $form['response_notifications']['field_response_email_subject'] = $form['field_response_email_subject'];
+  unset($form['field_response_email_subject']);  
+  $form['response_notifications']['field_response_email']['#suffix'] = '<div style="clear:both;"> </div>';
+  $form['#validate'][] = 'wh_response_notifications_validate';
+  $form['response_notifications']['preview_emails'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Email Addresses'),
+    '#size' => 40,
+    '#maxlength' => 256,
+    '#default_value' => '',
+    '#weight' => 40,
+  );
+  $form['response_notifications']['preview'] = array(
+    '#type' => 'submit',
+    '#value' => t('Preview'),
+    '#submit' => array('wh_response_preview_notification'),
+    '#attributes' => array('class' => array('float-right', 'preview-button')),    
+    '#weight' => 39,
+  );
+
+  
+  
+  /***** PETITIONS ******/ 
+   
+  // Connect to our mongo collections
+  $res_conn = wh_response_mongo_response_connection();
+  $conn = wh_petitions_mongo_petition_connection();
+  
+  // Retrieve the petitions associated with this response.
+  $response_objs = array();  
+  if (!empty($form['nid']['#value'])) {
+    $ids = array();
+    $result = $res_conn->find(array('nid' => (int)$form['nid']['#value']))->sort(array('_id' => -1));
+    foreach ($result as $res) {
+      $id = $res['petition']->__toString();
+      array_push($response_objs, array('petition' => $id, 'intro' => $res['intro']));
+      array_push($ids, $res['petition']);
+    }
+  
+    // Get the titles and nice urls
+    $result = $conn->find(array('_id' => array('$in' => $ids)), array('title', 'nice_url'));
+    foreach ($result as $res) {
+      for ($i=0; $i<sizeof($response_objs); $i++) {
+        if ($response_objs[$i]['petition'] == $res['_id']->__toString()) {
+          $response_objs[$i]['title'] = $res['title'];
+          $response_objs[$i]['nice_url'] = $res['nice_url'];
+        }
+      }
+    }
+  }
+  
+  // Set the number of input fields to be the number of petitions plus 1.  If this is a create form, set it to 0 so the tab doesn't show with petition fields.
+  if (empty($form_state['petition_count'])) {
+    if (!empty($response_objs)) {
+      $form_state['petition_count'] = sizeof($response_objs) + 1;
+    }
+    else {
+      if (!empty($form_state['node']->nid)) {
+        $form_state['petition_count'] = 1;
+      }
+      else {
+        $form_state['petition_count'] = 0;
+      }
+    }
+  }
+  
+  // Add the Petitions vertical tab with petition fields inside it.
+  if ($form_state['petition_count'] > 0) {
+    $form['petitions'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Petitions'),
+      '#tree' => TRUE,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+      '#weight' => 100,
+      '#attributes' => array('class' => array('petitions')),
+    );  
+  
+    // Text at the top of the box.
+    $form['petitions']['markup'] = array(
+      '#type' => 'markup',
+      '#markup' => '<p>' . t('Enter the title of the petition you would like to associate with this response and click Save.  To remove a petition, clear the title you would like to remove.') . '</p><br />',
+    );
+  
+    // Add fields for the petition title and intro.  Intros are hidden at first.
+    for ($i=0; $i<$form_state['petition_count']; $i++) {
+      if (!empty($response_objs[$i])) {
+        $default_value = check_plain($response_objs[$i]['title']) . '  [' . check_plain($response_objs[$i]['petition']) . ']';
+        $default_intro = check_plain($response_objs[$i]['intro']);
+      }
+      else {
+        $default_value = '';
+        $default_intro = '';
+      }
+    
+      // Add a view link to open the petition in a new window and an Intro link to slide open the Intro field.
+      $view = '';
+      if (!empty($default_value)) {
+        $view = ' | ' . l(t('View'), $response_objs[$i]['nice_url'], array('attributes' => array('target' => '_blank')));
+      }
+      $intro = '<span class="open-intro" id="intro-link-' . $i . '"><a>' . t('Intro') . '</a></span>';
+    
+      // Petition title and Intro fields ( title is autocomplete )
+      $form['petitions']['petition'][$i]['title'] = array(
+        '#type' => 'textfield',
+        '#title' => '',
+        '#size' => 40,
+        '#maxlength' => 256,
+        '#default_value' => $default_value,
+        '#autocomplete_path' => 'petition-autocomplete',
+        '#prefix' => '<div class="float-right">' . $intro . $view . '</div>',
+      );       
+      $form['petitions']['petition'][$i]['intro'] = array(
+        '#type' => 'textarea',
+        '#title' => '',
+        '#size' => 40,
+        '#default_value' => $default_intro,
+      ); 
+      if (!empty($response_objs[$i]['petition'])) {
+        $form['petitions']['petition'][$i]['send'] = array(
+          '#type' => 'submit',
+          '#value' => t('Send Notification') . '  (' . $response_objs[$i]['petition'] . ')',
+          '#submit' => array('wh_response_send_response_notification'),
+          '#attributes' => array('style' => 'margin-bottom:20px;'),
+        );  
+      }        
+    }
+  
+    $form['petitions']['add'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add another petition'),
+      '#submit' => array('wh_response_petition_add'),
+      '#attributes' => array('style' => 'clear:both;margin-top:20px;'),
+      '#prefix' => '<p>',
+      '#suffix' => '</p>',
+    );
+    $form['actions']['submit']['#submit'][] = 'wh_response_petition_submit';
+  
+    // Make this the active tab by default
+    $form['#additional_settings__active_tab'] = array('petitions');
+  }
+  // This is the create a response form, so just add in a "save and stay" button, since responses must be created before petitions can be added.
+  else {
+    // Add the Petitions vertical tab
+    $form['petitions'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Petitions'),
+      '#tree' => TRUE,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+      '#weight' => 100,
+      '#attributes' => array('class' => array('petitions')),
+    );  
+  
+    // Text at the top of the box.
+    $form['petitions']['save'] = array(
+      '#type' => 'submit',
+      '#prefix' => '<p>' . t('You must save a response before you can add petitions.  Click below to save this response and return to this screen to begin associating petitions.') . '</p><br />',
+      '#value' => t('Save and Continue Editing'),
+      '#submit' => array('node_form_submit', 'wh_response_handle_node_submit', 'wh_response_save_continue'),
+    );  
+  }
+} 
+
+/**
+ * Submit handler to perform actions on a Response after the node form is submitted.  Currently adds a short url.
+ */
+function wh_response_handle_node_submit($form, &$form_state) {
+  $node = $form_state['node'];
+  wh_response_shortenurl($node);
+  node_save($node);
+}
+
+/**
+ * Submit handler for the save and continue button.  Saves the node and redirects back to the edit form.
+ */
+function wh_response_save_continue($form, &$form_state) {
+  $node = $form_state['node'];
+  drupal_goto('node/' . $node->nid . '/edit');
+}
+
+/**
+ * Generate a short url for this Response.
+ */
+function wh_response_shortenurl(&$node) {
+  if ($node->type == 'wh_response' && $node->status) {
+    $canonical = $node->uri['path'];
+    $alias = drupal_get_path_alias($canonical, $node->language);
+    if ($alias != $canonical) {
+      $shorty = wh_petition_tool_shortenurl($alias);
+    }
+    else {
+      $shorty = wh_petition_tool_shortenurl('node/' . $node->nid);      
+    }
+    
+    $node->field_shorturl[$node->language][0] = array('value' => $shorty);
+  }
+}
+
+/**
+ * Callback for the add button in the petition vertical tab.  Adds another petition box to the form and refreshes the page.
+ */
+function wh_response_petition_add($form, &$form_state) {
+  $form_state['petition_count']++;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Submit handler for the petitions.
+ *
+ * -If the petition id in the field wasn't blank but is now, remove the petition from the response.
+ * -If the petition id's are the same but the intro is different, save with the new intro
+ * -If the petition id's are different, save one and remove the other.
+ * -If the field was blank but now there's a petition, save a new petition-response relationship.
+ */
+function wh_response_petition_submit($form, &$form_state) { 
+  $pet_conn = wh_petitions_mongo_petition_connection();
+  $res_conn = wh_response_mongo_response_connection();
+
+  if (!empty($form_state['values']['nid'])) {
+    $i = 0;
+    $petitions = $form_state['values']['petitions']['petition'];
+    foreach ($petitions as $petition_arr) {
+      $petition = $petition_arr['title'];
+      preg_match('/^(?:\s*|(.*) )?\[\s*(.+)\s*\]$/', $petition, $matches);
+      preg_match('/^(?:\s*|(.*) )?\[\s*(.+)\s*\]$/', $form['petitions']['petition'][$i]['title']['#default_value'], $matches_pre);
+    
+      // Prev ID - Petition ID that was in the form element by default.
+      $prev_id = '';
+      if (!empty($matches_pre[2])) {
+        $prev_id = $matches_pre[2];
+      }
+      // Cur ID - Petition ID that is in the form element now.
+      $cur_id = '';
+      if (!empty($matches[2])) {
+        $cur_id = $matches[2];
+      }
+      $intro = $petitions[$i]['intro'];
+
+      // Check for one that got removed
+      if (!empty($prev_id) && empty($petition)) {
+        $obj = wh_response_load_petition_response($res_conn, $form_state['values']['nid'], $prev_id);
+        wh_response_delete_petition_response($res_conn, $obj['_id']->__toString(), $prev_id);
+      }
+    
+      // Check to see if this one already exists
+      elseif (!empty($cur_id) && !empty($prev_id) && $cur_id == $prev_id) { 
+        // If the intros don't match, save with new intro.
+        if ($intro != $form['petitions']['petition'][$i]['intro']['#default_value']) {
+          $obj = array();
+          $obj = wh_response_load_petition_response($res_conn, $form_state['values']['nid'], $cur_id);
+          if (!empty($obj)) {
+            $obj['intro'] = $intro;
+            wh_response_save_petition_response($res_conn, $obj);
+          }
+        }
+      
+        // Otherwise we're set, they match
+      }
+
+      // One changed from one petition to another
+      elseif (!empty($cur_id) && !empty($prev_id) && $cur_id != $prev_id) { 
+        // Need to remove one
+        $obj = wh_response_load_petition_response($res_conn, $form_state['values']['nid'], $prev_id);
+        wh_response_delete_petition_response($res_conn, $obj['_id']->__toString(), $prev_id);    
+    
+        // Then add one
+        $prev_id = '';
+      }    
+
+      // Add a new one
+      if (!empty($cur_id) && empty($prev_id)) {      
+        // Verify it's not already part of the node ( trying to attach twice )
+        $obj = array();
+        $obj = wh_response_load_petition_response($res_conn, $form_state['values']['nid'], $cur_id);
+        if (empty($obj)) {
+          // Verify this petition can be attached to this node.  ( under_review or public, no response already attached )      
+          $petition_obj = array();
+          $petition_obj = wh_petitions_load_petition($pet_conn, $cur_id);
+          if (empty($petition_obj['response_id']) && in_array($petition_obj['petition_status'], array(WH_PETITION_STATUS_PUBLIC,WH_PETITION_STATUS_UNDER_REVIEW))) {
+            $obj = wh_response_default_petition_relationship();
+            $obj['petition'] = $cur_id;
+            $obj['intro'] = $intro;
+            $obj['nid'] = $form_state['values']['nid'];
+          
+            // Set the statuses on the petition to answered and reviewed
+            if (wh_response_save_petition_response($res_conn, $obj)) {
+              $petition_obj['response_status'] = WH_PETITION_RESPONSE_STATUS_ANSWERED;
+              $petition_obj['petition_status'] = WH_PETITION_STATUS_REVIEWED;
+              $petition_obj['response_id'] = $form_state['values']['nid'];
+              wh_petitions_save_petition($pet_conn, $petition_obj);
+            }
+          }
+        }
+      }
+      $i++;
+    }
+  }
+}
+
+/**
+ * Places checkboxes into mostly-equal columms of 5 on the response create/edit form.
+ */
+function wh_response_column_checks($form_element, &$form_state) {
+  $language = $form_element['#language'];
+  $size = sizeof($form_element[$language]['#options']);
+
+  if ($size > 5) {
+    $in_each = ceil($size / 5);
+    $i = 1;
+    foreach ($form_element[$language] as $key => $val) {
+      if (is_int($key)) { 
+        if ($i == 1) {
+          $form_element[$language][$key]['#prefix'] = '<div style="float:left;width:180px;">';
+        }
+        elseif ($i == ($in_each + 1)) {
+          $form_element[$language][$key]['#prefix'] = '</div><div style="float:left;width:180px;">';
+        }
+        elseif ($i == (($in_each * 2) + 1)) {
+          $form_element[$language][$key]['#prefix'] = '</div><div style="float:left;width:180px;">';
+        }
+        elseif ($i == (($in_each * 3) + 1)) {
+          $form_element[$language][$key]['#prefix'] = '</div><div style="float:left;width:180px;">';
+        }
+        elseif ($i == (($in_each * 4) + 1)) {
+          $form_element[$language][$key]['#prefix'] = '</div><div style="float:left;width:180px;">';
+        }      
+        elseif ($i == $size) {
+          $form_element[$language][$key]['#suffix'] = '</div><div style="clear:both;"> </div>';
+        }     
+      
+        $form_element[$language][$key]['#attributes']['id'] = $form_element[$language]['#id'] . '-' . $key;
+        $i++;
+      }
+    }
+    
+    return $form_element;
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ *
+ * Adds variables for the response node page, including the petitions that are associated with this node.
+ */
+function wh_response_preprocess_node(&$vars) {
+  if ($vars['node']->type == 'wh_response') {
+    $node = $vars['node'];
+    $nid = $node->nid;
+    $title = $node->title;
+    drupal_set_title($node->title);
+    $body = $node->body[$node->language][0]['safe_value'];
+  
+    // Add no-follow classes to all links that go offsite.
+    if (!empty($body)) {
+      $regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>"; 
+        
+      if (preg_match_all("/$regexp/siU", $body, $matches)) { 
+        foreach ($matches[0] as $id => $href) {
+          // Parse out classes - find links that have no no-follow class and are absolute.
+          preg_match('/< *a[^>]*class *= *["\']?([^"\']*)/i', $href, $src_matches);
+          if ((empty($src_matches) || (stripos($src_matches[1], 'no-follow') === FALSE)) && ((stripos($matches[2][$id], 'http://') !== FALSE) || FALSE)) {
+            if (empty($src_matches)) {
+              $href_new = str_replace('<a', '<a class="no-follow"', $href);
+            }
+            else {
+              $href_new = str_replace('class="', 'class="no-follow ', $href);
+              $href_new = str_replace('class = "', 'class="no-follow ', $href_new);
+              $href_new = str_replace('class= "', 'class="no-follow ', $href_new);
+              $href_new = str_replace('class ="', 'class="no-follow ', $href_new);
+            }
+            $body = str_replace($href, $href_new, $body);
+          }
+        }
+      }
+    }    
+  
+    // Retrieve Agency Name and Seal
+    $agency_name = '';
+    if (!empty($node->field_agency_name[$node->language][0]['value'])) {
+      $agency_name = $node->field_agency_name[$node->language][0]['value'];
+    }
+    $agency_seal = '';
+    if (!empty($node->field_agency_seal[$node->language][0]['uri'])) {
+      $image_vars = array(
+        'style_name' => 'agency_seal',
+        'path' => $node->field_agency_seal[$node->language][0]['uri'],
+        'alt' => (!empty($node->field_agency_seal[$node->language][0]['alt'])) ? check_plain($node->field_agency_seal[$node->language][0]['alt']) : '',
+        'title' => (!empty($node->field_agency_seal[$node->language][0]['title'])) ? check_plain($node->field_agency_seal[$node->language][0]['title']) : '',
+        'attributes' => array('class' => array('graphic')),
+        'getsize' => TRUE,
+      );
+      $agency_seal = theme('image_style', $image_vars);
+    } 
+    
+    // Get the Audio and/or Video if the media type is such.
+    $audio = '';
+    $video = '';  
+    if (!empty($node->field_response_media[$node->language][0])) {
+      $media_tid = $node->field_response_media[$node->language][0]['tid'];
+      $media = taxonomy_term_load($media_tid);
+      $media_name = $media->name;
+  
+      switch ($media_name) {
+        case 'Audio/Speech':
+          if (!empty($node->field_audio_embed[$node->language][0])) {
+            $audio = check_plain($node->field_audio_embed[$node->language][0]['value']);
+          }
+          break;
+        case 'Video':
+          if (!empty($node->field_video_embed[$node->language][0])) {
+            $video = check_plain($node->field_video_embed[$node->language][0]['value']);
+          }
+          break;                    
+      }
+    }
+    
+    // Connect to our mongo collections
+    $res_conn = wh_response_mongo_response_connection();
+    $conn = wh_petitions_mongo_petition_connection();
+  
+    // Retrieve the petitions associated with this response, sorted by date desc that they became associated with the response. ( newest at the top )
+    $response_objs = array();
+    $ids = array();
+    $result = $res_conn->find(array('nid' => (int)$nid))->sort(array('_id' => -1));
+    foreach ($result as $res) {
+      $id = $res['petition']->__toString();
+      array_push($response_objs, array('petition' => $id, 'intro' => $res['intro']));
+      array_push($ids, $res['petition']);
+    }
+    
+    // Get the titles and signature counts for all the petitions we need to display.
+    $petition_count = 0;
+    $petition_title = '';
+    if (!empty($response_objs)) {
+      $result = $conn->find(array('_id' => array('$in' => $ids)), array('title', 'signature_count', 'nice_url'));
+      $petition_title = '';
+      foreach ($result as $res) {
+        for ($i=0; $i<sizeof($response_objs); $i++) {
+          if ($response_objs[$i]['petition'] == $res['_id']->__toString()) {
+            $response_objs[$i]['title'] = $res['title'];
+            $response_objs[$i]['signature_count'] = $res['signature_count'];
+            $response_objs[$i]['nice_url'] = $res['nice_url'];
+            $response_objs[$i]['_id'] = $res['_id'];
+            if (empty($petition_title)) {
+              $petition_title = $res['title'];
+            }
+          }
+        }
+      }
+      $petition_count = sizeof($response_objs);
+    }
+  
+    // Get Petition HTML
+    $html = '';
+    $count = 1;
+    foreach ($response_objs as $res) {
+      if (!empty($res['_id'])) {
+        $id = $res['_id']->__toString();
+        $html .= theme('wh_petitions_display_list_petition', array(
+          'title' => check_plain($res['title']), 
+          'signature_count' => wh_petitions_format_number($res['signature_count']), 
+          'nice_url' => $res['nice_url'],
+          'petition_link' => l(t('Find out more'), $res['nice_url']), 
+          'cols' => 1, 
+          'petition_id' => check_plain($id),
+          'entry_num' => $count,
+        ));
+        $count++;
+      }
+    }        
+       
+    // Load the issues and search forms
+    module_load_include('inc', 'wh_response', 'wh_response.form');
+    $issues_form = drupal_get_form('wh_response_list_page_issues_form');
+    $issues_form = drupal_render($issues_form);
+    $search_form = drupal_get_form('wh_response_list_page_search_form');
+    $search_form = drupal_render($search_form);
+  
+    // Get the short url and nice url for display and for use in social sharing tools.
+    $short_url = '';
+    if (!empty($node->field_shorturl)) {
+      $short_url = $node->field_shorturl[$node->language][0]['value'];
+    }
+    $nice_url = url('node/' . $node->nid);
+ 
+    $vars['issues_form'] = $issues_form;
+    $vars['search_form'] = $search_form;
+    $vars['petition_count'] = check_plain($petition_count);
+    $vars['petition_html'] = $html;
+    $vars['title'] = check_plain($title);
+    $vars['petition_title'] = check_plain($petition_title);
+    $vars['audio'] = $audio;
+    $vars['video'] = $video;
+    $vars['body'] = $body;
+    $vars['agency_name'] = check_plain($agency_name);
+    $vars['agency_seal'] = $agency_seal;
+    $vars['twitter_link'] = wh_petition_tool_twitter_link(check_plain($node->nid), check_plain($title), 'response', '', $short_url, $nice_url);
+    $vars['facebook_link'] = wh_petition_tool_facebook_link(check_plain($node->nid), check_plain($title), 'response', '', $nice_url);
+    $vars['response_id'] = check_plain($node->nid);      
+  }
+}
+
+/**************** MONGO HELPER FUNCTIONS ******************/
+
+/**
+ * Creates a connection to the petition_response collection
+ */
+function wh_response_mongo_response_connection() {
+  $collection = mongodb_collection('petition_response');
+  return $collection;
+}
+
+/**
+ * Loads a petition_response object by petition id and nid and merges it with the default object.
+ */
+function wh_response_load_petition_response(&$collection, $nid, $petition_id) {
+  if (!empty($petition_id) && !empty($collection) && !empty($nid)) {
+    // Convert to a Mongo ID if we got a string
+    if (!is_object($petition_id)) {
+      $petition_id = new MongoId($petition_id);
+    }
+    
+    $obj = array();
+    $obj = $collection->findOne(array('petition' => $petition_id, 'nid' => (int)$nid));
+    if (!empty($obj)) {
+      // Merge the default object with the one retrieved to pick up any new fields
+      $default = wh_response_default_petition_relationship();
+      $obj = array_merge($default, $obj);    // Note: Fields with the same string keys from later arrays override those from earlier arrays
+      return $obj;
+    }
+  }
+}
+
+/**
+ * Loads a petition_response object by petition id only and merges it with the default object.
+ */
+function wh_response_load_petition_response_by_petition(&$collection, $petition_id) {
+  if (!empty($petition_id) && !empty($collection)) {
+    // Convert to a Mongo ID if we got a string
+    if (!is_object($petition_id)) {
+      $petition_id = new MongoId($petition_id);
+    }
+    
+    $obj = array();
+    $obj = $collection->findOne(array('petition' => $petition_id));
+    if (!empty($obj)) {
+      // Merge the default object with the one retrieved to pick up any new fields
+      $default = wh_response_default_petition_relationship();
+      $obj = array_merge($default, $obj);    // Note: Fields with the same string keys from later arrays override those from earlier arrays
+      return $obj;
+    }
+  }
+}
+
+/**
+ * Saves a petition_response object to the petition_response collection
+ */
+function wh_response_save_petition_response(&$collection, $obj) {
+  if (!empty($obj) && !empty($collection)) {
+    if (!is_object($obj['petition'])) {
+      $obj['petition'] = new MongoId($obj['petition']);
+    }
+    $obj['nid'] = (int)$obj['nid'];
+    $collection->save($obj);
+
+    return $obj['_id']->__toString();
+  }
+}
+
+/**
+ * Deletes a petition_response object.
+ *
+ * Also needs to set the petition response status back to pending response and petition status back to under review
+ */
+function wh_response_delete_petition_response(&$collection, $obj_id, $petition_id) {
+  if (!empty($obj_id) && !empty($collection) && !empty($petition_id)) {
+    $collection->remove(array('_id' => new MongoId($obj_id)));
+    
+    $conn = wh_petitions_mongo_petition_connection();
+    $petition = wh_petitions_load_petition($conn, $petition_id);
+    
+    // Check if we should make this petition public, archived or under review based on signatures and timeframes
+    $timestamp = strtotime('- ' . $petition['review_timeframe'] . ' days');
+      
+    if ($petition['signature_count'] >= $petition['response_signatures']) {
+      $petition['petition_status'] = WH_PETITION_STATUS_UNDER_REVIEW;
+      $petition['response_status'] = WH_PETITION_RESPONSE_STATUS_PENDING;
+    }      
+    elseif ($petition['signature_count'] < $petition['response_signatures']) {
+      $petition['petition_status'] = WH_PETITION_STATUS_PUBLIC;
+    }    
+    elseif ($petition['published'] < $timestamp) {
+      $petition['petition_status'] = WH_PETITION_STATUS_CLOSED;
+    }
+    $petition['response_id'] = 0;
+    wh_petitions_save_petition($conn, $petition);
+    
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+/**
+ * Returns a default petition-response object.
+ */
+function wh_response_default_petition_relationship() {
+  $obj = array(
+    'petition'          => 0,       // Mongo ID of the petition
+    'nid'               => 0,       // Drupal NID of the response node
+    'intro'             => '',      // Text to be used as an introduction to this petition's response  
+  );
+  
+  return $obj;
+}

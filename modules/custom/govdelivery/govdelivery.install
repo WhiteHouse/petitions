@@ -1,0 +1,101 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the govdelivery module.
+ *
+ */
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function govdelivery_install() {
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function govdelivery_uninstall() {
+  $mail_system = variable_get('mail_system');
+  if (isset($mail_system) && !empty($mail_system)) {
+    $mail_system['default-system'] = 'DefaultMailSystem';
+    variable_set('mail_system', $mail_system);
+  }
+  variable_del('govdelivery_odm_settings');
+  variable_del('govdelivery_subscription_settings');
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ *
+ * @todo Fix Indexes.
+ */
+function govdelivery_schema() {
+  // Bin field that will be added to all future queues.
+  $bin = array(
+    'description' => 'A bin id this message is assigned to.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 1,
+    'initial' => 1,
+  );
+
+  // Base table definition
+  $schema_system_cache = drupal_get_schema_unprocessed('system', 'cache');
+
+  // Message Queue
+  $schema['govdelivery_message_queue'] = $schema_system_cache;
+  $schema['govdelivery_message_queue']['fields']['bid'] = $bin;
+  $schema['govdelivery_message_queue']['indexes']['bid'] = array('bid');
+
+  // Subscription Queue
+  $schema['govdelivery_subscription_queue'] = $schema_system_cache;
+  $schema['govdelivery_subscription_queue']['fields']['bid'] = $bin;
+  $schema['govdelivery_subscription_queue']['indexes']['bid'] = array('bid');
+
+  // Subscriber API Topic Queue
+  $schema['govdelivery_subscriber_api_topic_queue'] = $schema_system_cache;
+  $schema['govdelivery_subscriber_api_topic_queue']['fields']['bid'] = $bin;
+  $schema['govdelivery_subscriber_api_topic_queue']['indexes']['bid'] = array('bid');
+
+  // Subscriber API Subscriber Queue
+  $schema['govdelivery_subscriber_api_subscriber_queue'] = $schema_system_cache;
+  $schema['govdelivery_subscriber_api_subscriber_queue']['fields']['bid'] = $bin;
+  $schema['govdelivery_subscriber_api_subscriber_queue']['indexes']['bid'] = array('bid');
+
+  return $schema;
+}
+
+function govdelivery_update_7011() {
+  $topic_table = drupal_get_schema_unprocessed('system', 'cache');
+  $subscriber_table = drupal_get_schema_unprocessed('system', 'cache');
+
+  $subscriber_table['description'] = 'Store topic requests that are unable to be sent for transmitting to govdelivery later';
+  $topic_table['description'] = 'Store new subscriber requests that are unable to be sent for transmitting to govdelivery later';
+
+  db_create_table('govdelivery_subscriber_api_topic_queue', $topic_table);
+  db_create_table('govdelivery_subscriber_api_subscriber_queue', $subscriber_table);
+}
+
+function govdelivery_update_7015() {
+  $schema = drupal_get_schema('govdelivery_message_queue', TRUE);
+  db_add_field('govdelivery_message_queue', 'bid', $schema['fields']['bid']);
+  db_add_field('govdelivery_subscription_queue', 'bid', $schema['fields']['bid']);
+  db_add_field('govdelivery_subscriber_api_topic_queue', 'bid', $schema['fields']['bid']);
+  db_add_field('govdelivery_subscriber_api_subscriber_queue', 'bid', $schema['fields']['bid']);
+
+  db_add_index('govdelivery_message_queue', 'bid', array('bid'));
+  db_add_index('govdelivery_subscription_queue', 'bid', array('bid'));
+  db_add_index('govdelivery_subscriber_api_topic_queue', 'bid', array('bid'));
+  db_add_index('govdelivery_subscriber_api_subscriber_queue', 'bid', array('bid'));
+}
+
+function govdelivery_update_7020() {
+  variable_set('govdelivery_messages_nagios_critical_threshold',
+               variable_get('govdelivery_nagios_critical_threshold', 750));
+  variable_set('govdelivery_messages_nagios_warning_threshold',
+               variable_get('govdelivery_nagios_warning_threshold', 350));
+}

@@ -1,0 +1,60 @@
+<?php
+/**
+ * @file
+ * Base definitions for reporting petition data
+ *
+ * To add new reports, create them in a separate .inc file and register them with the hook_menu implementation
+ */
+
+/**
+ * Implements hook_menu()
+ */
+function wh_petition_reporting_menu() {
+  $items = array();
+
+  //Landing Page
+  $items['admin/petition-reports'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => 'Petitions Reports',
+    'description' => 'View summary reports of Petitions Data',
+    'access arguments' => array('access petition reports'),
+    'page callback' => 'petition_reports_page',
+    'file' => 'wh_petition_reporting.page.inc',
+  );
+
+  //Summary counts
+  $items['admin/petition-reports/summary'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => 'Summary',
+    'description' => 'Some simple summarizations of petitions data',
+    'access arguments' => array('access petition reports'),
+    'page callback' => 'summary_page',
+    'file' => 'wh_petition_reporting.summary.inc',
+  );
+
+  //Hourly User, Signature, and Petition count list
+  $items['admin/petition-reports/hourly-counts'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => 'Hourly User, Signature, and Petition Creation',
+    'description' => '',
+    'access arguments' => array('access petition reports'),
+    'page callback' => 'hourly_page',
+    'file' => 'wh_petition_reporting.hourly.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission()
+ */
+function wh_petition_reporting_permission() {
+  $permissions = array();
+
+  $permissions['access petition reports'] = array(
+    'title'       => t('Access Petition Reports'),
+    'description' => t('Access Petition Reports'),
+  );
+
+  return $permissions;
+}

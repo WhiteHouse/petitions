@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * For Petitions, when a user registers lookup their zipcode and prefill the city and state
+ */
+
+/**
+ * Implements hook_menu()
+ */
+function wh_zipcodelookup_menu() {
+  $items = array();
+  $items['wh_zipcodelookup/get_citystate'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_zip_code_lookup',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter()
+ */
+function wh_zipcodelookup_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'user_register_form' && arg(0) == 'user' ) {
+    drupal_add_js(drupal_get_path('module', 'wh_zipcodelookup') . '/wh_zipcodelookup.js', 'file');
+  }
+}
+
+/**
+ * Encapulation callback for the zip code lookup
+ *
+ * @param $zip
+ *   The zip code to search for
+ * @param $form
+ *   The name of the form from which the action is invoked
+ *
+ * @return
+ *   JSON array of data
+ */
+function _zip_code_lookup($zip, $form) {
+  $city_state_pairs = _perform_lookup($zip);
+  drupal_json_output(array('status' => TRUE, 'data' => $city_state_pairs, 'form' => $form));
+}
+
+/**
+ * Execute the lookup
+ *
+ * Currently assumes the zipcodes are in a mysql database.
+ *  Change this function when the implementation changes
+ *
+ * @param
+ *   A string zipcode
+ *
+ * @return array
+ *   A multidimensional array of city,state pairs matching the zip code
+ */
+function _perform_lookup($zip) {
+  $query = "SELECT city, state from {wh_zipcodes} where zip = :zip";
+  $results = db_query($query, array(':zip' => $zip));
+  $pairs = array();
+  while ($result = $results->fetch()) {
+    $pairs[] = array('city' => check_plain($result->city), 'state' => check_plain($result->state));
+  }
+  return $pairs;
+}

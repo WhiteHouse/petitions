@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Install and update functions for WH Petitions Reporting
+ *
+ * @todo: uninstall hook to remove variables and mongo tables
+ */
+
+/**
+ * implements hook_update_N()
+ *
+ * set a created timestamp for all existing petitions
+ */
+function wh_petition_reporting_update_7101() {
+  $mongoPetitionCollection = wh_petitions_mongo_petition_connection();
+
+  //get the petitions which do not have a 'created' field on them
+  $petitions = $mongoPetitionCollection->find(array('created' => array('$exists' => FALSE)), array('_id' => 1));  
+  foreach ($petitions as $petition) {
+    $ts = $petition['_id']->getTimestamp();
+    $mongoPetitionCollection->update(array('_id' => $petition['_id']), array('$set' => array('created' => $ts)));
+  }
+  //put an index on the created field
+  $mongoPetitionCollection->ensureIndex(array('created'=>-1), array('safe' => TRUE));
+}
+
+/**
+ * implements hook_update_N()
+ *
+ * put index on petition_signatures.timestamp
+ * back-fill delta counts for existing records
+ */
+function wh_petition_reporting_update_7102() {
+  $mongoSignatureCollection = mongodb_collection('petition_signatures');
+  $mongoSignatureCollection->ensureIndex(array('timestamp'=>-1), array('safe' => TRUE));
+  
+  $collection = mongodb_collection('hourly_report_data');
+  $collection->setSlaveOkay(TRUE);
+
+  //get the petitions which have all three deltas set to 0
+  $query = array(
+    'newUsers'      => 0,
+    'newPetitions'  => 0,
+    'newSignatures' => 0,
+  );
+  $hours = $collection->find($query);
+  $i = 0;
+  foreach ($hours as $hour) {
+    $i++;
+    $hours->timeout = 90 * 1000; //90 seconds per record  
+    $start_time = $hour['_id']['startTS'];
+    $end_time = $hour['_id']['endTS'];
+  
+    $dataObject = HourlyReportManager::getHourRecord($start_time, $end_time, TRUE);
+   
+    $collection->update(array('_id' => $hour['_id']), array('$set' => array('newUsers' => (int) $dataObject['newUsers'], 'newPetitions' => $dataObject['newPetitions'], 'newSignatures' => $dataObject['newSignatures'])));
+  }
+}

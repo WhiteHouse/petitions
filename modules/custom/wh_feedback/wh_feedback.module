@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implementation of hook_init()
+ */
+
+function wh_feedback_init() {
+
+
+}
+

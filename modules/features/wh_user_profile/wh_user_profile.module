@@ -1,0 +1,3 @@
+<?php
+
+include_once('wh_user_profile.features.inc');

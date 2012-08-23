@@ -1,0 +1,97 @@
+#wh-feedback-modal { 
+	width: 426px;
+        background: transparent url(http://www.whitehouse.gov/sites/default/themes/whitehouse/img/contact/bg-modal-mid.png) repeat-y scroll 0px 0px;
+}
+
+#wh-feedback-modal p { margin: 0 0 15px !important; }
+
+#wh-feedback-modal #edit-submit { display: none; }
+
+#wh-feedback-modal #content { width: 365px !important; margin: -5px 20px 0px 15px; text-align: left !important; background: none !important; }
+
+#wh-feedback-modal h1 { margin-top: -15px !important; font-size: 14px; font-weight: bold; }
+
+#wh-feedback-form-display { display: none; }
+
+#wh-feedback-container .webform-description { border-bottom: 0px !important; margin: 0px !important; }
+
+#wh-feedback-top {
+	background: transparent url(http://www.whitehouse.gov/sites/default/themes/whitehouse/img/contact/bg-modal-top.png) no-repeat scroll 0px 0px;
+	height: 26px;
+}
+#wh-feedback-container { 
+	display: none; 
+        width: 430px !important;
+	position: relative;
+	z-index: 1000;
+	margin-left: -100px;
+}
+#wh-feedback-bottom {
+	background: transparent url(http://www.whitehouse.gov/sites/default/themes/whitehouse/img/contact/bg-modal-bottom.png) no-repeat scroll 0px 0px;
+	height: 26px;
+}
+
+#wh-feedback-container .textarea-identifier { display: none; }
+
+#wh-feedback-success {
+  background: transparent url(http://www.whitehouse.gov/sites/default/modules/wh_feedback/images/eagle.jpg) no-repeat scroll center 120px;
+  height: 240px;
+  margin: 0 10px;
+  padding: 20px 70px;
+}
+#wh-feedback-success {
+  color: #369;
+    font-family: Georgia,"Times New Roman",Times,serif;
+    font-size: 20px;
+    line-height: 1.5;
+    margin: 0px 0 0;
+    text-align: center;
+}
+
+#wh-feedback-form em { display: none; }
+#wh-feedback-submit { 
+	margin: 0px 0px 0px 35px; 
+	float: left; 
+	background: url('http://www.whitehouse.gov/sites/default/modules/wh_feedback/images/feedback_btn_sprite.png') no-repeat 0 0; width: 148px; height: 24px; 
+}
+
+#wh-feedback-webform #edit-captcha-response-wrapper label { float: left; } 
+
+#wh-feedback-webform { margin: -10px; width: 380px; } 
+	
+.wh-feedback-label { padding: 5px 0px; font-weight: 800; }
+
+.wh-feedback-2col { width: 45%; float: left; }
+
+#wh-feedback-webform #edit-submitted-first-name, #wh-feedback-webform #edit-submitted-last-name { width: 145px; }
+
+#wh-feedback-webform #edit-submitted-comments { width: 325px; }
+
+.wh-feedback-row { clear: both; margin: 7px; }
+
+#edit-captcha-response-wrapper .description { display: none; }
+
+#edit-captcha-response-wrapper label { margin: 0px 10px 10px -35px; }
+
+#edit-captcha-response-wrapper span { background: none; margin-bottom: -5px; }
+
+#wh-feedback-webform .captcha .description { display: none; margin: 0px; }
+
+#wh-feedback-webform .captcha { margin: -25px 0px 20px; } 
+
+#wh-feedback-modal #wh-feedback-close { 
+	background: transparent url(http://www.whitehouse.gov/sites/default/themes/whitehouse/img/icons/icon-close.gif) no-repeat scroll 100% 0px;
+	color: #999;
+	float: right;
+	font-size: 11px;
+	margin: 0px 20px 4px;
+	padding: 3px 20px 2px 0px;
+	text-decoration: none;
+	line-height: 13px;
+}
+
+span[class^=wh-feedback-error-] { color: red; padding: 5px 0px; } 
+
+#wh-feedback-node-form input.form-submit { float: left !important; }
+
+textarea #wh-feedback-comments, #wh-feedback-webform #wh-feedback-comments { display: none; visibility: hidden; }

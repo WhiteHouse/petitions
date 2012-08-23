@@ -1,0 +1,3 @@
+<?php
+
+include_once('wh_response_feature.features.inc');

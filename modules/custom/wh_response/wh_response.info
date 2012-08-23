@@ -1,0 +1,8 @@
+name = "WH Response"
+description = "Core functionality for Responses"
+package = "Custom"
+core = "7.x"
+version = "7.x-1.0"
+dependencies[] = "mongodb"
+dependencies[] = "taxonomy"
+dependencies[] = "wh_petitions"

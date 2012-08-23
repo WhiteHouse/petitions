@@ -1,0 +1,7 @@
+name = White House Petition Tool
+description = Provides JSON and AJAX support to deliver content to the main White House site.
+dependencies[] = wh_petitions
+dependencies[] = wh_response
+package = Other
+core = 7.x
+files[] = wh_petition_tool.module

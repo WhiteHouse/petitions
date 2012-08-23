@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */ 
+function wh_petition_tool_install() {
+  // Sets Mongo Petition Indexes
+  $conn = wh_petitions_mongo_petition_connection();
+  $conn->ensureIndex(array('title' => 1));
+  $conn->ensureIndex(array('signature_count' => -1));
+  $conn->ensureIndex(array('published' => -1));
+  $conn->ensureIndex(array('reached_public' => -1));
+  $conn->ensureIndex(array('title_keywords' => 1));
+  $conn->ensureIndex(array('body_keywords' => 1));
+  $conn->ensureIndex(array('nice_url' => 1));    
+  
+  // Sets Mongo Signature Indexes
+  $signature_conn = wh_petitions_mongo_petition_signatures_connection();
+  $signature_conn->ensureIndex(array('_id', 'petition_id'));
+  $signature_conn->ensureIndex('petition_id');      
+}
+
+function wh_petition_tool_update_7001($sandbox) {
+  // Upping stale file threshold to 60 days to prevent improper caching at Aka
+  variable_set('drupal_stale_file_threshold', 5184000);
+}

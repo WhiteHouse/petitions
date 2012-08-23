@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Removes the IP and User Agent fields from the user edit forms. These
+ * should never be viewable or editable.
+ */
+function wh_user_ss_data_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
+  $form['field_user_agent']['#type'] = 'hidden';
+  $form['field_ip_address']['#type'] = 'hidden';
+}

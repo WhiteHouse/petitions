@@ -1,0 +1,592 @@
+<?php
+/**
+ * @file wh_petition_tool.module
+ */
+
+define ('WH_PETITION_TOOL_PETITION_HOSTNAME', 'https://petitions.whitehouse.gov');
+
+/**
+ * Implements hook_permissions().
+ */
+function wh_petition_tool_permission() {
+  return array(
+    'administer petition tool hub settings' => array(
+      'title' => t('Administer Petition Tool hub Settings settings'), 
+      'description' => t('Manage the configuration of the Petition Tool Web Services integration with the OpenSaaS Hub'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function wh_petition_tool_menu() { 
+  $items['petitionpage'] = array(
+    'title' => 'AJAX responses for Petitions',
+    'page callback' => 'wh_petition_tool_page_init',
+    'access arguments' => array('access content'),
+  );
+  $items['petitiontool'] = array(
+    'title' => 'AJAX responses for Petitions',
+    'page callback' => 'wh_petition_tool_page_json',
+    'access arguments' => array('access content'),
+  );
+  $items['homepage'] = array(
+    'title' => variable_get('wh_petitions_page_title', 'We the People: Your Voice in Our Government'),
+    'page callback' => 'wh_petition_tool_homepage',
+    'access arguments' => array('access content'),
+  );    
+  $items['petitiontool/opengraph/%'] = array(
+    'title' => 'OpenGraph data for Petition Tool content',
+    'page callback' => 'wh_petition_tool_opengraph_json',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+  );
+  $items['petitiontool/metadata/%'] = array(
+    'title' => 'Metadata for Petition Tool content',
+    'page callback' => 'wh_petition_tool_metadata_json',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+  ); 
+  $items['petitiontool/cron/response/%'] = array(
+    'title' => 'Petition IDs that have been responded to lately',
+    'page callback' => 'wh_petition_tool_page_responded_to',
+    'page arguments' => array(3),    
+    'access arguments' => array('access content'),
+  ); 
+  $items['admin/config/system/petition-tool-hub'] = array(
+    'title' => 'Petition Tool Hub Settings',
+    'description' => 'Manage Petition Tool Web Service integration with OpenSaas Hub.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wh_petition_tool_hub_settings'),
+    'access arguments' => array('administer petition tool hub settings'),
+    'weight' => -10,
+    'file' => 'wh_petition_tool.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Themes the petition tool homepage.
+ */
+function wh_petition_tool_homepage() {
+  global $base_url;
+  $bottom_left = variable_get('wh_petitions_homepage_left', '');
+  $bottom_middle = variable_get('wh_petitions_homepage_center', '');
+  $bottom_right = variable_get('wh_petitions_homepage_right', '');
+  $homepage_content = variable_get('wh_petitions_homepage_content', '');
+  return theme('wh_petition_tool_homepage', array('url' => $base_url, 'bottom_left' => $bottom_left, 'bottom_middle' => $bottom_middle, 'bottom_right' => $bottom_right, 'homepage_content' => $homepage_content));
+}
+
+/**
+ *
+ */
+function wh_petition_tool_page_init($path = 'petitions') {
+  print theme_page();
+  die;
+}
+
+function wh_petition_tool_page_responded_to($last_id) {
+  $petition_ids = array();
+  $new_last_id = '';
+
+  $res_conn = wh_response_mongo_response_connection();
+  if (!empty($last_id)) {
+    $result = $res_conn->find(array('_id' => array('$gt' => new MongoId($last_id))))->sort(array('_id' => -1));
+  }
+  else {
+    $result = $res_conn->find()->sort(array('_id' => -1));
+  }
+  foreach ($result as $res) {
+    $id = $res['petition']->__toString();
+    array_push($petition_ids, $id);
+    if (empty($new_last_id)) { 
+      $new_last_id = $res['_id']->__toString();
+    }
+  }  
+
+  drupal_json_output(array("ids" => $petition_ids, "last_id" => $new_last_id));
+}
+
+/**
+ *
+ */
+function wh_petition_tool_page_json() {
+  $data = _wh_petition_tool_page_content();
+
+  header('Content-Type: text/javascript; charset=utf-8');
+  if (empty($_GET['callback'])) {
+    drupal_json_output($data);
+  }
+  else {
+    $callback = check_plain($_GET['callback']);
+    print $callback . '(' . json_encode($data) . ')';
+    exit;
+  }
+
+}
+
+/**
+ * Implementation of hook_theme().
+ *
+ * Addes the json theme key and tells Drupal to use our substitute for 
+ * html.tpl.php, but still render the page's content as a page. This way, we
+ * can use the page's render array to encode as json
+ */
+function wh_petition_tool_theme() {
+  return array(
+    'json' => array(
+      'render element' => 'page',
+      'template' => 'json',
+    ),
+    'esi' => array(
+      'render element' => 'page',
+      'template' => 'esi',
+    ),
+    'wh_petition_tool_homepage' => array(
+      'arguments' => array(),
+      'template' => 'wh-petition-tool-homepage',
+    ), 
+    'wh_petition_tool_left_nav' => array(
+      'arguments' => array(),
+      'template' => 'wh-petition-tool-left-nav',
+    ),          
+  );
+}
+
+/**
+ * Helper function to create an array of data to send as json later.
+ * This may be deprecated soon.
+ */
+function _wh_petition_tool_page_content() {
+  $content = array();
+  
+  module_load_include('inc', 'wh_petitions', 'wh_petitions.pages');
+  $content['markup'] = wh_petitions_show_petitions();
+  
+  $content['css'] = drupal_get_css();
+  $content['js'] = drupal_get_js();
+  
+  return $content;
+}
+
+/**
+ * Implementation of hook_page_alter().
+ *
+ * Looks for the wrapper parameter that is sent by the AJAX requests.
+ */
+function wh_petition_tool_page_alter(&$page) {
+  if (!empty($_GET['wrapper']) || !empty($_GET['t'])) {
+    $page['#show_messages'] = FALSE;
+    if ($_GET['wrapper'] == 'json') {
+      $page['#theme_wrappers'] = array('json');
+    }
+    elseif ($_GET['wrapper'] == 'esi') {
+      $page['#theme_wrappers'] = array('esi');
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ *
+ * Adds the left nav to page nodes.
+ */
+function wh_petition_tool_preprocess_node(&$vars) {
+  $vars['left_nav'] = '';
+  if ($vars['node']->type == 'wh_petitions_page') {
+    $vars['left_nav'] = wh_petition_tool_left_nav();
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ *
+ * Adds the top right text and node type as variables available to the page template.
+ */
+function wh_petition_tool_preprocess_page(&$vars) {
+  $vars['top_right_text'] = variable_get('wh_petitions_top_right_text', '');
+  $node_type = '';
+  if (!empty($vars['node'])) {
+    $node_type = $vars['node']->type;
+  }
+  $vars['node_type'] = $node_type;
+}
+
+/**
+ * Themes the left nav on page nodes.
+ */
+function wh_petition_tool_left_nav() {
+  $menu_links = menu_tree_page_data('menu-how-why', 2, FALSE);
+  $links = array();
+
+  foreach ($menu_links as $id => $menu_item) {
+    if ($menu_item['link']['depth'] == 1 && !$menu_item['link']['hidden']) {
+      $links[] = $menu_item['link'];
+    }
+  }
+
+  return theme('wh_petition_tool_left_nav', array('links' => $links));
+}
+
+/**
+ * Request a Short URL from the OpenSaas Hub site.
+ *
+ * @param $url
+ *    The original relative URL
+ *
+ * @return
+ *    The wh.gov short URL.
+ */
+function wh_petition_tool_shortenurl($url) {
+  $op = 'petitiontool.shortenurl';
+  $api_key = variable_get('wh_petition_tool_hub_key', '');
+  $server = variable_get('wh_petition_tool_hub_url', '');
+
+  // The domain you are sending the request from, which is specified also in the api key.
+  $domain = variable_get('wh_petition_tool_request_domain', ''); 
+  
+  // Timestamp for hash
+  $timestamp = (string) time();
+  
+  // Single use password
+  $nonce = user_password();
+  
+  // Create secure hash using your api key.
+  $hash = hash_hmac('sha256', $timestamp . ';' .$domain . ';' . $nonce . ';' . $op, $api_key);
+
+  // Get a node from the remote server.
+  $xmlrpc_result = xmlrpc($server, array(
+    $op => array($hash, $domain, $timestamp, $nonce, $url))
+  );
+  
+  if ($xmlrpc_result === FALSE) {
+    $xmlrpc_error = xmlrpc_error();
+    watchdog('wh_petition_tool', 'Services Error (@code): @message', array(
+      '@code' => $xmlrpc_error->code, 
+      '@message' => $xmlrpc_error->message
+    ), WATCHDOG_ERROR);
+  }
+  
+  return $xmlrpc_result;
+}
+
+/**
+ * Menu callback for grabbing ther Open Graph data for an entity.
+ */
+function wh_petition_tool_opengraph_json($type) {
+  $elements = arg();
+  $path_parts = array_slice($elements, 3);
+  $path = implode('/', $path_parts);
+
+  switch ($type) {
+    case 'petition':
+      $data = wh_petition_tool_petition_opengraph($path);
+      break;
+    case 'response':
+      $data = wh_petition_tool_response_opengraph($path);
+      break;
+    default:
+      $data = array();
+  }
+
+  drupal_json_output($data);
+}
+
+/**
+ * Load the Petition and return the data used for the OpenGraph tags.
+ */
+function wh_petition_tool_petition_opengraph($path) {
+  $conn = wh_petitions_mongo_petition_connection(); 
+  
+  if ($petition = $conn->findOne(array('nice_url' => $path), array('title', 'body'))) {
+    return array(
+      'og:title' => $petition['title'],
+      'og:description' => truncate_utf8($petition['body'], 200, TRUE, TRUE),
+      'og:type' => 'article',
+    );
+  }
+  
+  return array();
+}
+
+/**
+ * Load the Response and return the data used for the OpenGraph tags.
+ */
+function wh_petition_tool_response_opengraph($path) {
+  if ($url = drupal_lookup_path('source', $path)) {
+    $nid = arg(1, $url);
+    $node = node_load($nid);
+
+    // TODO: Do we need to add the "Official Response to..." to the title
+    $title = check_plain($node->title);        
+    $body = strip_tags($node->body[$node->language][0]['value']);
+    return array(
+      'og:title' => $title,
+      'og:description' => truncate_utf8($body, 200, TRUE, TRUE),
+      'og:type' => 'article',
+    );
+  }
+  
+  return array();
+}
+
+/**
+ * Menu callback for grabbing ther Metadata for an entity.
+ */
+function wh_petition_tool_metadata_json($type) {
+  $elements = arg();
+  $path_parts = array_slice($elements, 3);
+  $path = implode('/', $path_parts);
+
+  switch ($type) {
+    case 'petition':
+      $data = wh_petition_tool_petition_metadata($path);
+      break;
+    case 'response':
+      $data = wh_petition_tool_response_metadata($path);
+      break;
+    default:
+      $data = array();
+  }
+
+  drupal_json_output($data);
+}
+
+/**
+ * Load the Petition and return the data used for the Metadata tags.
+ */
+function wh_petition_tool_petition_metadata($path) {
+  $conn = wh_petitions_mongo_petition_connection(); 
+
+  if ($petition = $conn->findOne(array('nice_url' => $path), array('title', 'body', 'petition_status', 'issues'))) {
+    $issues = array();
+    if (!empty($petition['issues'])) {
+      for ($i=0;$i<sizeof($petition['issues']);$i++) {
+        $term = taxonomy_term_load($petition['issues'][$i]);
+        if (!empty($term)) {
+          array_push($issues, check_plain($term->name));
+        }
+      }
+    }   
+    return array(
+      'petition_id' => $petition['_id']->__toString(),
+      'title' => check_plain($petition['title']),
+      'description' => check_plain(str_replace("\r\n", ' ', strip_tags($petition['body']))),
+      'keywords' => implode(', ', $issues),
+      'has_response' => ($petition['petition_status'] == WH_PETITION_STATUS_REVIEWED) ? 1 : 0,
+    );
+  }
+  
+  return array();
+}
+
+/**
+ * Load the Response and return the data used for the Metadata tags.
+ */
+function wh_petition_tool_response_metadata($path) {
+  if ($url = drupal_lookup_path('source', $path)) {
+    $nid = arg(1, $url);
+    $node = node_load($nid);
+
+    $title = check_plain($node->title);        
+    $body = str_replace("\r\n", ' ', strip_tags($node->body[$node->language][0]['value']));
+    $issues = array();
+    if (!empty($node->field_issues[$node->language][0])) {
+      for ($i=0;$i<sizeof($node->field_issues[$node->language]);$i++) {
+        $term = taxonomy_term_load($node->field_issues[$node->language][$i]['tid']);
+        if (!empty($term)) {
+          array_push($issues, check_plain($term->name));
+        }
+      }
+    }
+    
+    return array(
+      'title' => $title,
+      'description' => truncate_utf8($body, 320, TRUE, TRUE),
+      'keywords' => implode(', ', $issues),
+      'has_response' => 1,      
+    );
+  }
+  
+  return array();
+}
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Alters the forward form to uncollapse by default since it's on its own page, add the appropriate submit button, and add a submit handler.
+ */
+function wh_petition_tool_form_forward_form_alter(&$form, &$form_state) {
+  $form['message']['#collapsed'] = FALSE;
+  $form['message']['#collapsible'] = FALSE;
+  array_push($form['#submit'], 'wh_petition_tool_forward_submit');
+  $form['message']['actions']['submit']['#attributes'] = array('class' => array('button-email-this-petition', 'button'));
+  if (arg(0) == 'response') {
+    array_push($form['message']['actions']['submit']['#attributes']['class'], 'blue-button');
+    $form['message']['actions']['submit']['#value'] = t('Email This Response');
+    $nid = arg(2);
+    $form['message']['nid'] = array(
+      '#type' => 'hidden',
+      '#value' => check_plain($nid),
+    );
+  }
+  
+  $message = '';
+  if (arg(0) == 'petition') {
+    $message = variable_get('wh_petitions_email_forward_text', '');
+    $conn = wh_petitions_mongo_petition_connection();
+    $petition_id = arg(2);
+    $petition = $conn->findOne(array('_id' => new MongoId($petition_id)), array('response_signatures', 'short_url', 'body', 'title', 'published', 'review_timeframe'));
+  
+    if (!empty($petition)) {
+      $time = $petition['published'];
+      $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
+      $end_date = date("F d, Y", $end_date);  
+      
+      if (empty($petition['short_url'])) $petition['short_url'] = '';
+      
+      $message = str_replace('!petition_description', $petition['body'], $message);
+      $message = str_replace('!shorturl', $petition['short_url'], $message);
+      $message = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message);
+      $message = str_replace('!date_needed', $end_date, $message);
+    }
+  }
+  else {
+    $message = variable_get('wh_petitions_email_forward_response_text', '');
+    $nid = arg(2);
+    $node = node_load($nid);
+    $short_url = $node->field_shorturl[$node->language][0]['value'];  
+    if (!empty($node)) {
+      $message = str_replace('!shorturl', $short_url, $message);
+    }
+  }  
+  $message = str_replace("\r\n", "<br />", $message);
+  
+  $form['preview'] = array(
+    '#type' => 'markup',
+    '#markup' => $message,
+    '#prefix' => '<br /><br />',
+    '#weight' => 100,
+  );
+}
+
+/**
+ * Forward form submit handler.  Redirects to the appropriate thank you page based on petition or response.
+ *
+ * @todo - Ben - If emailing a petition or response is ever enabled we will need to revise this to remove
+ *              hostname and verify the petition id in the args array.
+ */
+function wh_petition_tool_forward_submit(&$form, &$form_state) {
+  global $base_url;
+  $host = variable_get('main_hostname', '') . '/petition-tool';
+  if (!empty($host)) {
+    if ($form_state['values']['op'] == 'Email This Response') {
+      $url = rtrim($host, '/') . '/response/email_thank';
+      $nid = $form_state['values']['nid'];
+      if (!empty($nid)) {
+        $url .= '/' . check_plain($nid);
+      }
+    }
+    else {
+      $url = rtrim($host, '/') . '/petition/email_thank';
+      $petition_id = arg(2);
+      if (!empty($petition_id)) {
+        $url .= '/' . check_plain($petition_id);
+      }
+    }
+  }
+  $form_state['redirect'] =  $url;
+}
+
+/**
+ * Implements hook_menu_link_alter().
+ *
+ * Alters the description and title for the Content admin menu path.
+ */
+function wh_petition_tool_menu_link_alter(&$item) {
+  if ($item['link_path'] == 'admin/content') {
+    $item['description'] = t('Find and manage responses and pages.');
+    $item['options']['attributes']['title'] = t('Find and manage responses and pages.');
+  }
+}
+
+/**
+ * Implements hook_mail_alter().
+ *
+ * Alters the text of the forward email message to insert petition and response-specific variables.
+ */
+function wh_petition_tool_mail_alter(&$message) {
+  if ($message['id'] == 'forward_forward_page') {
+    if (arg(0) == 'petition') {
+      $conn = wh_petitions_mongo_petition_connection();
+      $petition_id = arg(2);
+      $petition = $conn->findOne(array('_id' => new MongoId($petition_id)), array('response_signatures', 'short_url', 'body', 'title', 'published', 'review_timeframe'));
+  
+      if (!empty($petition)) {
+        $time = $petition['published'];
+        $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
+        $end_date = date("F d, Y", $end_date);  
+      
+        if (empty($petition['short_url'])) $petition['short_url'] = '';
+    
+        $message['body'][0] = str_replace('!petition_description', $petition['body'], $message['body'][0]);
+        $message['body'][0] = str_replace('!shorturl', $petition['short_url'], $message['body'][0]);
+        $message['body'][0] = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message['body'][0]);
+        $message['body'][0] = str_replace('!date_needed', $end_date, $message['body'][0]);
+        $message['params']['body'] = str_replace('!petition_description', $petition['body'], $message['params']['body']);
+        $message['params']['body'] = str_replace('!shorturl', $petition['short_url'], $message['params']['body']);
+        $message['params']['body'] = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message['params']['body']);      
+        $message['params']['body'] = str_replace('!date_needed', $end_date, $message['params']['body']);
+        $message['subject'] = $petition['title'];
+        $message['params']['subject'] = $petition['title'];
+      }
+    }
+    else {
+      $nid = arg(2);
+      $node = node_load($nid);
+      $short_url = $node->field_shorturl[$node->language][0]['value'];  
+      if (!empty($node)) {
+        $message['body'][0] = str_replace('!shorturl', $short_url, $message['body'][0]);
+        $message['params']['body'] = str_replace('!shorturl', $short_url, $message['params']['body']);
+        $message['subject'] = check_plain($node->title);
+        $message['params']['subject'] = check_plain($node->title);
+      }
+    }
+  }
+}
+
+/**
+ * Themes the twitter link on petitions and responses.
+ */
+function wh_petition_tool_twitter_link($id, $title, $type = 'petition', $link_text='', $short_url='', $nice_url='') {
+  global $base_url;
+  if (empty($short_url)) {
+    $short_url = $base_url .'/'. $nice_url;
+  }
+  $link = 'http://twitter.com/share?';
+  $link .= 'url=' . $short_url;
+  $link .= '&amp;text=' . urlencode($title);
+  $link .= '&amp;counturl=' . $base_url .'/'. $nice_url;
+  
+  if (empty($link_text)) {
+    $link_text = t('Twitter');
+  }
+  
+  return '<a href="#" class="options-box no-follow" onclick=\'window.open("' . $link . '", "twitter", "status=0,toolbar=0,location=0,menubar=0,height=370,width=550,resizable=0"); return false;\'>' . $link_text . '</a>';
+}
+
+/**
+ * Themes the facebook share link on petitions and responses.
+ */
+function wh_petition_tool_facebook_link($id, $title, $type = 'petition', $link_text='', $nice_url='') {
+  global $base_url;
+  $url = $base_url . "/$nice_url";
+
+  if (empty($link_text)) {
+    $link_text = t('Facebook');
+  }
+  
+  return '<a href="#" class="options-box no-follow" onclick=\'window.open("http://www.facebook.com/share.php?u=' . urlencode($url) . '&amp;t='.urlencode($title) . '", "facebook", "status=0,toolbar=0,location=0,menubar=0,height=500,width=800,resizable=1"); return false;\'>' . $link_text . '</a>';
+}

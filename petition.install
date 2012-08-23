@@ -1,0 +1,41 @@
+<?php
+
+/**
+* Implement hook_install().
+*
+* Perform actions to set up the site for this profile.
+*/
+function petition_install() {
+  include_once DRUPAL_ROOT . '/profiles/standard/standard.install';
+  standard_install();
+
+  // Enable the admin theme.
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', 'seven')
+    ->condition('name', 'petitions')
+    ->execute();
+  variable_set('admin_theme', 'seven');
+  variable_set('theme_default', 'petitions');
+
+  $vocabulary = (object) array(
+    'name' => t('Issues'),
+    'machine_name' => 'issues',
+  );
+  taxonomy_vocabulary_save($vocabulary);
+
+  function save_issues_term($name) {
+    $term = (object) array(
+      'name' => st("$name"),
+      'vocabulary_machine_name' => 'issues',
+      'vid' => 2,
+    );
+    taxonomy_term_save($term);
+  }
+  save_issues_term('Agriculture');
+  save_issues_term('Arts and Humanities');
+  save_issues_term('Budget and Taxes');
+  save_issues_term('Civil Rights and Liberties');
+  save_issues_term('Climate Change');
+}

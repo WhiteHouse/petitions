@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * @file
+ * Basic module functions for Petitions in the Whitehouse environment.
+ */
+
+/**
+ * Implementation of hook_init().
+ */
+function wh_core_init() {
+  // Add the javascript that will populate the 'origin' field in user reg forms
+  drupal_add_js(drupal_get_path('module', 'wh_core') . '/wh_core.js', 'file');
+}
+
+
+/**
+ * Implements hook_form_alter().
+ */
+function wh_core_form_alter(&$form, &$form_state, $form_id) {
+
+  if($form_id == 'user_register_form' || $form_id == 'user_profile_form') {
+    // Change the CAPTCHA text
+    $form['actions']['captcha']['#description'] = t('For security, type the following text in the box below it.');
+
+    // Remove some unwanted profile fields.
+    unset($form['profile_main']['field_tag_line']);
+    unset($form['profile_main']['field_intro']);
+
+    // Get rid of the Profile title label
+    unset($form['profile_main']['#title']);
+
+    // Hide the origin field for new user redirecting.
+    $form['field_origin']['und'][0]['value']['#type'] = 'hidden';
+    $form['field_origin']['und'][0]['value']['#default_value'] = 'petitions';
+  }
+
+  if ($form_id == 'user_register_form' && arg(0) != 'admin') {
+    $form['account']['name']['#title'] = t('E-mail');
+    $form['account']['name']['#access'] = FALSE;
+    array_unshift($form['#validate'], 'wh_core_user_register_validate');
+
+    // Hide the country field
+    $form['profile_main']['field_country']['#type'] = 'hidden';
+ 
+    // Add the email registration field
+    $form['email_updates'] = array (
+      '#title' => t('Sign up for email updates from President Obama and other senior administration officials'),
+      '#type' => 'checkbox',
+    );
+    $form['#submit'][] = 'wh_core_user_register_submit';
+  }
+
+  if ($form_id == 'user_login') {
+    $form['name']['#title'] = t('E-Mail:');
+    $form['name']['#description'] = t('You may login with your e-mail address.');
+    
+    $form['pass']['#title'] = t('Password:');
+    $form['pass']['#description'] = t('The password field is case sensitive');
+  }
+  if ($form_id == 'user_pass') {
+    $form['name']['#title'] = t('E-Mail:');
+  }   
+}  
+
+/**
+ * Performs custom validation to munge email into a username and capture ip
+ *  and user agent when a user registers.
+ */
+function wh_core_user_register_validate($form, &$form_state) {
+  if (empty($form_state['values']['name']) && !empty($form_state['values']['mail'])) {
+    $form_state['values']['name'] = trim($form_state['values']['mail']);
+    $form_state['values']['name'] = preg_replace("/[^\x80-\xF7 [:alnum:]@]/", '_', $form_state['values']['name']);
+  }
+
+  $form_state['values']['field_ip_address']['und'][0]['value'] = ip_address();
+  $form_state['values']['field_user_agent']['und'][0]['value'] = $_SERVER['HTTP_USER_AGENT'];
+}
+
+/**
+ * Sends email updates field values to the correct govdelivery message.
+ */
+function wh_core_user_register_submit($form, &$form_state) {
+  if (!empty($form_state['values']['email_updates']) && $form_state['values']['email_updates'] == 1) {
+    $request =  array('code' => 'USEOPWH_10128', 'email' => $form_state['values']['mail']);
+    $key = md5(print_r($request, TRUE) . microtime() . strval(rand()));
+    govdelivery_queue_set('govdelivery_subscription_queue', $key, $request);
+  }
+}
+/* Implements hook_user_login().
+ *
+ * Set a custom cookie when a user logins in which can then be used to show
+ * or hide links using javascript.
+ */
+function wh_core_user_login(&$edit, $account) {
+  global $cookie_domain;
+  setcookie('authenticated', '1', 0, '/', $cookie_domain);
+}
+
+/**
+ * Implements hook_user_logout().
+ *
+ * Unset the custom cookie set by wh_core_user_login().
+ */
+function wh_core_user_logout($account) {
+  global $cookie_domain;
+  setcookie('authenticated', '0', time() - 3600, '/', $cookie_domain);
+}

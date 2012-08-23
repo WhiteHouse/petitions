@@ -1,0 +1,33 @@
+<?php
+/**
+ * @file
+ */
+ 
+/**
+ * Implements hook_install().
+ */
+function wh_response_install() {
+  // Set the weight to 2 (must be after pathauto)
+  db_update('system')
+    ->fields(array('weight' => 2))
+    ->condition('type', 'module')
+    ->condition('name', 'wh_response')
+    ->execute();
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function wh_response_update_7001() {
+  // Set the weight to 2 (must be after pathauto)
+  db_update('system')
+    ->fields(array('weight' => 2))
+    ->condition('type', 'module')
+    ->condition('name', 'wh_response')
+    ->execute();
+}
+ 
+ 
+
+ 
+ 

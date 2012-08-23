@@ -1,0 +1,1030 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function govdelivery_permission() {
+  return array(
+    'Manage GovDelivery Settings' => array(
+      'title' => t('Manage GovDelivery Settings'),
+      'description' => t('Manage GovDelivery Accounts, Service Endpoints, Enable/Disable Cron Events, Enable/Disable Queuing, Send Test Messages/Subscriptions, Manage the Mail Queue'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function govdelivery_menu() {
+  $items['admin/config/services/govdelivery'] = array(
+    'title' => 'GovDelivery Settings',
+    'description' => 'Settings for GovDelivery to connect with the GovDelivery ODM and Subscription service.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('govdelivery_settings'),
+    'access arguments' => array('Manage GovDelivery Settings'),
+    'file' => 'govdelivery.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/services/govdelivery/test'] = array(
+    'title' => 'GovDelivery Settings Test - Messages',
+    'description' => 'Test sending messages through Drupal correctly route to the GovDelivery service.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('govdelivery_test_settings'),
+    'access arguments' => array('Manage GovDelivery Settings'),
+    'file' => 'govdelivery.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/config/services/govdelivery/test_subscriptions'] = array(
+    'title' => 'GovDelivery Settings Test - Subscriptions',
+    'description' => 'Test signup process for GovDelivery Subscription services.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('govdelivery_test_subscriptions'),
+    'access arguments' => array('Manage GovDelivery Settings'),
+    'file' => 'govdelivery.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/reports/govdelivery_message_queue'] = array(
+    'title' => 'GovDelivery Message Queue',
+    'description' => 'View current items in the message queue.',
+    'page callback' => 'govdelivery_message_queue_report',
+    'page arguments' => array(),
+    'access arguments' => array('Manage GovDelivery Settings'),
+    'file' => 'govdelivery.admin-reports.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/reports/govdelivery_message_queue/details'] = array(
+    'title' => 'GovDelivery Message Details',
+    'description' => 'Details of a queued messaged',
+    'page callback' => 'govdelivery_details',
+    'page arguments' => array(),
+    'access arguments' => array('Manage GovDelivery Settings'),
+    'file' => 'govdelivery.admin-reports.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_mail().
+ */
+function govdelivery_mail($key, &$message, $params) {
+  $message['subject'] = 'GovDelivery test message';
+  if (isset($_SERVER['HTTP_HOST'])) {
+    $_SERVER['HTTP_HOST'] = strtolower($_SERVER['HTTP_HOST']);
+    if (drupal_valid_http_host($_SERVER['HTTP_HOST'])) {
+      $message['subject'] = 'GovDelivery test message: ' . $_SERVER['HTTP_HOST'] . ' ' . time() . ' ' . rand(1, 10000);
+    }
+  }
+
+  $message['body'][] = chr(0xb); 
+  $message['body'][] = chr(0x10); // Low level ctrl chars.
+  $message['body'][] = chr(0x800); // Block D7FF < chr < E000
+  $message['body'][] = chr(0xFFFE); // Block FFFD < chr < 10000
+  $message['body'][] = "<html>";
+  $message['body'][] = "<h1>H1 Test</h1>";
+  $message['body'][] = "<h2>H2 Test</h2>";
+  $message['body'][] = "<h3>H3 Test</h3>";
+  $message['body'][] = "<p>This is a test message from the GovDelivery system</p>";
+  $message['body'][] = "<ol><li>Item 1</li><li>Item 2</li><li>Item 3</li></ol>";
+  $message['body'][] = "</html>";
+}
+
+/**
+ *
+ * @todo This is likely broken or limited.
+ *
+ * Implements hook_cron().
+ */
+function govdelivery_cron() {
+  $govdelivery_subscription_settings = variable_get('govdelivery_subscription_settings', NULL);
+  $govdelivery_odm_settings = variable_get('govdelivery_odm_settings', array());
+
+  // If subscriptions cron is Enabled
+  if (isset($govdelivery_subscription_settings['cron_subscriptions']) && $govdelivery_subscription_settings['cron_subscriptions']) {
+    $messages_sent = govdelivery_process_subscription_queue();
+  }
+
+  // If subscriptions cron is Enabled
+  if (isset($govdelivery_odm_settings['cron_odm']) && $govdelivery_odm_settings['cron_odm']) {
+    $items_sent = govdelivery_process_message_queue();
+  }
+}
+
+/**
+ * Implements hook_nagios_info().
+ */
+function govdelivery_nagios_info() {
+  return array(
+    'name' => 'GovDelivery',
+    'id' => 'GovDelivery',
+  );
+}
+
+/**
+ * Get the count from a particular queue.
+ *
+ */
+function _govdelivery_get_queue_count($table) {
+  try {
+    $result = db_select($table)->countQuery()->execute()->fetchField();
+    return $result;
+  } catch (Exception $e) {
+    return FALSE;
+  }
+}
+
+/**
+ * Implement hook_nagios().
+ */
+function govdelivery_nagios() {
+  $queues = array (
+    'messages' => array(
+      'table' => 'govdelivery_message_queue',
+    ),
+    'subscriptions' => array (
+      'table' => 'govdelivery_subscription_queue',
+    ),
+    'subscriber_api_topics' => array(
+      'table' => 'govdelivery_subscriber_api_topic_queue',
+    ),
+    'subscriber_api_subscribers' => array(
+      'table' => 'govdelivery_subscriber_api_subscriber_queue',
+    ),
+  );
+
+  $return = array(
+    'key' => 'GovDelivery',
+  );
+
+  // Get the user settings.
+  foreach ($queues as $queue => $details) {
+    $critical_threshold = variable_get('govdelivery_'. $queue .'_nagios_critical_threshold', 750);
+    $warning_threshold = variable_get('govdelivery_'. $queue .'_nagios_warning_threshold', 350);
+
+    $count = _govdelivery_get_queue_count($details['table']);
+    if (is_numeric($count) && is_numeric($critical_threshold) && is_numeric($warning_threshold)) {
+      if ($count > $critical_threshold) {
+        $status = NAGIOS_STATUS_CRITICAL;
+        $text = t("GovDelivery has @count backlogged @queue in the queue.", array('@count' => $count, '@queue' => $queue));
+      }
+      elseif ($count > $warning_threshold) {
+        $status = NAGIOS_STATUS_WARNING;
+        $text = t("GovDelivery has @count backlogged @queue in the queue.", array('@count' => $count, '@queue' => $queue));
+      }
+      else {
+        $status = NAGIOS_STATUS_OK;
+        $text = '';
+      }
+    }
+    else {
+      $status = NAGIOS_STATUS_UNKNOWN;
+      $text = t("GovDelivery can't determine the queue status for: ", array('@queue' => $queue));
+    }
+
+    $return['data_' . $queue] = array('status' => $status, 'type' => 'state', 'text' => $text);
+  }
+
+  return $return;
+}
+
+/**
+ * Implements hook_nagios_settings().
+ */
+function govdelivery_nagios_settings() {
+  $queues = array (
+    'messages' => array(
+      'table' => 'govdelivery_message_queue',
+    ),
+    'subscriptions' => array (
+      'table' => 'govdelivery_subscription_queue',
+    ),
+    'subscriber_api_topics' => array(
+      'table' => 'govdelivery_subscriber_api_topic_queue',
+    ),
+    'subscriber_api_subscribers' => array(
+      'table' => 'govdelivery_subscriber_api_subscriber_queue',
+    ),
+  );
+
+  $form = array('Govdelivery' => array());
+  foreach($queues as $queue => $detail) {
+    $form['GovDelivery'][] = array(
+      'govdelivery_'. $queue .'_nagios_critical_threshold' => array(
+        '#type' => 'textfield',
+        '#title' => t($queue . ' Critical Threshold'),
+        '#default_value' => variable_get('govdelivery_'. $queue .'_nagios_critical_threshold', 750),
+        '#description' => t('Issue a critical alert when GovDelivery has this number of items queued. (Make this greater then the warning number)'),
+      ),
+      'govdelivery_'. $queue .'_nagios_warning_threshold' => array(
+        '#type' => 'textfield',
+        '#title' => t($queue . ' Warning Threshold'),
+        '#default_value' => variable_get('govdelivery_'. $queue .'_nagios_warning_threshold', 350),
+        '#description' => t('Issue a warning alert when GovDelivery has this number of items queued. (Make this less then the critical alert number)'),
+      ),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Message Queue Processor
+ */
+function govdelivery_process_message_queue($items = NULL, $ignore_max_time = FALSE, $cid = NULL, $bid = NULL) {
+  return _govdelivery_preprocess_queue('govdelivery_message_queue', 'govdelivery_send_message', $items, $ignore_max_time, $cid, $bid);
+}
+
+/**
+ * Original Subscription Queue Processor.
+ *
+ * @deprecated This will be removed in version 2.0
+ */
+function govdelivery_process_subscription_queue($items = NULL, $ignore_max_time = FALSE, $cid = NULL, $bid = NULL) {
+  return _govdelivery_preprocess_queue('govdelivery_subscription_queue', 'govdelivery_queued_subscribe', $items, $ignore_max_time, $cid, $bid);
+}
+
+/**
+ * Subscriber API Topic Queue Processor.
+ */
+function govdelivery_process_subscriber_api_topic_queue($items = NULL, $ignore_max_time = FALSE, $cid = NULL, $bid = NULL) {
+  return _govdelivery_preprocess_queue('govdelivery_subscriber_api_topic_queue', 'govdelivery_subscriber_api_send_topic', $items, $ignore_max_time, $cid, $bid);
+}
+
+/**
+ * Subscriber API Subscriber Queue Processor.
+ */
+function govdelivery_process_subscriber_api_subscriber_queue($items = NULL, $ignore_max_time = FALSE, $cid = NULL, $bid = NULL) {
+  return _govdelivery_preprocess_queue('govdelivery_subscriber_api_subscriber_queue', 'govdelivery_subscriber_api_send_subscription', $items, $ignore_max_time, $cid, $bid);
+}
+
+/**
+ * Generic pre-process queue.
+ *
+ * Handles parsing the bids and randomizing their order. 
+ */
+function _govdelivery_preprocess_queue($queue, $callback, $items = NULL, $ignore_max_time = FALSE, $cid = NULL, $bid = NULL) {
+  $items_sent = 0;
+
+  //@todo check queue.
+  //@todo check callback.
+
+  try {
+    foreach(_govdelivery_get_bids_from_bid($bid) as $notrandom => $random) {
+      $items_sent += govdelivery_process_queue($queue, $callback, $random, $items, $ignore_max_time, $cid);
+    }
+  }
+  catch (Exception $e) {
+    watchdog('govdelivery', 'Failed to get proper bid for processing. Validate that govdelivery_odmsettings[\'max_bid\'] variable has'
+      . ' a valid integer value or the Drush command is called with a valid second parameter. Error: @error',
+      array('@error' => $e->getMessage()), WATCHDOG_INFO);
+    return FALSE;
+  }
+
+  watchdog('govdelivery', 'Sent %items items when processing the govdelivery @queue queue.',
+           array('%items' => $items_sent, '@queue' => $queue), WATCHDOG_INFO);
+  return $items_sent;
+}
+
+/**
+ *  Used to set high low bid values from a range input of n,n+1-x
+ *  Properly handles default values if no bid is specified in the correct form.
+ *  Handles randomizing the range so that semaphores are less likely to deadlock.
+ */
+function _govdelivery_get_bids_from_bid($bid) {
+  $govdelivery_odm_settings = variable_get('govdelivery_odm_settings', array());
+
+  $return = TRUE; // Flag for errors.
+
+  $bid_range = array();
+  if (!is_null($bid)) {
+    $bid_range = explode(',', $bid);
+  }
+  else {
+    $bid_range[0] = 1;
+    $bid_range[1] = is_numeric($govdelivery_odm_settings['max_bid']) ? $govdelivery_odm_settings['max_bid'] : 5;
+  }
+
+  $bids = array();
+  if (isset($bid_range[0], $bid_range[1])
+      && is_numeric($bid_range[0]) && is_numeric($bid_range[1]) && $bid_range[0] <= $bid_range[1]) {
+    $bids = range($bid_range[0], $bid_range[1]);
+    $return = shuffle($bids); // Shuffle returns true/false.
+  }
+  else {
+    $return = FALSE;
+  }
+
+  if (!$return) {
+    throw new Exception(
+      "Invalid Bid Range or unable to Shuffle the bids. Check calling function or the govdelivery_odm_settings['max_bid'] variable.");
+  }
+
+  return $bids;
+}
+
+/**
+ * Generic thread-safe queue processor. 
+ */
+function govdelivery_process_queue($queue, $callback, $bid, $items = NULL, $ignore_max_time = FALSE, $cid = NULL) {
+  $govdelivery_odm_settings = variable_get('govdelivery_odm_settings', array());
+  $start_time = (timer_read('page') / 1000);
+
+  // Get the lock name.
+  lock_initialize();
+  if (is_numeric($bid)) {
+    $lock_name = 'govdelivery_semaphore_' . $queue  . '_bin_' . $bid;
+  }
+  else {
+    watchdog('govdelivery', 'Attempting to run govdelivery queue processing with invalid bid.', array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Check if the lock is available or fail.
+  if (!lock_acquire($lock_name, $govdelivery_odm_settings['external_cron_interval'])) {
+    watchdog('govdelivery', 'Attempting to re-run govdelivery queue processing while it is already running. @bin',
+      array('@bin' => $lock_name), WATCHDOG_WARNING);
+    return FALSE;
+  }
+
+  // checks for maximum execution time cribbed from the job_queue module: drupal.org/project/job_queue
+  $max_execution_time = ini_get('max_execution_time');
+  if (!$ignore_max_time && empty($max_execution_time)) {
+    $max_execution_time = 5 * 60;
+  }
+
+  //$cache_queue = db_query("SELECT cid FROM {" . $queue . "} ORDER BY created ASC");
+  $query = db_select($queue, 'q');
+  $query->fields('q', array('cid'));
+  $query->condition('bid', $bid, '=');
+  $cache_queue = $query->execute();
+
+  $items_sent = 0;
+  foreach ($cache_queue as $queue_key) {
+    // check our status against the maximum execution time for a request, and if we've used half of it we want to
+    // stop processing - it was formerly checking whether half the time was used, rather than whether we had used
+    // half of it in this module
+    if (!$ignore_max_time && ( ((timer_read('page') / 1000) - $start_time ) > ($max_execution_time / 2))) {
+      watchdog('govdelivery', 'Half of the available PHP execution time of %max_execution_time has been use processing the GovDelivery queue and processing will not continue.',
+        array('%max_execution_time' => $max_execution_time), WATCHDOG_WARNING);
+      break; // Stop once we have used over half of the maximum execution time
+    }
+
+    $i = $queue_key->cid;
+    // Only send one message from the queue if a cid is passed in
+    // If the cid is null or blank process the queue as normal
+    if ((!empty($cid) && $i == $cid) || (empty($cid))) {
+      // get the most recently cached item
+      $item = govdelivery_queue_get($queue, $i);
+      // if this item is still in the cache
+      if ($item) {
+        // resend the item
+        // add a callback
+        $status = call_user_func_array($callback, array($item) );
+        if ($status) {
+          govdelivery_queue_remove($queue, $i);
+          $items_sent++;
+        }
+      }
+    }
+    if (isset($items) && ( $items_sent >= $items )) {
+      break; // break if we've sent the requested number of items
+    }
+  }
+
+  lock_release($lock_name);
+  return $items_sent;
+}
+
+/**
+ * Retrieve an item from the queue.
+ */
+function govdelivery_queue_get($queue, $cid) {
+  
+  $query = db_select($queue, 'q');
+  $query->fields('q', array('data', 'created', 'expire', 'serialized'));
+  $query->condition('q.cid', $cid);
+  $result = $query->execute();
+
+  $message = $result->fetchObject();
+  if (isset($message->data) && !empty($message->data)) {
+    if($message->serialized) {
+      $message->data = unserialize($message->data);
+    }
+    return $message->data;
+  }
+  return FALSE;
+}
+
+/**
+ * Create or update an item in the queue. 
+ */
+function govdelivery_queue_set($queue, $cid, $data) {
+  $govdelivery_odm_settings = variable_get('govdelivery_odm_settings', array());
+
+  $serialized = 0;
+  if (is_object($data) || is_array($data)) {
+    $data = serialize($data);
+    $serialized = 1;
+  }
+
+  $created = REQUEST_TIME;
+  //db_query("UPDATE {" . $queue . "} SET data = %b, created = %d, serialized = %d WHERE cid = '%s'", $data, $created, $serialized, $cid);
+  try {
+    $random = rand(1, $govdelivery_odm_settings['max_bid']);
+    $query = db_update($queue);
+    $query->fields(array(
+        'data' => $data,
+        'created' => $created,
+        'serialized' => $serialized,
+        'bid' => $random,
+      ));
+    $query->condition('cid', $cid);
+    $num_updated = $query->execute();
+
+    if ($num_updated <= 0) {
+      //@db_query("INSERT INTO {" . $queue . "} (cid, data, created, serialized) VALUES ('%s', %b, %d, %d)", $cid, $data, $created, $serialized);
+      db_insert($queue)
+        ->fields(array(
+          'cid' => $cid,
+          'data' => $data,
+          'created' => $created,
+          'serialized' => $serialized,
+          'bid' => $random,
+        ))
+        ->execute();
+    }
+  }
+  catch (Exception $e) {
+    watchdog('govdelivery', 'Queue Set Error: @e', array('@e' => $e->getMessage()), WATCHDOG_NOTICE);
+  }
+}
+
+/**
+ * Remove an item from the queue.
+ */
+function govdelivery_queue_remove($queue, $cid) {
+  //db_query("DELETE FROM {" . $queue . "} WHERE cid = '%s'", $cid);
+  db_delete($queue)
+    ->condition('cid', $cid)
+    ->execute();
+}
+
+/**
+ * Check the existence of a particular field-value pair in a given queue's data.
+ *
+ * @todo Switch this to use cache_api and verify if the multithreaded version gits more hits.
+ */
+function govdelivery_queue_check($queue, $field, $match_value) {
+  static $in_queue;
+
+  // Check that the topic id isn't in the static cache of unsent items or in the queue.
+  if (is_array($in_queue)) {
+    foreach($in_queue as $cached_value) {
+      if ($cached_value == $match_value) {
+        watchdog('govdelivery', 'Cache Hit - Match Value: @match_value is still in the topic queue to be processed so we will not send this item yet.', array('@match_value' => $match_value), WATCHDOG_NOTICE);
+        return TRUE;
+      }
+    }
+  }
+
+  $query = db_select($queue, 'q')->fields('q');
+  $queue_data = $query->execute();
+  foreach ($queue_data as $item) {
+    if (isset($item->data) && !empty($item->data)) {
+      if($item->serialized) {
+        $item->data = unserialize($item->data);
+      }
+    }
+    else {
+      continue;
+    }
+
+    if (isset($item->data->$field)) {
+      $in_queue[] = $item->data->$field; // Stash this for speed.
+    }
+    else {
+      continue;
+    }
+
+    if ($item->data->$field == $match_value) {
+      watchdog('govdelivery', 'Cache Miss - Match Value: @match_value is still in the topic queue to be processed so we will not send this item yet.', array('@match_value' => $match_value), WATCHDOG_NOTICE);
+      return TRUE;
+    }
+  }
+
+ return FALSE;
+}
+
+/**
+ * The user may have put in an address of the form "Full Name" <email@domain.tld> instead of just the address,
+ * so we want to filter to the right address
+ */
+function govdelivery_filter_email($address) {
+
+  // borrowed from the drupal valid_email_address($mail) function
+  $user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
+  $domain = '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+';
+  $ipv4 = '[0-9]{1,3}(\.[0-9]{1,3}){3}';
+  $ipv6 = '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}';
+
+  // setup an array for the matching expression
+  $matches = array();
+
+  // the regex below is adapted from drupal's valid_email_address($mail) function
+  preg_match("/$user@($domain|(\[($ipv4|$ipv6)\]))/", $address, $matches);
+  return (isset($matches[0]) ? $matches[0] : '');
+}
+
+/**
+ * Send messages immediately or to the queue if enabled.
+ */
+function govdelivery_process_message($key, $message) {
+  // Check preferences
+  $govdelivery_odm_settings = variable_get('govdelivery_odm_settings', array());
+  $send_success = FALSE;
+
+  // Attempt to send immediately
+  if (isset($govdelivery_odm_settings['queue']) && !$govdelivery_odm_settings['queue']) {
+    $send_success = govdelivery_send_message($message);
+
+    if ($send_success) {
+      watchdog('govdelivery', 'Successfully sent a message immediately.', array(), WATCHDOG_INFO);
+    }
+  }
+
+  // Queue the message if:
+  // 1. Failure to send immediately
+  // 2. Queue preferences haven't been set
+  // 3. Queue is enabled
+  if (!$send_success) {
+    govdelivery_queue_set('govdelivery_message_queue', $key, $message);
+  }
+}
+
+/**
+ * Queue a topic to be added to govdelivery.
+ * Use govdelivery_subscriber_get_topic_id($title).
+ *
+ * @param string $title
+ *   The Topic's title in GovDelivery.
+ * @param string $short_title
+ *   The Topic's short title in GovDelivery.
+ * @return boolean $queue_result
+ *   Return TRUE on successfully queuing or FALSE on error.
+ */
+function govdelivery_subscriber_api_add_topic($title, $short_title = "", $topic_id = NULL) {
+  $queue = 'govdelivery_subscriber_api_topic_queue';
+
+  // Build the data
+  if(empty($topic_id) && empty($title)) {
+    return FALSE;
+  }
+
+  if(empty($topic_id) && !empty($title)) {
+    $topic_id = variable_get('govdelivery_topic_prefix', '') . $title;
+  }
+
+  $short_title = (empty($short_title) ? $title : $short_title);
+  $data = new stdClass;
+  $data->title = $title;
+  $data->short_title = $short_title;
+  $data->topic_id = $topic_id;
+
+  $queue_result = FALSE;
+  // Try to queue.
+  $key = md5(print_r($data->title . $data->short_title, TRUE) . microtime() . strval(rand()));
+  $queue_result = govdelivery_queue_set($queue, $key, $data);
+
+  return $queue_result;
+}
+
+/**
+ * Queue a topic subscription to be added to GovDelivery.
+ * If $topic_id is NULL, $title will be used in a call to govdelivery_subscriber_get_topic_id($title).
+ *
+ * @param string $email
+ *   The email address being subscribed. If the subscriber doesn't exist a new subscriber will be created.
+ * @param string $topic_id
+ *   The topic_id from the GovDelivery system.
+ * @param string $title
+ *   The Topic's title from the GovDelivery system or as created during a call to govdelivery_subscriber_api_add_topic.
+ * @return boolean $queue_result
+ *   Return TRUE on successfully queuing or FALSE on error.
+ */
+function govdelivery_subscriber_api_add_subscriber($email, $title = NULL, $topic_id = NULL) {
+  $queue = 'govdelivery_subscriber_api_subscriber_queue';
+
+  // Fail if there is noone to subscribe.
+  if(empty($email)) {
+    return FALSE;
+  }
+
+  // Fail if there is no way to get a topic_id.
+  if(empty($topic_id) && empty($title)) {
+    return FALSE;
+  }
+
+  // @todo remove this code.
+  if(empty($topic_id) && !empty($title)) {
+    $topic_id = variable_get('govdelivery_topic_prefix', '') . $title;
+  }
+
+  // Build the data.
+  $data = new stdClass;
+  $data->email = $email;
+  $data->title = $title;
+  $data->topic_id = $topic_id;
+
+  $queue_result = FALSE;
+  // Try to queue.
+  $key = md5(print_r($data->email . $data->topic_id . $data->title, TRUE) . microtime() . strval(rand()));
+  $queue_result = govdelivery_queue_set($queue, $key, $data);
+
+  return $queue_result;
+}
+
+/**
+ * Called by the queue processor to send a message from the queued. Also called to send immediately.
+ */
+function govdelivery_send_message($message) {
+  $govdelivery_odm_settings = variable_get('govdelivery_odm_settings', array());
+  $sendsuccess = FALSE;
+
+  if (class_exists('SoapClient')) {
+    $ODMmessage = new ODMMessage();
+
+    // Basically this is saying that a to list can be either an array
+    // or a comma seperated values list.
+    // If it is an array each array item may still be a comma seperated list
+    // So we need to parse the comma seperated list of each array element.
+    // If it is not initially an array then we need to check for a comma seperated list
+    // only once and then proceede.
+    // Its really weird but its possible.
+    $recipients = array();
+    if (is_array($message["to"])) {
+      foreach ($message["to"] as $address) {
+        $tolist = explode(',', $address);
+        if (is_array($tolist)) {
+          $filtered_list = array_map("govdelivery_filter_email", $tolist);
+          $recipients = array_merge($recipients, $filtered_list);
+        }
+        else {
+          $recipients[] = govdelivery_filter_email($tolist);
+        }
+      }
+    }
+    else {
+      $tolist = explode(',', $message["to"]);
+      if (is_array($tolist)) {
+        $filtered_list = array_map("govdelivery_filter_email", $tolist);
+        $recipients = array_merge($recipients, $filtered_list);
+      }
+      else {
+        $recipients[] = govdelivery_filter_email($tolist);
+      }
+    }
+
+    $ODMmessage->to = (array) $recipients;
+
+    // Check account mappings from the settings file.
+    // @todo fix this so that a checkbox can select the default account in the admin area
+    $account_map = variable_get("govdelivery_account_map", NULL);
+    $account = (isset($account_map[$message['id']]) ? $account_map[$message['id']] : $account_map['default']);
+    if (!isset($account) || empty($account)) {
+      watchdog('govdelivery', 'No default account specified.  Check settings.php.', NULL, WATCHDOG_ERROR);
+      return FALSE;
+    }
+
+    // @todo Allowing overriding the from address.
+    $from_address = $govdelivery_odm_settings['accounts'][$account]['fromname'];
+    if(isset($govdelivery_odm_settings['override_from']) && !empty($govdelivery_odm_settings['override_from'])) {
+      if (!empty($message['from'])) {
+        $from_address = $message['from'];
+      }
+    }
+
+    $ODMmessage->setFromName($from_address);
+    $ODMmessage->setSubject($message["subject"]);
+    $ODMmessage->setBody($message['body']);
+    $ODMmessage->trackClicks = FALSE;
+    $ODMmessage->trackOpens = FALSE;
+
+    try {
+      $credentials = new ODMCredentials($account, $govdelivery_odm_settings['accounts'][$account]['password']);
+      $odm = new odmService($govdelivery_odm_settings['server'], $credentials);
+      $status = $odm->sendMessage($ODMmessage);
+
+      if(isset($status) && is_string($status)) {
+        $sendsuccess = TRUE;
+      }
+      else {
+        $sendsuccess = FALSE;
+      }
+    }
+    catch (SoapFault $e) {
+      if (isset($e->detail, $e->detail->ODMFault, $e->detail->ODMFault->category, $e->detail->ODMFault->detail)) {
+        watchdog('govdelivery', 'ODM Fault - Category: %category; Detail: %detail. Item will be queues for resend on the next cron run.', 
+          array('%category' => $e->detail->ODMFault->category, '%detail' => $e->detail->ODMFault->detail), WATCHDOG_ERROR);
+      }
+      else {
+        watchdog('govdelivery', 'Soap Fault - Message: %message. Item will be queued for resend on the next cron run.', array('%message' => $e->getMessage()), WATCHDOG_ERROR);
+      }
+    }
+    catch (Exception $e) {
+      watchdog('govdelivery', 'Exception - Message: %message. Item will be queued for resend on the next cron run.', array('%message' => $e->getMessage()), WATCHDOG_ERROR);
+    }
+  }
+
+  return $sendsuccess;
+}
+
+/**
+ * Helper function when calling subscribe from the queue run.
+ */
+function govdelivery_queued_subscribe($item) {
+  return govdelivery_subscribe($item['code'], $item['email'], TRUE);
+}
+
+/**
+ * Process a subscription from the Queue.
+ * Do not call this directly.
+ */
+function govdelivery_subscribe($list_code, $email, $from_queue = FALSE) {
+  // Check the initial prototype input.
+  if (is_null($list_code) || empty($list_code)) {
+    watchdog('govdelivery', 'Supplied list code is null or empty.', array(), WATCHDOG_ERROR);
+    // Return TRUE to remove something from the queue
+    if ($from_queue) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  if (is_null($email) || empty($email)) {
+    watchdog('govdelivery', 'Supplied email is null or empty.', array(), WATCHDOG_ERROR);
+    // Return TRUE to remove something from the queue
+    if ($from_queue) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  // Prototype input is good now lets check the settings.
+  $request =  array(
+    'code' => $list_code,
+    'email' => $email,
+  );
+  $key = md5(print_r($request, TRUE) . microtime() . strval(rand()));
+
+  $govdelivery_subscription_settings = variable_get('govdelivery_subscription_settings', NULL);
+  if (is_null($govdelivery_subscription_settings) || empty($govdelivery_subscription_settings)) {
+    if (!$from_queue) {
+      govdelivery_queue_set('govdelivery_subscription_queue', $key, $request);
+    }
+    watchdog('govdelivery', 'Settings for subscribing this user are not available. Subscription will be queued.', array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // General settings exist, check the specific settings we need.
+  $service_url = $govdelivery_subscription_settings['service_url'];
+  if (is_null($service_url) || empty($service_url)) {
+    if (!$from_queue) {
+      govdelivery_queue_set('govdelivery_subscription_queue', $key, $request);
+    }
+    watchdog('govdelivery', 'Service URL for subscribing this user is not available. Subscription will be queued.', array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Settings are valid now send the request.
+  $request_url = url($service_url, array('query' => $request));
+  $response = drupal_http_request($request_url);
+
+  // The response is well-formed XML, but seems pretty heavyweight to parse as XML,
+  // we're better off with a simple regex match
+  $matches = array();
+  preg_match("/<response code='(\d+)' message=[',\"](.*)[',\"]><\/response>/", $response->data, $matches);
+  $result_code = $matches[1];
+  $message = $matches[2];
+
+  // Check if the URL is totally borked.
+  if (!empty($response->error)) {
+    watchdog('govdelivery', 'System Error: %error', array('%error' => var_export($response, TRUE)), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Check if the url is redirecting...this might need to be removed if something changes on govdeliverys side.
+  // Currently - 10/24/2011 GovDelivery will redirect to their homepage if you hit the wrong url in their domain.
+  if (!empty($response->redirect_code)) {
+    watchdog('govdelivery', 'System Error: %error', array('%error' => var_export($response, TRUE)), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // If the response code in the response header from govdelivery is anything other then 200
+  // there is something seriously wrong with this request and we should consider it malicious.
+  // It also doesn't help that GovDelivery isn't sending back a standard response like the
+  // other error codes.
+  // Note: This is different then result_code pulled from the xml body of the response.
+  if ($response->code != '200') {
+     watchdog('govdelivery', 'Error subscribing - Email: %email List: %list The response from GovDelivery was not 200 meaning this request is probably malicious. Response Code: %response',
+     array('%email' => $request['email'], '%list' => $request['code'], '%respons' => $response->code), WATCHDOG_ERROR);
+    // Return TRUE to remove something from the queue
+    if ($from_queue) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+
+  // In the future we should be able to switch this to key off of $response->code but until then we need to keep parsing.
+  // Key off the Result Code from the response body instead of the header. 
+  switch ($result_code) {
+    case "200":
+      watchdog('govdelivery', 'Subscribed Email: %email to List: %list', array('%email' => $request['email'], '%list' => $request['code']), WATCHDOG_INFO);
+      return TRUE;
+      break;
+    case "404":
+    case "414":
+    case "500":
+      watchdog('govdelivery', 'Error subscribing - Email: %email List: %list Response: %response Message: %message; Item will not be queued.',
+        array('%email' => $request['email'], '%list' => $request['code'], '%response' => $result_code, '%message' => $message), WATCHDOG_ERROR);
+      // Return TRUE to remove something from the queue
+      if ($from_queue) {
+        return TRUE;
+      }
+      return FALSE;
+      break;
+    default:
+      if (!$from_queue) {
+        govdelivery_queue_set('govdelivery_subscription_queue', $key, $request);
+      }
+      watchdog('govdelivery', 'Error subscribing - Email:  %email List: %list Response: %response Message: %message; Item will be queued.',
+        array('%email' => $request['email'], '%list' => $request['code'], '%response' => $result_code, '%message' => $message), WATCHDOG_ERROR);
+      return FALSE;
+      break;
+  }
+}
+
+/**
+ *
+ * Process a topic create item from the subscriber api queue. 
+ * Do not call this function directly. 
+ *
+ * Returns TRUE on success or unrecoverable failures.
+ * Returns FALSE on failure or recoverable failures.
+ *
+ */
+function govdelivery_subscriber_api_send_topic($data) {
+  // @todo Move as much of this to a check function to be called from all the Processors. 
+  // Check the required class library exists or fail.
+  if(!class_exists('GovDeliverySubscriberAPI')) {
+    watchdog('govdelivery', 
+      'No GovDeliverySubscriberAPI class found. Check the libraries folder in the govdelivery module or the govdelivery.info includes.', 
+      NULL, WATCHDOG_ERROR);
+   return FALSE;
+  }
+
+  // Check settings are available or fail.
+  $govdelivery_odm_settings = variable_get('govdelivery_odm_settings', array());
+  if(empty($govdelivery_odm_settings)) {
+    watchdog('govdelivery', 'No settings found. Check settings.php.', NULL, WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Check account mappings from the settings file or fail.
+  $govdelivery_subscription_settings = variable_get('govdelivery_subscription_settings', NULL);
+  if (isset($govdelivery_subscription_settings['subscriber_api_account']) && !empty($govdelivery_subscription_settings['subscriber_api_account'])) {
+    $account = $govdelivery_subscription_settings['subscriber_api_account'];
+  }
+  else {
+    watchdog('govdelivery', 'No default account specified.  Check settings.php.', NULL, WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Get the password parameter or fail.
+  if (isset($govdelivery_odm_settings['accounts'][$account]['password']) && !empty($govdelivery_odm_settings['accounts'][$account]['password'])) {
+    $password = $govdelivery_odm_settings['accounts'][$account]['password'];
+  }
+  else {
+    watchdog('govdelivery', 'No password for default account. Check settings.php.', NULL, WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Get the URL Base parameter or fail.
+  $url_base = $govdelivery_subscription_settings['subscriber_api_url_base'];
+  if (empty($url_base)) {
+    watchdog('govdelivery', 'Subscription settings subscriber_api_base_url not set. Check settings.php.', NULL, WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // Try to create the SubscriberAPI object or fail. 
+  $subscriber_api = new GovDeliverySubscriberAPI($account, $password, $url_base);
+  if (!($subscriber_api instanceof GovDeliverySubscriberAPI)) {
+    watchdog('govdelivery', 'Failed to create new GovDeliverySubscriberAPI object. Check settings for default account, password, and url base.');
+    return FALSE;
+  }
+
+  $data->topic_id = (!empty($data->topic_id) ? $data->topic_id : $govdelivery_subscription_settings['subscriber_api_topic_prefix'] . $data->title);
+  // @todo remove this code.
+  // Check title and topic are present or fail and remove from queue.
+  if (empty($data->title) && empty($data->topic_id)) {
+    watchdog('govdelivery', 'Title and topic_id not set. Removing from queue.', NULL, WATCHDOG_ERROR);
+    return TRUE; // Return TRUE to trick the queue processor into removing this item.
+  }
+
+  // Send request.
+  try {
+    $result = $subscriber_api->create_topic($data);
+  }
+  catch (Exception $e) {
+    watchdog('govdelivery', 'Exception in GovDeliverySubscriberAPI::create_topic($topic), Exception: @e', array('@e' => $e->getMessage()), WATCHDOG_ERROR);
+    return FALSE; // The message length too long exception we can recover from reasonably with manual intervention.
+  }
+
+  // Requeue or Remove from queue on success.
+  switch($result->info['http_code']) {
+    //Success
+    case 200:
+      watchdog('govdelivery', 'Successfully created topic - Topic ID: @topic_id; Title: @title; HTTP Code: @http_code; Item will not be queued.', 
+        array('@topic_id' => $data->topic_id, '@title' => $data->title, '@http_code' => $result->info['http_code']), WATCHDOG_NOTICE);
+      _govdelivery_set_default_topic_category ($data->topic_id, $subscriber_api);
+      return TRUE;
+
+    // Non recoverable failure
+    case 422: // Bad syntax.
+      watchdog('govdelivery', 'Error creating topic - Topic ID: @topic_id; Title: @title; HTTP Code: %http_code; Response: %response; Item will not be queued.',
+        array('@topic_id' => $data->topic_id, '@title' => $data->title, '%http_code' => $result->info['http_code'], '%response' => $result->error,), WATCHDOG_ERROR);
+      return TRUE; // Return TRUE to remove the item from the queue.
+
+      // Recoverable failure
+    case 302: // Failure to authenticate
+    case 401: // Unauthorized
+    default:
+      watchdog('govdelivery', 'Error creating topic - Topic ID: @topic_id; Title: @title; HTTP Code: %http_code; Response: %response; Item will be queued.',
+        array('@topic_id' => $data->topic_id, '@title' => $data->title, '%http_code' => $result->info['http_code'], '%response' => $result->error,), WATCHDOG_ERROR);
+      return FALSE;
+  }
+}
+
+/**
+ * Pull the default topic setting and set the supplied topic id to be part of that category.
+ */
+function _govdelivery_set_default_topic_category ($topic_id, $subscriber_api_object) {
+  if (!($subscriber_api_object instanceof GovDeliverySubscriberAPI)) {
+    return FALSE;
+  }
+
+  if (empty($topic_id)) {
+    return FALSE;
+  }
+
+  $govdelivery_subscription_settings = variable_get('govdelivery_subscription_settings', NULL);
+  $category_id = isset($govdelivery_subscription_settings['default_topic_category_id']) ? $govdelivery_subscription_settings['default_topic_category_id'] : '';
+  if (empty($category_id)) {
+    watchdog('govdelivery', 'Subscription settings default_topic_category_id not set. Check settings.php.', NULL, WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  $data = new stdClass;
+  $data->topic_id = $topic_id;
+  $data->category_id = $category_id;
+
+  // Set the default topic category.
+  // @todo maybe this is imperative to someone else.
+  try {
+    $subscriber_api_object->update_topic_category($data);
+    return TRUE;
+  }
+  catch (Exception $e) {
+    watchdog('govdelivery', 'Exception in GovDeliverySubscriberAPI::update_topic_category($topic), Exception: @e', array('@e' => $e->getMessage()), WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
+
+/**
+ *
+ * Process a subscription create item from the subscriber api queue. 
+ * Do not call this function directly. 
+ *
+ * Returns TRUE on success or unrecoverable failures.
+ * Returns FALSE on failure or recoverable failures.
+ *
+ */
+function govdelivery_subscriber_api_send_subscription($data) {
+  $govdelivery_subscription_settings = variable_get('govdelivery_subscription_settings', NULL);
+
+  // @todo remove this code and hopefully leverage queue_subscribe fully.
+  $field = 'topic_id';
+  $value = $data->$field;
+  if (empty($value)) {
+    $field = 'title';
+    $value = $govdelivery_subscription_settings['subscriber_api_topic_prefix'] . $data->$field;
+  }
+
+  if (govdelivery_queue_check('govdelivery_subscriber_api_topic_queue', $field, $value)) {
+    return FALSE; // Return FALSE to keep the item in the queue.
+  }
+
+  // If this isn't on the do not send list then send away.
+  return govdelivery_subscribe($data->topic_id, $data->email, TRUE);
+}
