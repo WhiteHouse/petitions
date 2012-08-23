@@ -1282,7 +1282,7 @@ function wh_petitions_remove_lists($petition_id) {
    
     //now that PHP is done with the petition, convert some of the attribute values to text so JS can display them easier
     $petition['petition_status'] = wh_petitions_display_status_name($petition['petition_status']); 
-    $petition['reponse_status'] = wh_petitions_display_status_name($petition['response_status'], 'response'); 
+    $petition['response_status'] = wh_petitions_display_status_name($petition['response_status'], 'response');
 
     $js_petition = $petition;
 
