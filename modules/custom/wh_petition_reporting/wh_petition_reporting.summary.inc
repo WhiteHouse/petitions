@@ -255,6 +255,8 @@ class SummaryReportManager {
    *   the translated text which should be written into the label column for the row,
    * @param $data_cells string
    *   string of the data which should be written into the data column for the row
+   * @param $label_inset boolean
+   *   optional (defaults to FALSE) indicator of if the label should be indented
    */
   private function addRowToIssuesTable(&$data_rows, $label, $data_cells, $label_inset = FALSE) {
     $title_cell = array('data' => $label . ':', 'header' => TRUE, 'class' => ($label_inset ? 'inset' : ''));
