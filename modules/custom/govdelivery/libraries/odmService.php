@@ -134,7 +134,6 @@ class odmService extends SoapClient {
    *
    * @todo Add a runtime debugging switch.
    *
-   * @param ODMCredentials $credentials
    * @param ODMMessage $message
    * @return mixed
    *   Returns string on success and null or SoapFault exception on failure.
