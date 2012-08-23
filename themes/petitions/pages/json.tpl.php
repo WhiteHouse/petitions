@@ -29,6 +29,4 @@ if (!empty($petition_status) && $petition_status == WH_PETITION_STATUS_FLAGGED) 
   $data['full_markup'] = '<div class="spacer-for-cutup"></div><div id="petition-outer" class="clear"><div id="petition-inner" class="clearfix"><div id="petitions-removed" class="main-content">' . render($page['content']) . '</div></div></div>';
 }
 
-$data['full_markup'] = $data['full_markup'];
-
 print json_encode($data);
