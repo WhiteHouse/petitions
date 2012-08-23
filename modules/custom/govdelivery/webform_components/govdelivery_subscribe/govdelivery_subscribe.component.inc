@@ -67,7 +67,6 @@ function _webform_edit_govd_subscribe($component) {
       '#type' => 'select',
       '#options' => $options,
       '#default_value' => $component['extra']['options_source'],
-      '#weight' => 1,
       '#description' => t('Use a pre-built list of options rather than entering options manually. Options will not be editable if using pre-built list.'),
       '#parents' => array('extra', 'options_source'),
       '#weight' => 5,
