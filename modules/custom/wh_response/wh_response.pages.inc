@@ -174,7 +174,7 @@ function wh_response_get_responses(&$sort, &$page, &$cols, &$issues, &$search, &
 }
 
 /**
- * Callback to display more responses from an ajax request.  Take the variables we got from the URL and pass them to the function to retrive more responses.
+ * Callback to display more responses from an ajax request.  Take the variables we got from the URL and pass them to the function to retrieve more responses.
  */
 function wh_response_more_responses($sort, $page, $cols, $issues) {
   $count = 0;

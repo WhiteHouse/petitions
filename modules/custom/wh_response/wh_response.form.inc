@@ -112,7 +112,7 @@ function wh_response_list_page_issues_form($form, &$form_state) {
 }
 
 /**
- * Places the checkboxes into 3 (mostly-equal) columms.
+ * Places the checkboxes into 3 (mostly-equal) columns.
  */
 function wh_response_issue_column_checks($form_element, &$form_state) {
   $size = sizeof($form_element['#options']);

@@ -4,14 +4,14 @@
  * @file
  * Provides a Webform 3 component for allowing users to subscribe to GovDelivery mailing lists
  *
- * @todo This module should really require that an email field be set on the form if you use the govdelivery_subscribe component on the form
+ * @todo This module shoule really require that an email field be set on the form if you use the govdelivery_subscribe component on the form
  */
 
 /**
  * Implements hook_webform_component_info().
  */
 function govdelivery_subscribe_webform_component_info() {
-  $components = array();
+  $componets = array();
 
   $components['govd_subscribe'] = array(
     'label' => t('GovDelivery Subscribe'),

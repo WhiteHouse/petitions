@@ -129,7 +129,7 @@ function wh_petition_tool_page_json() {
 /**
  * Implementation of hook_theme().
  *
- * Addes the json theme key and tells Drupal to use our substitute for 
+ * Adds the json theme key and tells Drupal to use our substitute for
  * html.tpl.php, but still render the page's content as a page. This way, we
  * can use the page's render array to encode as json
  */
@@ -272,7 +272,7 @@ function wh_petition_tool_shortenurl($url) {
 }
 
 /**
- * Menu callback for grabbing ther Open Graph data for an entity.
+ * Menu callback for grabbing the Open Graph data for an entity.
  */
 function wh_petition_tool_opengraph_json($type) {
   $elements = arg();
@@ -332,7 +332,7 @@ function wh_petition_tool_response_opengraph($path) {
 }
 
 /**
- * Menu callback for grabbing ther Metadata for an entity.
+ * Menu callback for grabbing the Metadata for an entity.
  */
 function wh_petition_tool_metadata_json($type) {
   $elements = arg();

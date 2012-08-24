@@ -279,7 +279,7 @@ class SummaryReportManager {
     $markup = '';
     $data_rows = array();
 
-    //Registred Users
+    //Registered Users
     $this->addRowToSummaryTable($data_rows, t('Registered Users'), $this->summaryData['users']);
 
     //Verified Users
@@ -295,7 +295,7 @@ class SummaryReportManager {
     $this->addRowToSummaryTable($data_rows, t('Public'), $this->summaryData['public'], TRUE, $this->summaryData['petitions']);
 
     //Awaiting Response
-    $this->addRowToSummaryTable($data_rows, t('Awaiting Reponse'), $this->summaryData['awaiting_response'], TRUE, $this->summaryData['petitions']);
+    $this->addRowToSummaryTable($data_rows, t('Awaiting Response'), $this->summaryData['awaiting_response'], TRUE, $this->summaryData['petitions']);
 
     //Responded To
     $this->addRowToSummaryTable($data_rows, t('Responded To'), $this->summaryData['responded_to'], TRUE, $this->summaryData['petitions']);
@@ -304,7 +304,7 @@ class SummaryReportManager {
     $this->addRowToSummaryTable($data_rows, t('Removed'), $this->summaryData['removed'], TRUE, $this->summaryData['petitions']);
 
     //Expired
-    $this->addRowToSummaryTable($data_rows, t('Exprired'), $this->summaryData['expired'], TRUE, $this->summaryData['petitions']);
+    $this->addRowToSummaryTable($data_rows, t('Expired'), $this->summaryData['expired'], TRUE, $this->summaryData['petitions']);
 
     //mongo signatures data
     $this->addRowToSummaryTable($data_rows, t('Signatures'), $this->summaryData['signatures']);
@@ -352,7 +352,7 @@ class SummaryReportManager {
 
 
 /**
- * Page callback form admin/petitino-reports/summary path
+ * Page callback form admin/petition-reports/summary path
  */
 function summary_page() {
   drupal_add_css(drupal_get_path('module', 'wh_petition_reporting') . '/css/summary.css', array('type' => 'file'));

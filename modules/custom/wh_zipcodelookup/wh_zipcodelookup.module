@@ -28,7 +28,7 @@ function wh_zipcodelookup_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Encapulation callback for the zip code lookup
+ * Encapsulation callback for the zip code lookup
  *
  * @param $zip
  *   The zip code to search for

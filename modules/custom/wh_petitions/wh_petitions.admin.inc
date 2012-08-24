@@ -1330,7 +1330,7 @@ function wh_petitions_download_signatures_run_batch($petition_id) {
   
   $batch = array(
     'title' => t('Exporting Petition Signatures'),
-    'progress_message' => t('Dowload of the file will begin automatically when processing is complete.  After downloading, close this window.'),
+    'progress_message' => t('Download of the file will begin automatically when processing is complete.  After downloading, close this window.'),
     'operations' => array(
       array('wh_petitions_download_signatures_batch', array($petition_id, $limit, $file_name)),
     ),
@@ -1370,7 +1370,7 @@ function wh_petitions_download_signatures($petition_id, $time_stamp) {
  * Batch API call-back for generating a list of petition signatures
  *
  * @param $petition_id
- *   The ID of the petiton for which signatures should be pulled.
+ *   The ID of the petition for which signatures should be pulled.
  * @param $limit
  *   Number of elements to process in each run of the operation.
  * @param $file_name

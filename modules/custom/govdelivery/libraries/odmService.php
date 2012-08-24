@@ -8,7 +8,7 @@
 class XMLData {
   public function xmlSpecialChars($data) {
     $strict = TRUE; // Strict checking is required for mb_detect to be useful.
-    $isEncoded = mb_detect_encoding($data, array('UTF-8'), $strict); // Empty string if it's not in the list of encodings to check.
+    $isEndcoded = mb_detect_encoding($data, array('UTF-8'), $strict); // Empty string if it's not in the list of encodings to check.
     if(!empty($isEncoded)) {
       return preg_replace('@[\x00-\x08\x0B\x0C\x0E-\x1F]@', ' ', $data);
     }
@@ -134,6 +134,7 @@ class odmService extends SoapClient {
    *
    * @todo Add a runtime debugging switch.
    *
+   * @param ODMCredentials $credentials
    * @param ODMMessage $message
    * @return mixed
    *   Returns string on success and null or SoapFault exception on failure.
