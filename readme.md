@@ -38,7 +38,7 @@ NOTE: Setting up the application and configuring it for use in your organization
 
 ## Roadmap
 
-Have an idea or question about future features for We the People? Let us know by opening a ticket on GitHub, emailing us directly at wethepople@who.eop.gov, or tweeting @WHWeb.
+Have an idea or question about future features for We the People? Let us know by opening a ticket on GitHub, emailing us directly at wethepeople@who.eop.gov, or tweeting @WHWeb.
 
 We the People is a work in progress and currently exists at a very basic level of functionality. Priorities for future development are detailed below.
 
