@@ -136,7 +136,7 @@ function govdelivery_drush_help($section) {
 /**
  * @return array
  */
-function drush_govdelievery_queue_types() {
+function drush_govdelivery_queue_types() {
   $types = array(
     'messages' => array('govdelivery_process_message_queue'),
     'subscribers' => array('govdelivery_process_subscription_queue'),
@@ -156,7 +156,7 @@ function drush_govdelievery_queue_types() {
  * @internal param $ The number of messages to send from the queue.*   The number of messages to send from the queue.
  */
 function drush_govdelivery_send_queue($type = NULL, $bid = NULL, $num = NULL) {
-  $types = drush_govdelievery_queue_types();
+  $types = drush_govdelivery_queue_types();
   if ($type) {
     $choice = $type;
   }
