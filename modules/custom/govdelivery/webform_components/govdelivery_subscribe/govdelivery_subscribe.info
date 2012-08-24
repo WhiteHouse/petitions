@@ -1,7 +1,0 @@
-name = GovDelivery Subscribe
-description = Provides a Webform 3 component for subscribing to GovDelivery mailing lists
-package = GovDelivery Webform Components
-core = 7.x
-
-dependencies[] = govdelivery
-dependencies[] = webform

@@ -1,0 +1,61 @@
+<html>
+	<body>
+		<script type="text/javascript">
+			String.prototype.$ = function() {
+			  s = this;
+			  var words = arguments[0];
+			  for (var word_type in words) {
+			  	while (s.indexOf(word_type) != -1) {
+			  	  s = s.replace("$" + word_type, choice(words[word_type]));
+			  	}
+			  }
+			  return s;
+			};
+
+			function choice(my_array) {
+				return my_array[Math.floor ( Math.random() * my_array.length )];
+			}
+
+			var words = new Object();
+
+			words['petition_name'] = [
+				'Abolish the TSA, and use its monstrous budget to fund more sophisticated, less intrusive counter-terrorism intelligence',
+				'Legalize and Regulate Marijuana in a Manner Similar to Alcohol',
+			];
+			words['good_verb'] = ['strengthen', 'improve', 'support'];
+			words['bad_adverb'] = ['regrettably', 'unfortunately'];
+			words['bad_adjective'] = ['bad', 'terrible'];
+			words['POSITIVE_EMOTIONAL_STATE'] = ['pleased', 'happy', 'overjoyed', 'gladdened'];
+			words['NEGATIVE_EMOTIONAL_STATE'] = ['angry', 'annoyed', 'bitter', 'irritated', 'furious', 'outrated'];
+			words['good_adjective'] = ['balanced', 'comprehensive', 'effective'];
+			words['good_adverb'] = ['ardently'];
+			words['good_trait'] = ['safer', 'better prepared'];
+			words['reputable_people'] = ['scientists', 'experts'];
+			words['bad_things'] = ['criminals', 'terrorists', 'death'];
+			words['things_people_like'] = ['patriotism', 'countinuing positive discourse', 'comprehensive solutions'];
+			words['reason_that_the_issue_is_obfuscated_and_we_shouldnt_handle_it'] = [
+				'scientists disagree',
+				'the jury is out on the evidence',
+				'a number of experts just think it\'s kind of confusing'
+			];
+			words['generally_agreeable_closing_message'] = [
+				'God bless America',
+				'Thank you for making your voice heard',
+				'Screw the terrorists'
+			];
+
+			var paragraphs = [
+				"Thank you for signing the petition <i>$petition_name</i>. We appreciate your participation in the We the People platform on WhiteHouse.gov.  We launched this online tool as a way of hearing directly from you and are $POSITIVE_EMOTIONAL_STATE to see that it has been $good_adjective in soliciting your feedback.",
+				"From the feedback we have received, we can tell that you have been very $NEGATIVE_EMOTIONAL_STATE about this issue.  According to $reputable_people, your petition item is $bad_adverb commonly associated with $bad_things.  We believe $bad_things are $bad_adjective, and we must all face that fact.  Furthermore, we believe now is not the time to address this issue because $reason_that_the_issue_is_obfuscated_and_we_shouldnt_handle_it.  Simply put, there is not an easy answer.",
+				"Nevertheless, we are $good_adverb committed to $things_people_like, and that's why the president's plan is $good_adjective and $good_adjective.  Our Nation is $good_trait and $good_trait today because of the White House's efforts and efforts of other departments.  We are constantly seeking feedback from citizens so that we may $good_verb your experience here in the United States of America.",
+				"$generally_agreeable_closing_message, <br /> Jay Carney, White House Press Secretary"
+			];
+
+			for (var i = 0; i < paragraphs.length; i++) {
+				var paragraph = paragraphs[i];
+				var paragraph_formatted = paragraph.$(words);
+				document.write("<p>" + paragraph_formatted + "</p>");
+			}
+		</script>
+	</body>
+</html>

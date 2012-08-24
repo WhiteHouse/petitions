@@ -1,7 +1,0 @@
-name = "White House Feedback"
-description = "Creates widget for getting feedback on every page"
-core = 7.x
-package = "Custom Developed"
-
-stylesheets[all][] = wh_feedback.css
-scripts[] = wh_feedback.js
