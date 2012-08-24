@@ -32,7 +32,7 @@ Site visitors can create a user account, log in, and create petitions. Petition 
 
 Visitor can sign petitions. Petitions that receive a designated number of signatures (at the White House the number is 25,000 in one month) get a response.
 
-For installation instructions, see INSTALL.txt.
+For installation instructions, see INSTALL.md.
 
 NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience.  The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 themeing conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
 
