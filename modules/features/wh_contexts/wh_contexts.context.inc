@@ -309,7 +309,7 @@ function wh_contexts_context_default_contexts() {
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'responses';
-  $context->description = 'Reponses list page';
+  $context->description = 'Responses list page';
   $context->tag = 'list';
   $context->conditions = array(
     'path' => array(
@@ -352,7 +352,7 @@ function wh_contexts_context_default_contexts() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Reponses list page');
+  t('Responses list page');
   t('list');
   $export['responses'] = $context;
 

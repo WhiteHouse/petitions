@@ -21,7 +21,7 @@ class HourlyReportManager {
    *
    * Checks time of last build and sets indicator if new build is needed
    *
-   * @todo: figour out what the default variable should be
+   * @todo: figure out what the default variable should be
    */
   function __construct($debug = FALSE) {
     $this->debug = $debug;
@@ -140,7 +140,7 @@ class HourlyReportManager {
   }
 
   /**
-   * update the Drupal var and class attribte marking the last hour for which this ran
+   * update the Drupal var and class attribute marking the last hour for which this ran
    */
   private function updateLastRun($lastRunTS) {
     variable_set('wh_petition_reporting_hourly_last_run_hour', $lastRunTS);
@@ -148,7 +148,7 @@ class HourlyReportManager {
   }
 
   /**
-   *  Wrapper to handle retireving data for an hour and writing it to the mongo table
+   *  Wrapper to handle retrieving data for an hour and writing it to the mongo table
    */
   public function processHourRecord($hour_start_timestamp, $hour_end_timestamp) {
     HourlyReportManager::writeHourRecord(HourlyReportManager::getHourRecord($hour_start_timestamp, $hour_end_timestamp));     
@@ -162,7 +162,7 @@ class HourlyReportManager {
    * @param $hour_end_timestamp int
    *   Unix timestamp for when the hour to get should end
    * @param $delta_only boolean
-   *   Indicator of whether to get the total vlues or just the new records in that hour
+   *   Indicator of whether to get the total values or just the new records in that hour
    *
    * @return array
    */

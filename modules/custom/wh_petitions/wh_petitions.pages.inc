@@ -240,7 +240,7 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
 }
 
 /**
- * Callback to display more petitions from an ajax request.  Take the variables we got from the URL and pass them to the function to retrive more petitions.
+ * Callback to display more petitions from an ajax request.  Take the variables we got from the URL and pass them to the function to retrieve more petitions.
  */
 function wh_petitions_more_petitions($sort, $page, $cols, $issues) {
   $count = 0;
@@ -415,7 +415,7 @@ function wh_petitions_petition_detail($petition_id) {
          $agency_seal = theme('image_style', $image_vars);
        }        
       
-       // Retrieve the appropiate audio/video field info for the response.
+       // Retrieve the appropriate audio/video field info for the response.
        if (!empty($node->field_response_media[$node->language][0])) {
          $media_tid = $node->field_response_media[$node->language][0]['tid'];
          $media = taxonomy_term_load($media_tid);

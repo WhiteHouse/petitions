@@ -357,7 +357,7 @@ function wh_response_mail($key, &$message, $params) {
 /**
  * Implements hook_form_FORM_ID_alter().
  *
- * Diplays fields on the response form based on the value of the Media dropdown.
+ * Displays fields on the response form based on the value of the Media dropdown.
  * Adds petitions to the form in a vertical tab.
  */
 function wh_response_form_wh_response_node_form_alter(&$form, &$form_state) {
@@ -423,7 +423,7 @@ function wh_response_form_wh_response_node_form_alter(&$form, &$form_state) {
   ); 
   $form['response_notifications']['markup'] = array(
     '#type' => 'markup',
-    '#markup' => '<p>' . t('Enter the body of the email that will be sent to signors of petitions associated with this response.  To preview the email, enter email addresss(es) in the field below and click <b>Preview</b>') . '</p><br />',
+    '#markup' => '<p>' . t('Enter the body of the email that will be sent to signors of petitions associated with this response.  To preview the email, enter email address(es) in the field below and click <b>Preview</b>') . '</p><br />',
   );  
   $form['response_notifications']['field_response_email'] = $form['field_response_email'];
   unset($form['field_response_email']);
@@ -730,7 +730,7 @@ function wh_response_petition_submit($form, &$form_state) {
 }
 
 /**
- * Places checkboxes into mostly-equal columms of 5 on the response create/edit form.
+ * Places checkboxes into mostly-equal columns of 5 on the response create/edit form.
  */
 function wh_response_column_checks($form_element, &$form_state) {
   $language = $form_element['#language'];

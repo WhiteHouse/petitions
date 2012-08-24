@@ -70,7 +70,7 @@ function wh_petitions_create_petition($form, &$form_state) {
 
   // Only let registered users here.  Access here should be restricted by the 'create petition' permission anyway, but can't hurt to double-check.
   if (empty($user->uid)) {
-    // This is unfornately hardcoded because of the iframe's path. Subtly, the path is
+    // This is unfortunately hardcoded because of the iframe's path. Subtly, the path is
     // petitionS/create, vs, petition/create which loads petitions/create. In this
     // case, you can't do a drupal_get_destination() because it loads the wrong path due
     // to the iframe.
@@ -221,7 +221,7 @@ function wh_petitions_create_petition_step_1($form, &$form_state) {
 }
 
 /**
- * Themes the petition title area which has different design requirements that drupal doesn't inherantly handle with the attributes available to the form.
+ * Themes the petition title area which has different design requirements that drupal doesn't inherently handle with the attributes available to the form.
  */
 function theme_wh_petition_title($variables) {
   global $base_url;
@@ -245,7 +245,7 @@ function theme_wh_petition_title($variables) {
 }
 
 /**
- * Places the checkboxes into 3 (mostly-equal) columms.
+ * Places the checkboxes into 3 (mostly-equal) columns.
  */
 function wh_petitions_column_checks($form_element, &$form_state) {
   $size = sizeof($form_element['#options']);
@@ -971,7 +971,7 @@ function wh_petitions_filter_search_standalone() {
 }
 
 /**
- * Callback for the saerch and issues filter standalone forms.
+ * Callback for the search and issues filter standalone forms.
  */
 function wh_petitions_filter_results() {
   $issues = array();
