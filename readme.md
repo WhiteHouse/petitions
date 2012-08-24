@@ -2,11 +2,13 @@
 
 Drupal 7 code base used to build an application that lets users create and sign petitions.
 
-This application is under active development and will continue to be modified and improved over time. The current release is an "alpha" pending changes that will remove its dependency on MongoDB (see “Roadmap” section below).
+This application is under active development and will improve over time. The current release is an "alpha" pending changes that will, among other things, remove its dependency on MongoDB (see “Roadmap” section below).
 
 ## Goals
 
-President Obama is committed to creating the most open and participatory government in our nation’s history, and this petitioning platform is a key part of that initiative. In September, 2011, the White House launched [We the People](http://petitions.whitehouse.gov), a powerful and simple way to petition the Obama Administration to take action on a range of issues. If a petition gathers a minimum number of signatures in a defined amount of time, policy officials review it and publish an official response.
+President Obama is committed to creating a more open and participatory government. This petitioning platform is a key part of that initiative. 
+
+In September, 2011, the White House launched [We the People](http://petitions.whitehouse.gov), a powerful and simple way to petition the Obama Administration to take action on a range of issues. If a petition gathers a minimum number of signatures in a defined amount of time, policy officials review it and publish an official response.
 
 *Among our commitments, we’re launching a new online tool -- called “We the People” -- to allow Americans to directly petition the White House, and we’ll share that technology so any government in the world can enable its citizens to do the same.*
 
@@ -28,51 +30,69 @@ Releasing the source code for this application is meant to empower other governm
 
 ## Usage
 
-Site visitors can create a user account, log in, and create petitions. Petition creators can share the URL for their petition to generate signatures. When the petition crosses a certain threshold, the petition becomes "public" and is listed as an open petition on the site's "open petitions" page.
+Site visitors can create a user account, log in, and create petitions. Petition creators can share the URL for their petition to collect signatures. 
 
-Visitor can sign petitions. Petitions that receive a designated number of signatures (at the White House the number is 25,000 in one month) get a response.
+When the number of signatures crosses a certain threshold, the petition becomes "public" and is listed as an open petition on the site's "open petitions" page.
 
-For installation instructions, see INSTALL.txt.
+Petitions that receive a designated number of signatures (at the White House the number is 25,000 in one month) get a response.
 
-NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience.  The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 themeing conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
+For installation instructions, see INSTALL.txt.  NOTE: Setting up the application requires Drupal development experience.  
+
+The application includes a similar design (theme) to what is used on [http://petitions.whitehouse.gov](http://petitions.whitehouse.gov) and may be customized using standard Drupal 7 themeing conventions. 
+
+The application also includes various user interface elements, user account settings, and other configuration elements that users should expect to customize using standard Drupal 7 techniques and conventions.
 
 ## Roadmap
 
-Have an idea or question about future features for We the People? Let us know by opening a ticket on GitHub, emailing us directly at wethepople@who.eop.gov, or tweeting @WHWeb.
+Have an idea or question about future features for We the People? Let us know by opening a ticket on GitHub, emailing us directly at [wethepople@who.eop.gov](wethepople@who.eop.gov), or tweeting [@WHWeb](tyyp://twitter.com/WHWeb).
 
 We the People is a work in progress and currently exists at a very basic level of functionality. Priorities for future development are detailed below.
 
-The following descriptions are for informational purposes only and should not be interpreted as commitments or guarantees of future code releases in any way.
+The following descriptions are for informational purposes only and should not be interpreted as commitments or guarantees of future code releases.
 
-*Move from MongoDB to MySQL*
+***Move from MongoDB to MySQL***
 
 The current release depends on MongoDB. When we first created the application, we wanted to make sure we had a highly scalable application and database to meet our anticipated performance needs under high loads.  We have been running MongoDB in production for over a year, but we have decided that the performance benefits it provides are outweighed by the complexity of trying to extend Drupal features backed by MongoDB.
 
-We are currently moving to a fully MySQL-backed application to increase the speed the development of new features and other aspects of maintaining the Drupal application.  Our next release will be a dev branch that will be fully backed by MySQL, and once there is a tag for that branch, we will no longer maintain the MongoDB branch.
+We are currently moving to a MySQL database to increase the speed the development of new features and other aspects of maintaining the Drupal application.  Our next release will be a development branch that will use MySQL, and once there is a tag for that branch, we will no longer maintain the MongoDB branch.
 
-*Install Profile*
+***Install Profile***
 
 The codebase is released as-is and currently supports a specific, standalone website. In the future we would like to provide an install profile that supports a wider range of applications.
 
-*Generic Theme*
+***Generic Theme***
 
 The current codebase replicates the theme used on the White House website. In the future, we would like to provide a generic, "white label" Drupal 7 theme.
 
-*Streamline Petition Signing Workflow*
+***Simplify Petition Signing Workflow***
 
-The current workflow for a new user to sign a petition involves 1. creating a user account, 2. verifying the email address used to create the account by clicking a link in an email set to it and  3. returning to the petition to click to sign.
-The new workflow will start with 1. clicking to sign a petition and adding an email address, and 2. verifying the signature via email.  Signing a petition will not require Drupal users logging into the site.
+The current workflow for a new user to sign a petition involves 
 
-*API Development*
+ 1. creating a user account, 
+
+ 2. verifying the email address used to create the account by clicking a link in an email set to it and  
+
+ 3. returning to the petition to click to sign.
+
+The new workflow might look like this: 
+
+ 1. clicking to sign a petition and adding an email address, and 
+
+ 2. verifying the signature via email.  
+ 
+ Signing a petition will not require Drupal users logging into the site.
+
+***API Development***
 
 The current platform requires users visit the site directly in order to create or sign a petitions via the We the People website. We would like to develop an API that would allow users to sign a petition via a third party website, but with some level of verification that confirms a valid email address to potentially receive a response. 
+
 Developing an API would greatly expand the appeal of this tool, allowing other organizations to control the user experience and flow for petitions within their own environment while still registering verified signatures against a We the People threshold.
 
-*Improved Social Media Integration*
+***Improved Social Media Integration***
 
 The current platform allows basic sharing of petitions, responses and other content on the site via social media platforms like Facebook and Twitter.  In the future, we would like reduce the friction of signing a petition by making it possible to sign a petition in the context of a social network (e.g. by “liking” an object on facebook). 
 
-*Mobile interface*
+***Mobile interface***
 
 Whether through a mobile browser or standalone application, We the People should be accessible through mobile devices given the large and increasing portion of mobile traffic on the web.
 
