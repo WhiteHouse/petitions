@@ -8,7 +8,7 @@
 class XMLData {
   public function xmlSpecialChars($data) {
     $strict = TRUE; // Strict checking is required for mb_detect to be useful.
-    $isEndcoded = mb_detect_encoding($data, array('UTF-8'), $strict); // Empty string if it's not in the list of encodings to check.
+    $isEncoded = mb_detect_encoding($data, array('UTF-8'), $strict); // Empty string if it's not in the list of encodings to check.
     if(!empty($isEncoded)) {
       return preg_replace('@[\x00-\x08\x0B\x0C\x0E-\x1F]@', ' ', $data);
     }
