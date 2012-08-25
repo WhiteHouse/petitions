@@ -56,6 +56,9 @@ projects[forward][subdir] = contrib
 projects[google_analytics][version] = 1.2
 projects[google_analytics][subdir] = contrib
 
+projects[govdelivery][version] = 1.0-alpha1
+projects[govdelivery][subdir] = contrib
+
 projects[imce][version] = 1.5
 projects[imce][subdir] = contrib
 

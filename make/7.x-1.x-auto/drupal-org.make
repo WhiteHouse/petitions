@@ -41,6 +41,8 @@ projects[forward][subdir] = contrib
 
 projects[google_analytics][subdir] = contrib
 
+projects[govdelivery][subdir] = contrib
+
 projects[imce][subdir] = contrib
 
 projects[job_scheduler][subdir] = contrib
