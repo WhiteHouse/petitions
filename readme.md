@@ -30,7 +30,7 @@ Releasing the source code for this application is meant to empower other governm
 
 Site visitors can create a user account, log in, and create petitions. Petition creators can share the URL for their petition to generate signatures. When the petition crosses a certain threshold, the petition becomes "public" and is listed as an open petition on the site's "open petitions" page.
 
-Visitor can sign petitions. Petitions that receive a designated number of signatures (at the White House the number is 25,000 in one month) get a response.
+Visitors can sign petitions. Petitions that receive a designated number of signatures (at the White House the number is 25,000 in one month) get a response.
 
 For installation instructions, see INSTALL.md.
 
