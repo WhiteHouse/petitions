@@ -2321,10 +2321,6 @@ body.first-family-detail #page #content h1 { margin-bottom: 0px; }
   font-size: 0.875em;
 }
 
-.view-issues-pages-taxonomy-grid .view-content table.views-view-grid td li a:link, a:visited {
-  color: #000;
-}
-
 #landing-blog-archives a:hover, #landing-in-briefing-room a:hover {text-decoration: underline;}
 
 #right-rail li h3 a:hover {text-decoration: underline;}
