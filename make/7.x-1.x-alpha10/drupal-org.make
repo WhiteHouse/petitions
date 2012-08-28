@@ -65,6 +65,9 @@ projects[imce][subdir] = contrib
 projects[job_scheduler][version] = 2.0-alpha3
 projects[job_scheduler][subdir] = contrib
 
+projects[maintenance200][version] = 1.0
+projects[maintenance200][subdir] = contrib
+
 projects[memcache][version] = 1.0
 projects[memcache][subdir] = contrib
 
