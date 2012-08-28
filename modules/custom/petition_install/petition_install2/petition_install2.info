@@ -1,0 +1,14 @@
+name = Whitehouse Petition Install 2 (depend on contrib only)
+description = Install custom modules and feature modules that depend on contrib only
+
+core = 7.x
+
+; features
+; ------------
+
+dependencies[] = petitions_logintoboggan_settings
+dependencies[] = petitions_user_registration
+dependencies[] = taxonomy_sync
+dependencies[] = wh_petition_page
+dependencies[] = wh_response_feature
+dependencies[] = wh_user_ss_data

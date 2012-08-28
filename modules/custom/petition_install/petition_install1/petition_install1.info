@@ -1,0 +1,40 @@
+name = Whitehouse Petition Install 1 (no contrib or custom dependencies)
+description = Install modules with no dependencies 
+
+core = 7.x
+
+; contrib
+; -----------------
+
+; dependencies[] = acquia_connector
+dependencies[] = advanced_help
+dependencies[] = captcha
+; dependencies[] = coder
+dependencies[] = ctools
+dependencies[] = date
+; dependencies[] = devel
+dependencies[] = diff
+dependencies[] = email_confirm
+dependencies[] = feeds
+dependencies[] = forward
+; dependencies[] = google_analytics
+dependencies[] = job_scheduler
+dependencies[] = logintoboggan
+; dependencies[] = memcache
+dependencies[] = metatag
+; dependencies[] = migrate
+; dependencies[] = migrate_extras
+; dependencies[] = nagios
+dependencies[] = openidadmin
+dependencies[] = profile2
+dependencies[] = recaptcha
+dependencies[] = rules
+dependencies[] = strongarm
+dependencies[] = token
+dependencies[] = views
+
+; custom
+; -----------------
+
+dependencies[] = govdelivery
+dependencies[] = wh_feedback

@@ -1,0 +1,32 @@
+name = Whitehouse Petition Install 3 (depend on wh_user_profile)
+description = Install custom modules and feature modules that depend on wh_user_profile
+
+core = 7.x
+
+; "Core" User Profile
+;
+dependencies[] = wh_user_profile
+
+; depends on:
+;  migrate_extras
+;  profile2
+;  migrate
+;  wh_user_profile
+;
+dependencies[] = wh_profile_migrate
+
+
+; depends on;
+;  wh_user_profile
+;
+dependencies[] = wh_zipcodelookup
+
+; depends on: 
+;  logintoboggan_rules
+;  petitions_logintoboggan_settings
+;  wh_zipcodelookup
+;  wh_user_profile
+;  petitions_user_registration
+;  wh_user_ss_data
+;   
+dependencies[] = wh_core

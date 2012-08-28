@@ -1,0 +1,62 @@
+name = Whitehouse Petition Install 4 (wh_response and wh_petitions)
+description = Install custom modules and feature modules that depend on wh_response and wh_petitions
+
+core = 7.x
+
+; custom
+; --------
+
+; depends on:
+;  mongodb
+;  taxonomy
+;  wh_petitions
+;
+dependencies[] = wh_response
+
+; depends on:
+;  wh_response
+;  wh_petitions
+;
+dependencies[] = wh_petition_reporting
+
+; depends on:
+;  wh_petitions
+;  wh_response
+;
+dependencies[] = wh_petition_tool
+
+; depends on:
+;  mongodb
+;  pathauto
+;  taxonomy
+;  taxonomy_sync
+;  wh_response
+;  wh_user_profile
+;
+dependencies[] = wh_petitions
+
+; depends on:
+;  "block"
+;  "context"
+;  "wh_petitions"
+;  "wh_response_feature"
+; 
+dependencies[] = wh_contexts
+
+; depends on:
+;  "contextual"
+;  "dashboard"
+;  "features"
+;  "feeds"
+;  "image"
+;  "imce"
+;  "menu"
+;  "overlay"
+;  "pathauto"
+;  "search"
+;  "shortcut"
+;  "strongarm"
+;  "toolbar"
+;  "wh_petitions"
+;
+dependencies[] = wh_misc
