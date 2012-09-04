@@ -114,15 +114,19 @@ projects[wysiwyg][subdir] = contrib
 ; Patched contrib
 ;-----------------
 
-; logintoboggan-lower-password.patch
-;   - Provide password token for emailing users their password upon registration
+; 1747878-2-remove-lower.patch
 ;   - Performance improvement, get rid of mysql LOWER(), it creates a temp table for the whole table
 ;   - @see http://drupal.org/node/1747878
+;
+; password_token-1165126-6.patch
+;   - Make password available as a token
+;   - @see http://drupal.org/node/1165126#comment-5492890
 ;
 ;------------------------------------
 projects[logintoboggan][version] = 1.3
 projects[logintoboggan][subdir] = contrib
-projects[logintoboggan][patch][] = http://drupal.org/files/logintoboggan-lower-password.patch
+projects[logintoboggan][patch][] = http://drupal.org/files/1747878-2-remove-lower.patch
+projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
 
 ; mongodb-7.x-1.0-rc2-persist.patch
 ;  - Use persistent connection by default.
