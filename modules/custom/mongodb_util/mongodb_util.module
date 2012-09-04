@@ -1,0 +1,272 @@
+<?php
+
+/**
+ * Get all indexes from hook_mongodb_indexes().
+ */
+function mongodb_util_get_indexes() {
+  foreach (module_list() as $module) {
+    module_load_install($module);
+  }
+  $indexes = module_invoke_all('mongodb_indexes');
+
+  return $indexes;
+}
+
+/**
+ * Ensure all indexes defined across the site.
+ *
+ * @param $check
+ *   When set to TRUE, only check indexes, don't change them.
+ * @param $server
+ *   The server on which the indexes are being check or created, defaults
+ *   to 'master'.
+ * @param $json_output
+ *   If TRUE and using drush, the output will be full json
+ *   which can be used in the mongo shell.
+ * @param $background
+ *    If TRUE, run ensureIndexes with background:true, which can by definition, only repair one at a time",
+ */
+function mongodb_util_ensure_all_indexes($check = FALSE, $server = 'master', $json_output = FALSE, $background = FALSE) {
+  if (function_exists('drush_verify_cli') && drush_verify_cli()) {
+    drush_print('Ensuring indexes for ' . $server . '.');
+  }
+  _mongodb_util_ensure_indexes(mongodb_util_get_indexes(), $check, $server, $json_output, $background);
+}
+
+/**
+ * Run ensureIndex() on an array of index definitions.
+ *
+ * @param $indexes
+ *   An array of mongodb index definitions.
+ * @param $check
+ *   When set to TRUE, only check indexes, don't change them.
+ * @param $server
+ *   The server on which the indexes are being checked or created, defaults
+ *   to 'master'.
+ * @param $json_output
+ *   If TRUE and using drush, the output will be full json
+ *   which can be used in the mongo shell.
+ * @param $background
+ *    If TRUE, run ensureIndexes with background:true, which can by definition, only repair one at a time",
+ *
+ */
+function _mongodb_util_ensure_indexes($indexes, $check = FALSE, $server = 'master', $json_output = FALSE, $background = FALSE) {
+  // @todo:
+  global $conf;
+  $aliases = array('default' => 'default');
+  foreach ($conf['mongodb_collections'] as $alias) {
+    $aliases[$alias] = $alias;
+  }
+
+  // Load the existing indexes and collection names.
+  if (!$system = drupal_static(__FUNCTION__, array())) {
+    mongodb_util_remove_timeout();
+    $system = array('collections' => array(), 'indexes' => array());
+    foreach ($aliases as $alias) {
+      // Load the indexes.
+      $results = mongodb($alias)
+        ->selectCollection('system.indexes')
+        ->find();
+      foreach ($results as $index) {
+        // Remove the database name from the key.
+        $ns = explode('.', $index['ns']);
+        array_shift($ns);
+        $collection = implode('.', $ns);
+        if ($index['name'] != '_id_' && ($alias == 'default' || (isset($conf['mongodb_collections'][$collection]) && $conf['mongodb_collections'][$collection] == $alias))) {
+          $key = $collection . '.' . $index['name'];
+          // Save the index information.
+          $index['alias'] = $alias;
+          $index['collection'] = $collection;
+          $system['indexes'][$key] = $index;
+        }
+      }
+      // Load the collections.
+      $results = mongodb($alias)->listCollections();
+      foreach ($results as $collection) {
+        // Remove the database name from the key.
+        $ns = explode('.', (string) $collection);
+        array_shift($ns);
+        $collection = implode('.', $ns);
+        $system['collections'][(string) $collection] = $collection;
+      }
+    }
+  }
+
+  // Remove all extraneous indexes
+  foreach ($system['indexes'] as $system_key => $system_index) {
+    if (_mongodb_util_check_index($indexes, $check, $server, $system_key)) {
+      $foundone = TRUE;
+    }
+  }
+
+  $options = array();
+  if ($background) {
+    $options['background'] = TRUE;
+  }
+  else {
+    $options['safe'] = TRUE;
+  }
+ 
+  foreach ($indexes as $collection => $collection_indexes) {
+    foreach ($collection_indexes as $index) {
+      // Only do anything with this index if it is applicable to $server.
+      if (empty($index['servers']) || in_array($server, $index['servers'])) {
+        // If anything in the index changed, delete it.
+        $index_name = $index['options']['name'];
+        $entity_type = isset($index['entity_type']) ? $index['entity_type'] : FALSE;
+        $full_collection = $entity_type ?  ($collection . '.' . $entity_type) : $collection;
+        $key = $full_collection . '.' . $index_name;
+        $alias = isset($conf['mongodb_collections'][$full_collection]) ? $conf['mongodb_collections'][$full_collection] : 'default';
+        $delete_index = NULL;
+        if (isset($system['indexes'][$key]) && $system['indexes'][$key]['collection'] == $full_collection && mongodb_util_array_diff($index['columns'], $system['indexes'][$key]['key'])) {
+          $delete_index = $system['indexes'][$key];
+          $delete_index['op'] = 'changed';
+        }
+        else {
+          // Look for an index with just a different name.
+          $delete = FALSE;
+          foreach ($system['indexes'] as $system_key => $system_index) {
+            if ($system_index['collection'] == $full_collection && $system_index['name'] != $index['options']['name'] && !mongodb_util_array_diff($index['columns'], $system_index['key'])) {
+              $delete_index = $system_index;
+              $delete_index['op'] = 'name';
+              break;
+            }
+          }
+        }
+        if ($delete_index) {
+          $cmd = array(
+            'deleteIndexes' => $full_collection,
+            'index' => $delete_index['name'],
+          );
+          $response = $check ? array('ok' => 'pending') : mongodb($alias)->command($cmd);
+          if (!empty($response['ok'])) {
+            unset($system['indexes'][$key]);
+            if (function_exists('drush_verify_cli') && drush_verify_cli()) {
+              $prefix = $alias == 'default' ? '' : "$alias> ";
+              $suffix = ($check && $json_output) ? '' : (' [' . (is_numeric($response['ok']) ? ($response['ok'] === 1 ? 'success' : 'fail') : $response['ok']) . ']');
+              drush_print($prefix . "db.$full_collection.dropIndex('$delete_index[name]');" . $suffix);
+            }
+            $foundone = TRUE;
+          }
+        }
+        // If the index doesn't exist or was changed, create it.
+        if (!isset($system['indexes'][$key])) {
+          if (!isset($system['collections'][$full_collection])) {
+            if (!$check) {
+              mongodb($alias)->createCollection($full_collection);
+            }
+            if (function_exists('drush_verify_cli') && drush_verify_cli()) {
+              drush_print($prefix . "db.createCollection('$full_collection');" . $suffix);
+            }
+          }
+          $index['options'] += $options;
+          try {
+            $status = $check ? 'pending' : (mongodb_collection($collection, $entity_type)
+              ->ensureIndex($index['columns'], $index['options']) ? 'success' : 'fail');
+          }
+          catch (MongoCursorException $e) {
+            $status = 'exception:' . $e->getMessage();
+          }
+          if (function_exists('drush_verify_cli') && drush_verify_cli()) {
+            if ($json_output) {
+              unset($index['options']['safe']);
+              $args = json_encode($index['columns']) . ', ' . json_encode($index['options']);
+            }
+            else {
+              $args = "'" . $index['options']['name'] . "'";
+            }
+            $prefix = $alias == 'default' ? '' : "$alias> ";
+            $suffix = ($check && $json_output) ? '' : (' [' . $status . ']');
+            drush_print($prefix . "db.$full_collection.ensureIndex($args);" . $suffix);
+          }
+          $foundone = TRUE;
+        }
+      }
+    }
+  }
+  if (!isset($foundone) && function_exists('drush_print')) {
+    drush_print("Indexes ensured.");
+  }
+}
+
+/**
+ * Don't use mongo timeouts.
+ */
+function mongodb_util_remove_timeout() {
+  if (function_exists('drush_verify_cli') && drush_verify_cli()) {
+    drush_print('Remove mongodb timeouts.');
+  }
+  global $conf;
+  $conf['mongo_timeout'] = 0;
+  MongoCursor::$timeout = 0;
+}
+
+/**
+ * Check if this index should exist, and if not, drop it.
+ *
+ * @param $indexes
+ *   An array of mongodb index definitions.
+ * @param $check
+ *   When set to TRUE, only check indexes, don't change them.
+ * @param $server
+ *   The server on which the indexes are being checked or created, defaults
+ *   to 'master'.
+ * @param $full_index_name
+ *   The full index name, including the collection name.
+ *
+ * @returns
+ *   TRUE if the index was dropped.
+ */
+function _mongodb_util_check_index($indexes, $check, $server, $full_index_name) {
+  // Get the collection and index names.
+  $dots = explode('.', $full_index_name);
+  $index_name = array_pop($dots);
+  $collection = implode('.', $dots);
+
+  // If we don't have any indexes for this collection, then skip it.
+  if (!isset($indexes[$collection])) {
+    return;
+  }
+
+  // Look for an existing matching index.
+  $match = FALSE;
+
+  foreach ($indexes as $index_collection => $collection_indexes) {
+    foreach ($collection_indexes as $index) {
+      // Only do anything with this index if it is applicable to $server.
+      if (empty($index['servers']) || in_array($server, $index['servers'])) {
+        $entity_type = isset($index['entity_type']) ? $index['entity_type'] : FALSE;
+        $key = $entity_type ?  $index_collection . '.' . $entity_type . '.' . $index['options']['name'] : $index_collection . '.' . $index['options']['name'];
+        if ($key == $full_index_name) {
+          $match = TRUE;
+          break 2;
+        }
+      }
+    }
+  }
+  if (!$match) {
+    $alias = isset($conf['mongodb_collections'][$collection]) ? $conf['mongodb_collections'][$collection] : 'default';
+    $cmd = array(
+      'deleteIndexes' => $collection,
+      'index' => $index_name,
+    );
+    $response = $check ? array('ok' => 'pending') : mongodb($alias)->command($cmd);
+    if (!empty($response['ok'])) {
+      unset($indexes[$key]);
+      if (function_exists('drush_verify_cli') && drush_verify_cli()) {
+        $prefix = $alias == 'default' ? '' : "$alias> ";
+        $suffix = ($check && $json_output) ? '' : (' [' . (is_numeric($response['ok']) ? ($response['ok'] === 1 ? 'success' : 'fail') : $response['ok']) . ']');
+        drush_print($prefix . "db.$collection.dropIndex('$index_name');" . $suffix);
+      }
+      return TRUE;
+    }
+  }
+
+}
+
+/**
+ * Return TRUE if two arrays are different.
+ */
+function mongodb_util_array_diff($a, $b) {
+  return count($a) != count($b) || array_diff_assoc($a, $b) || array_diff($a, $b) ? TRUE : FALSE;
+}

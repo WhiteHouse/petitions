@@ -1,0 +1,7 @@
+name = "MongoDB Util"
+description = "Additional utilities to augment the MongoDB module"
+package = "MongoDB"
+core = "7.x"
+version = "devel"
+
+dependencies[] = "mongodb"
