@@ -128,8 +128,8 @@ projects[logintoboggan][patch][] = http://drupal.org/files/logintoboggan-lower-p
 ;  - Use persistent connection by default.
 ;  - Note: This is a gist on GitHub, and not a patch on drupal.org
 ;    because $conf['mongodb_options'] is specific to our implementation
-;    of mongo. 
-; 
+;    of mongo.
+;
 ;-------------------------------------
 projects[mongodb][version] = 1.0-rc2
 projects[mongodb][subdir] = contrib
@@ -138,7 +138,7 @@ projects[mongodb][patch][] = https://raw.github.com/gist/3626207/06eecfdc29fc445
 ; check_type.patch
 ;  - Data types were not checked before getting 'status' key from them
 ;  - @see http://drupal.org/node/1572368
-; 
+;
 ; check_checks.patch
 ;   - Improved error handling.
 ;     Before we run checks, lets see if the checks for this module are enabled otherwise, break out of the loop.
