@@ -17,4 +17,4 @@ projects[petition][type] = profile
 projects[petition][download][type] = git
 projects[petition][download][url] = https://github.com/WhiteHouse/petition.git
 projects[petition][download][branch] = 7.x-1.x
-projects[petition][download][revision] = 7.x-1.0-alpha10
+projects[petition][download][revision] = 7.x-1.0-alpha14
