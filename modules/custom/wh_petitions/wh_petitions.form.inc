@@ -7,14 +7,14 @@
 function wh_petitions_create_petition_iframe() {
   drupal_set_title(t('Create A Petition'));
 
-  $url = '/petitions/create';
+  $url = '/petition/create';
   $petition_id = arg(2);
 
   if (!empty($petition_id)) {
     $url .= '/' . check_plain($petition_id);
   }
 
-  return '<iframe src= "' . $url . '?t=' . microtime() . '" width="687" height="1500" frameborder="0"></iframe>';
+  return '<iframe src= "' . url($url) . '?t=' . microtime() . '" width="687" height="1500" frameborder="0"></iframe>';
 }
 
 /**
@@ -534,9 +534,9 @@ function wh_petitions_create_petition_step_2($form, &$form_state) {
     '#submit' => array('wh_petitions_create_petition_step_2_submit'),
     '#attributes' => array('class' => array('input-button-steps'), 'id' => 'continue-to-step-3'),
   );
-
-  $form['#action'] = '/' . implode('/', arg());
-
+  
+  $form['#action'] = url('/' . implode('/', arg()));
+      
   return $form;
 }
 
@@ -761,9 +761,9 @@ function wh_petitions_create_petition_step_4($form, &$form_state) {
             <a id="button-no-thanks-keep" rel="' . $petition_id . '">' . t('No thanks. Keep this Draft') . '</a>
            </div></div></div>',
   );
-
-  $form['#action'] = $base_url . '/' . implode('/', arg());
-
+  
+  $form['#action'] = url(implode('/', arg()));
+  
   return $form;
 }
 
@@ -784,7 +784,9 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
 
     // Generate a Friendly & Short URL
     wh_petitions_generate_nice_url($petition);
-    wh_petitions_generate_short_url($petition);
+    if (!variable_get('wh_petition_tool_hub_url', '') ) {
+      wh_petitions_generate_short_url($petition);
+    }
 
     // By default, a user signs their own petition
     $user_load = user_load($user->uid);
@@ -806,7 +808,8 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
     $new_id = wh_petitions_save_petition($conn, $petition);
 
     // Create a new GovDelivery list
-    if (!empty($new_id)) {
+    
+    if (module_exists('govdelivery') && !empty($new_id)) {
       govdelivery_subscriber_api_add_topic('petitions_' . $new_id);
     }
 
@@ -840,7 +843,7 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
     wh_petitions_save_signature($signature);
 
     // Add creator's signature
-    if (!empty($new_id)) {
+    if (module_exists('govdelivery') && !empty($new_id)) {
       govdelivery_subscriber_api_add_subscriber($user->mail, 'petitions_' . $new_id);
     }
 
@@ -896,7 +899,7 @@ function wh_petitions_create_petition_thank_you($form, &$form_state) {
   $petition = wh_petitions_load_petition($conn, $form_state['petition_id']);
   $date = strtotime('+' . $petition['review_timeframe'] . ' days', $petition['published']);
   $date = date("F d, Y", $date);
-  $link = $base_url . '/' . $petition['nice_url'];
+  $link = url($petition['nice_url']);
   $email_url = $base_url . '/petition/email/' . check_plain($petition['_id']->__toString());
 
   $full_link = l($link, $link, array('html' => TRUE, 'attributes' => array('target' => '_top')));
@@ -934,8 +937,8 @@ function wh_petitions_create_petition_thank_you($form, &$form_state) {
       'email_link' => $email_link,
     )),
   );
-  $form['#action'] = $base_url . '/' . implode('/', arg());
-  return $form;
+  $form['#action'] = url( implode('/', arg()) );
+  return $form; 
 }
 
 /**
