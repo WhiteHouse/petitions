@@ -115,6 +115,60 @@ repackage Petition as an install profile. It doesn't harm anything to have
 them on. But for development, you may not want these modules hanging around
 your site adding unnecessary dependencies.
 
+Here is a list of modules that should be enabled for the system to run properly:
+<table>
+  <tr>
+     <th><B>Module Name</B></th>
+	<th><B>Module</B></th>
+	<th><B>Status</B></th>
+  </tr>
+  <tr>
+    	<td>Petitions - LoginToboggan Settings</td>
+	<td>petitions_logintoboggan_settings</td>
+	<td>Enabled</td>
+  </tr>
+  <tr>
+    	<td>Petitions - User Registration</td>
+	<td>petitions_user_registration</td>
+	<td>Enabled Overridden</td>
+  </tr>
+  <tr>
+    	<td>Taxonomy Sync</td>
+	<td>taxonomy_sync</td>
+	<td>Enabled</td>
+  </tr>
+  <tr>
+    	<td>Page</td>
+	<td>wh_petition_page</td>
+	<td>Enabled</td>
+  </tr>
+  <tr>
+    	<td>Response</td>
+	<td>wh_response_feature</td>
+	<td>Enabled Overridden</td>
+  </tr>
+  <tr>
+    	<td>WH User SS Data</td>
+	<td>wh_user_ss_data</td>
+	<td>Enabled</td>
+  </tr>
+  <tr>
+    	<td>Whitehouse User Profile</td>
+	<td>wh_user_profile</td>
+	<td>Enabled Overridden</td>
+  </tr>
+  <tr>
+    	<td>Contexts</td>
+	<td>wh_contexts</td>
+	<td>Enabled</td>
+  </tr>
+  <tr>
+    	<td>Misc</td>
+	<td>wh_misc</td>
+	<td>Enabled Overridden</td>
+  </tr>
+</table>
+
 8) The "main" profile should have these fields: First Name, Last Name, City, 
      State, Zip, Country. To confirm, check here:
        
