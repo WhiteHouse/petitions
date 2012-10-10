@@ -32,6 +32,9 @@ projects[date][subdir] = contrib
 projects[devel][version] = 1.2
 projects[devel][subdir] = contrib
 
+; projects[devel_themer][version] = USING LATEST
+projects[devel_themer][subdir] = contrib
+
 projects[diff][version] = 2.0-beta2
 projects[diff][subdir] = contrib
 
@@ -99,6 +102,9 @@ projects[recaptcha][subdir] = contrib
 projects[rules][version] = 2.2
 projects[rules][subdir] = contrib
 
+projects[simplehtmldom][version] = 1.12
+projects[simplehtmldom][subdir] = contrib
+
 projects[strongarm][version] = 2.0
 projects[strongarm][subdir] = contrib
 
@@ -162,21 +168,11 @@ projects[tao][version] = 3.0-beta3
 projects[rubik][type] = theme
 projects[rubik][version] = 4.0-beta5
 
+projects[zen][type] = theme
+projects[zen][version] = 5.1
 
-; Custom
-; TODO: FIGURE OUT WHAT TO DO WITH THESE
-; ---------
-; wh_core/
-; wh_feedback/
-; wh_profile_migrate/
-; wh_user_migrate/
-; wh_user_migrate_alt/
-; wh_zipcodelookup/
-
-
-; features
-; TODO: FIGURE OUT WHAT TO DO WITH THESE
-; ---------
-; petitions_user_registration/
-; wh_user_profile/
-; wh_user_ss_data/
+projects[fortyfour][type] = theme
+projects[fortyfour][download][type] = git
+projects[fortyfour][download][url] = https://github.com/WhiteHouse/fortyfour.git
+projects[fortyfour][download][branch] = 7.x-1.x
+; projects[fortyfour][download][tag] = 7.x-1.0-alpha1
