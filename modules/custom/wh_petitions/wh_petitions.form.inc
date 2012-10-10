@@ -83,7 +83,7 @@ function wh_petitions_create_petition($form, &$form_state) {
     $markup .= '<div class="or"><img src="/profiles/petition/themes/petitions/img/or.gif" alt="or"/></div>';
     $markup .= '<div id="no-account" class="col-2"><h3>' . t("Don't Have an Account?") . '</h3>';
     $markup .= '<p>&nbsp;</p>';
-    $markup .= l(t('Create an Account'), 'user/register', array('query' => $destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-create-an-account', 'target' => array('_parent'))));
+    $markup .= l(t('Create an Account'), 'register', array('query' => $destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-create-an-account', 'target' => array('_parent'))));
     $markup .= '</div></div>';
 
     return array(
@@ -216,7 +216,7 @@ function wh_petitions_create_petition_step_1($form, &$form_state) {
   $form['#validate'] = array('wh_petitions_create_petition_step_1_validate');
   
   $form['#action'] = $base_url . '/' . implode('/', arg());
-  
+
   return $form;
 }
 
@@ -232,7 +232,7 @@ function theme_wh_petition_title($variables) {
   $default = !empty($element['#default_value']) ? $element['#default_value'] : t('finish the statement here');
 
   $output = '<div id="form-item-create-petition-title" class="clearfix">';
-  $output .= '  <div class="we-petition-msg">' . t('We believe the Obama Administration should...') . '</div>';
+  $output .= '  <div class="we-petition-msg">' . t('We Petition the Obama Administration To...') . '</div>';
   $output .= '  <div class="form-field-wrapper clearfix">';
   $output .= '    <img class="form-arrow" alt="' . t('finish the statement here') . '" src="' . $base_url . '/profiles/petition/themes/petitions/img/textarea-arrow.gif" />';
   $output .= '    <textarea rows="5" cols="40" id="edit-petition-title" class="trigger" name="petition_title" onfocus="if(this.value==\'' . t('finish the statement here') . '\'){this.value=\'\'};">' . $default . '</textarea>';
@@ -300,9 +300,9 @@ function wh_petitions_create_petition_step_1_validate($form, &$form_state) {
   elseif ($count == 0) {
     // @todo Make petition_issues optional and easy to enable/disable.
     //form_set_error('petition_issues', t('Please select at least 1 issue.'));
-    $text = t('This petition was has not been tagged with any petition_issues keywords.');
+    $text = t('This petition has not been tagged with any petition issues keywords. Please check relevant keywords below.');
     watchdog('wh_petitions', $text, array(), WATCHDOG_WARNING);
-    drupal_set_message($text, 'warning');
+    form_set_error('petition_issues', $text);
   }
   
   // If the user got here other than by clicking the Save and Continue button ( i.e. by clicking the back button in the browser and trying
