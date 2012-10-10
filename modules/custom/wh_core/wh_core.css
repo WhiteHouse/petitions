@@ -1,0 +1,293 @@
+/**
+*
+* CSS for overwriting the styling of the user registration, login, and forgot
+* password forms.
+*
+*/
+
+/* Form HTML styling */
+
+form#user-register-form div.description {
+  display: none;
+}
+
+form#user-register-form .form-item {
+  margin: 0em 0em 1em 0em;
+}
+
+form#user-login .form-item {
+  margin: 20px 0px 0px 34px;
+}
+
+form#user-pass .form-item {
+  margin: 20px 0px 0px 30px;
+}
+
+#user-register-form-wrapper {
+  padding: 30px 0px 0px 34px;
+}
+
+#user-login-form-wrapper {
+  padding: 30px 0px 0px 34px;
+}
+
+#user-password-form-wrapper {
+  padding: 30px 0px 0px 34px;
+}
+
+#user-register-form-wrapper .webform-description {
+  margin: 12px 0px 25px 0px;
+  border-bottom: 1px solid #E6E6E6;  
+}
+
+#user-password-form-wrapper p {
+  font-size: 1em;
+  font-weight: bold;
+  line-height: 1.5;
+  margin: 10px 0px 20px;
+}
+
+form#user-register-form #edit-account {
+  margin: 0px 0px 0px 54px;
+}
+
+form#user-register-form h1,
+form#user-login h1,
+form#user-pass h1 {
+  border-bottom: 1px solid #CECECE;
+  color: #666;
+  font-size: 1.75em;
+  font-weight: normal;
+  font-family: Arial,Helvetica,sans-serif;
+  line-height: 0em;
+  padding-bottom: 20px;
+  padding-bottom: 20px;
+}
+
+form#user-register-form ol li {
+  padding-bottom: 20px;
+}
+
+form#user-register-form fieldset#edit-profile-main {
+  margin: 0px 0px 0px 53px;
+}
+
+form#user-register-form fieldset.captcha {
+  margin: 0px 0px 0px 171px;
+}
+
+form#user-login .password {
+  font-size: 1em;
+  line-height: 1.5;
+  margin: -22px 0px 0px 254px;
+}
+
+form#user-login .password a {
+  text-decoration: none;
+  width: 200px;
+}
+
+form#user-login .password a:hover {
+  text-decoration: underline;
+}
+
+/* Form label styling */
+
+form#user-register-form label {
+  display: inline !important;
+  float: left;
+  letter-spacing: 0.02em;
+  text-align: left;
+  text-indent: 3px;
+  width: 150px;
+  margin: 8px -32px 0px 0px;
+}
+
+form#user-register-form div.form-item-email-updates label {
+  float: right;
+  font-weight: normal;
+  font-size: small;
+  width: 300px;
+  margin: 0px 166px 10px 0px;
+}
+
+form#user-login label,
+form#user-pass label {
+  color: #666666 !important;
+  display: inline-block !important;
+  font-weight: bold !important;
+  letter-spacing: 0.02em !important;
+  text-align: left;
+  text-indent: 3px;
+  width: 100px;
+  font-weight: normal;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  vertical-align: baseline;
+}
+
+/* Form input field styling */
+
+form#user-register-form .form-text, 
+form#user-login .form-text,
+form#user-pass .form-text, 
+#user-profile-form .form-text, 
+#user-profile-form select {
+  height: 25px;
+}
+
+form#user-register-form .form-text,
+form#user-login .form-text,
+form#user-pass .form-text {
+  background: #FDFDFD url(../wh_core/img/backgrounds/bg-form-item.png) repeat-x scroll 0 0;
+  border-color: #CECECE #DCDCDC #DCDCDC;
+  border-style: solid;
+  border-width: 1px;
+  color: #666666;
+  font-size: 12px;
+  padding: 3px 1px;
+  width: 384px;
+}
+
+form#user-register-form input#edit-email-updates {
+  margin-left: 169px;
+}
+
+form#user-register-form .fieldset-legend {
+  display: none;
+}
+
+form#user-register-form .form-item {
+  margin: 0em 0em 1em 0em;
+}
+
+form#user-register-form .fieldset-description {
+  color: red;
+  width: 393px;
+  margin: 0px 0px 10px 0px;
+}
+
+form#user-register-form select {
+  margin-top: 6px;
+}
+
+form#user-login .form-item .description {
+  padding: 3px 0px 0px 109px;
+}
+
+/* Captcha styling */
+
+form#user-register-form #recaptcha_table {
+  background: none repeat scroll 0 0 transparent;
+  border-color: white !important;
+  width: 425px;
+}
+
+form#user-register-form .recaptchatable {
+  border: 1px solid #DFDFDF !important;
+  line-height: 1em;
+}
+
+form#user-register-form .recaptchatable,
+form#user-register-form #recaptcha_area tr,
+form#user-register-form #recaptcha_area td,
+form#user-register-form #recaptcha_area th {
+  border: 0 none !important;
+  border-collapse: collapse !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+}
+
+form#user-register-form .recaptchatable * {
+  border: 0;
+  bottom: auto;
+  color: black;
+  left: auto;
+  margin: 0px;
+  padding: 0px;
+  position: static;
+  right: auto;
+  text-align: left !important;
+  top: auto;
+}
+
+form#user-register-form .recaptchatable .recaptcha_image_cell {
+  background-color: white;
+  height: 57px;
+  padding: 7px 7px 7px 0px !important;
+}
+
+form#user-register-form #recaptcha_logo,
+form#user-register-form #recaptcha_tagline {
+  display: none;
+}
+
+form#user-register-form #recaptcha_response_field {
+  border: 1px solid #CECECE !important;
+  padding: 6px 1px;
+  margin-left: -7px !important;
+  width: 345px !important;
+}
+
+form#user-register-form #recaptcha_image {
+  width: 347px !important;
+}
+
+/* Create an account button styling */
+
+form#user-register-form  #edit-submit {
+  text-indent: -9000px;
+}
+
+form#user-register-form #edit-submit, 
+form#user-register-form #edit-submit:hover, 
+form#user-register-form #edit-submit:focus{
+  background: url(../wh_core/img/login/user_account_create_account_btn.png);
+  padding: 3px 108px 16px 109px;
+  margin: 20px 0 20px 172px;
+}
+
+form#user-register-form #edit-submit:hover, 
+form#user-register-form #edit-submit:focus{
+  background-position: 0px 32px;
+}
+
+/* Login button styling */
+
+form#user-login input#edit-submit {
+  background-position: 0px 0px;
+  margin-left: 419px;
+}
+
+form#user-login input#edit-submit, 
+form#user-login input#edit-submit:hover, 
+form#user-login input#edit-submit:focus {
+  background: url(../wh_core/img/login/user_account_login_btn.png);
+  width: 106px;
+  height: 32px;
+}
+
+form#user-login input#edit-submit:hover, 
+form#user-login input#edit-submit:focus {
+  background-position: 0px 32px;
+}
+
+/* Submit button styling */
+
+form#user-pass input#edit-submit {
+  background-position: 0px 0px;
+  margin-left: 419px;
+}
+
+form#user-pass input#edit-submit, 
+form#user-pass input#edit-submit:hover, 
+form#user-pass input#edit-submit:focus {
+  background: url(../wh_core/img/login/user_account_submit_btn.png);
+  width: 101px;
+  height: 33px;
+}
+
+form#user-pass input#edit-submit:hover, 
+form#user-pass input#edit-submit:focus {
+  background-position: 0px 32px;
+}

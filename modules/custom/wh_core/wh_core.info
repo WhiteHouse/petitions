@@ -5,6 +5,8 @@ package = White House Custom
 
 files[] = ../../contrib/captcha/captcha.inc
 
+stylesheets[all][] = wh_core.css
+
 dependencies[] = rules
 dependencies[] = logintoboggan
 dependencies[] = logintoboggan_rules
@@ -14,3 +16,10 @@ dependencies[] = wh_user_profile
 dependencies[] = captcha
 dependencies[] = petitions_user_registration
 dependencies[] = wh_user_ss_data
+
+
+; Information added by drush on 2012-09-04
+version = ""
+project = "petition"
+datestamp = "1346805183"
+

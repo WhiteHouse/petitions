@@ -646,3 +646,42 @@ function wh_core_update_7002() {
 function wh_core_update_7003 () {
   db_create_table('blank_users_roles', drupal_get_schema_unprocessed('wh_core', 'blank_users_roles'));
 }
+
+/**
+ * Implements hook_update_N().
+ *
+ * Delete crufty wh_petitions_homepage_content variable.
+ */
+function wh_core_update_7005() {
+ variable_del('wh_petitions_homepage_content');
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Enable petitions_maintenance module and run petitions_maintenance_update_7001().
+ * (petitions_maintenance won't run this update on it's own. Update hooks don't fire
+ * until modules are enabled, at which point the schema_version starts incrementing
+ * above the number of the highest existing update hook.)
+ *
+ * petitions_maintenance_7001 does this:
+ *
+ * Enable these: 
+ *  - Petitions User Menu module, creates petitions-user-menu and makes it the secondary menu
+ *  - Front Class module, adds a "front" class to the <front> page main menu list item
+ *  - Petitions 44 (a subtheme of Zen 5 and Fortyfour)
+ *  - Rubik, make admin theme
+ *  - Is Not Cached module
+ *
+ * Disable these:
+ *  - Bartik (we're not using it on our site, why leave it enabled?)
+ *  - Petitions theme
+ *
+ * Database updates:
+ *  - Set the fortyfour_page_wrapper variable to petition (see fortyfour documentation on how this is used by the theme
+ *  - Disable Recent Petitions (wh_petitions_recent_petitions) block
+ */
+function wh_core_update_7006() {
+  module_enable(array('petitions_maintenance'));
+  petitions_maintenance_update_7001();
+}
