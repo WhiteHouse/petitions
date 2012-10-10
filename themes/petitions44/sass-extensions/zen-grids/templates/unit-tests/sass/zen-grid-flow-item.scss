@@ -1,0 +1,118 @@
+/**
+ * @file
+ * Test zen-grid-flow-item()
+ */
+
+@import "zen";
+
+#test-zen-grid-flow-item {
+  /* Test zen-grid-flow-item(1) without setting $column-count */
+  @include zen-grid-flow-item(1);
+
+  /* Test zen-grid-flow-item(1, 4) with 12 column grid and 20px gutter */
+  @include zen-grid-flow-item(1, 4);
+
+  /* Test zen-grid-flow-item(1, 4) with 15px gutter */
+  $zen-gutter-width: 15px;
+  @include zen-grid-flow-item(1, 4);
+  $zen-gutter-width: 20px;
+
+  /* Test zen-grid-flow-item(1, 4) with 15px gutter and $zen-float-direction: right */
+  $zen-gutter-width: 15px;
+  $zen-float-direction: right;
+  @include zen-grid-flow-item(1, 4);
+  $zen-gutter-width: 20px;
+  $zen-float-direction: left;
+
+  /* Test zen-grid-flow-item(1, 4) with 15px gutter and $alpha-gutter: true */
+  $zen-gutter-width: 15px;
+  @include zen-grid-flow-item(1, 4, $alpha-gutter: true);
+  $zen-gutter-width: 20px;
+
+  /* Test zen-grid-flow-item(1, 4) with 15px gutter and $omega-gutter: false */
+  $zen-gutter-width: 15px;
+  @include zen-grid-flow-item(1, 4, $omega-gutter: false);
+  $zen-gutter-width: 20px;
+
+  /* Test zen-grid-flow-item(1, 4) with 15px gutter, $zen-float-direction: right and $alpha-gutter: true */
+  $zen-gutter-width: 15px;
+  $zen-float-direction: right;
+  @include zen-grid-flow-item(1, 4, $alpha-gutter: true);
+  $zen-gutter-width: 20px;
+  $zen-float-direction: left;
+
+  /* Test zen-grid-flow-item(1, 4) with $zen-box-sizing: content-box and 10% gutter */
+  $zen-gutter-width: 10%;
+  $zen-box-sizing: content-box;
+  @include zen-grid-flow-item(1, 4);
+  $zen-gutter-width: 20px;
+  $zen-box-sizing: border-box;
+
+  /* Test zen-grid-flow-item(1, 4) with $zen-auto-include-flow-item-base: false */
+  $zen-auto-include-flow-item-base: false;
+  @include zen-grid-flow-item(1, 4);
+}
+
+
+@mixin zen-grid-flow-item (
+  $column-span,
+  $parent-column-count: false,
+  $alpha-gutter: false,
+  $omega-gutter: true,
+  $flow-direction: $zen-float-direction,
+  $column-count: $zen-column-count,
+  $gutter-width: $zen-gutter-width,
+  $grid-width: $zen-grid-width,
+  $box-sizing: $zen-box-sizing,
+  $reverse-all-flows: $zen-reverse-all-floats,
+  $auto-include-flow-item-base: $zen-auto-include-flow-item-base
+) {
+
+  $columns: $column-count;
+  @if unit($grid-width) == "%" {
+    @if $parent-column-count == false {
+      @warn "For responsive layouts with a percentage-based grid width, you must set the $column-count to the number of columns that the parent element spans.";
+    }
+    @else {
+      $columns: $parent-column-count;
+    }
+  }
+
+  $dir: $flow-direction;
+  @if $reverse-all-flows {
+    $dir: zen-direction-flip($dir);
+  }
+  $rev: zen-direction-flip($dir);
+
+  // Ensure the HTML item either has a full gutter or no gutter on each side.
+  @if $alpha-gutter {
+    margin-#{$dir}: zen-half-gutter($gutter-width, $rev);
+  }
+  @else {
+    margin-#{$dir}: -(zen-half-gutter($gutter-width, $dir));
+  }
+  @if $omega-gutter {
+    margin-#{$rev}: zen-half-gutter($gutter-width, $dir);
+  }
+  @else {
+    margin-#{$rev}: -(zen-half-gutter($gutter-width, $rev));
+  }
+
+  // Calculate the unit width.
+  $unit-width: $grid-width / $columns;
+  $width: $column-span * $unit-width;
+  @if $box-sizing == content-box {
+    @if not comparable($width, $gutter-width) {
+      $units-gutter: unit($gutter-width);
+      $units-grid: unit($grid-width);
+      @warn "The layout cannot be calculated correctly; when using box-sizing: content-box, the units of the gutter (#{$units-gutter} did not match the units of the grid width (#{$units-grid}).";
+    }
+    $width: $width - $gutter-width;
+  }
+  width: $width;
+
+  // Auto-apply the unit base mixin.
+  @if $auto-include-flow-item-base {
+    @include zen-grid-item-base($gutter-width, $box-sizing);
+  }
+}

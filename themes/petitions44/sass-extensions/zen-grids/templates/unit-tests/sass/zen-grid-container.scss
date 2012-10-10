@@ -1,0 +1,27 @@
+/**
+ * @file
+ * Test zen-grid-container()
+ */
+
+@import "zen";
+
+#test-zen-grid-container {
+  /* Test zen-grid-container() */
+  @include zen-grid-container();
+}
+
+#test-zen-grid-container-2 {
+  /* Test zen-grid-container() with $legacy-support-for-ie7: true */
+  $legacy-support-for-ie7: true;
+  @include zen-grid-container();
+  $legacy-support-for-ie7: false;
+}
+
+#test-zen-grid-container-3 {
+  /* Test zen-grid-container() with $legacy-support-for-ie6: true */
+  $legacy-support-for-ie6: true;
+  $legacy-support-for-ie7: true;
+  @include zen-grid-container();
+  $legacy-support-for-ie6: false;
+  $legacy-support-for-ie7: false;
+}

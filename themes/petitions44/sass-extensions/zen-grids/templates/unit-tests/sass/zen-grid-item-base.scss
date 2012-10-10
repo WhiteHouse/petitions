@@ -1,0 +1,54 @@
+/**
+ * @file
+ * Test zen-grid-item-base()
+ */
+
+@import "zen";
+
+#test-zen-grid-item-base {
+  /* Test zen-grid-item-base() */
+  @include zen-grid-item-base();
+
+  /* Test zen-grid-item-base() with $zen-box-sizing: content-box */
+  $zen-box-sizing: content-box;
+  @include zen-grid-item-base();
+  $zen-box-sizing: border-box;
+
+  /* Test zen-grid-item-base() with $legacy-support-for-ie7: true */
+  $legacy-support-for-ie7: true;
+  @include zen-grid-item-base();
+  $legacy-support-for-ie7: false;
+
+  /* Test zen-grid-item-base() with $box-sizing-polyfill-path: "/boxsizing.htc" and $legacy-support-for-ie7: true */
+  $box-sizing-polyfill-path: "/boxsizing.htc";
+  $legacy-support-for-ie7: true;
+  @include zen-grid-item-base();
+  $box-sizing-polyfill-path: "";
+  $legacy-support-for-ie7: false;
+
+  /* Test zen-grid-item-base() with $box-sizing-polyfill-path: "/boxsizing.htc" and $legacy-support-for-ie6: true */
+  $box-sizing-polyfill-path: "/boxsizing.htc";
+  $legacy-support-for-ie6: true;
+  @include zen-grid-item-base();
+  $box-sizing-polyfill-path: "";
+  $legacy-support-for-ie6: false;
+
+  /* Test zen-grid-item-base() with $zen-gutter-width: 15px */
+  $zen-gutter-width: 15px;
+  @include zen-grid-item-base();
+  $zen-gutter-width: 20px;
+
+  /* Test zen-grid-item-base() with $zen-gutter-width: 15px and $zen-float-direction: right */
+  $zen-gutter-width: 15px;
+  $zen-float-direction: right;
+  @include zen-grid-item-base();
+  $zen-gutter-width: 20px;
+  $zen-float-direction: left;
+
+  /* Test zen-grid-item-base() with $zen-gutter-width: 15px and $zen-reverse-all-floats: true */
+  $zen-gutter-width: 15px;
+  $zen-reverse-all-floats: true;
+  @include zen-grid-item-base();
+  $zen-gutter-width: 20px;
+  $zen-reverse-all-floats: false;
+}

@@ -1,0 +1,55 @@
+/**
+ * @file
+ * Test zen-nested-container()
+ */
+/* line 8, ../sass/zen-nested-container.scss */
+#test-zen-nested-container {
+  /* Test zen-nested-container() */
+  padding-left: 0;
+  padding-right: 0;
+}
+/* line 52, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-nested-container:before, #test-zen-nested-container:after {
+  content: "";
+  display: table;
+}
+/* line 56, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-nested-container:after {
+  clear: both;
+}
+
+/* line 13, ../sass/zen-nested-container.scss */
+#test-zen-nested-container-2 {
+  /* Test zen-nested-container() with $legacy-support-for-ie7: true */
+  *position: relative;
+  *zoom: 1;
+  padding-left: 0;
+  padding-right: 0;
+}
+/* line 52, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-nested-container-2:before, #test-zen-nested-container-2:after {
+  content: "";
+  display: table;
+}
+/* line 56, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-nested-container-2:after {
+  clear: both;
+}
+
+/* line 20, ../sass/zen-nested-container.scss */
+#test-zen-nested-container-3 {
+  /* Test zen-nested-container() with $legacy-support-for-ie6: true */
+  *position: relative;
+  *zoom: 1;
+  padding-left: 0;
+  padding-right: 0;
+}
+/* line 52, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-nested-container-3:before, #test-zen-nested-container-3:after {
+  content: "";
+  display: table;
+}
+/* line 56, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-nested-container-3:after {
+  clear: both;
+}

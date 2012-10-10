@@ -1,0 +1,27 @@
+/**
+ * @file
+ * Test zen-nested-container()
+ */
+
+@import "zen";
+
+#test-zen-nested-container {
+  /* Test zen-nested-container() */
+  @include zen-nested-container();
+}
+
+#test-zen-nested-container-2 {
+  /* Test zen-nested-container() with $legacy-support-for-ie7: true */
+  $legacy-support-for-ie7: true;
+  @include zen-nested-container();
+  $legacy-support-for-ie7: false;
+}
+
+#test-zen-nested-container-3 {
+  /* Test zen-nested-container() with $legacy-support-for-ie6: true */
+  $legacy-support-for-ie6: true;
+  $legacy-support-for-ie7: true;
+  @include zen-nested-container();
+  $legacy-support-for-ie6: false;
+  $legacy-support-for-ie7: false;
+}

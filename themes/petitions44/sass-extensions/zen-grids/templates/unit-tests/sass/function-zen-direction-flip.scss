@@ -1,0 +1,23 @@
+/**
+ * @file
+ * Test zen-direction-flip()
+ */
+
+@import "zen";
+
+#test-zen-direction-flip {
+  /* Test zen-direction-flip(left) */
+  float: zen-direction-flip(left);
+
+  /* Test zen-direction-flip(right) */
+  float: zen-direction-flip(right);
+
+  /* Test zen-direction-flip(both) */
+  float: zen-direction-flip(both);
+
+  /* Test zen-direction-flip(none) */
+  float: zen-direction-flip(none);
+
+  /* Test zen-direction-flip(invalid) */
+  float: zen-direction-flip(invalid);
+}

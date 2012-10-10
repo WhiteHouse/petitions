@@ -1,0 +1,80 @@
+@import "zen/grids";
+
+// Specify the column background color.
+$bg-grid-color: #ffdede !default;
+
+
+//
+// This mixin currently requires the following markup at the top of the responsive container (e.g. body or div#page, etc.).
+// <p class="bg-grid">
+//   <span class="bgcol-1">1</span><span class="bgcol-2">2</span><span class="bgcol-3">3</span><span class="bgcol-4">4</span><span class="bgcol-5">5</span><span class="bgcol-6">6</span><span class="bgcol-7">7</span><span class="bgcol-8">8</span><span class="bgcol-9">9</span><span class="bgcol-10">10</span><span class="bgcol-11">11</span><span class="bgcol-12">12</span><span class="bgcol-13">13</span><span class="bgcol-14">14</span><span class="bgcol-15">15</span><span class="bgcol-16">16</span><span class="bgcol-17">17</span><span class="bgcol-18">18</span><span class="bgcol-19">19</span><span class="bgcol-20">20</span><span class="bgcol-21">21</span><span class="bgcol-22">22</span><span class="bgcol-23">23</span><span class="bgcol-24">24</span><span class="bgcol-25">25</span><span class="bgcol-26">26</span><span class="bgcol-27">27</span><span class="bgcol-28">28</span><span class="bgcol-29">29</span><span class="bgcol-30">30</span>
+//   <span class="bgcolrev-1">1</span><span class="bgcolrev-2">2</span><span class="bgcolrev-3">3</span><span class="bgcolrev-4">4</span><span class="bgcolrev-5">5</span><span class="bgcolrev-6">6</span><span class="bgcolrev-7">7</span><span class="bgcolrev-8">8</span><span class="bgcolrev-9">9</span><span class="bgcolrev-10">10</span><span class="bgcolrev-11">11</span><span class="bgcolrev-12">12</span><span class="bgcolrev-13">13</span><span class="bgcolrev-14">14</span><span class="bgcolrev-15">15</span><span class="bgcolrev-16">16</span><span class="bgcolrev-17">17</span><span class="bgcolrev-18">18</span><span class="bgcolrev-19">19</span><span class="bgcolrev-20">20</span><span class="bgcolrev-21">21</span><span class="bgcolrev-22">22</span><span class="bgcolrev-23">23</span><span class="bgcolrev-24">24</span><span class="bgcolrev-25">25</span><span class="bgcolrev-26">26</span><span class="bgcolrev-27">27</span><span class="bgcolrev-28">28</span><span class="bgcolrev-29">29</span><span class="bgcolrev-30">30</span>
+// </p>
+//
+@mixin -experimental-bg-grid(
+  $column-count: $zen-column-count,
+  $gutter-width: $zen-gutter-width,
+  $grid-color: $bg-grid-color,
+  $grid-width: $zen-grid-width,
+  $flow-direction: $zen-float-direction
+) {
+
+  // Internal variables.
+  $dir: $flow-direction;
+  @if $zen-reverse-all-floats {
+    $dir: zen-direction-flip($dir);
+  }
+  $rev: zen-direction-flip($dir);
+
+  $font-size: 16px;
+  $line-height: 24px;
+  $color-bg: #fff;
+
+  @include zen-grid-container;
+  position: absolute;
+  position: fixed;
+  z-index: -1;
+  margin-left: auto;
+  margin-right: auto;
+  width: $grid-width;
+  height: 100%;
+  font-size: $font-size;
+  line-height: $line-height;
+  font-weight: bold;
+  font-family: sans-serif;
+  background-color: $color-bg;
+
+  span {
+    @include zen-grid-item-base;
+    padding: 0;
+    text-align: center;
+    color: $color-bg;
+    @include text-shadow(darken($grid-color, 75%) 0 0 4px);
+  }
+  @for $i from 1 through $column-count {
+    .bgcol-#{$i} {
+      @include zen-grid-item(1, $i, $column-count: $column-count, $gutter-width: $gutter-width, $float-direction: $dir, $auto-include-item-base: false);
+      display: block; // Override display: none applied for grids with different column numbers.
+      height: 100%;
+      margin-bottom: -($line-height);
+      background-color: $grid-color;
+      border: {
+        left: zen-half-gutter($gutter-width) solid $color-bg;
+        right: zen-half-gutter($gutter-width) solid $color-bg;
+      }
+    }
+    .bgcolrev-#{$i} {
+	  @if $i == 1 {
+        @include zen-clear();
+      }
+      @include zen-grid-item(1, $i, $column-count: $column-count, $gutter-width: $gutter-width, $float-direction: $rev, $auto-include-item-base: false);
+      display: block; // Override display: none applied for grids with different column numbers.
+    }
+  }
+  @for $i from ($column-count + 1) through 30 {
+    .bgcol-#{$i},
+    .bgcolrev-#{$i} {
+      display: none;
+    }
+  }
+}

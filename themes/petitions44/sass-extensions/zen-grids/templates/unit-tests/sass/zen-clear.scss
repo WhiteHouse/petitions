@@ -1,0 +1,26 @@
+/**
+ * @file
+ * Test zen-clear()
+ */
+
+@import "zen";
+
+#test-zen-clear {
+  /* Test zen-clear() */
+  @include zen-clear();
+
+  /* Test zen-clear() with $zen-float-direction: right */
+  $zen-float-direction: right;
+  @include zen-clear();
+  $zen-float-direction: left;
+
+  /* Test zen-clear(left) */
+  @include zen-clear(left);
+
+  /* Test zen-clear(left, $reverse-all-floats: TRUE) */
+  @include zen-clear(left, $reverse-all-floats: TRUE);
+
+  /* Test zen-clear(left) with: $zen-reverse-all-floats: TRUE; */
+  $zen-reverse-all-floats: TRUE;
+  @include zen-clear(left);
+}

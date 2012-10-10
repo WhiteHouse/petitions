@@ -1,0 +1,124 @@
+/* 
+* This is a legacy CSS from the original petitions theme.  At this time we are 
+* unclear on how much of this is still being used.
+*
+* TO-DO: Determine if this CSS and its classes are still valid.  If so, 
+* refactor into theme using Zen best practices, and remove the conditional call
+* from themes/fortyfour/templates/html.tpl.php.
+*/
+
+#petition-header span.view-my-link {
+  background: none;
+  padding-left: 0;
+}
+
+#petition-header .intro {
+  background:url(../img/bg-hdr-text.gif) no-repeat;
+}
+
+#petition-intro-inner .col-3 {
+  height: 140px;
+}
+
+#petition-intro-inner a.more {
+  background:url(../img/bullet-green-arrow.gif) no-repeat right;
+  padding-right: 19px;
+  }
+  
+
+.either-or-msg {
+background-position: 225px -392px;
+}
+
+.petition-list .col-2 .entry .title a {
+  width: 300px;
+}
+
+.petition-filter ul.filter-list {
+  margin-top: -32px;
+}
+
+.petition-filter ul.filter-list {
+  background: none;
+}
+
+#search-drop .form-item {
+	margin: 10px 0 0 6px;
+}
+
+#search-drop input#search-text-field {
+	padding-top: 11px;
+}
+
+#share-this-petition li.share-link a {
+	height: 25px;
+}
+
+ul.filter-list li.filter-by-issue a {
+	margin-right: 2px;
+	float: left;
+}
+
+ul.filter-list li.search a {
+    background: url("../img/sprite-circle-icons.png") no-repeat scroll 43px 0;
+}
+
+
+#petition-inner .petition-filter-individual ul.filter-list {
+    background: url("../img/bg-fuz-line-bar.png") no-repeat 0 2px;
+}
+
+#utility-bar {
+    position: absolute;
+}
+
+#utility-bar #sign-in .pull-out {
+	    top: -416px;
+}
+
+#utility-bar #sign-in .sign-in-block {
+	    top: 142px;
+	    position: absolute;
+}
+
+#utility-bar #events .pull-out {
+	    top: -470px;
+}
+
+
+#utility-bar #events span.arrow {
+	background: url(../img/bg-event-arrow-round.gif) no-repeat 360px -93px;
+}
+
+#utility-bar .group h3 {
+	background: none;
+}
+
+/* Fixed height on two and four events */
+
+#utility-bar #events .two-events {
+	top: 165px;
+	position: absolute;
+}
+
+#utility-bar #events .four-events {
+	top: 3px;
+	position: absolute;
+}
+
+#utility-bar #sign-in .create-account-block .header {background: none;}
+
+#utility-bar .link-wrapper a {
+	background: url(../img/arrow-white-up.gif) no-repeat 114px 4px;
+}
+
+#utility-bar #sign-in .link-wrapper a {
+	background: url(../img/arrow-white-up.gif) no-repeat 180px 4px;
+}
+
+#utility-bar #events .tab a {
+    background: url(../img/utility-tab-events.gif) no-repeat 0 4px; }
+
+
+
+

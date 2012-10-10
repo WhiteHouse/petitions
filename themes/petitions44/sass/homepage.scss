@@ -1,0 +1,475 @@
+/* line 1, ../sass/homepage.scss */
+.front .col-3 {
+  display: none;
+}
+
+/* line 5, ../sass/homepage.scss */
+.front .petition-intro-video-wrapper {
+  text-align: left;
+  margin-top: 20px;
+}
+
+/* line 10, ../sass/homepage.scss */
+.front .header-fix {
+  height: 120px;
+}
+
+/* line 14, ../sass/homepage.scss */
+.front .petition-hero {
+  background: url(/profiles/petition/themes/petitions/img/petitions_landing_hero.jpg) top center no-repeat;
+  height: 296px;
+}
+
+/* line 19, ../sass/homepage.scss */
+.front .petition-hero p {
+  color: #fff;
+  font-size: 28px;
+  font-family: Georgia,"Times New Roman",Times,serif;
+  padding: 0 15px;
+  margin: 0;
+  line-height: 39px;
+}
+
+/* line 28, ../sass/homepage.scss */
+.front p.line1 {
+  padding-top: 22px;
+}
+
+/* line 32, ../sass/homepage.scss */
+.front p.line4 {
+  padding-top: 12px;
+}
+
+/* line 36, ../sass/homepage.scss */
+.front a.view-petition-btn, a.start-petition-btn {
+  background-image: url(/profiles/petition/themes/petitions/img/petitions_landing_btns_0.png);
+  display: inline-block;
+  height: 31px;
+  width: 167px;
+  text-indent: -9999px;
+  margin: 15px 0 0 15px;
+}
+
+/* line 45, ../sass/homepage.scss */
+.front .start-petition-btn {
+  background-position: 167px 0;
+}
+
+/* line 49, ../sass/homepage.scss */
+.front .start-petition-btn:hover {
+  background-position: 167px 64px;
+}
+
+/* line 53, ../sass/homepage.scss */
+.front .start-petition-btn:focus {
+  background-position: 167px 31px;
+}
+
+/* line 57, ../sass/homepage.scss */
+.front a.view-petition-btn {
+  background-position: 0px 0px;
+}
+
+/* line 61, ../sass/homepage.scss */
+.front a.view-petition-btn:hover {
+  background-position: 0px 64px;
+}
+
+/* line 65, ../sass/homepage.scss */
+.front a.view-petition-btn:focus {
+  background-position: 0px 31px;
+}
+
+/* line 69, ../sass/homepage.scss */
+.front .easy-steps {
+  font-size: 14px;
+  padding: 15px 0;
+}
+
+/* line 74, ../sass/homepage.scss */
+.front .bold-intro {
+  font-weight: bold;
+}
+
+/* line 78, ../sass/homepage.scss */
+.front .steps h3 {
+  font-family: Georgia,"Times New Roman",Times,serif;
+  margin: 0px;
+  text-transform: capitalize;
+  color: #666;
+  font-weight: lighter;
+}
+
+/* line 86, ../sass/homepage.scss */
+.front .steps p {
+  font-family: Arial,Helvetica,sans-serif;
+  font-size: 12px;
+  margin: 8px 0px 20px 0px;
+  line-height: 1.2em;
+  height: 57px;
+}
+
+/* line 94, ../sass/homepage.scss */
+.front .steps hr {
+  background-color: #CECECE;
+  border-top: 0px;
+  border-bottom: 0px;
+  margin: 0;
+}
+
+/* line 101, ../sass/homepage.scss */
+.front .take-action {
+  margin-top: -8px;
+  background-color: #fff;
+  padding-right: 8px;
+  text-transform: uppercase;
+  font-weight: normal;
+  width: 85px;
+}
+
+/* line 110, ../sass/homepage.scss */
+.front .petition-landing-wrapper {
+  position: relative;
+  border-bottom: 4px double #cecece;
+}
+
+/* line 115, ../sass/homepage.scss */
+.front .triangle-link {
+  background: url(/profiles/petition/themes/petitions/img/petitionslanding_arrow.png) left 2px no-repeat;
+  padding: 0px 0px 0px 12px;
+  margin-top: 10px;
+  display: block;
+}
+
+/* line 123, ../sass/homepage.scss */
+.front .right-side {
+  display: block;
+  height: 735px;
+  width: 313px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: url(/profiles/petition/themes/petitions/img/petitions_landing_rightrail.png) top center no-repeat;
+}
+
+/* line 133, ../sass/homepage.scss */
+.front .right-inner {
+  margin-top: 70px;
+  margin-left: 20px;
+  margin-right: 20px;
+  position: relative;
+}
+
+/* line 140, ../sass/homepage.scss */
+.front .right-side h3 {
+  text-transform: capitalize;
+  color: #333;
+  line-height: 20px;
+  border-bottom: 1px solid #cecece;
+  font-size: 12px;
+}
+
+/* line 148, ../sass/homepage.scss */
+.front .right-side .recent {
+  margin-top: 40px;
+}
+
+/* line 152, ../sass/homepage.scss */
+.front .right-side .recent a {
+  color: #669900;
+}
+
+/* line 156, ../sass/homepage.scss */
+.front .right-side .recent a:hover, 
+.front .right-side .recent a:focus {
+  color: #4d7400;
+}
+
+/* line 160, ../sass/homepage.scss */
+.front .right-side .featured, 
+.front .right-side .recent {
+  position: relative;
+}
+
+/* line 164, ../sass/homepage.scss */
+.front .right-side .featured ul, 
+.front .right-side .recent ul {
+  list-style-type: none;
+}
+
+/* line 168, ../sass/homepage.scss */
+.front .right-side .featured ul li, 
+.front .right-side .recent ul li {
+  margin: 10px 0 15px;
+  line-height: 16px;
+}
+
+/* line 173, ../sass/homepage.scss */
+.front .right-side .featured ul li a, 
+.front .right-side .recent ul li a {
+  font-family: Georgia,"Times New Roman",Times,serif;
+  font-size: 14px;
+}
+
+/* line 178, ../sass/homepage.scss */
+.front .right-side .featured .see-all, 
+.front .right-side .recent .see-all {
+  font-weight: bold;
+  font-size: 11px;
+  position: absolute;
+  right: 0;
+  text-transform: uppercase;
+  top: 3px;
+  line-height: 1em;
+}
+
+/* line 188, ../sass/homepage.scss */
+.front a.video-link {
+  background: url(/profiles/petition/themes/petitions/img/petitions_video_thumb_new.jpg);
+  background-position: 0px 0px;
+  display: inline-block;
+  float: left;
+  text-indent: -9999px;
+  margin: 0 0 30px 13px;
+  padding: 127px 149px 58px;
+  width: 1px;
+  line-height: 1em;
+}
+
+/* line 200, ../sass/homepage.scss */
+.front a.video-link:hover, 
+.front a.video-link:focus {
+  background-position: -312px 0px;
+}
+
+/* line 204, ../sass/homepage.scss */
+.front .petition-landing-wrapper blockquote {
+  color: #444;
+  display: inline-block;
+  float: left;
+  font-family: Georgia,"Times New Roman",Times,serif;
+  margin: 0;
+  padding: 30px 0 20px 20px;
+  width: 275px;
+  line-height: 1.3em;
+}
+
+/* line 215, ../sass/homepage.scss */
+.front .attribution {
+  display: inline-block;
+  padding-left: 20px;
+  color: #444;
+}
+
+/* line 221, ../sass/homepage.scss */
+.front h3.more {
+  border-bottom: 1px solid #CECECE;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 28px;
+  margin-bottom: 20px;
+  padding: 38px 0 0;
+}
+
+/* line 230, ../sass/homepage.scss */
+.front .follow h4 {
+  color: #333333;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: -1px;
+  margin: 6px 0 15px 0px;
+  text-transform: none;
+}
+
+/* line 239, ../sass/homepage.scss */
+.front a.facebook-link, 
+.front a.twitter-link, 
+.front a.gplus-link {
+  background: url(/profiles/petition/themes/petitions/img/petitions_social_icons.jpg) no-repeat;
+  display: inline-block;
+  font-weight: bold;
+  height: 45px;
+  text-decoration: none;
+  color: #333;
+  padding-left: 40px;
+  padding-top: 5px;
+}
+
+/* line 250, ../sass/homepage.scss */
+.front a.facebook-link {
+  background-position: 0px 0px;
+}
+
+/* line 254, ../sass/homepage.scss */
+.front a:hover.facebook-link {
+  background-position: 0px -161px;
+  color: #336699;
+}
+
+/* line 259, ../sass/homepage.scss */
+.front a.twitter-link {
+  background-position: 0px -56px;
+}
+
+/* line 263, ../sass/homepage.scss */
+.front a:hover.twitter-link {
+  background-position: 0px -217px;
+  color: #336699;
+}
+
+/* line 268, ../sass/homepage.scss */
+.front a.gplus-link {
+  background-position: 0px -106px;
+}
+
+/* line 272, ../sass/homepage.scss */
+.front a:hover.gplus-link {
+  background-position: 0px -267px;
+  color: #336699;
+}
+
+/* line 277, ../sass/homepage.scss */
+.front a.image-link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  height: 154px;
+  padding: 5px 0px;
+  margin-bottom: 10px;
+}
+
+/* line 286, ../sass/homepage.scss */
+.front a.image-link:hover {
+  border: 5px solid #336699;
+  padding: 0px;
+}
+
+/* line 291, ../sass/homepage.scss */
+.front .petition-twitter {
+  position: absolute;
+  width: 230px;
+  height: 120px;
+  top: 595px;
+  right: 40px;
+  line-height: 18px;
+}
+
+/* line 300, ../sass/homepage.scss */
+.front .petition-twitter .retweet, 
+.front .petition-twitter .reply {
+  background: url(/profiles/petition/themes/petitions/img/tweet_retweet.png);
+  text-indent: -9999px;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+/* line 307, ../sass/homepage.scss */
+.front .tweet {
+  position: relative;
+  height: 122px;
+}
+
+/* line 312, ../sass/homepage.scss */
+.front .twitter-buttons {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+}
+
+/* line 318, ../sass/homepage.scss */
+.front .petition-twitter .retweet {
+  background-position: 0px 0px;
+  height: 12px;
+  width: 14px;
+}
+
+/* line 324, ../sass/homepage.scss */
+.front .petition-twitter .reply {
+  background-position: -55px 0px;
+  height: 12px;
+  width: 12px;
+}
+
+/* line 330, ../sass/homepage.scss */
+.front .twitter-user {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* line 335, ../sass/homepage.scss */
+.front object {
+  margin-top: 20px;
+}
+
+/* line 339, ../sass/homepage.scss */
+.front .featured-1 p, .featured-2 p {
+  padding: 0px 10px 0px 5px;
+  margin-bottom: 14px;
+  font-size: 12px;
+}
+
+/* line 345, ../sass/homepage.scss */
+.front .featured-2 a.featured-link, .featured-1 a.featured-link {
+  padding-left: 5px;
+}
+
+/* line 349, ../sass/homepage.scss */
+.front .bold {
+  font-weight: bold;
+}
+
+/* line 353, ../sass/homepage.scss */
+.front #petition-tool-content {
+  min-height: 1347px !important;
+}
+
+/* line 357, ../sass/homepage.scss */
+.front .hidden {
+  display: none;
+}
+
+/* line 361, ../sass/homepage.scss */
+.front #petition-tool-region-right {
+  display: none;
+}
+
+/* line 365, ../sass/homepage.scss */
+.front .video-region {
+  margin: 50px 0px;
+}
+
+/* line 369, ../sass/homepage.scss */
+.front .close-link {
+  padding-top: 5px;
+  padding-left: 18px;
+}
+
+/* line 374, ../sass/homepage.scss */
+.front .video-region iframe {
+  padding-left: 19px;
+}
+
+/* line 378, ../sass/homepage.scss */
+.front .bird-img {
+  bottom: 121px;
+  position: absolute;
+  right: 43px;
+}
+
+/* line 384, ../sass/homepage.scss */
+/*
+.front #petition-outer {
+  top: 163px;
+  position: relative;
+}
+*/
+.front #petition-inner {
+  padding: 0;
+}
+
+/* line 389, ../sass/homepage.scss */
+.front #petition-header {
+  background: url(../img/sprite-bg.png) top left no-repeat;
+  min-height: 164px;
+  width: 976px;
+}

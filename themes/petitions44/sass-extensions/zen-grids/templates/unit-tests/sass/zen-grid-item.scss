@@ -1,0 +1,57 @@
+/**
+ * @file
+ * Test zen-grid-item()
+ */
+
+@import "zen";
+
+#test-zen-grid-item {
+  /* Test zen-grid-item(6, 4) with 12 column grid and 20px gutter */
+  $zen-column-count: 12;
+  @include zen-grid-item(6, 4);
+
+  /* Test zen-grid-item(3, 3) with box-sizing: content-box, 5 column grid and 10% gutter */
+  $zen-column-count: 5;
+  $zen-gutter-width: 10%;
+  $zen-box-sizing: content-box;
+  @include zen-grid-item(3, 3);
+  $zen-box-sizing: border-box;
+
+  /* Turn off $zen-auto-include-item-base */
+  $zen-auto-include-item-base: false;
+
+  /* Test zen-grid-item(3, 3) with 5 column grid and 40px gutter */
+  $zen-column-count: 5;
+  $zen-gutter-width: 40px;
+  @include zen-grid-item(3, 3);
+
+  /* Test zen-grid-item(3, 3, right) with 5 column grid and 40px gutter */
+  $zen-column-count: 5;
+  $zen-gutter-width: 40px;
+  @include zen-grid-item(3, 3, right);
+
+  /* Test zen-grid-item(3, 3) with 5 column grid and 40px gutter and $zen-reverse-all-floats */
+  $zen-column-count: 5;
+  $zen-gutter-width: 40px;
+  $zen-reverse-all-floats: true;
+  @include zen-grid-item(3, 3);
+  $zen-reverse-all-floats: false;
+
+  /* Test zen-grid-item(3, 3, right) with 5 column grid and 40px gutter and $zen-reverse-all-floats */
+  $zen-column-count: 5;
+  $zen-gutter-width: 40px;
+  $zen-reverse-all-floats: true;
+  @include zen-grid-item(3, 3, right);
+  $zen-reverse-all-floats: false;
+
+  /* Test zen-grid-item(3, 2.5) with 5 column grid and 40px gutter */
+  $zen-column-count: 5;
+  $zen-gutter-width: 40px;
+  @include zen-grid-item(3, 2.5);
+
+  /* Test zen-grid-item(3, 3) with $zen-grid-width: 1000px, 5 column grid and 40px gutter */
+  $zen-grid-width: 1000px;
+  $zen-column-count: 5;
+  $zen-gutter-width: 40px;
+  @include zen-grid-item(3, 3);
+}

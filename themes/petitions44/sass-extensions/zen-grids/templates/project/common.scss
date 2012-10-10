@@ -1,0 +1,57 @@
+// Ideally, variables should be initialized in a partial. We're setting it here
+// to make the mixin usage more transparent.
+$gutter-width: 10px;
+
+
+// Skip link styling
+#skip-link {
+  margin: 0;
+
+  a,
+  a:visited {
+    display: block;
+    width: 100%;
+    padding: 2px 0 3px 0;
+    text-align: center;
+    background-color: #666;
+    color: #fff;
+  }
+}
+
+// Set a consistent padding around all containers
+#header,
+#content,
+#main-menu,
+#aside1,
+#aside2,
+#footer {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: $gutter-width;
+}
+
+// Alternate border styling
+#header,
+#main-menu,
+#aside2 {
+  border: 1px solid #ccc;
+}
+#content,
+#aside1,
+#footer {
+  border: 1px solid #09f;
+}
+
+// Source-order meta info
+header h1,
+header h2 {
+  display: inline;
+}
+header p {
+  display: inline;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  color: #c00;
+}

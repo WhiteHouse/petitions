@@ -1,0 +1,17 @@
+/**
+ * @file
+ * Test zen-direction-flip()
+ */
+/* line 8, ../sass/function-zen-direction-flip.scss */
+#test-zen-direction-flip {
+  /* Test zen-direction-flip(left) */
+  float: right;
+  /* Test zen-direction-flip(right) */
+  float: left;
+  /* Test zen-direction-flip(both) */
+  float: both;
+  /* Test zen-direction-flip(none) */
+  float: none;
+  /* Test zen-direction-flip(invalid) */
+  float: both;
+}

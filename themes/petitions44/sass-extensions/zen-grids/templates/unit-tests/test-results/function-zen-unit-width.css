@@ -1,0 +1,19 @@
+/**
+ * @file
+ * Test zen-unit-width()
+ */
+/* line 8, ../sass/function-zen-unit-width.scss */
+#test-zen-unit-width {
+  /* Test zen-unit-width() with default $zen-column-count: 1 */
+  width: 100%;
+  /* Test zen-unit-width() with $zen-column-count: 5 */
+  width: 20%;
+  /* Test zen-unit-width(5) */
+  width: 20%;
+  /* Test zen-unit-width() with $zen-grid-width: 100px */
+  width: 100px;
+  /* Test zen-unit-width(5) with $zen-grid-width: 100px */
+  width: 20px;
+  /* Test zen-unit-width(5, 100px) */
+  width: 20px;
+}

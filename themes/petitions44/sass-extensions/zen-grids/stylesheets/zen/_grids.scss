@@ -1,0 +1,339 @@
+//
+// Mixins for the Zen Grids system.
+//
+
+
+// Specify the number of columns in the grid.
+$zen-column-count: 1 !default;
+
+// Specify the width of the gutters; half of the gutter will be placed on each
+// side of a grid column.
+$zen-gutter-width: 20px !default;
+
+// You can generate more efficient CSS if you manually apply the
+// zen-grid-item-base mixin to all grid items from within a single ruleset.
+$zen-auto-include-item-base: true !default;
+$zen-auto-include-flow-item-base: true !default;
+
+// Specify the width of the entire grid. Defaults to 100% for a fluid responsive
+// design, but you can change this to a pixel value if you need a fixed grid.
+$zen-grid-width: 100% !default;
+
+// The box-sizing polyfill for IE6/7 requires an absolute path to the
+// boxsizing.htc file. See https://github.com/Schepp/box-sizing-polyfill
+$box-sizing-polyfill-path: "" !default;
+
+// Specify the CSS3 box-sizing method. The default, "border-box", is compatible
+// with all modern browsers, including IE 8 and later. Use "content-box" for
+// wider compatibility (Note: you'll also need to set $legacy-support-for-ie7
+// and $legacy-support-for-ie6 to true.)
+$zen-box-sizing: border-box !default;
+
+// Turn off IE6/7 support since we're defaulting to box-sizing: border-box.
+$legacy-support-for-ie7: false !default;
+$legacy-support-for-ie6: false !default;
+
+// Specify the default floating direction for zen's mixins.
+$zen-float-direction: left !default;
+
+// This is a helper variable for RTL layouts.
+$zen-reverse-all-floats: false !default;
+
+
+//
+// Apply this to the grid container element.
+//
+@mixin zen-grid-container () {
+  @if ($legacy-support-for-ie6 or $legacy-support-for-ie7) {
+    *position: relative; // @TODO: This is a pre-IE8 line of code; don't remember why its needed.
+  }
+  // We use the "micro clearfix", instead of Compass' clearfix or pie-clearfix.
+  &:before,
+  &:after {
+    content: "";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+  @if ($legacy-support-for-ie6 or $legacy-support-for-ie7) {
+    *zoom: 1;
+  }
+}
+
+//
+// Apply this to any grid item that is also a grid container element for a
+// nested grid. It must be applied after the zen-grid-item() mixin.
+//
+@mixin zen-nested-container () {
+  @include zen-grid-container;
+  padding: {
+    left: 0;
+    right: 0;
+  }
+}
+
+//
+// Apply this to each grid item. Set the $column-span to the number of columns
+// that the grid item spans. And set the $column-position to the column number
+// the grid item starts on.
+//
+// For grid items that are floated right, the $column-position is counted
+// from the right instead of from the left.
+//
+@mixin zen-grid-item (
+  $column-span,
+  $column-position,
+  $float-direction: $zen-float-direction,
+  $column-count: $zen-column-count,
+  $gutter-width: $zen-gutter-width,
+  $grid-width: $zen-grid-width,
+  $box-sizing: $zen-box-sizing,
+  $reverse-all-floats: $zen-reverse-all-floats,
+  $auto-include-item-base: $zen-auto-include-item-base
+) {
+
+  // Calculate the unit width.
+  $unit-width: zen-unit-width($column-count, $grid-width);
+
+  // Determine the float direction and its reverse.
+  $dir: $float-direction;
+  @if $reverse-all-floats {
+    $dir: zen-direction-flip($dir);
+  }
+  $rev: zen-direction-flip($dir);
+
+  float: $dir;
+  $width: $column-span * $unit-width;
+  @if $box-sizing == content-box {
+    @if not comparable($width, $gutter-width) {
+      $units-gutter: unit($gutter-width);
+      $units-grid: unit($grid-width);
+      @warn "The layout cannot be calculated correctly; when using box-sizing: content-box, the units of the gutter (#{$units-gutter} did not match the units of the grid width (#{$units-grid}).";
+    }
+    $width: $width - $gutter-width;
+  }
+  width: $width;
+  margin: {
+    #{$dir}: ($column-position - 1) * $unit-width;
+    #{$rev}: (1 - $column-position - $column-span) * $unit-width;
+  }
+
+  // Auto-apply the unit base mixin.
+  @if $auto-include-item-base {
+    @include zen-grid-item-base($gutter-width, $box-sizing);
+  }
+}
+
+//
+// Apply this mixin to each content box in the layout to prevent overflowing
+// content from breaking the layout.
+//
+// The mixin has the following optional parameters, but its better to use the
+// $zen-gutter-width and $zen-box-sizing variables instead:
+// - $gutter-width: Half of this value is applied as padding to the left and
+//   right sides of the item.
+// - $box-sizing: The type of CSS3 box model each box should use. Can be set to
+//   content-box or border-box. Defaults to content-box, but border-box is way
+//   cooler. IE 6 and 7 don't support border-box.
+@mixin zen-grid-item-base (
+  $gutter-width: $zen-gutter-width,
+  $box-sizing: $zen-box-sizing,
+  $flow-direction: $zen-float-direction,
+  $reverse-all-flows: $zen-reverse-all-floats
+) {
+
+  $dir: $flow-direction;
+  @if $reverse-all-flows {
+    $dir: zen-direction-flip($dir);
+  }
+
+  padding: {
+    left: zen-half-gutter($gutter-width, left, $dir);
+    right: zen-half-gutter($gutter-width, right, $dir);
+  }
+  // Specify the border-box properties.
+  @if $box-sizing == border-box {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  // Prevent borders since they'll break the layout with content-box.
+  @if $box-sizing == content-box {
+    border: 0 !important;
+  }
+  // Prevent overflowing content from being hidden beneath other grid items.
+  word-wrap: break-word; // A very nice CSS3 property.
+
+  @if ($legacy-support-for-ie6 or $legacy-support-for-ie7) {
+    @if $box-sizing == border-box and $box-sizing-polyfill-path == "" {
+      @warn "IE legacy support is on, but $box-sizing is set to #{$box-sizing} and the $box-sizing-polyfill-path is empty.";
+    }
+    @if $box-sizing-polyfill-path != "" {
+      *behavior: url($box-sizing-polyfill-path);
+    }
+    @if $legacy-support-for-ie6 {
+      _display: inline; // Display inline or double your floated margin! [1]
+      _overflow: hidden; // Prevent overflowing content from breaking the layout.
+      _overflow-y: visible; // In IE6, overflow visible is broken [2]
+      // 1. http://www.positioniseverything.net/explorer/doubled-margin.html
+      // 2. http://www.howtocreate.co.uk/wrongWithIE/?chapter=overflow%3Avisible%3B
+    }
+  }
+}
+
+//
+// Apply this to content boxes that need to be cleared below other content boxes.
+//
+@mixin zen-clear (
+  $float-direction: $zen-float-direction,
+  $reverse-all-floats: $zen-reverse-all-floats
+) {
+  // Determine the float direction.
+  $dir: $float-direction;
+  @if $reverse-all-floats {
+    $dir: zen-direction-flip($dir);
+  }
+  clear: $dir;
+}
+
+//
+// Apply this to an HTML item that is in the normal flow of a document to help
+// align it to the grid. Set the $column-span to the number of columns that the
+// HTML element should span. For responsive layouts with a percentage-based grid
+// width, set the $parent-column-count to the number of columns that the parent
+// element spans; fixed-unit layouts using px, em, etc. do not need to specify
+// this.
+//
+// Unlike the zen-grid-item() mixin, this mixin does not float the HTML item; it
+// also does not have a half-gutter on each side. By default, it has no gutter
+// in the "alpha position" (the left side) and a full gutter in the "omega
+// position" (the right side.) You can turn on or off the alpha and omega
+// gutters by setting the $alpha-gutter and $omega-gutter parameters to true or
+// false.
+//
+// Note: when the $flow-direction is set to right (for RTL languages), the alpha
+// position is on the right and the omega position is on the left.
+//
+@mixin zen-grid-flow-item (
+  $column-span,
+  $parent-column-count: false,
+  $alpha-gutter: false,
+  $omega-gutter: true,
+  $flow-direction: $zen-float-direction,
+  $column-count: $zen-column-count,
+  $gutter-width: $zen-gutter-width,
+  $grid-width: $zen-grid-width,
+  $box-sizing: $zen-box-sizing,
+  $reverse-all-flows: $zen-reverse-all-floats,
+  $auto-include-flow-item-base: $zen-auto-include-flow-item-base
+) {
+
+  $columns: $column-count;
+  @if unit($grid-width) == "%" {
+    @if $parent-column-count == false {
+      @warn "For responsive layouts with a percentage-based grid width, you must set the $column-count to the number of columns that the parent element spans.";
+    }
+    @else {
+      $columns: $parent-column-count;
+    }
+  }
+
+  $dir: $flow-direction;
+  @if $reverse-all-flows {
+    $dir: zen-direction-flip($dir);
+  }
+  $rev: zen-direction-flip($dir);
+
+  // Ensure the HTML item either has a full gutter or no gutter on each side.
+  @if $alpha-gutter {
+    margin-#{$dir}: zen-half-gutter($gutter-width, $rev);
+  }
+  @else {
+    margin-#{$dir}: -(zen-half-gutter($gutter-width, $dir));
+  }
+  @if $omega-gutter {
+    margin-#{$rev}: zen-half-gutter($gutter-width, $dir);
+  }
+  @else {
+    margin-#{$rev}: -(zen-half-gutter($gutter-width, $rev));
+  }
+
+  // Calculate the item's width.
+  $width: zen-grid-item-width($column-span, $columns, $grid-width);
+  @if $box-sizing == content-box {
+    @if not comparable($width, $gutter-width) {
+      $units-gutter: unit($gutter-width);
+      $units-grid: unit($grid-width);
+      @warn "The layout cannot be calculated correctly; when using box-sizing: content-box, the units of the gutter (#{$units-gutter} did not match the units of the grid width (#{$units-grid}).";
+    }
+    $width: $width - $gutter-width;
+  }
+  width: $width;
+
+  // Auto-apply the unit base mixin.
+  @if $auto-include-flow-item-base {
+    @include zen-grid-item-base($gutter-width, $box-sizing);
+  }
+}
+
+
+//
+// Helper functions for the Zen mixins.
+//
+
+// Returns a half gutter width.
+@function zen-half-gutter(
+  $gutter-width: $zen-gutter-width,
+  $gutter-side: $zen-float-direction,
+  $flow-direction: $zen-float-direction
+) {
+  $half-gutter: $gutter-width / 2;
+  // Special handling in case gutter has an odd number of pixels.
+  @if unit($gutter-width) == "px" {
+    @if $gutter-side == $flow-direction {
+      @return floor($half-gutter);
+    }
+    @else {
+      @return ceil($half-gutter);
+    }
+  }
+  @return $half-gutter;
+}
+
+// Calculates the unit width of a column.
+@function zen-unit-width (
+  $column-count: $zen-column-count,
+  $grid-width: $zen-grid-width
+) {
+  $unit-width: $grid-width / $column-count;
+  @if unit($unit-width) == "px" and floor($unit-width) != ceil($unit-width) {
+    @warn "You may experience rounding errors as the grid width, #{$grid-width}, does not divide evenly into #{$column-count} columns.";
+  }
+  @return $unit-width;
+}
+
+// Calculates the width of a grid item that spans the specified number of columns.
+@function zen-grid-item-width (
+  $column-span,
+  $column-count: $zen-column-count,
+  $grid-width: $zen-grid-width
+) {
+  @return $column-span * zen-unit-width($column-count, $grid-width);
+}
+
+// Returns the opposite direction, given "left" or "right".
+@function zen-direction-flip($dir) {
+  @if $dir == left {
+    @return right;
+  }
+  @else if $dir == right {
+    @return left;
+  }
+  @else if $dir == none or $dir == both {
+    @return $dir;
+  }
+  @warn "Invalid direction passed to zen-direction-flip().";
+  @return both;
+}

@@ -1,0 +1,17 @@
+This is a copy of the "zen-grids" extension.
+
+It now overrides the original which was found here:
+
+/Library/Ruby/Gems/1.8/gems/zen-grids-1.1
+
+Unpacking an extension is useful when you need to easily peruse the
+extension's source. You might find yourself tempted to change the
+stylesheets here. If you do this, you'll find it harder to take
+updates from the original author. Sometimes this seems like a good
+idea at the time, but in a few months, you'll probably regret it.
+
+In the future, if you take an update of this framework, you'll need to run
+
+    compass unpack zen-grids
+
+again or remove this unpacked extension.

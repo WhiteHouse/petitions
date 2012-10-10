@@ -1,0 +1,108 @@
+/* 
+* This is a legacy CSS from the original petitions theme.  At this time we are 
+* unclear on how much of this is still being used.
+*
+* TO-DO: Determine if this CSS and its classes are still valid.  If so, 
+* refactor into theme using Zen best practices, and remove the conditional call
+* from themes/fortyfour/templates/html.tpl.php.
+*/
+
+#petition-outer {
+  top:0px;
+  position:relative;
+}
+ .either-or-msg {
+background-position: 225px -392px;
+}
+
+.petition-list .col-2 .entry .title a {
+  width: 300px;
+}
+
+.petition-filter ul.filter-list {
+  margin-top: -32px;
+}
+
+#petition-inner .petition-filter-individual ul.filter-list {
+  margin-top: -30px;
+}
+
+.response-filter ul.filter-list {
+  margin-top: -32px;
+}
+
+#search-drop .form-item {
+	margin: 10px 0 0 6px;
+}
+
+#search-drop input#search-text-field {
+	padding-top: 11px;
+}
+
+#utility-bar #sign-in .create-account-block h3 {
+	height: 40px;
+}
+
+#signature-list .entry {
+  width: 125px;
+  z-index:1;
+}
+
+.comment-popup {
+  z-index:1000;
+}
+
+#petition-inner  #form-item-search-drop {
+  margin-left:10px;
+  padding-top:20px;
+}
+
+#thank-you-modal {
+  left:0px;
+}
+
+input.button, .delete-petition-overlay input, #petition-inner input.button {
+  font-size: 0;
+  display:block;
+  line-height: 0;
+}
+
+#issues-filter-drop, #search-drop {
+  z-index:100;
+}
+
+.delete-petition-overlay {
+  left:0px;
+  text-indent: 0px;
+}
+
+#my-petitions .delete-petition-overlay {
+  top:-100px;
+}
+
+h2.trigger a:hover {
+  color: #2d2d2d;
+   background: transparent;
+}
+.sig-num #sig-needed h4 {
+  margin-top:17px;
+}
+.sig-num #total-on h4 {
+  margin-top:22px;
+  padding-top:3px;
+}
+
+#petition-header {
+  z-index: auto;
+  position:static;
+}
+
+#petition-tool-region-content {
+  position: relative;
+  z-index: 55;
+  min-height:600px;
+}
+
+#top-nav-wrapper {
+  margin-top: 0px;
+}

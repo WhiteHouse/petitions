@@ -1,0 +1,164 @@
+#petition-header {
+  background:url(../img/sprite-bg.png) top left no-repeat;
+  min-height: 164px;
+  width: 976px;
+}
+
+#petition-header .col-1 {
+  width: 720px;
+  float: left;
+  padding: 20px 0 0 0;
+}
+
+#petition-header .col-2 {
+  width: 219px;
+  float: right;
+  padding: 0 15px;
+}
+
+#petition-header a {
+  color: #FFF;
+}
+
+#petition-header span.view-my-link a {
+    font-size: 1em;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#petition-header span.loginout a {
+    font-size: 12px;
+    font-family: Arial;
+    font-weight: bold;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+#petition-header span.view-my-link a:hover {
+  }
+
+#petition-header .col-2 .link-wrapper {
+  width: 100%;
+  color: #ffffff;
+    -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+    padding: 5px 0 3px 0;
+}
+
+#petition-header .col-2 .float-right {
+  float: right;
+}
+
+#petition-header .col-2 .link-wrapper:hover {
+  /*background: #829c44;*/
+  color: #c0e07e;
+}
+
+#petition-header span.view-my-link {
+  background:url(../img/sprite-circle-icons.png) no-repeat 102px -170px;
+  padding-right:27px;
+  padding-bottom: 4px;
+}
+
+#petition-header .col-2 .text {
+  margin: 22px 10px 5px 0;
+  color: #d6eaad;
+  font-size:  12px;
+  line-height:1.2;
+  font-family: Arial;
+  font-weight: normal;
+}
+
+#petition-header .intro {
+  background: url("../img/bg-hdr-text.png") no-repeat;
+  height: 88px;
+  margin: 0 0 0 25px;
+  text-indent: -9000px;
+  width: 558px;
+}
+
+#petition-header ul {
+  margin: 0;
+  padding: 0;
+}
+
+#petition-header ul.links {
+  margin-top: 15px;
+}
+
+#petition-header ul.links li {
+  list-style-type: none;
+  float: left;
+  text-indent: -9000px;
+}
+
+#petition-header ul.links li a {
+  display: block;
+  height: 41px;
+}
+
+#petition-header ul.links li:nth-child(1) a{
+  width: 50px;
+  background:url(../img/nav-pet.gif) no-repeat 0 0;
+}
+
+#petition-header ul.links li:nth-child(1) a.active{
+  background:url(../img/nav-pet.gif) no-repeat 0 -41px;
+}
+
+#petition-header ul.links li:nth-child(1) a:hover {
+  background:url(../img/nav-pet.gif) no-repeat 0 -82px;
+}
+
+#petition-header ul.links li:nth-child(2) a{
+  width: 161px;
+  background:url(../img/nav-pet.gif) no-repeat -50px 0;
+}
+
+#petition-header ul.links li:nth-child(2) a.active{
+  background:url(../img/nav-pet.gif) no-repeat -50px -41px;
+}
+
+#petition-header ul.links li:nth-child(2) a:hover{
+  background:url(../img/nav-pet.gif) no-repeat -49px -82px;
+}
+
+#petition-header ul.links li:nth-child(3) a{
+  width: 142px;
+  background:url(../img/nav-pet.gif) no-repeat -211px 0;
+}
+
+#petition-header ul.links li:nth-child(3) a.active{
+  background:url(../img/nav-pet.gif) no-repeat -211px -41px;
+}
+
+#petition-header ul.links li:nth-child(3) a:hover{
+  background:url(../img/nav-pet.gif) no-repeat -210px -82px;
+}
+
+#petition-header ul.links li:nth-child(4) a{
+  width: 104px;
+  background:url(../img/nav-pet.gif) no-repeat -353px 0;
+}
+
+#petition-header ul.links li:nth-child(4) a.active{
+  background:url(../img/nav-pet.gif) no-repeat -353px -41px;
+}
+
+#petition-header ul.links li:nth-child(4) a:hover{
+  background:url(../img/nav-pet.gif) no-repeat -352px -82px;
+}
+
+#petition-header ul.links li:nth-child(5) a{
+  width: 111px;
+  background:url(../img/nav-pet.gif) no-repeat -457px 0;
+}
+
+#petition-header ul.links li:nth-child(5) a.active{
+  background:url(../img/nav-pet.gif) no-repeat -457px -41px;
+}
+
+#petition-header ul.links li:nth-child(5) a:hover{
+  background:url(../img/nav-pet.gif) no-repeat -456px -82px;
+}

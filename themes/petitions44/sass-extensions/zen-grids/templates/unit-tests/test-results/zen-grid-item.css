@@ -1,0 +1,59 @@
+/**
+ * @file
+ * Test zen-grid-item()
+ */
+/* line 8, ../sass/zen-grid-item.scss */
+#test-zen-grid-item {
+  /* Test zen-grid-item(6, 4) with 12 column grid and 20px gutter */
+  float: left;
+  width: 50%;
+  margin-left: 25%;
+  margin-right: -75%;
+  padding-left: 10px;
+  padding-right: 10px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  /* Test zen-grid-item(3, 3) with box-sizing: content-box, 5 column grid and 10% gutter */
+  float: left;
+  width: 50%;
+  margin-left: 40%;
+  margin-right: -100%;
+  padding-left: 5%;
+  padding-right: 5%;
+  border: 0 !important;
+  word-wrap: break-word;
+  /* Turn off $zen-auto-include-item-base */
+  /* Test zen-grid-item(3, 3) with 5 column grid and 40px gutter */
+  float: left;
+  width: 60%;
+  margin-left: 40%;
+  margin-right: -100%;
+  /* Test zen-grid-item(3, 3, right) with 5 column grid and 40px gutter */
+  float: right;
+  width: 60%;
+  margin-right: 40%;
+  margin-left: -100%;
+  /* Test zen-grid-item(3, 3) with 5 column grid and 40px gutter and $zen-reverse-all-floats */
+  float: right;
+  width: 60%;
+  margin-right: 40%;
+  margin-left: -100%;
+  /* Test zen-grid-item(3, 3, right) with 5 column grid and 40px gutter and $zen-reverse-all-floats */
+  float: left;
+  width: 60%;
+  margin-left: 40%;
+  margin-right: -100%;
+  /* Test zen-grid-item(3, 2.5) with 5 column grid and 40px gutter */
+  float: left;
+  width: 60%;
+  margin-left: 30%;
+  margin-right: -90%;
+  /* Test zen-grid-item(3, 3) with $zen-grid-width: 1000px, 5 column grid and 40px gutter */
+  float: left;
+  width: 600px;
+  margin-left: 400px;
+  margin-right: -1000px;
+}

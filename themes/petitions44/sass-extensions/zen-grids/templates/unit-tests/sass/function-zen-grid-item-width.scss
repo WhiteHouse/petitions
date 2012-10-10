@@ -1,0 +1,32 @@
+/**
+ * @file
+ * Test zen-grid-item-width()
+ */
+
+@import "zen";
+
+#test-zen-grid-item-width {
+  /* Test zen-grid-item-width(1) with default $zen-column-count: 1 */
+  width: zen-grid-item-width(1);
+
+  /* Test zen-grid-item-width(2) with $zen-column-count: 5 */
+  $zen-column-count: 5;
+  width: zen-grid-item-width(2);
+  $zen-column-count: 1;
+
+  /* Test zen-grid-item-width(2, 5) */
+  width: zen-grid-item-width(2, 5);
+
+  /* Test zen-grid-item-width(1) with $zen-grid-width: 100px */
+  $zen-grid-width: 100px;
+  width: zen-grid-item-width(1);
+  $zen-grid-width: 100%;
+
+  /* Test zen-grid-item-width(2, 5) with $zen-grid-width: 100px */
+  $zen-grid-width: 100px;
+  width: zen-grid-item-width(2, 5);
+  $zen-grid-width: 100%;
+
+  /* Test zen-grid-item-width(2, 5, 100px) */
+  width: zen-grid-item-width(2, 5, 100px);
+}

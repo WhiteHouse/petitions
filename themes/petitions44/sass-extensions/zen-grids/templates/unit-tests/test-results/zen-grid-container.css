@@ -1,0 +1,49 @@
+/**
+ * @file
+ * Test zen-grid-container()
+ */
+/* line 8, ../sass/zen-grid-container.scss */
+#test-zen-grid-container {
+  /* Test zen-grid-container() */
+}
+/* line 52, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-grid-container:before, #test-zen-grid-container:after {
+  content: "";
+  display: table;
+}
+/* line 56, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-grid-container:after {
+  clear: both;
+}
+
+/* line 13, ../sass/zen-grid-container.scss */
+#test-zen-grid-container-2 {
+  /* Test zen-grid-container() with $legacy-support-for-ie7: true */
+  *position: relative;
+  *zoom: 1;
+}
+/* line 52, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-grid-container-2:before, #test-zen-grid-container-2:after {
+  content: "";
+  display: table;
+}
+/* line 56, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-grid-container-2:after {
+  clear: both;
+}
+
+/* line 20, ../sass/zen-grid-container.scss */
+#test-zen-grid-container-3 {
+  /* Test zen-grid-container() with $legacy-support-for-ie6: true */
+  *position: relative;
+  *zoom: 1;
+}
+/* line 52, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-grid-container-3:before, #test-zen-grid-container-3:after {
+  content: "";
+  display: table;
+}
+/* line 56, ../../../../../../../../Library/Ruby/Gems/1.8/gems/zen-grids-1.1/stylesheets/zen/_grids.scss */
+#test-zen-grid-container-3:after {
+  clear: both;
+}

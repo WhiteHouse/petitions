@@ -1,0 +1,55 @@
+core = 7.x
+engine = phptemplate
+screenshot  = screenshot.png
+name        = Petitions44
+description = Petitions sub theme, based on fortyfour microsite base theme
+base theme  = fortyfour
+
+; This section lists the regions defined in Zen's default page.tpl.php and
+; maintenance-page.tpl.php files. The name in brackets is the machine name of
+; the region. The text after the equals sign is a descriptive text used on the
+; admin/structure/blocks page.
+;
+; In the page.tpl, the contents of the region are output with a
+; $page['MACHINE-NAME'] variable and, in the maintenance-page.tpl, the region is
+; output with a $MACHINE-NAME variable. For example, with this line in the .info
+; file:
+;   regions[header_top] = Header top
+; You'll use this variable in page.tpl.php:
+;   <?php print render($page['header_top']); ?>
+; And you'll use this variable in maintenance-page.tpl.php:
+;   <?php print $header_top; ?>
+
+regions[takeover]       = Takeover
+regions[header]         = Header
+regions[navigation]     = Main Nav
+regions[dropnav]        = Dropdown navigation
+regions[content]        = Content
+regions[left_rail]      = Left rail
+regions[right_rail]     = Right rail
+regions[footer]         = Footer
+regions[bottom]         = Page bottom
+
+; The page_top and page_bottom regions are hidden, which means they will not
+; show up on the blocks administration page. But they are required in order for
+; the html.tpl.php to work properly, so do not delete them.
+
+regions[page_top]       = Page top
+regions[page_bottom]    = Page bottom
+
+; CSS
+; @todo homepage.css and petitions-grid.css below are temporary. Soon they will be
+; moved out of petitions44 theme, into a custom module that generates the page 
+;being used for <front> page.
+stylesheets[all][] = css/style.css
+stylesheets[all][] = css/homepage.css
+stylesheets[all][] = css/petitions-grid.css
+
+; Scripts
+; @todo homepage.js is temporary. It will be moved out of petitions44 theme into a custom,
+; module that generates the page being used for <front> page.
+scripts[] = js/main.js
+scripts[] = js/homepage.js
+
+features[] = main_menu
+features[] = secondary_menu
