@@ -12,7 +12,7 @@ define('WH_RESPONSE_SHORTURL_DEFAULT', 'Created on publish');
 function wh_response_menu() {
   // Responses section
   $items['responses'] = array(
-    'title' => '',
+    'title' => 'Responses',
     'description' => '',
     'page callback' => 'wh_response_show_responses',
     'page arguments' => array(),
