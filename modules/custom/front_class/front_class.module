@@ -1,0 +1,66 @@
+<?php
+/**
+ * @front_class.php
+ */
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function front_class_preprocess_links(&$variables) {
+  if (isset($variables['attributes']['id']) && $variables['attributes']['id'] == 'main-menu-links') {
+    $is_main_menu = (variable_get('menu_main_links_source', FALSE) == 'petitions-menu') ? TRUE : FALSE;
+    if ($is_main_menu) {
+      // For main menu, add "front" class to <front> link.
+      $links = front_class_front_link($variables);
+      $variables['links'] = $links;
+    }
+  }
+}
+
+/**
+ * Find the <front> link. Add a "front" class to <li> to make it themable.
+ *
+ * @param $variables
+ *  Array from preprocessor
+ *
+ * @return $links
+ *  $variable['links'] to override.
+ */
+function front_class_front_link($variables) {
+  $links = $variables['links'];
+  foreach ($links as $key => $link) {
+    $is_front = front_class_is_front($link);
+    if ($is_front) {
+      // $links[$key] is used to determine <li class=$class>. Add 'front'.
+      $original_key = $key;
+      $new_key = $original_key . " front";
+      $new_link = $link;
+    } 
+  }
+  // Rebuild $links array in same order it's already in.
+  $new_links = array();
+  foreach($links as $key => $link) {
+    if ($key == $original_key) {
+      $new_links[$new_key] = $new_link;
+    } 
+    else {
+      $new_links[$key] = $link;
+    }
+  }
+  return $new_links;
+}
+
+/**
+ * Determin if $link is a link to <front>.
+ *
+ * @param $link
+ *  Array
+ *
+ * @return
+ *  Boolean
+ */
+function front_class_is_front($link) {
+  $front = variable_get('site_frontpage', FALSE);
+  $href = $link['href'];
+  return ($front == $href) ? TRUE : FALSE;
+}
