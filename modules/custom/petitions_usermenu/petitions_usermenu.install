@@ -1,0 +1,55 @@
+<?php
+/**
+ * Implements hook_install().
+ */
+function petitions_usermenu_install() {
+  // Create petitions-user-menu.
+  _petitions_usermenu_create_menu();
+  // Make it the secondary menu.
+  _petitions_usermenu_set_as_secondary_menu();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function petitions_usermenu_uninstall() {
+  // Remove menu and its custom links.
+  menu_delete(menu_load('petitions-user-menu'));
+
+  // Notify user.
+  $message = t('Petitions User Menu has been deleted.');
+  drupal_set_message($message, 'status');
+}
+
+/**
+ * Create Petitions User Menu.
+ */
+function _petitions_usermenu_create_menu() {
+    if (!menu_load('petitions-user-menu')) {
+      $menu = array(
+        'menu_name' => 'petitions-user-menu',
+        'title' => t('Petitions User Menu'),
+        'description' => t('User menu for Petitions.'),
+      );
+      menu_save($menu);
+      // Notify user about what we just did.
+      $message = t("Petitions User Menu has been created.");
+      drupal_set_message($message, 'status');
+    }
+    else {
+      // Notify user about what we just did.
+      $message = t("Petitions User Menu already exists.");
+      drupal_set_message($message, 'warning');
+    }
+}
+
+/**
+ * Set Petitions User Menu as a secondary menu.
+ */
+function _petitions_usermenu_set_as_secondary_menu() {
+  variable_set('menu_secondary_links_source', 'petitions-user-menu');
+
+  // Notify user about what we just did.
+  $message = t("Petitions User Menu has been set as your site's Secondary Menu.");
+  drupal_set_message($message, 'status');
+}

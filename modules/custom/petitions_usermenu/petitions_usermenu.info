@@ -1,0 +1,6 @@
+name = Petitions User Menu
+description = Create a user menu for petitions.whitehouse.gov
+core = 7.x
+package = petitions.whitehouse.gov
+scripts[] = petitions_usermenu.js
+stylesheets[all][] = petitions_usermenu.css

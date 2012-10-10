@@ -1,0 +1,20 @@
+/* Secondary Menu / petitions-user-menu */
+
+#secondary-menu-links li.petitions-usermenu-dashboard a,
+#secondary-menu-links li.petitions-usermenu-login a,
+#secondary-menu-links li.petitions-usermenu-my-account a {
+  border-right: solid white 2px;  
+  padding-right: 5px;
+  padding-left: 2px;
+}
+
+#secondary-menu-links li.petitions-usermenu-logout a,
+#secondary-menu-links li.petitions-usermenu-register a {
+  border-right: none;
+  padding-right: 0;
+  padding-left: 2px;
+}
+
+#secondary-menu-links li a:hover{
+  color: #facc26;
+}

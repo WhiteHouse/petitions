@@ -1,0 +1,152 @@
+<?php
+/**
+ * @file petitions_usermenu.module
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function petitions_usermenu_enable() {
+  // Check if Petitions User Menu s set as a secondary menu.
+  $secondary_menu = variable_get('menu_secondary_links_source', FALSE);
+  if ($secondary_menu != 'petitions-user-menu') {
+    $message = t("Petitions User Menu is not set as your site's Secondary Menu. For this module to behave as expected, you should set Petitions User Menu to the Secondary Menu here !menu.", array('!menu' => l('admin/structure/menu/settings', 'admin/structure/menu/settings')));
+    drupal_set_message($message, 'status');
+  }
+}
+
+/**
+ * Implements hook_menu().
+ *
+ * Re-implement core user module menu items, with slightly modified behavior.
+ *
+ * We want to render these links on ALL pages, not some for authenticated
+ * users and others for anonymous. This enables us to serve cached pages to
+ * authenticated via a CDN. JavaScript in petitions_usermenu.js is used to
+ * show/hide links depending on whether the user is authenticated or anonymous.
+ *
+ * Authenticated:
+ *  - View My Petitions | /dashboard      => /dashboard
+ *  - Log Out           | /user/logout    => /logout
+ *
+ * Anonymous
+ *  - Log In            | /user/login     => /login
+ *  - Create an Account | /user/register  => /register
+ */
+function petitions_usermenu_menu() {
+  $items = array();
+
+  $items['login'] = array(
+    'title' => 'Log in',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_login'),
+    'access callback' => TRUE,
+    'menu_name' => 'petitions-user-menu',
+    'weight' => 0,
+  );
+  $items['register'] = array(
+    'title' => 'Create an Account',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_register_form'),
+    'access callback' => TRUE,
+    'menu_name' => 'petitions-user-menu',
+    'weight' => 1,
+  );
+  $items['logout'] = array(
+    'title' => 'Log out',
+    'access callback' => TRUE,
+    'page callback' => 'user_logout',
+    'weight' => 10,
+    'menu_name' => 'petitions-user-menu',
+    'file' => 'user.pages.inc',
+    'file path' => drupal_get_path('module', 'user'),
+    'weight' => 4,
+  );
+  /*
+  $items['my-account'] = array(
+    'title' => 'My Account',
+    'page callback' => 'petition_usermenu_my_account',
+    'access callback' => TRUE,
+    'menu_name' => 'petitions-user-menu',
+    'weight' => 3,
+  );
+  // */
+
+  return $items;
+}
+
+/**
+ * Callback for My Account page.
+ */
+/*
+function petition_usermenu_my_account() {
+  //global $user;
+  //drupal_goto("user/$user->uid/edit");
+  drupal_goto("user");
+}
+// */
+
+/**
+ * Implements hook_menu_alter().
+ */
+function petitions_usermenu_menu_alter(&$items) {
+  $items['dashboard']['title'] = 'View My Petitions';  
+  $items['dashboard']['menu_name'] = 'petitions-user-menu';  
+  $items['dashboard']['weight'] = 2;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * @see _petitions_usermenu_user_links_override()
+ */
+function petitions_usermenu_preprocess_links(&$variables) {
+  if (isset($variables['attributes']['id']) && $variables['attributes']['id'] == 'secondary-menu-links') {
+    $is_petitions_user_menu = (variable_get('menu_secondary_links_source', FALSE) == 'petitions-user-menu') ? TRUE : FALSE;
+    if ($is_petitions_user_menu) {
+      $links = _petitions_usermenu_user_links_override($variables);
+      $variables['links'] = $links;
+    }
+  }
+}
+
+/**
+ * @param String. $variables
+ *   Array. Parameter passed to theme_links function being overridden.
+ *
+ * @return Array.
+ *   $links. Altered list of petitions-user-menu links.
+ */
+function _petitions_usermenu_user_links_override($variables) {
+  $links = $variables['links'];
+
+  foreach ($links as $old_key => $link) {
+    // Make class values in markup (e.g. <li class="$class">) intelligible.
+    // This replaces menu-123 with things like:
+    //   - petitions-usermenu-login for /login
+    //   - petitions-usermenu-register for /register
+    //
+    // Keys for $links are used by drupal to create these $class values, so here
+    // we're changing these key names.
+    // 
+    // Note: $link items get passed to l(),
+    // so if you want to add additional attributes to the <a> tags getting
+    // generated, add this below:
+    //   $links[$new_key]['attributes']['class'] .= ' example';
+    //
+    $href = $link['href'];
+    $new_key = sprintf("petitions-usermenu-%s", str_replace('/', '-', $href));
+    $links[$new_key] = $links[$old_key];
+    unset($links[$old_key]);
+
+    // Add destination query to login and register links.
+    if ($href == 'login' || $href == 'register') {
+      $current_path = current_path();
+      if ($current_path != 'homepage') {
+        $links[$new_key]['query']['destination'] = $current_path;
+      }
+    }
+  }
+
+  return $links;
+}
