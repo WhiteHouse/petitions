@@ -1,0 +1,110 @@
+<?php
+/**
+ * @file is_not_cached.module
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function is_not_cached_menu() {
+  $items = array();
+
+  $items['admin/config/system/is_not_cached'] = array(
+    'title' => 'Is Not Cached',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('is_not_cached_configure'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'is_not_cached.admin.inc',
+    'description' => "Tell the theme layer when a page is not cached and it's okay to print dynamic, user-specific content.",
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function is_not_cached_preprocess_page(&$variables) {
+  if ($is_not_cached = variable_get('is_not_cached_override', FALSE)) {
+    $variables['is_not_cached'] = TRUE;
+    return;
+  }
+
+  // Get user defined paths.
+  $is_not_cached_paths = variable_get('is_not_cached_paths', '');
+  $is_not_cached_paths = explode("\n", $is_not_cached_paths);
+  $is_not_cached_paths = array_merge($is_not_cached_paths, module_invoke_all('is_not_cached_paths'));
+  $is_not_cached_paths = array_unique($is_not_cached_paths);
+
+  // Get rules.
+  $is_not_cached_rules = module_invoke_all('is_not_cached_rules');
+
+  // Test paths.
+  $current_path = current_path();
+  if (in_array($current_path, $is_not_cached_paths)) {
+    $is_not_cached = TRUE;
+  }
+  // Test rules.
+  else {
+    foreach ($is_not_cached_rules as $func => $title) {
+      if (function_exists($func)) {
+        if (call_user_func($func)) {
+          $is_not_cached = TRUE;
+          break;
+        }
+      }  
+    }
+  }
+
+  $variables['is_not_cached'] = $is_not_cached;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function is_not_cached_theme($existing, $type, $theme, $path) {
+  return array(
+    'is_not_cached_display_paths' => array('variables' => array(
+      'is_not_cached_paths' => NULL,
+    )),
+    'is_not_cached_display_rules' => array('variables' => array(
+      'is_not_cached_rules' => NULL,
+    )),
+  );
+}
+
+/**
+ * Theme callback.
+ *
+ * @return HTML
+ */
+function theme_is_not_cached_display_paths($variables) {
+  $output = '';
+  $is_not_cached_paths = $variables['is_not_cached_paths'];
+
+  $output .= '<ul>';
+  foreach ($is_not_cached_paths as $path) {
+    $output .= '<li>' . l($path, $path) . '</li>';
+  }
+  $output .= '</ul>';
+
+  return $output;  
+}
+
+/**
+ * Theme callback.
+ *
+ * @return HTML
+ */
+function theme_is_not_cached_display_rules($variables) {
+  $output = '';
+  $is_not_cached_rules = $variables['is_not_cached_rules'];
+  
+  $output .= '<ul>';
+  foreach ($is_not_cached_rules as $callback => $rule) {
+    $output .= '<li>' . check_plain($rule) . " (callback: $callback)"  . '</li>';
+  }
+  $output .= '</ul>';
+
+  return $output;  
+}
