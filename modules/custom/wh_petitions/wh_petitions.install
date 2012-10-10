@@ -6,6 +6,26 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function wh_petitions_install() {
+  _wh_petitions_create_menu();
+  _wh_petitions_set_as_primary_menu();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function wh_petitions_uninstall() {
+   // Remove menu and all its links.
+  menu_delete(menu_load('petitions-menu'));
+
+  // Notify user.
+  $message = t('Petitions Menu has been deleted.');
+  drupal_set_message($message, 'status');
+}
+
+/**
  * Implement hook_mongodb_indexes().
  */
 function wh_petitions_mongodb_indexes() {
@@ -173,10 +193,54 @@ function wh_petitions_mongodb_indexes() {
 }
 
 /**
- * Implements hook_update_N().
+ * Create Petitions Menu.
  */
-/*
-// Begin update functions with wh_petitions_update_7103().
-function wh_petitions_update_7103(&$sandbox) {
+function _wh_petitions_create_menu() {
+	// Create Petitions Menu.
+	if (!menu_load('petitions-menu')) {
+	  $menu = array(
+      'menu_name' => 'petitions-menu',
+      'title' => 'Petitions Menu',
+      'description' => 'Default Main Menu for Petitions install profile.'
+	  );    
+	  menu_save($menu);
+	  // Notify user about what we just did.
+	  $message = t("Petitions Main Menu has been created.");
+	  drupal_set_message($message, 'status');
+  }
+  else {
+    // Notify user.
+    $message = t("Petitions Menu already exists.");
+    drupal_set_message($message, 'warning');
+  }
 }
-// */
+
+/**
+ * Set Petitions Menu as a primary menu.
+ */
+function _wh_petitions_set_as_primary_menu() {
+  variable_set('menu_main_links_source', 'petitions-menu');
+
+  // Notify user about what we just did.
+  $message = t("Petitions Menu has been set as your site's Primary Menu.");
+  drupal_set_message($message, 'status');
+
+  // Set homepage as <front> (from wh_petition_tool module).
+  variable_set('site_frontpage', 'homepage');
+  // Notify user about what we just did.
+  $message = t("The path !homepage has been set as your front page.", array('!homepage' => l('homepage', 'homepage')));
+  drupal_set_message($message, 'status');
+}
+
+/**
+ * Implements hook_update_N().
+ * 
+ * Create Petition Menu and make it the site's Main Menu.
+ */
+function wh_petitions_update_7104(&$sandbox) {
+  // A number of menu items are newly being associated with the menu
+  // named petitions-menu. Rebuild menus to drupal knows this.
+  menu_rebuild();
+  // Now save new.
+  wh_petitions_install();
+}

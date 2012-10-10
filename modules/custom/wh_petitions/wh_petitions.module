@@ -208,16 +208,6 @@ function wh_petitions_menu() {
     'file' => 'wh_petitions.admin.inc',
   );          
   
-  // Open Petitions section
-  $items['petitions'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_petitions_show_petitions',
-    'page arguments' => array(),
-    'access arguments' => array('access content'),
-    'file' => 'wh_petitions.pages.inc',
-  );
-  
   // Petition Detail page
   $items['petition/detail/%'] = array(
     'title' => '',
@@ -271,19 +261,34 @@ function wh_petitions_menu() {
     'page arguments' => array(),
     'access arguments' => array('access content'),
     'file' => 'wh_petitions.form.inc',
+    'weight' => 1,
   );
   
   // Create A Petition Form ( access control done in callback function )
   $items['petition/create'] = array(
-    'title' => '',
-    'description' => '',
+    'title' => 'Create a Petition',
+    'description' => 'A menu link to create a petition section.',
     'page callback' => 'wh_petitions_create_petition_iframe',
     //'page callback' => 'drupal_get_form',
     'page arguments' => array('wh_petitions_create_petition'),
     'access arguments' => array('access content'),
     'file' => 'wh_petitions.form.inc',
+    'weight' => 16,
+    'menu_name' => 'petitions-menu',
   );
-  
+
+  // Open Petitions section
+  $items['petitions'] = array(
+    'title' => 'Open Petitions',
+    'description' => 'A menu link to open petitions sections.',
+    'page callback' => 'wh_petitions_show_petitions',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'file' => 'wh_petitions.pages.inc',
+    'weight' => 17,
+    'menu_name' => 'petitions-menu',
+  );
+
   // User Dashboard ( access control done in page callback function )
   $items['dashboard'] = array(
     'title' => '',
@@ -402,8 +407,22 @@ function wh_petitions_menu() {
     'access arguments' => array('access content'),
     'file' => 'wh_petitions.form.inc',
   );
-  
+
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function wh_petitions_menu_alter(&$items) {
+  $items['responses']['menu_name'] = 'petitions-menu';
+  $items['responses']['weight'] = 30;
+
+  $site_frontpage = variable_get('site_frontpage', FALSE);
+  if ($site_frontpage == 'homepage') {
+    $items['homepage']['menu_name'] = 'petitions-menu';
+    $items['homepage']['weight'] = -1;
+  }
 }
 
 /**
