@@ -1,0 +1,5 @@
+<?php
+/**
+ * @file petitions_maintenance.module
+ */
+// This file is required by Drupal. But right now, this module is only used for implementing updates in the .install file.

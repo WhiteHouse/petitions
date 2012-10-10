@@ -1,0 +1,3 @@
+name = Petitions Maintenance
+description = This module is used for Petitions application maintenance tasks
+core = 7.x
