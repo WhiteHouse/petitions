@@ -13,11 +13,11 @@ function petition_install() {
   db_update('system')
     ->fields(array('status' => 1))
     ->condition('type', 'theme')
-    ->condition('name', 'seven')
-    ->condition('name', 'petitions')
+    ->condition('name', 'rubik')
+    ->condition('name', 'petitions44')
     ->execute();
-  variable_set('admin_theme', 'seven');
-  variable_set('theme_default', 'petitions');
+  variable_set('admin_theme', 'rubik');
+  variable_set('theme_default', 'petitions44');
 
   $vocabulary = (object) array(
     'name' => t('Issues'),
