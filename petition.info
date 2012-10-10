@@ -38,5 +38,11 @@ dependencies[] = wysiwyg
 dependencies[] = imce
 dependencies[] = mongodb
 
+; custom
+dependencies[] = front_class
+dependencies[] = petitions_maintenance
+dependencies[] = petitions_usermenu
+dependencies[] = is_not_cached
+
 ; files
 files[] =  petition.profile
