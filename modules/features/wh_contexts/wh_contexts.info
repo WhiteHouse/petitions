@@ -16,3 +16,10 @@ package = "Features"
 php = "5.2.4"
 project = "wh_contexts"
 version = "7.x-1.1"
+
+
+; Information added by drush on 2012-09-04
+version = ""
+project = "petition"
+datestamp = "1346805183"
+
