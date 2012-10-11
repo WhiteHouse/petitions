@@ -47,3 +47,12 @@ function petitions_maintenance_update_7001() {
     ->execute();
 }
 
+/**
+ * Implements hook_update_N().
+ *
+ * Enable petitions_homepage module.
+ */
+function petitions_maintenance_update_7002() {
+  $module_list = array('petitions_homepage');
+  module_enable($module_list);
+}

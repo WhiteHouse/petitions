@@ -20,7 +20,7 @@
 /* line 14, ../sass/homepage.scss */
 /* line 18, ../sass/homepage.scss */
 .front .petition-hero {
-  background: url(/profiles/petition/themes/petitions/img/petitions_landing_hero.jpg) top center no-repeat;
+  background: url(../img/petitions_landing_hero.jpg) top center no-repeat;
   height: 296px;
 }
 
@@ -50,7 +50,7 @@
 /* line 36, ../sass/homepage.scss */
 /* line 44, ../sass/homepage.scss */
 .front a.view-petition-btn, a.start-petition-btn {
-  background-image: url(/profiles/petition/themes/petitions/img/petitions_landing_btns_0.png);
+  background-image: url(../img/petitions_landing_btns_0.png);
   display: inline-block;
   height: 31px;
   width: 167px;
@@ -157,7 +157,7 @@
 /* line 115, ../sass/homepage.scss */
 /* line 137, ../sass/homepage.scss */
 .front .triangle-link {
-  background: url(/profiles/petition/themes/petitions/img/petitionslanding_arrow.png) left 2px no-repeat;
+  background: url(../img/petitionslanding_arrow.png) left 2px no-repeat;
   padding: 0px 0px 0px 12px;
   margin-top: 10px;
   display: block;
@@ -172,7 +172,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: url(/profiles/petition/themes/petitions/img/petitions_landing_rightrail.png) top center no-repeat;
+  background: url(../img/petitions_landing_rightrail.png) top center no-repeat;
 }
 
 /* line 133, ../sass/homepage.scss */
@@ -259,7 +259,7 @@
 /* line 188, ../sass/homepage.scss */
 /* line 227, ../sass/homepage.scss */
 .front a.video-link {
-  background: url(/profiles/petition/themes/petitions/img/petitions_video_thumb_new.jpg);
+  background: url(../img/petitions_video_thumb_new.jpg);
   background-position: 0px 0px;
   display: inline-block;
   float: left;
@@ -325,7 +325,7 @@
 .front a.facebook-link,
 .front a.twitter-link,
 .front a.gplus-link {
-  background: url(/profiles/petition/themes/petitions/img/petitions_social_icons.jpg) no-repeat;
+  background: url(../img/petitions_social_icons.jpg) no-repeat;
   display: inline-block;
   font-weight: bold;
   height: 45px;
@@ -407,7 +407,7 @@
 /* line 359, ../sass/homepage.scss */
 .front .petition-twitter .retweet,
 .front .petition-twitter .reply {
-  background: url(/profiles/petition/themes/petitions/img/tweet_retweet.png);
+  background: url(../img/tweet_retweet.png);
   text-indent: -9999px;
   display: inline-block;
   margin-left: 10px;

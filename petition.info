@@ -28,21 +28,22 @@ dependencies[] = file
 dependencies[] = rdf
 
 ; contrib
-dependencies[] = features
-dependencies[] = pathauto
-dependencies[] = entity
-dependencies[] = entitycache
 dependencies[] = context
 dependencies[] = context_ui
-dependencies[] = wysiwyg
+dependencies[] = entity
+dependencies[] = entitycache
+dependencies[] = features
 dependencies[] = imce
 dependencies[] = mongodb
+dependencies[] = pathauto
+dependencies[] = wysiwyg
 
 ; custom
 dependencies[] = front_class
+dependencies[] = is_not_cached
+dependencies[] = petitions_homepage
 dependencies[] = petitions_maintenance
 dependencies[] = petitions_usermenu
-dependencies[] = is_not_cached
 
 ; files
 files[] =  petition.profile

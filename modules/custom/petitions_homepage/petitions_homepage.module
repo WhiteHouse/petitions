@@ -1,0 +1,246 @@
+<?php
+
+/**
+ * @file
+ * Sets the content variable of the homepage per configuration settings.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function petitions_homepage_menu() {
+  $items = array();
+
+  $items['homepage'] = array(
+    'title' => 'We the People: Your Voice in Our Government',
+    'page callback' => 'petitions_homepage_page',
+    'access arguments' => array('access content'),
+  );    
+  // Provide an administration page for configuring homepage content.
+  $items['admin/config/petitions/homepage'] = array(
+    'title' => 'Homepage Content',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('petitions_homepage_configure'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'petitions_homepage.admin.inc',
+    'description' => "Configure content displayed on the homepage.",
+  );
+
+  return $items;
+}
+
+/**
+ * Callback for /homepage. Generates $page['content'] using defaults or configuration settings.
+ *
+ * @return
+ *  User-defined HTML from homepage admin form.
+ */
+function petitions_homepage_page() {
+  drupal_add_js('(function($) {$(".recent ul").append($("#block-wh-petitions-wh-petitions-recent-petitions ul").html());$(".recent ul li a").addClass("no-follow");})(jQuery)', array('type' => 'inline', 'scope' => 'footer'));
+
+  $aside_flag = variable_get('petitions_homepage_aside_flag', 1);
+
+  $output = '';
+
+  $output .= variable_get('petitions_homepage_petition_hero', petitions_homepage_petition_hero_default());
+  $output .= variable_get('petitions_homepage_easy_steps', petitions_homepage_easy_steps_default());
+  $output .= variable_get('petitions_homepage_introductory_video', petitions_homepage_introductory_video_default());
+
+  if ($aside_flag) {
+    $output .= petitions_homepage_aside();
+  }
+
+  $output .= variable_get('petitions_homepage_more_from_the_whitehouse', petitions_homepage_more_from_the_whitehouse_default());
+
+  return $output;
+}
+
+/**
+ * Default HTML output for the Hero area of the homepage.
+ */
+function petitions_homepage_petition_hero_default() {
+  return <<<EOF
+  <!-- Petition Hero -->
+  <div class="petition-hero">
+    <p class="line1">Giving all Americans a way to engage</p>
+    <p class="line2">their government on the issues that</p>
+    <p class="line3">matter to them.</p>
+    <p class="line4">Get Started</p>
+    <a href="/petitions" class="view-petition-btn">View Petitions</a><a href="/petition/create" class="start-petition-btn no-follow">Start a Petition</a>
+  </div><!-- /petition-hero -->
+  <!-- /Petition Hero -->
+EOF;
+}
+
+/**
+ * Default HTML output for the Easy Steps area of the homepage.
+ */
+function petitions_homepage_easy_steps_default() {
+  return <<<EOF
+  <!-- Easy Steps -->
+  <div class="grid-38 first-grid">
+    <div class="easy-steps"><span class="bold-intro">We the People</span> in Three Easy Steps</div>
+    <div class="grid-12 steps">
+      <h3 class="step">Step 1</h3>
+      <p>Browse open petitions to find a petition related to your issue, and add your signature.</p>
+      <hr />
+      <div class="take-action">Take Action</div>
+        <a class="triangle-link no-follow" href="/petitions">Find a petition</a>
+    </div>
+    <div class="grid-11 first-grid steps">
+      <h3 class="step">Step 2</h3>
+      <p>If your issue is not currently represented by an active petition, start a new petition.</p>
+      <hr />
+      <div class="take-action">Take Action</div>
+      <a class="triangle-link no-follow" href="/petition/create">Start a Petition</a>
+    </div>
+    <div class="grid-11 first-grid last-grid steps">
+      <h3 class="step">Step 3</h3>
+      <p>If a petition meets the signature threshold, it will be reviewed by the Administration and we will issue a response.</p>
+      <hr />
+      <div class="take-action">Take Action</div>
+      <a class="triangle-link no-follow" href="/responses">View all responses</a>
+    </div>
+  </div><!--/grid-38 steps-->
+  <!-- /Easy Steps -->
+EOF;
+}
+
+/**
+ * Default HTML output for the Introductory Video area of the homepage.
+ *
+ * Ouput is modified in js/homepage.js.
+ */
+function petitions_homepage_introductory_video_default() {
+  return <<<EOF
+  <!-- Introductory Video -->
+  <div class="grid-38 first-grid video-region">
+    <a href ="#introvideo" class="video-link no-follow">Watch the Introductory Video</a>
+    <blockquote>&#8220;My administration is committed to creating an unprecedented level of openness in government. We will work together to ensure the public trust and establish a system of transparency, public participation and collaboration. Openness will strengthen our democracy and promote efficiency and efffectiveness in government.&#8221;</blockquote>
+    <div class="attribution">&#151; President Barack Obama</div>
+  </div>
+  <!-- /Introductory Video -->
+EOF;
+}
+
+/**
+ * Default HTML output for the Featured Responses area of the homepage.
+ */
+function petitions_homepage_featured_responses_default() {
+  return <<<EOF
+  <!-- Featured Petition Responses -->
+  <div class="featured">
+    <h3>Featured Petition Responses</h3>
+    <a href="/responses" class="see-all no-follow">See All</a>
+    <ul>
+      <li><a href="/response/combating-online-piracy-while-protecting-open-and-innovative-internet" class="no-follow">Combatting Online Piracy while Protecting an Open and Innovative Internet</a></li>
+      <li><a href="/response/building-21st-century-immigration-system" class="no-follow">Building a 21st Century Immigration System</a></li>
+      <li><a href="/response/taking-action-reduce-burden-student-loan-debt" class="no-follow">Taking Action to Reduce the Burden of Student Loan Debt</a></li>
+      <li><a href="/response/repealing-discriminatory-defense-marriage-act" class="no-follow">Repealing the Discriminatory Defense of Marriage Act</a></li></ul>
+  </div>
+  <!-- /Featured Petition Responses -->
+EOF;
+}
+
+/**
+ * Invoking the Recent Petitions block for the same area of the homepage.
+ */
+function petitions_homepage_recent_petitions() {
+  $output = '';
+
+  // Invoke the Recent Petitions block.
+  $block = module_invoke('wh_petitions', 'block_view', 'wh_petitions_recent_petitions');
+  db_set_active();
+
+  $output = '<div class="recent">';
+  $output = '<div class="recent">';
+  $output .= '<h3>Most Recent Petitions</h3>';
+  $output .= '<a href="/petitions" class="see-all">See All</a>';
+  $output .= $block['content'];
+  $output .= '</div><!-- /recent -->';
+
+  return $output;
+}
+
+/**
+ * Default HTML output for the Twitter area of the homepage.
+ *
+ * Ouput is modified in js/homepage.js.
+ */
+function petitions_homepage_twitter_default() {
+  $path = '/' . drupal_get_path('module', 'petitions_homepage');
+  return <<<EOF
+  <div id="latest-tweet" class="petition-twitter"></div>
+  <img class="bird-img" src="$path/img/petitions_tw_landing.png" alt="twitter bird" />
+EOF;
+}
+
+/**
+ * Wrap Right Sidebar content is an Aside tag and additional HTML.
+ */
+function petitions_homepage_aside() {
+  $featured_responses_flag = variable_get('petitions_homepage_featured_responses_flag', 1);
+  $recent_petitions_flag = variable_get('petitions_homepage_recent_petitions_flag', 1);
+  $twitter_flag = variable_get('petitions_homepage_twitter_flag', 1);
+
+  $output = '';
+
+  $output .= '<aside>';
+  $output .= '<div class="right-side">';
+  $output .= '<div class="right-inner">';
+
+  if ($featured_responses_flag) {
+    $output .= variable_get('petitions_homepage_featured_responses', petitions_homepage_featured_responses_default());
+  }
+
+  if ($recent_petitions_flag) {
+    $output .= petitions_homepage_recent_petitions();
+  }
+
+  $output .= '</div><!-- /right-inner -->';
+
+  if ($twitter_flag) {
+    $output .= variable_get('petitions_homepage_twitter', petitions_homepage_twitter_default());
+  }
+
+  $output .= '</div><!--right side-->';
+  $output .= '</aside>';
+
+  return $output;
+}
+
+/**
+ * Default HTML output for the More from the White House area of the homepage.
+ */
+function petitions_homepage_more_from_the_whitehouse_default() {
+  $path = '/' . drupal_get_path('module', 'petitions_homepage');
+  return <<<EOF
+  <div class="grid-container">
+    <div class="grid-59 first-grid" style="height:360px;">
+      <h3 class="more">More from the <span class="bold-intro">White House</span></h3>
+
+      <div class="grid-18 follow">
+        <h4>Follow Us</h4>
+        <a href="https://www.facebook.com/whitehouse" class="facebook-link no-follow">Join the conversation</a>
+        <a href="https://www.twitter.com/whitehouse" class="twitter-link no-follow">Get the latest news and engage</a>
+        <a href="https://plus.google.com/105479712798762608629" class="gplus-link no-follow">Hangout and go behind the scenes</a>
+      </div>
+
+      <div class="grid-20 last-grid featured-1">
+        <a href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last" class="image-link no-follow"><img src="$path/img/petitions_landing_wh_content_01.jpg" /></a>
+        <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last">Blueprint for an America Built to Last</a>
+        <p>Learn more about President Obama's plan to build an economy that works for everyone.</p>
+        <a class="featured-link no-follow" href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last">Read the blueprint</a>
+      </div>
+
+      <div class="grid-20 last-grid featured-2">
+        <a href="http://www.whitehouse.gov/economy/jobs/we-cant-wait" class="image-link no-follow"><img src="$path/img/petitions_landing_wh_content_02.jpg" /></a>
+        <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/economy/jobs/we-cant-wait">We Can't Wait</a>
+        <p>President Obama is not letting congressional gridlock slow our economic growth.</p>
+        <a class="featured-link no-follow" href="http://www.whitehouse.gov/economy/jobs/we-cant-wait">Learn More</a>
+      </div>
+    </div>
+  </div>
+  <!-- /two -->
+EOF;
+}

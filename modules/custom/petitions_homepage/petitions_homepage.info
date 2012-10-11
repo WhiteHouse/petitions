@@ -1,0 +1,13 @@
+name = Petitions Homepage
+description = Petitions Homepage content configuration module
+core = 7.x
+
+; Includes
+files[] = petitions_homepage.admin.inc
+
+; CSS
+stylesheets[all][] = css/homepage.css
+stylesheets[all][] = css/petitions-grid.css
+
+; Scripts
+scripts[] = js/homepage.js

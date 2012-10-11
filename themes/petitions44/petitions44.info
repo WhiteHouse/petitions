@@ -38,18 +38,10 @@ regions[page_top]       = Page top
 regions[page_bottom]    = Page bottom
 
 ; CSS
-; @todo homepage.css and petitions-grid.css below are temporary. Soon they will be
-; moved out of petitions44 theme, into a custom module that generates the page 
-;being used for <front> page.
 stylesheets[all][] = css/style.css
-stylesheets[all][] = css/homepage.css
-stylesheets[all][] = css/petitions-grid.css
 
 ; Scripts
-; @todo homepage.js is temporary. It will be moved out of petitions44 theme into a custom,
-; module that generates the page being used for <front> page.
 scripts[] = js/main.js
-scripts[] = js/homepage.js
 
 features[] = main_menu
 features[] = secondary_menu

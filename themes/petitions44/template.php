@@ -111,14 +111,40 @@ function petitions44_process_page(&$variables) {
   otherwise from variable_get / strongarm export
   */
 
-  // Special variables to set for page--front.tpl.php.
-  // @todo move all the $is_front logic out of page.tpl.php, into here wherever possible.
-  if ($variables['is_front']) {
-    // @todo $page['content'] here is HTML. Make this a renderable array?
-    $variables['page']['content'] = _petitions44_front_page_content();
-  }
-
   $variables['petitions44_help_text'] = _petitions44_help_text();
+}
+
+/**
+ * Override or insert variables into the forward template.
+ */
+function petitions44_preprocess_forward(&$variables) {
+  
+  $email_text = '';
+  
+  if (arg(0) == 'petition') {
+    $email_text = variable_get('wh_petitions_email_forward_text', 'Dear Friends,
+
+    I wanted to let you know about an official petition I have signed at WhiteHouse.gov. Will you add your name to mine?  If this petition gets !signatures_needed signatures by !date_needed, the White House will review it and respond!
+    
+    You can view and sign the petition here: !shorturl
+    
+    Here\'s some more information about this petition:
+    !petition_description');
+
+  }
+  else {
+
+    $email_text = variable_get('wh_petitions_email_forward_response_text', 'Dear Friends,
+
+    I wanted to let you know about an official petition I have signed at WhiteHouse.gov. Will you add your name to mine?  If this petition gets !signatures_needed signatures by !date_needed, the White House will review it and respond!
+    
+    You can view and sign the petition here: !shorturl
+    
+    Here\'s some more information about this petition:
+    !petition_description'); 
+  }
+  
+  $variables['email_text'] = $email_text;
 }
 
 /**
@@ -139,7 +165,7 @@ function petitions44_menu_local_tasks(&$variables) {
   if (!empty($variables['secondary'])) {
     $variables['secondary']['#prefix'] = '<h2 class="element-invisible">' . t('Secondary tabs') . '</h2>';
     $variables['secondary']['#suffix'] = '</ul>';
-    if ($arg[0] == 'user' && $arg[1] == $user->uid && $arg[2] == 'edit' ) { 
+    if ($arg[0] == 'user' && $arg[1] == $user->uid && $arg[2] == 'edit' ) {
       $variables['secondary']['#prefix'] .= '<ul class="tabs petitions44-user-edit">';
     }
     else {
@@ -171,171 +197,4 @@ function _petitions44_help_text() {
     $petitions44_help_text = variable_get('petitions44_help_text', $text);
   }
   return $petitions44_help_text;
-}
-
-/**
- * Preprocessor for theme('page').
- */
-
-function petitions44_preprocess_page(&$variables) {
-  drupal_add_js('(function($) {$(".recent ul").append($("#block-wh-petitions-wh-petitions-recent-petitions ul").html());$(".recent ul li a").addClass("no-follow");})(jQuery)', array('type' =>'inline' , 'scope' => 'footer'));
-}
-
-function _petitions44_petition_hero() {
-return <<<EOF
-  <!-- Petition Hero -->
-  <div class="petition-hero">
-    <p class="line1">Giving all Americans a way to engage</p>
-    <p class="line2">their government on the issues that</p>
-    <p class="line3">matter to them.</p>
-    <p class="line4">Get Started</p>
-    <a href="/petitions" class="view-petition-btn">View Petitions</a><a href="/petition/create" class="start-petition-btn no-follow">Start a Petition</a>
-  </div><!-- /petition-hero -->
-  <!-- /Petition Hero -->
-EOF;
-}
-
-function _petitions44_easy_steps() {
-return <<<EOF
-  <!-- Easy Steps -->
-  <div class="grid-38 first-grid">
-    <div class="easy-steps"><span class="bold-intro">We the People</span> in Three Easy Steps</div>
-    <div class="grid-12 steps">
-      <h3 class="step">Step 1</h3>
-      <p>Browse open petitions to find a petition related to your issue, and add your signature.</p>
-      <hr />
-      <div class="take-action">Take Action</div>
-        <a class="triangle-link no-follow" href="/petitions">Find a petition</a>
-    </div>
-    <div class="grid-11 first-grid steps">
-      <h3 class="step">Step 2</h3>
-      <p>If your issue is not currently represented by an active petition, start a new petition.</p>
-      <hr />
-      <div class="take-action">Take Action</div>
-      <a class="triangle-link no-follow" href="/petition/create">Start a Petition</a>
-    </div>
-    <div class="grid-11 first-grid last-grid steps">
-      <h3 class="step">Step 3</h3>
-      <p>If a petition meets the signature threshold, it will be reviewed by the Administration and we will issue a response.</p>
-      <hr />
-      <div class="take-action">Take Action</div>
-      <a class="triangle-link no-follow" href="/responses">View all responses</a>
-    </div>
-  </div><!--/grid-38 steps-->
-  <!-- /Easy Steps -->
-EOF;
-}
-
-function _petitions44_introductory_video() {
-return <<<EOF
-  <!-- Introductory Video -->
-  <div class="grid-38 first-grid video-region">
-    <a href ="#introvideo" class="video-link no-follow">Watch the Introductory Video</a>
-    <blockquote>&#8220;My administration is committed to creating an unprecedented level of openness in government. We will work together to ensure the public trust and establish a system of transparency, public participation and collaboration. Openness will strengthen our democracy and promote efficiency and efffectiveness in government.&#8221;</blockquote>
-    <div class="attribution">&#151; President Barack Obama</div>
-  </div>
-  <!-- /Introductory Video -->
-EOF;
-}
-
-function _petitions44_featured_reponses() {
-return <<<EOF
-  <!-- Featured Petition Responses -->
-  <div class="featured">
-    <h3>Featured Petition Responses</h3>
-    <a href="/responses" class="see-all no-follow">See All</a>
-    <ul>
-      <li><a href="/response/combating-online-piracy-while-protecting-open-and-innovative-internet" class="no-follow">Combatting Online Piracy while Protecting an Open and Innovative Internet</a></li>
-      <li><a href="/response/building-21st-century-immigration-system" class="no-follow">Building a 21st Century Immigration System</a></li>
-      <li><a href="/response/taking-action-reduce-burden-student-loan-debt" class="no-follow">Taking Action to Reduce the Burden of Student Loan Debt</a></li>
-      <li><a href="/response/repealing-discriminatory-defense-marriage-act" class="no-follow">Repealing the Discriminatory Defense of Marriage Act</a></li></ul>
-  </div>
-  <!-- /Featured Petition Responses -->
-EOF;
-}
-
-function _petitions44_front_page_aside() {
-  $output = '';
-
-  // Featured responses
-  $featured_responses = _petitions44_featured_reponses();
-
-  // Recent petitions
-  $block = module_invoke('wh_petitions', 'block_view', 'wh_petitions_recent_petitions');
-  db_set_active();
-
-  $recent_petitions = '<div class="recent">';
-  $recent_petitions = '<div class="recent">';
-  $recent_petitions .= '<h3>Most Recent Petitions</h3>';
-  $recent_petitions .= '<a href="/petitions" class="see-all">See All</a>';
-  $recent_petitions .= $block['content'];
-  $recent_petitions .= '</div><!-- /recent -->';
-
-  // Twitter
-  $twitter = '<div id="latest-tweet" class="petition-twitter"></div>';
-  $twitter .= '<img class="bird-img" src="/profiles/petition/themes/petitions/img/petitions_tw_landing.png" alt="twitter bird" />';
-
-  $output .= '<aside>';
-    $output .= '<div class="right-side">';
-      $output .= '<div class="right-inner">';
-      $output .= $featured_responses;
-      $output .= $recent_petitions;
-      $output .= '</div><!-- /right-inner -->';
-      $output .= $twitter;
-    $output .= '</div><!--right side-->';
-  $output .= '</aside>';
-
-  return $output;
-}
-
-function _petitions44_front_page_content() {
-  $output = '';
-  
-  $petition_hero = _petitions44_petition_hero();
-  $easy_steps = _petitions44_easy_steps();
-  $introductory_video = _petitions44_introductory_video();
-  $aside = _petitions44_front_page_aside();
-  $more_from_the_whitehouse = _petitions44_more_from_the_whitehouse();
-
-  $output .= $petition_hero;
-  $output .= $easy_steps;
-  $output .= $introductory_video;;
-  $output .= $aside;
-  $output .= $more_from_the_whitehouse;
-  
-  return $output;
-}
-
-function _petitions44_more_from_the_whitehouse() {
-  $output = <<<EOF
-  <div class="grid-container">
-    <div class="grid-59 first-grid" style="height:360px;">
-      <h3 class="more">More from the <span class="bold-intro">White House</span></h3>
-
-      <div class="grid-18 follow">
-        <h4>Follow Us</h4>
-        <a href="https://www.facebook.com/whitehouse" class="facebook-link no-follow">Join the conversation</a>
-        <a href="https://www.twitter.com/whitehouse" class="twitter-link no-follow">Get the latest news and engage</a>
-        <a href="https://plus.google.com/105479712798762608629" class="gplus-link no-follow">Hangout and go behind the scenes</a>
-      </div>
-
-      <div class="grid-20 last-grid featured-1">
-        <a href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last" class="image-link no-follow"><img src="/profiles/petition/themes/petitions/img/petitions_landing_wh_content_01.jpg" /></a>
-        <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last">Blueprint for an America Built to Last</a>
-        <p>Learn more about President Obama's plan to build an economy that works for everyone.</p>
-        <a class="featured-link no-follow" href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last">Read the blueprint</a>
-      </div>
-
-      <div class="grid-20 last-grid featured-2">
-        <a href="http://www.whitehouse.gov/economy/jobs/we-cant-wait" class="image-link no-follow"><img src="/profiles/petition/themes/petitions/img/petitions_landing_wh_content_02.jpg" /></a>
-        <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/economy/jobs/we-cant-wait">We Can't Wait</a>
-        <p>President Obama is not letting congressional gridlock slow our economic growth.</p>
-        <a class="featured-link no-follow" href="http://www.whitehouse.gov/economy/jobs/we-cant-wait">Learn More</a>
-      </div>
-
-  </div>
-</div>
-<!-- /two -->
-EOF;
-  return $output;
 }

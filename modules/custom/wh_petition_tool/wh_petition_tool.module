@@ -31,11 +31,6 @@ function wh_petition_tool_menu() {
     'page callback' => 'wh_petition_tool_page_json',
     'access arguments' => array('access content'),
   );
-  $items['homepage'] = array(
-    'title' => variable_get('wh_petitions_page_title', 'We the People: Your Voice in Our Government'),
-    'page callback' => 'wh_petition_tool_homepage',
-    'access arguments' => array('access content'),
-  );    
   $items['petitiontool/opengraph/%'] = array(
     'title' => 'OpenGraph data for Petition Tool content',
     'page callback' => 'wh_petition_tool_opengraph_json',
@@ -64,21 +59,6 @@ function wh_petition_tool_menu() {
     'file' => 'wh_petition_tool.admin.inc',
   );
   return $items;
-}
-
-/**
- * Themes the petition tool homepage.
- */
-function wh_petition_tool_homepage() {
-  /*
-  global $base_url;
-  $bottom_left = variable_get('wh_petitions_homepage_left', '');
-  $bottom_middle = variable_get('wh_petitions_homepage_center', '');
-  $bottom_right = variable_get('wh_petitions_homepage_right', '');
-  $homepage_content = variable_get('wh_petitions_homepage_content', '');
-  return theme('wh_petition_tool_homepage', array('url' => $base_url, 'bottom_left' => $bottom_left, 'bottom_middle' => $bottom_middle, 'bottom_right' => $bottom_right, 'homepage_content' => $homepage_content));
-  // */
-  return ''; // Placeholder. This is being taken over by a preprocessor in petitions44 theme right now. To be moved into a petitions_homepage module that makes the homepage configurable by site administrators.
 }
 
 /**
@@ -146,10 +126,6 @@ function wh_petition_tool_theme() {
       'render element' => 'page',
       'template' => 'esi',
     ),
-    'wh_petition_tool_homepage' => array(
-      'arguments' => array(),
-      'template' => 'wh-petition-tool-homepage',
-    ), 
     'wh_petition_tool_left_nav' => array(
       'arguments' => array(),
       'template' => 'wh-petition-tool-left-nav',
