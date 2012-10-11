@@ -1,42 +1,27 @@
 <?php
 /**
  * @file
- * petitions44 implementation of petitions44 page.tpl.php 
+ * Petitions 44 theme's implementation to display a single Drupal page.
  *
  * Available variables:
- * 
- * Fortyfour theme specific defined theme settings (see README.txt in fortyfour theme 
+ *
+ * Fortyfour theme specific defined theme settings (see README.txt in fortyfour
+ * theme
  * for more details)
- * - $fortyfour_page_wrapper_class: CSS class id to use when creating the page wrappers 
- * - $fortyfour_header: Fortyfour header elements 
- * - $fortyfour_header_menu: Fortyfour header navigation menu 
- * - $fortyfour_subfooter_menu: Fortyfour subfooter navigation menu 
- * - $fortyfour_footer_menu: Fortyfour theme footer navigation menu 
- * - $fortyfour_use_microsite_banner: whether or not to use the microsite banner 
+ * - $fortyfour_page_wrapper_class: CSS class id to use when creating the page
+ *   wrappers
+ * - $fortyfour_header: Fortyfour header elements
+ * - $fortyfour_header_menu: Fortyfour header navigation menu
+ * - $fortyfour_subfooter_menu: Fortyfour subfooter navigation menu
+ * - $fortyfour_footer_menu: Fortyfour theme footer navigation menu
+ * - $fortyfour_use_microsite_banner: whether or not to use the microsite banner
  *
  * Pettiions 44 variables:
- * - $petitions44_help_text: HTML 
+ * - $petitions44_help_text: HTML
  *
  * Is Not Cached module provides:
  * - $is_not_cached
  */
-
-/**
- * @file
- * Petitions 44 theme's implementation to display a single Drupal page.
- */
-
-  // Regions that needs rendered first so we know if it exists or not.
-  $takeover = render($page['takeover']);
-  $header = render($page['header']);
-  $left_rail  = render($page['left_rail']);
-  $right_rail = render($page['right_rail']);
-  $takeover  = render($page['takeover']);
-  $dropnav = render($page['dropnav']);
-  $navigation = render($page['navigation']);
-  $footer = render($page['footer']);
-  $bottom = render($page['bottom']);
-
 ?>
 
 <?php if ($fortyfour_use_microsite_banner): ?>
@@ -66,23 +51,20 @@
 
 <div id="<?php echo rtrim($fortyfour_page_wrapper_class) . '-page' ?>" class="page-wrapper">
   <div class="center-on-page clearfix" id="page-inner">
-  <?php if ($takeover): ?>
-    <div class="takeover"><?php print $takeover; ?></div>
-  <?php endif; ?>
-
   <div id="wh-header" class="clearfix">
-    
     <?php if ($fortyfour_header): ?>
       <?php print render($fortyfour_header); ?>
     <?php endif; ?>
-    <?php if ($fortyfour_header_menu): ?>
-      <?php print render($fortyfour_header_menu); ?>
+    <?php if ($fortyfour_mainnav): ?>
+      <?php print render($fortyfour_mainnav); ?>
     <?php endif; ?>
-    <?php if ($header): ?>
-      <?php print render($header); ?>
+    <?php if ($page['takeover']): ?>
+      <div class="takeover"><?php print render($page['takeover']); ?></div>
     <?php endif; ?>
-  </div>
-  <!--wh-header-->
+    <?php if ($page['header']): ?>
+      <?php print render($page['header']); ?>
+    <?php endif; ?>
+  </div><!--wh-header-->
 
 <div id="petition-header" class="clearfix">
   <div class="col-1">
@@ -121,7 +103,12 @@
           'links' => $secondary_menu,
           'attributes' => array(
             'id' => 'secondary-menu-links',
-            'class' => array('secondary-links', 'user-state-links', 'inline', 'clearfix'),
+            'class' => array(
+              'secondary-links',
+              'user-state-links',
+              'inline',
+              'clearfix',
+            ),
           ),
         )); ?>
       <?php endif; ?>
@@ -131,16 +118,6 @@
   <!--/col 2-->
 </div>
 <!--/petition header-->
-
-
-<?php if ($dropnav): ?>
-  <div id="drop-nav" class="collapse">
-    <div id="navigation" class="toggle-nav hidden">
-      <?php print $dropnav; ?>
-    </div>
-    <div class="handle-wrap"><a class="handle"></a></div>
-  </div><!--drop-nav-->
-<?php endif; ?>
 
 <?php if (!$is_front): ?>
   <div id="main">
@@ -161,12 +138,6 @@
     <div class="clearfix" id="<?php echo rtrim($fortyfour_page_wrapper_class) . '-outer' ?>">
       <div class="clearfix" id="<?php echo rtrim($fortyfour_page_wrapper_class) . '-inner' ?>">
 
-        <?php if ($left_rail): ?>
-          <aside class="left-rail">
-            <?php print $left_rail; ?>
-          </aside><!-- /.left-rail -->
-        <?php endif; ?>
-
         <?php if ($is_front): ?>
           <div class="petition-landing-wrapper grid-container clearfix">
           <?php print render($page['content']); ?>
@@ -178,10 +149,10 @@
           </div><!-- /#content -->
         <?php endif; ?>
 
-        <?php if ($right_rail): ?>
+        <?php if ($page['right_rail']): ?>
             <aside class="right-rail">
               <div class="container">
-                <?php print $right_rail; ?>
+                <?php print render($page['right_rail']); ?>
               </div>
             </aside><!-- /.right-rail -->
         <?php endif; ?>
@@ -199,8 +170,12 @@
   <?php print render($page['footer']); ?>
   <div class="footer-bottom">
     <?php print render($page['bottom']); ?>
-    <?php print render($fortyfour_footer_menu); ?>
-    <?php print render($fortyfour_subfooter_menu); ?>
+    <?php if ($fortyfour_footer): ?>
+      <?php print render($fortyfour_footer); ?>
+    <? endif; ?>
+    <?php if ($fortyfour_subfooter): ?>
+      <?php print render($fortyfour_subfooter); ?>
+    <?php endif; ?>
   </div>
   </div>
 </div>
