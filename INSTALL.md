@@ -58,7 +58,7 @@ drush -y make --no-core --contrib-destination=. drupal-org.make
 ```
 
 5) Follow the normal Drupal installation process. When prompted to select
-     a profile, select "Petitions". Drupal will rewrite your settings.php file.
+     a profile, select "Petitions." Drupal will rewrite your settings.php file.
      After it does, you will be prompted to add a snippet like this to the end
      of settings.php. Do this before you visit your site, otherwise Drupal will
      be unhappy: 
@@ -119,53 +119,53 @@ Here is a list of modules that should be enabled for the system to run properly:
 <table>
   <tr>
      <th><B>Module Name</B></th>
-	<th><B>Module</B></th>
-	<th><B>Status</B></th>
+     <th><B>Module</B></th>
+     <th><B>Status</B></th>
   </tr>
   <tr>
-    	<td>Petitions - LoginToboggan Settings</td>
-	<td>petitions_logintoboggan_settings</td>
-	<td>Enabled</td>
+    <td>Petitions - LoginToboggan Settings</td>
+    <td>petitions_logintoboggan_settings</td>
+    <td>Enabled</td>
   </tr>
   <tr>
-    	<td>Petitions - User Registration</td>
-	<td>petitions_user_registration</td>
-	<td>Enabled Overridden</td>
+    <td>Petitions - User Registration</td>
+    <td>petitions_user_registration</td>
+    <td>Enabled Overridden</td>
   </tr>
   <tr>
-    	<td>Taxonomy Sync</td>
-	<td>taxonomy_sync</td>
-	<td>Enabled</td>
+    <td>Taxonomy Sync</td>
+    <td>taxonomy_sync</td>
+    <td>Enabled</td>
   </tr>
   <tr>
-    	<td>Page</td>
-	<td>wh_petition_page</td>
-	<td>Enabled</td>
+    <td>Page</td>
+    <td>wh_petition_page</td>
+    <td>Enabled</td>
   </tr>
   <tr>
-    	<td>Response</td>
-	<td>wh_response_feature</td>
-	<td>Enabled Overridden</td>
+    <td>Response</td>
+    <td>wh_response_feature</td>
+    <td>Enabled Overridden</td>
   </tr>
   <tr>
-    	<td>WH User SS Data</td>
-	<td>wh_user_ss_data</td>
-	<td>Enabled</td>
+    <td>WH User SS Data</td>
+    <td>wh_user_ss_data</td>
+    <td>Enabled</td>
   </tr>
   <tr>
-    	<td>Whitehouse User Profile</td>
-	<td>wh_user_profile</td>
-	<td>Enabled Overridden</td>
+    <td>Whitehouse User Profile</td>
+    <td>wh_user_profile</td>
+    <td>Enabled Overridden</td>
   </tr>
   <tr>
-    	<td>Contexts</td>
-	<td>wh_contexts</td>
-	<td>Enabled</td>
+    <td>Contexts</td>
+    <td>wh_contexts</td>
+    <td>Enabled</td>
   </tr>
   <tr>
-    	<td>Misc</td>
-	<td>wh_misc</td>
-	<td>Enabled Overridden</td>
+    <td>Misc</td>
+    <td>wh_misc</td>
+    <td>Enabled Overridden</td>
   </tr>
 </table>
 
