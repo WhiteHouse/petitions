@@ -65,8 +65,7 @@ The new workflow will start with 1. clicking to sign a petition and adding an em
 
 *API Development*
 
-The current platform requires users visit the site directly in order to create or sign a petition via the We the People website. We would like to develop an API that would allow users to sign a petition via a third party website, but with some level of verification that confirms a valid email address to potentially receive a response. 
-Developing an API would greatly expand the appeal of this tool, allowing other organizations to control the user experience and flow for petitions within their own environment while still registering verified signatures against a We the People threshold.
+We would like to develop a set of read-only API methods that would allow users to retrieve data on open petitions. We would also like to develop API methods that would allow users to sign a petition via a third party website, but with some level of verification that confirms a valid email address to potentially receive a response. Developing these methods would greatly expand the appeal of this tool, allowing other organizations to control the user experience and flow for petitions within their own environment while still registering verified signatures against a We the People threshold.
 
 *Improved Social Media Integration*
 
