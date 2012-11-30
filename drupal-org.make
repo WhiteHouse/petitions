@@ -1,4 +1,4 @@
-; Petition
+; Petitions
 ; ---------
 
 ; Core version
@@ -134,17 +134,6 @@ projects[logintoboggan][subdir] = contrib
 projects[logintoboggan][patch][] = http://drupal.org/files/1747878-2-remove-lower.patch
 projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
 
-; mongodb-7.x-1.0-rc2-persist.patch
-;  - Use persistent connection by default.
-;  - Note: This is a gist on GitHub, and not a patch on drupal.org
-;    because $conf['mongodb_options'] is specific to our implementation
-;    of mongo.
-;
-;-------------------------------------
-projects[mongodb][version] = 1.0-rc2
-projects[mongodb][subdir] = contrib
-projects[mongodb][patch][] = https://raw.github.com/gist/3626207/06eecfdc29fc4457ea71cb3bdcf82857b72082b4/mongodb-7.x-1.0-rc2-persist.patch
-
 ; check_type.patch
 ;  - Data types were not checked before getting 'status' key from them
 ;  - @see http://drupal.org/node/1572368
@@ -161,7 +150,7 @@ projects[nagios][patch][] = http://drupal.org/files/check_type.patch
 projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 
 ; Contrib themes
------------------
+;-----------------
 projects[tao][type] = theme
 projects[tao][version] = 3.0-beta3
 
@@ -173,6 +162,5 @@ projects[zen][version] = 5.1
 
 projects[fortyfour][type] = theme
 projects[fortyfour][download][type] = git
-projects[fortyfour][download][url] = https://github.com/WhiteHouse/fortyfour.git
 projects[fortyfour][download][branch] = 7.x-1.x
 projects[fortyfour][download][tag] = 7.x-1.0-alpha2
