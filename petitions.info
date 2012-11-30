@@ -46,4 +46,4 @@ dependencies[] = petitions_maintenance
 dependencies[] = petitions_usermenu
 
 ; files
-files[] =  petition.profile
+files[] =  petitions.profile

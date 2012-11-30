@@ -1,6 +1,6 @@
 <?php
 
-function petition_form_install_configure_form_alter(&$form, &$form_state, $form_id) {
+function petitions_form_install_configure_form_alter(&$form, &$form_state, $form_id) {
   $form['site_information']['site_name']['#default_value'] = $_SERVER['SERVER_NAME'];
   $form['admin_account']['account']['name']['#default_value'] = 'admin';
   $form['server_settings']['site_default_country']['#default_value'] = 'US';
@@ -10,7 +10,7 @@ function petition_form_install_configure_form_alter(&$form, &$form_state, $form_
 /**
  * Implementation of hook_profile_form_alter().
  */
-function petition_form_alter(&$form, $form_state, $form_id) {
+function petitions_form_alter(&$form, $form_state, $form_id) {
   if ($form_id == 'install_configure_form') {
     $text = "
 <pre>
