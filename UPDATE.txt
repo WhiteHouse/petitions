@@ -1,0 +1,86 @@
+UPDATE
+======
+
+Version 7.x-1.0-alpha22 -> 7.x-1.0-alpha23
+----------------------------
+
+Release notes:
+
+  - Rename petition install profile to petitions
+  - Remove legacy petitions theme
+  - Remove duplicate buttom from deleted petitions
+  - Remove MongoDB patch that no longer needs to be maintained
+
+Update steps:
+
+  Before you update your code base:
+
+  1. Log in and put your site into maintenace mode
+
+
+  2. In a few minutes, the legacy "petitions" theme will be removed from the
+     code base. Disable it before running the update (we assume you are using
+     petitions44 or something other then petitions as your default theme.  If
+     that is not true, you will need to enable another theme):
+
+       drush dis petitions
+
+
+  3. Disable contrib modules that may cause issues when the directory is
+     reorganized.
+
+       drush dis entity -y
+       drush dis entitycache -y
+       drush dis context -y
+       drush dis feeds -y
+
+
+  4. Clear ALL caches.
+
+       drush eval "cache_clear_all('*', NULL, TRUE)"
+
+
+  5. Change file paths in the database. Update.php and registry rebuild normally
+     do this, but sometimes they need a little help.
+
+       drush sqlq 'UPDATE system SET filename = replace (filename, "profiles/petition", "profiles/petitions");'
+       drush sqlq 'UPDATE registry SET filename = replace (filename, "profiles/petition", "profiles/petitions");'
+       drush sqlq 'UPDATE registry_file SET filename = replace (filename, "profiles/petition", "profiles/petitions");'
+
+
+  6. Add this line to your settings.php
+
+       $conf['install_profile'] = 'petitions';
+
+     NOTE: If you have anything in your settings.php or anywhere else in you Petitions installation hardcoded to
+     profiles/petition (for example the path to a memcache module include file), replace that with 'profile/petitions'
+     too.
+
+
+  Now you are ready to update:
+
+  7. Deploy 7.x-1.0-alpha24 in your environment.
+
+
+  8. Clear your cache, run update.php, and then run registry rebuild.
+
+       drush cc all
+       drush updb
+       drush rr
+
+
+  9. Re-enable modules previously disabled (and the dependencies disabled with them).
+
+       drush en entity entity_token rules logintoboggan_rules profile2 petitions_user_registration rules_admin wh_user_profile wh_petitions wh_contexts wh_zipcodelookup wh_core wh_misc wh_petition_reporting wh_petition_tool wh_profile_migrate wh_response -y
+
+       drush en entitycache context feeds feeds_ui taxonomy_sync -y
+
+
+  10. Clear your cache, run update.php, and then run registry rebuild.
+
+       drush cc all
+       drush updb
+       drush rr
+
+
+  11. Put your site back online.
