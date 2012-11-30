@@ -87,6 +87,9 @@ projects[migrate][subdir] = contrib
 projects[migrate_extras][version] = 2.4
 projects[migrate_extras][subdir] = contrib
 
+projects[mongodb][version] = 1.0-rc2
+projects[mongodb][subdir] = contrib
+
 projects[openidadmin][version] = 1.0
 projects[openidadmin][subdir] = contrib
 
@@ -150,7 +153,7 @@ projects[nagios][patch][] = http://drupal.org/files/check_type.patch
 projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 
 ; Contrib themes
-;-----------------
+; -----------------
 projects[tao][type] = theme
 projects[tao][version] = 3.0-beta3
 
