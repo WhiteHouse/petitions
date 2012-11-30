@@ -4323,14 +4323,14 @@ li#profile-info a:hover span, #your-comments a:hover span {
 
 /* line 3643, ../sass/style.scss */
 #user-page input#edit-submit, #user-page input#edit-submit:hover, #user-page input#edit-submit:focus {
-  background: url("/profiles/petition/themes/petitions/img/login/user_account_submit_btn.png");
+  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_submit_btn.png");
   width: 101px;
   height: 32px;
 }
 
 /* line 3649, ../sass/style.scss */
 #user-page form#user-login input#edit-submit, #user-page form#user-login input#edit-submit:hover, #user-page form#user-login input#edit-submit:focus {
-  background: url("/profiles/petition/themes/petitions/img/login/user_account_login_btn.png");
+  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_login_btn.png");
   width: 106px;
   height: 32px;
 }
@@ -4472,7 +4472,7 @@ li#profile-info a:hover span, #your-comments a:hover span {
 
 /* line 3770, ../sass/style.scss */
 .main-content input#edit-submit, .main-content input#edit-submit:hover, .main-content input#edit-submit:focus {
-  background: url("/profiles/petition/themes/petitions/img/login/user_account_submit_btn.png") no-repeat;
+  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_submit_btn.png") no-repeat;
   width: 106px;
   height: 32px;
   /*  margin: 20px 218px 0px 0px; */
@@ -5234,7 +5234,7 @@ body.full-white #right-rail {
 /* line 4333, ../sass/style.scss */
 .edit-change a {
   text-indent: -9000px;
-  background: url("/profiles/petition/themes/petitions/img/button-edit-profile-change-password.gif") no-repeat 0;
+  background: url("/profiles/petitions/themes/petitions44/img/button-edit-profile-change-password.gif") no-repeat 0;
   height: 25px;
   display: block;
   width: 233px;
@@ -5415,7 +5415,7 @@ body.full-white #right-rail {
 
 /* line 4483, ../sass/style.scss */
 #userreg-thanks {
-  background: url("/profiles/petition/themes/petitions/img/thank-you-bg.png") no-repeat scroll 0 0 transparent;
+  background: url("/profiles/petitions/themes/petitions44/img/thank-you-bg.png") no-repeat scroll 0 0 transparent;
   font-size: 20px;
   height: 70px;
   line-height: 25px;

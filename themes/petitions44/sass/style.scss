@@ -78,7 +78,7 @@ body{
   padding:0;
   background:#fff url(../img/bg-main-one-repeat.jpg) repeat-y center top;
 }
-  
+
 
 #petition-page {
  	background: url(../img/bg-main.jpg) no-repeat scroll top center;
@@ -94,12 +94,12 @@ body{
   width:976px;
   margin:0 auto;
   }
-  
+
 p { font-size: 1em;
     line-height: 1.5;
     }
-  
-/****** Structure ******/   
+
+/****** Structure ******/
 
 body.petition #page-inner {position: relative;}
 
@@ -218,7 +218,7 @@ body.petition #page-inner {position: relative;}
 }
 
 
-/****** Common Styles ******/ 
+/****** Common Styles ******/
 
 .block-border {
    -moz-border-radius: 5px;
@@ -344,8 +344,8 @@ body.petition #page-inner {position: relative;}
   text-transform: uppercase;
 }
 
-#petition-header ul#main-menu-links li.front a {	
-  background: url("../img/nav-pet.gif") no-repeat;	
+#petition-header ul#main-menu-links li.front a {
+  background: url("../img/nav-pet.gif") no-repeat;
   text-indent: -9999px;
   width: 20px;
 }
@@ -602,7 +602,7 @@ permanent solution will need to be created in the future. */
   padding: 10px 0;
   margin-bottom: 10px;
  }
- 
+
 .either-or-msg {
   /* background:url(../img/sprite.gif) no-repeat 216px -392px;*/
 }
@@ -695,14 +695,14 @@ width: auto;
   border: 1px solid #e6e6e6;
 }
 
-.petition-list .petitions .entry .action-bar, 
-#create-petition-form-step-2 .entry .action-bar, 
-#my-petitions .petition-list .entry .action-bar, 
+.petition-list .petitions .entry .action-bar,
+#create-petition-form-step-2 .entry .action-bar,
+#my-petitions .petition-list .entry .action-bar,
 .full-page-list .entry .action-bar {
     background: #e1e1e1;
    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e1e1e1', endColorstr='#b7b7b7'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#e1e1e1), to(#b7b7b7)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #e1e1e1,  #b7b7b7); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #e1e1e1,  #b7b7b7); /* for firefox 3.6+ */
   border-top: 1px solid #FFF;
   padding: 0 10px 0 16px;
       border-bottom-right-radius: 5px;
@@ -719,7 +719,7 @@ text-shadow:0 1px 0 #ffffff;
 }
 
 .petition-list .responses .response-entry .action-bar, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
-  background: url(../img/bg-action-bar-grey.png) repeat-x; 
+  background: url(../img/bg-action-bar-grey.png) repeat-x;
   border-top: 1px solid #FFF;
   padding: 0 10px 0 16px;
       border-bottom-right-radius: 5px;
@@ -754,7 +754,7 @@ petition-list .responses .col-2 .response-entry .action-bar, #create-petition-fo
   background: url(../img/sprite-buttons.png) no-repeat -298px -5px;
   height: 26px;
   margin: 13px 0 0 0;
-  
+
 }
 
 .petition-list .entry .num-sig {
@@ -792,7 +792,7 @@ petition-list .responses .col-2 .response-entry .action-bar, #create-petition-fo
   background: #921b1b;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c03838', endColorstr='#921b1b'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#c03838), to(#921b1b)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #c03838,  #921b1b); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #c03838,  #921b1b); /* for firefox 3.6+ */
   font-weight: bold;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -873,7 +873,7 @@ petition-list .responses .col-2 .response-entry .action-bar, #create-petition-fo
 }
 
 #total-on {
-  margin-right: 0; 
+  margin-right: 0;
   width: 325px;
   float: right;
   }
@@ -894,12 +894,12 @@ petition-list .responses .col-2 .response-entry .action-bar, #create-petition-fo
 }
 
 .sig-num .col-2 {
-  width: 300px; 
+  width: 300px;
   float: left;
   margin-right: 25px;
   height:80px;
    }
-   
+
 .sig-num #total-on h4{
   padding-top: 0px;
 }
@@ -925,7 +925,7 @@ input#button-publish-my-petition {
   height: 33px;
   background:url(../img/button-publish-my-petition.gif) no-repeat 0 0;
   margin: 0 0 15px 0;
-  cursor: pointer;  
+  cursor: pointer;
 }
 input#button-publish-my-petition:hover {
   background:url(../img/button-publish-my-petition.gif) no-repeat 0 -33px;
@@ -968,7 +968,7 @@ a.button-delete-my-petition {
   height: 25px;
   background:url(../img/button-delete-my-petition.gif) no-repeat 0 0;
   margin: 0 0 5px 0;
-  cursor: pointer;  
+  cursor: pointer;
   -webkit-appearance: none !important;
 }
 a.button-delete-my-petition:hover {
@@ -1050,7 +1050,7 @@ a.show-more-responses-bar:hover
  {
    color: #000;
  }
- 
+
  .loading-more-petitions-bar  {
    background:url(../img/sprite.gif) no-repeat 0 -794px;
      height: 23px;
@@ -1064,7 +1064,7 @@ a.show-more-responses-bar:hover
    letter-spacing: 0.03em;
    padding: 10px 0 0 7px;
  }
- 
+
 .petition-detail .learn-more-about {
   text-align: right;
 }
@@ -1249,7 +1249,7 @@ line-height: 0;
   margin: 3px 10px 0 0;
   background:url(../img/sprite-circle-icons.png) 37px -102px no-repeat;
   color: #FFF;
-} 
+}
 
 #petition-inner .drop-down label {
   display: inline;
@@ -1302,7 +1302,7 @@ line-height: 0;
 .delete-petition-overlay a.close-button
  {
   color: #737373;
-  margin: 2px 17px 0 0; 
+  margin: 2px 17px 0 0;
   padding: 0 0 5px 0;
   background:url(../img/sprite-circle-icons.png) no-repeat 37px -139px;
   text-transform: uppercase;
@@ -1334,7 +1334,7 @@ line-height: 0;
     position: absolute;
     text-indent: -9999px;
     width: 61px;
-    left:500px; 
+    left:500px;
     top:45px;
 }
 
@@ -1451,7 +1451,7 @@ ul.filter-list li.search .popup-title:hover {
 
 
 .petition-filter ul.filter-list a,
-.response-filter ul.filter-list a 
+.response-filter ul.filter-list a
 {
   color:  #535353;
 }
@@ -1467,7 +1467,7 @@ ul.filter-list li.search .popup-title:hover {
     background: #e5e5e5;
    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e5e5e5', endColorstr='#f2f2f2'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#e5e5e5), to(#f2f2f2)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #e5e5e5,  #f2f2f2); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #e5e5e5,  #f2f2f2); /* for firefox 3.6+ */
   -moz-box-shadow: inset 1px 1px 1px 1px #b9b9b9;
 -webkit-box-shadow: inset 1px 1px 1px 1px #b9b9b9;
 box-shadow: inset 1px 1px 1px 1px #b9b9b9;
@@ -1481,7 +1481,7 @@ box-shadow: inset 1px 1px 1px 1px #b9b9b9;
 
 
 li.view-two-column a, li.view-one-column a {
-  display: block;  
+  display: block;
   text-indent: -9000px;
   width: 20px;
   height: 20px;
@@ -1589,7 +1589,7 @@ margin-right: 12px;
 /* Tool Tip */
 
 #petition-inner .tooltip {
- min-height: 5px; 
+ min-height: 5px;
     -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -1614,10 +1614,10 @@ margin-right: 12px;
   top: 23px;
   left: -9px;
 }
-#petition-inner .tip-arrow-up { 
-  position: absolute; 
-  top: -9px; 
-  left: 20px; 
+#petition-inner .tip-arrow-up {
+  position: absolute;
+  top: -9px;
+  left: 20px;
 }
 #petition-inner .tip-arrow-down {
   left: 300px;
@@ -1775,13 +1775,13 @@ input#continue-to-final-step {
   width: 305px;
 }
 
-/****** Right Rail ******/ 
+/****** Right Rail ******/
 
 h2.trigger {
     background: #ececec;
    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ececec', endColorstr='#dcdcdc'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#dcdcdc)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #ececec,  #dcdcdc); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #ececec,  #dcdcdc); /* for firefox 3.6+ */
   font-size:  1.083em;
   height: 36px;
   line-height: 36px;
@@ -1789,7 +1789,7 @@ h2.trigger {
   border-bottom: 1px solid #FFF;
   color: #737373;
   display: block;
-  cursor: pointer;  
+  cursor: pointer;
   }
 
 h2.trigger a {
@@ -1806,7 +1806,7 @@ h2.trigger:hover {
    background: #d8d8d8;
    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d8d8d8', endColorstr='#b4b4b4'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#d8d8d8), to(#b4b4b4)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #d8d8d8,  #b4b4b4); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #d8d8d8,  #b4b4b4); /* for firefox 3.6+ */
 }
 
 #qa-content h2.trigger {
@@ -1818,7 +1818,7 @@ h2.trigger:hover {
     background: #a3a3a3;
    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a3a3a3', endColorstr='#696969'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(#696969)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #a3a3a3,  #696969); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #a3a3a3,  #696969); /* for firefox 3.6+ */
 }
 #qa-content h2.trigger.active a, #qa-content h2.trigger.active a:hover {
   color: #fff;
@@ -1828,13 +1828,13 @@ h2.trigger:hover {
    background: #d8d8d8;
    filter: none;
   background: -webkit-gradient(linear, left top, left bottom, from(#d8d8d8), to(#b4b4b4)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #d8d8d8,  #b4b4b4); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #d8d8d8,  #b4b4b4); /* for firefox 3.6+ */
 }
 #qa-content h2.trigger:hover {
     background: #ececec;
    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ececec', endColorstr='#dcdcdc'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#dcdcdc)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #ececec,  #dcdcdc); /* for firefox 3.6+ */   
+  background: -moz-linear-gradient(top,  #ececec,  #dcdcdc); /* for firefox 3.6+ */
 }
 #qa-content h2.trigger a:hover {
   color: #737373;
@@ -1868,7 +1868,7 @@ h2.trigger:hover {
 
 /*h2.trigger hover {text-decoration: none; color: #2d2d2d;}*/
 
-h2.top-trigger {  
+h2.top-trigger {
   border-top-right-radius: 5px;
 -moz-border-radius-topright: 5px;
 -webkit-border-radius-topright: 5px;
@@ -1877,7 +1877,7 @@ h2.top-trigger {
 -webkit-border-radius-topleft: 5px;
 }
 
-h2.bottom-trigger {  
+h2.bottom-trigger {
   border-bottom-right-radius: 5px;
 -moz-border-radius-bottomright: 5px;
 -webkit-border-radius-bottomright: 5px;
@@ -1890,7 +1890,7 @@ h2.active {
     background: #a3a3a3;
    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a3a3a3', endColorstr='#696969'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(#696969)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #a3a3a3,  #696969); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #a3a3a3,  #696969); /* for firefox 3.6+ */
 }
 
 /****** Individual Petition Page ******/
@@ -1934,7 +1934,7 @@ a#button-sign-this-petition-inactive {
     width: 150px;
  }
 
- 
+
 #signed-by-user #sign-this-petition h3{
   width: auto;
   margin: 10px 0 6px 0;
@@ -1963,13 +1963,13 @@ a#button-sign-this-petition:active {
 #sign-this-petition .col-left {
   width: 250px;
   float: left;
-} 
+}
 
 #sign-this-petition .col-right {
   width: 410px;
   float: left;
   position: relative;
-} 
+}
 
 #sign-this-petition a#button-sign-in, #sign-in-or-create-account a#button-sign-in {
   background: url(../img/sprite-buttons.png) no-repeat -236px -757px;
@@ -2010,7 +2010,7 @@ a#button-sign-this-petition:active {
     top: -164px;
     width: 360px;
     z-index: 500;
-    left: -10px;    
+    left: -10px;
 }
 
 #why-overlay p {
@@ -2045,7 +2045,7 @@ form#form-sign-this-petition textarea#add-comment-with-sig {
    border: none;
    float: none;
    width: 630px;
-   height: 60px; 
+   height: 60px;
    margin: 2px 0 0 0;
    padding: 8px 0 0 0;
 }
@@ -2149,7 +2149,7 @@ form#form-sign-this-petition textarea#add-comment-with-sig {
 }
 
 #share-this-petition #report-petition-overlay .entry p, , .delete-petition-overlay .wrap p {
-  font-weight: normal; 
+  font-weight: normal;
   margin: 0;
   line-height: 140%;
 }
@@ -2251,7 +2251,7 @@ input#button-report-this-petition {
 }
 
 #petitions-individual #share-this-petition {
-  margin-bottom: 20px;  
+  margin-bottom: 20px;
 }
 
 #petitions-individual .petition-detail .divide-green-fuz {
@@ -2317,7 +2317,7 @@ input#button-report-this-petition {
 #signature-list .read-comment {
   font-weight: bold;
    color: #336699;
-  margin:0px; 
+  margin:0px;
   cursor:pointer;
 }
 
@@ -2338,7 +2338,7 @@ input#button-report-this-petition {
   font-size: 1.333em;
   color: #669900;
   display: block;
-    padding-top: 28px;  
+    padding-top: 28px;
     cursor: pointer;
 }
 
@@ -2348,7 +2348,7 @@ input#button-report-this-petition {
  font-weight: normal;
  z-index: 500;
   bottom:98px;
-  height:135px; 
+  height:135px;
 }
 
 #signature-list .comment-popup .top {
@@ -2445,7 +2445,7 @@ input#button-no-thanks-keep, a#button-no-thanks-keep {
   padding: 7px 7px 0 7px;
   z-index: 500;
 }
-  
+
 #thank-you-modal .inner {
   padding: 15px 15px 55px 15px;
 }
@@ -2485,7 +2485,7 @@ a.blue-button, .response-filter #issues-filter-drop input.blue-button
    background: #003366;
    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#336699', endColorstr='#003366'); /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#336699), to(#003366)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #336699,  #003366); /* for firefox 3.6+ */  
+  background: -moz-linear-gradient(top,  #336699,  #003366); /* for firefox 3.6+ */
   border: none;
    -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -2531,10 +2531,10 @@ input#submit-comment-with-sig {
     border-top-right-radius: 5px;
     -webkit-border-radius-topright: 5px;
   -moz-border-radius-topleft: 5px;
-    border-top-left-radius: 5px;    
+    border-top-left-radius: 5px;
     -webkit-border-radius-topleft: 5px;
  }
- 
+
 .individual-response {
   background: #dbecfc;
   border: none;
@@ -2602,7 +2602,7 @@ img.response-call {
   top: 120px;
   padding: 7px 7px 25px 7px;
   }
-  
+
 #sign-create-modal .inner {
   padding: 0 20px 55px 20px;
 }
@@ -2673,7 +2673,7 @@ img.response-call {
   display: inline;
   width: auto;
   float: none;
-  font-weight: normal;  
+  font-weight: normal;
 }
 
 #create-account-not-signed-in {
@@ -2846,7 +2846,7 @@ input#button-sign-petition-and-create {
   width: 316px;
 }
 
-/****** How Why Pages ******/ 
+/****** How Why Pages ******/
 
 /* Left Nav */
 
@@ -2993,7 +2993,7 @@ img.img-float-right {
   margin: 0 0 20px 0;
 }
 
-/****** My Petitions / Dashboard ******/ 
+/****** My Petitions / Dashboard ******/
 
 h2.section-title {
   color: #333;
@@ -3002,7 +3002,7 @@ h2.section-title {
 }
 
 #my-petitions .entry {
-  width: 335px; 
+  width: 335px;
   float: left;
   position: relative;
 }
@@ -3114,7 +3114,7 @@ a#button-view-white-house-petitions {
 
 #petitions-removed .intro {
   font-family: Georgia, serif;
-  color: #880000; 
+  color: #880000;
   font-size:  1.5em;
   margin: 0 50px 15px 0;
 }
@@ -3259,7 +3259,7 @@ a#button-view-white-house-petitions {
   left: 415px;
   font-size:11px;
   font-weight:bold;
-  text-align:left;  
+  text-align:left;
   width:230px;
 }
 #petition-inner .view-threshold-tooltip {
@@ -3293,7 +3293,7 @@ input#edit-delete {
   padding-left:15px;
 }
 #thank-you-modal .form-item {
-  margin:0px; 
+  margin:0px;
 }
 #closed-signatures {
   padding-top:0px;
@@ -3336,13 +3336,13 @@ input#edit-delete {
   float:left;
   margin-top:15px;
 }
-#email-page fieldset legend { 
+#email-page fieldset legend {
   display:none;
 }
 #email-page .email-response h2.page-title {
   color: #003366;
 }
-#email-page .fieldset-wrapper, #email-page .fieldset-collapsed * { 
+#email-page .fieldset-wrapper, #email-page .fieldset-collapsed * {
   display:block;
 }
 #email-page #edit-subject, #email-page #edit-body {
@@ -3461,7 +3461,7 @@ input#edit-delete {
 /*Text changes EOP-4234*/
 #sign-this-petition p{
   font-size: 11px;
-  color: #737373; 
+  color: #737373;
 }
 .inactive-margin{
   margin-top: 42px !important;
@@ -3641,13 +3641,13 @@ padding-left: 120px;
 }
 
 #user-page input#edit-submit, #user-page input#edit-submit:hover, #user-page input#edit-submit:focus{
-  background: url("/profiles/petition/themes/petitions/img/login/user_account_submit_btn.png");
+  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_submit_btn.png");
   width: 101px;
   height: 32px;
 }
 
 #user-page form#user-login input#edit-submit, #user-page form#user-login input#edit-submit:hover, #user-page form#user-login input#edit-submit:focus{
-  background: url("/profiles/petition/themes/petitions/img/login/user_account_login_btn.png");
+  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_login_btn.png");
   width: 106px;
   height: 32px;
 }
@@ -3768,7 +3768,7 @@ padding-left: 120px;
 }
 
 .main-content input#edit-submit, .main-content input#edit-submit:hover, .main-content input#edit-submit:focus{
-  background: url("/profiles/petition/themes/petitions/img/login/user_account_submit_btn.png") no-repeat;
+  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_submit_btn.png") no-repeat;
   width: 106px;
   height: 32px;
 /*  margin: 20px 218px 0px 0px; */
@@ -4332,7 +4332,7 @@ text-transform:uppercase;
 }
 .edit-change a {
   text-indent: -9000px;
-  background: url('/profiles/petition/themes/petitions/img/button-edit-profile-change-password.gif') no-repeat 0;
+  background: url('/profiles/petitions/themes/petitions44/img/button-edit-profile-change-password.gif') no-repeat 0;
   height:25px;
   display:block;
   width:233px;
@@ -4467,21 +4467,21 @@ text-transform:uppercase;
   margin-left: 419px !important;
 }
 
-.page-user-edit input#edit-submit, 
-.page-user-edit input#edit-submit:hover, 
+.page-user-edit input#edit-submit,
+.page-user-edit input#edit-submit:hover,
 .page-user-edit input#edit-submit:focus {
   background: url(../img/login/user_account_submit_btn.png);
   width: 101px !important;
   height: 33px !important;
 }
 
-.page-user-edit input#edit-submit:hover, 
+.page-user-edit input#edit-submit:hover,
 .page-user-edit input#edit-submit:focus {
   background-position: 0px -32px !important;
 }
 
 #userreg-thanks {
-  background: url("/profiles/petition/themes/petitions/img/thank-you-bg.png") no-repeat scroll 0 0 transparent;
+  background: url("/profiles/petitions/themes/petitions44/img/thank-you-bg.png") no-repeat scroll 0 0 transparent;
   font-size: 20px;
   height: 70px;
   line-height: 25px;

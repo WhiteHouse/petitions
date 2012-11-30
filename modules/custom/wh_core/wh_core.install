@@ -46,7 +46,7 @@ margin-top: 20px;
 height:120px;
 }
 .petition-hero{
-background: url(/profiles/petition/themes/petitions/img/petitions_landing_hero.jpg) top center no-repeat;
+background: url(/profiles/petitions/themes/petitions44/img/petitions_landing_hero.jpg) top center no-repeat;
 height: 296px;
 }
 .petition-hero p{
@@ -70,7 +70,7 @@ p.line4{
 padding-top:12px;
 }
 a.view-petition-btn, a.start-petition-btn{
-background-image: url(/profiles/petition/themes/petitions/img/petitions_landing_btns_0.png);
+background-image: url(/profiles/petitions/themes/petitions44/img/petitions_landing_btns_0.png);
 display:inline-block;
 height: 31px;
 width:167px;
@@ -137,7 +137,7 @@ position:relative;
 border-bottom: 4px double #cecece;
 }
 .triangle-link{
-background: url(/profiles/petition/themes/petitions/img/petitionslanding_arrow.png) left 2px no-repeat;
+background: url(/profiles/petitions/themes/petitions44/img/petitionslanding_arrow.png) left 2px no-repeat;
 padding: 0px 0px 0px 12px;
 margin-top: 10px;
 display:block;
@@ -149,7 +149,7 @@ width: 313px;
 position: absolute;
 top: 10px;
 right: 10px;
-background: url(/profiles/petition/themes/petitions/img/petitions_landing_rightrail.png) top center no-repeat;
+background: url(/profiles/petitions/themes/petitions44/img/petitions_landing_rightrail.png) top center no-repeat;
 }
 .right-inner{
 margin-top: 70px;
@@ -195,7 +195,7 @@ text-transform: uppercase;
 top: 3px;
 }
 a.video-link{
-background: url(/profiles/petition/themes/petitions/img/petitions_video_thumb_new.jpg);
+background: url(/profiles/petitions/themes/petitions44/img/petitions_video_thumb_new.jpg);
 background-position: 0px 0px;
 display: inline-block;
 float:left;
@@ -238,7 +238,7 @@ margin: 6px 0 15px 0px;
 text-transform: none;
 }
 a.facebook-link, a.twitter-link, a.gplus-link{
-background: url(/profiles/petition/themes/petitions/img/petitions_social_icons.jpg) no-repeat;
+background: url(/profiles/petitions/themes/petitions44/img/petitions_social_icons.jpg) no-repeat;
 display:inline-block;
 font-weight: bold;
 height: 45px;
@@ -289,7 +289,7 @@ right: 40px;
 line-height: 18px;
 }
 .petition-twitter .retweet, .petition-twitter .reply{
-background: url(/profiles/petition/themes/petitions/img/tweet_retweet.png);
+background: url(/profiles/petitions/themes/petitions44/img/tweet_retweet.png);
 text-indent: -9999px;
 display: inline-block;
 margin-left: 10px;
@@ -420,7 +420,7 @@ display: none;
       </div>
       <div id="latest-tweet" class="petition-twitter">
       </div>
-    <img class="bird-img" src="/profiles/petition/themes/petitions/img/petitions_tw_landing.png" alt="twitter bird" />
+    <img class="bird-img" src="/profiles/petitions/themes/petitions44/img/petitions_tw_landing.png" alt="twitter bird" />
     </div><!--right side-->
   </div>
   <div class="grid-container">
@@ -433,13 +433,13 @@ display: none;
       <a href="https://plus.google.com/105479712798762608629" class="gplus-link no-follow">Hangout and go behind the scenes</a>
     </div>
     <div class="grid-20 last-grid featured-1">
-    <a href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last" class="image-link no-follow"><img src="/profiles/petition/themes/petitions/img/petitions_landing_wh_content_01.jpg" /></a>
+    <a href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last" class="image-link no-follow"><img src="/profiles/petitions/themes/petitions44/img/petitions_landing_wh_content_01.jpg" /></a>
     <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last">Blueprint for an America Built to Last</a>
     <p>Learn more about President Obama's plan to build an economy that works for everyone.</p>
     <a class="featured-link no-follow" href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last">Read the blueprint</a>
     </div>
     <div class="grid-20 last-grid featured-2">
-    <a href="http://www.whitehouse.gov/economy/jobs/we-cant-wait" class="image-link no-follow"><img src="/profiles/petition/themes/petitions/img/petitions_landing_wh_content_02.jpg" /></a>
+    <a href="http://www.whitehouse.gov/economy/jobs/we-cant-wait" class="image-link no-follow"><img src="/profiles/petitions/themes/petitions44/img/petitions_landing_wh_content_02.jpg" /></a>
     <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/economy/jobs/we-cant-wait">We Can't Wait</a>
     <p>President Obama is not letting congressional gridlock slow our economic growth.</p>
     <a class="featured-link no-follow" href="http://www.whitehouse.gov/economy/jobs/we-cant-wait">Learn More</a>

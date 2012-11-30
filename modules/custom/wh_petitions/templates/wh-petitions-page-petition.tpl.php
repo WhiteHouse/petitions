@@ -111,7 +111,7 @@
       </div><!--/share this petition-->
 
       <div class="petition-response petition-detail">
-        <img class="response-call" alt ="" src="<?php global $base_url; print $base_url; ?>/profiles/petition/themes/petitions/img/bg-response-call.gif">
+        <img class="response-call" alt ="" src="<?php global $base_url; print $base_url; ?>/profiles/petitions/themes/petitions44/img/bg-response-call.gif">
         <div class="response-author-org clearfix">
           <?php print $agency_seal; ?>
           <span class="official"><?php print t('Official !agency_name Response to', array('!agency_name' => $agency_name)); ?></span><!--/official-->

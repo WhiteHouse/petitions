@@ -32,7 +32,7 @@ function wh_petitions_create_petition_iframe_html() {
   <head><title>' . t('Create A Petition') . '</title>
   ' . $styles . $scripts . '
   <!--[if IE 7]>
-  <link type="text/css" rel="stylesheet" media="all" href="/profiles/petition/themes/petitions/css/ie7.css" />
+  <link type="text/css" rel="stylesheet" media="all" href="/profiles/petitions/themes/petitions44/css/ie7.css" />
   <![endif]-->
   <script type="text/javascript">
   (function ($) {
@@ -80,7 +80,7 @@ function wh_petitions_create_petition($form, &$form_state) {
     $markup .= '<p>&nbsp;</p>';
     $markup .= l(t('Sign In'),  'user', array('query' => $destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-sign-in', 'target' => array('_parent'))));
     $markup .= '</div>';
-    $markup .= '<div class="or"><img src="/profiles/petition/themes/petitions/img/or.gif" alt="or"/></div>';
+    $markup .= '<div class="or"><img src="/profiles/petitions/themes/petitions44/img/or.gif" alt="or"/></div>';
     $markup .= '<div id="no-account" class="col-2"><h3>' . t("Don't Have an Account?") . '</h3>';
     $markup .= '<p>&nbsp;</p>';
     $markup .= l(t('Create an Account'), 'register', array('query' => $destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-create-an-account', 'target' => array('_parent'))));
@@ -234,7 +234,7 @@ function theme_wh_petition_title($variables) {
   $output = '<div id="form-item-create-petition-title" class="clearfix">';
   $output .= '  <div class="we-petition-msg">' . t('We Petition the Obama Administration To...') . '</div>';
   $output .= '  <div class="form-field-wrapper clearfix">';
-  $output .= '    <img class="form-arrow" alt="' . t('finish the statement here') . '" src="' . $base_url . '/profiles/petition/themes/petitions/img/textarea-arrow.gif" />';
+  $output .= '    <img class="form-arrow" alt="' . t('finish the statement here') . '" src="' . $base_url . '/profiles/petitions/themes/petitions44/img/textarea-arrow.gif" />';
   $output .= '    <textarea rows="5" cols="40" id="edit-petition-title" class="trigger" name="petition_title" onfocus="if(this.value==\'' . t('finish the statement here') . '\'){this.value=\'\'};">' . $default . '</textarea>';
   $output .= '    <div class="help-text">';
   $output .= '      <div class="view-some"><a href="#">' . t('Tips for creating good petition headlines:') . '</a></div>';
@@ -567,7 +567,7 @@ function wh_petitions_create_petition_step_3($form, &$form_state) {
   $form['petition_description'] = array(
     '#type' => 'textarea',
     '#title' => t('Enter a description for your petition'),
-    '#description' => '<div class="help-text">' . t('Please limit your description to 800 characters.') . '    <span class="character-count"></span></div><div class="view-tooltip"><a href="#">Tips for writing good descriptions</a><div id="description-tooltip" class="tooltip display-none no-follow">' . variable_get('wh_petitions_tooltip_description', '') . '<div class="tip-arrow"><img src="' . $base_url . '/profiles/petition/themes/petitions/img/tip-arrow.gif"></div>
+    '#description' => '<div class="help-text">' . t('Please limit your description to 800 characters.') . '    <span class="character-count"></span></div><div class="view-tooltip"><a href="#">Tips for writing good descriptions</a><div id="description-tooltip" class="tooltip display-none no-follow">' . variable_get('wh_petitions_tooltip_description', '') . '<div class="tip-arrow"><img src="' . $base_url . '/profiles/petitions/themes/petitions44/img/tip-arrow.gif"></div>
 </div></div>',    
     '#required' => FALSE,
     '#resizable' => FALSE,
@@ -578,7 +578,7 @@ function wh_petitions_create_petition_step_3($form, &$form_state) {
   $form['petition_tags'] = array(
     '#type' => 'textfield',
     '#title' => t('Enter keywords that best describe your petition'),
-    '#description' => '<div class="help-text">' . t('Separate keywords by commas.') . ' <span class="character-count">' . t('Limited to 120 characters.') . '</span></div><div class="view-tooltip-tag"><a href="#">Tips for writing good keywords</a><div id="tags-tooltip" class="tooltip display-none no-follow">' . variable_get('wh_petitions_tooltip_tags', '') . '<div class="tip-arrow-up"><img src="' . $base_url . '/profiles/petition/themes/petitions/img/tip-arrow-up.gif"></div>
+    '#description' => '<div class="help-text">' . t('Separate keywords by commas.') . ' <span class="character-count">' . t('Limited to 120 characters.') . '</span></div><div class="view-tooltip-tag"><a href="#">Tips for writing good keywords</a><div id="tags-tooltip" class="tooltip display-none no-follow">' . variable_get('wh_petitions_tooltip_tags', '') . '<div class="tip-arrow-up"><img src="' . $base_url . '/profiles/petitions/themes/petitions44/img/tip-arrow-up.gif"></div>
 </div></div>',      
     '#required' => FALSE,
     '#size' => 50,
