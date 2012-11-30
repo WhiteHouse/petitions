@@ -2,7 +2,7 @@ UPDATE
 ======
 
 Version 7.x-1.0-alpha22 -> 7.x-1.0-alpha23
-----------------------------
+-----------------------------------------------
 
 Release notes:
 
@@ -59,7 +59,7 @@ Update steps:
 
   Now you are ready to update:
 
-  7. Deploy 7.x-1.0-alpha24 in your environment.
+  7. Deploy 7.x-1.0-alpha23 in your environment.
 
 
   8. Clear your cache, run update.php, and then run registry rebuild.
