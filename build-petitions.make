@@ -16,4 +16,4 @@ projects[drupal][patch][] = http://drupal.org/files/drupal-menu-int-972536-83-D7
 projects[petitions][type] = profile
 projects[petitions][download][type] = git
 projects[petitions][download][branch] = 7.x-1.x
-projects[petitions][download][revision] = 7.x-1.0-alpha23-rc4
+projects[petitions][download][revision] = 7.x-1.0-alpha24

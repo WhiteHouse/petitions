@@ -16,7 +16,7 @@
 
 /* line 14, ../sass/homepage.scss */
 .front .petition-hero {
-  background: url(/profiles/petitions/themes/petitions44/img/petitions_landing_hero.jpg) top center no-repeat;
+  background: url(../img/petitions_landing_hero.jpg) top center no-repeat;
   height: 296px;
 }
 
@@ -42,7 +42,7 @@
 
 /* line 36, ../sass/homepage.scss */
 .front a.view-petition-btn, a.start-petition-btn {
-  background-image: url(/profiles/petitions/themes/petitions44/img/petitions_landing_btns_0.png);
+  background-image: url(../img/petitions_landing_btns_0.png);
   display: inline-block;
   height: 31px;
   width: 167px;
@@ -135,7 +135,7 @@
 
 /* line 115, ../sass/homepage.scss */
 .front .triangle-link {
-  background: url(/profiles/petitions/themes/petitions44/img/petitionslanding_arrow.png) left 2px no-repeat;
+  background: url(../img/petitionslanding_arrow.png) left 2px no-repeat;
   padding: 0px 0px 0px 12px;
   margin-top: 10px;
   display: block;
@@ -149,7 +149,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: url(/profiles/petitions/themes/petitions44/img/petitions_landing_rightrail.png) top center no-repeat;
+  background: url(../img/petitions_landing_rightrail.png) top center no-repeat;
 }
 
 /* line 133, ../sass/homepage.scss */
@@ -180,39 +180,39 @@
 }
 
 /* line 156, ../sass/homepage.scss */
-.front .right-side .recent a:hover, 
+.front .right-side .recent a:hover,
 .front .right-side .recent a:focus {
   color: #4d7400;
 }
 
 /* line 160, ../sass/homepage.scss */
-.front .right-side .featured, 
+.front .right-side .featured,
 .front .right-side .recent {
   position: relative;
 }
 
 /* line 164, ../sass/homepage.scss */
-.front .right-side .featured ul, 
+.front .right-side .featured ul,
 .front .right-side .recent ul {
   list-style-type: none;
 }
 
 /* line 168, ../sass/homepage.scss */
-.front .right-side .featured ul li, 
+.front .right-side .featured ul li,
 .front .right-side .recent ul li {
   margin: 10px 0 15px;
   line-height: 16px;
 }
 
 /* line 173, ../sass/homepage.scss */
-.front .right-side .featured ul li a, 
+.front .right-side .featured ul li a,
 .front .right-side .recent ul li a {
   font-family: Georgia,"Times New Roman",Times,serif;
   font-size: 14px;
 }
 
 /* line 178, ../sass/homepage.scss */
-.front .right-side .featured .see-all, 
+.front .right-side .featured .see-all,
 .front .right-side .recent .see-all {
   font-weight: bold;
   font-size: 11px;
@@ -225,7 +225,7 @@
 
 /* line 188, ../sass/homepage.scss */
 .front a.video-link {
-  background: url(/profiles/petitions/themes/petitions44/img/petitions_video_thumb_new.jpg);
+  background: url(../img/petitions_video_thumb_new.jpg);
   background-position: 0px 0px;
   display: inline-block;
   float: left;
@@ -237,7 +237,7 @@
 }
 
 /* line 200, ../sass/homepage.scss */
-.front a.video-link:hover, 
+.front a.video-link:hover,
 .front a.video-link:focus {
   background-position: -312px 0px;
 }
@@ -282,10 +282,10 @@
 }
 
 /* line 239, ../sass/homepage.scss */
-.front a.facebook-link, 
-.front a.twitter-link, 
+.front a.facebook-link,
+.front a.twitter-link,
 .front a.gplus-link {
-  background: url(/profiles/petitions/themes/petitions44/img/petitions_social_icons.jpg) no-repeat;
+  background: url(../img/petitions_social_icons.jpg) no-repeat;
   display: inline-block;
   font-weight: bold;
   height: 45px;
@@ -355,9 +355,9 @@
 }
 
 /* line 300, ../sass/homepage.scss */
-.front .petition-twitter .retweet, 
+.front .petition-twitter .retweet,
 .front .petition-twitter .reply {
-  background: url(/profiles/petitions/themes/petitions44/img/tweet_retweet.png);
+  background: url(../img/tweet_retweet.png);
   text-indent: -9999px;
   display: inline-block;
   margin-left: 10px;

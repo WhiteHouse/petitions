@@ -310,7 +310,7 @@ body.petition #page-inner {position: relative;}
 }
 
 #petition-header a.intro {
-  background: url("../img/bg-hdr-text.png") no-repeat;
+  background: url(../img/bg-hdr-text.png) no-repeat;
   height: 88px;
   margin: 0 0 0 25px;
   text-indent: -9000px;
@@ -336,7 +336,7 @@ body.petition #page-inner {position: relative;}
   display: block;
   font-size: 14px;
   padding: 13px 14px 11px;
-  background: url("../img/nav-pet-bkg.gif") repeat-x;
+  background: url(../img/nav-pet-bkg.gif) repeat-x;
   border-right: 1px #6c8c27 solid;
   border-bottom: none;
   text-shadow: #535353 0px 2px 0px;
@@ -345,7 +345,7 @@ body.petition #page-inner {position: relative;}
 }
 
 #petition-header ul#main-menu-links li.front a {
-  background: url("../img/nav-pet.gif") no-repeat;
+  background: url(../img/nav-pet.gif) no-repeat;
   text-indent: -9999px;
   width: 20px;
 }
@@ -3479,7 +3479,7 @@ input#edit-delete {
 /* Your Account */
 
 .account-navtabs {
- background: url(img/bg-navtabs.png) repeat-x bottom;
+ background: url(../img/bg-navtabs.png) repeat-x bottom;
   font-size-adjust:none;
   margin-top:10px;
   width: 715px;
@@ -3502,7 +3502,7 @@ input#edit-delete {
 .account-navtabs li a {text-decoration: none;}
 
 .account-navtabs li.current a span {
-  background: url(img/tabright.png) no-repeat right top;
+  background: url(../img/tabright.png) no-repeat right top;
   color:#000;
   display:block;
   float:left;
@@ -3520,7 +3520,7 @@ input#edit-delete {
 li#profile-info a:hover span, #your-comments a:hover span {text-decoration: underline;}
 
 #content .account-navtabs li.current a {
-  background:url(img/tableft.png) no-repeat left top;
+  background:url(../img/tableft.png) no-repeat left top;
   float:left;
   margin:0;
   padding:0 0 0 11px;
@@ -3534,7 +3534,7 @@ li#profile-info a:hover span, #your-comments a:hover span {text-decoration: unde
 }
 
 #account-your-profile .btn-make-changes a{
-   background: url(img/btn-make-changes.png) no-repeat;
+   background: url(../img/btn-make-changes.png) no-repeat;
    display: block;
    width: 136px;
    height: 23px;
@@ -3641,13 +3641,13 @@ padding-left: 120px;
 }
 
 #user-page input#edit-submit, #user-page input#edit-submit:hover, #user-page input#edit-submit:focus{
-  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_submit_btn.png");
+  background: url(../img/login/user_account_submit_btn.png);
   width: 101px;
   height: 32px;
 }
 
 #user-page form#user-login input#edit-submit, #user-page form#user-login input#edit-submit:hover, #user-page form#user-login input#edit-submit:focus{
-  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_login_btn.png");
+  background: url(../img/login/user_account_login_btn.png);
   width: 106px;
   height: 32px;
 }
@@ -3738,13 +3738,13 @@ padding-left: 120px;
 }
 
 #register #forgot-pass .submit-wrapper input, #register #forgot-pass .submit-wrapper input:hover, #register #forgot-pass .submit-wrapper input:focus{
-  background: url(/img/login/user_account_submit_btn.png);
+  background: url(../img/login/user_account_submit_btn.png);
   padding: 16px 51px 16px 50px;
   margin: 20px 0 20px 166px;
 }
 
 .main-content #forgot-pass .submit-wrapper input, .main-content #forgot-pass .submit-wrapper input:hover, .main-content #forgot-pass .submit-wrapper input:focus{
-  background: url(/img/login/user_account_submit_btn.png);
+  background: url(../img/login/user_account_submit_btn.png);
   padding: 16px 51px 16px 50px;
   margin: 20px 0 20px 166px;
 }
@@ -3768,7 +3768,7 @@ padding-left: 120px;
 }
 
 .main-content input#edit-submit, .main-content input#edit-submit:hover, .main-content input#edit-submit:focus{
-  background: url("/profiles/petitions/themes/petitions44/img/login/user_account_submit_btn.png") no-repeat;
+  background: url(../img/login/user_account_submit_btn.png) no-repeat;
   width: 106px;
   height: 32px;
 /*  margin: 20px 218px 0px 0px; */
@@ -3949,7 +3949,7 @@ form#login-form {margin: -2px;}
 #login .btn-login {float: right; margin: 5px 80px 0 0;}
 
 #login .btn-login a, #change-password .btn-login a{
-   background: url(img/btn-login.png) no-repeat;
+   background: url(../img/btn-login.png) no-repeat;
    display: block;
    width: 67px;
    height: 23px;
@@ -3971,56 +3971,56 @@ form#login-form {margin: -2px;}
 }
 
 #login-services li#fb-option a{
-  background: url(img/icons-login-options.png) no-repeat 0 0;
+  background: url(../img/icons-login-options.png) no-repeat 0 0;
   }
 
 #login-services li#fb-option a:hover{
-  background: url(img/icons-login-options.png) no-repeat -40px 0;
+  background: url(../img/icons-login-options.png) no-repeat -40px 0;
   }
 
 #login-services li#google-option a{
-  background: url(img/icons-login-options.png) no-repeat 0 -40px;
+  background: url(../img/icons-login-options.png) no-repeat 0 -40px;
   }
 
 #login-services li#google-option a:hover{
-  background: url(img/icons-login-options.png) no-repeat -40px -40px;
+  background: url(../img/icons-login-options.png) no-repeat -40px -40px;
   }
 
 #login-services li#twitter-option a{
-  background: url(img/icons-login-options.png) no-repeat 0 -80px;
+  background: url(../img/icons-login-options.png) no-repeat 0 -80px;
   }
 
 #login-services li#twitter-option a:hover{
-  background: url(img/icons-login-options.png) no-repeat -40px -80px;
+  background: url(../img/icons-login-options.png) no-repeat -40px -80px;
   }
 
 #login-services li#yahoo-option a{
-  background: url(img/icons-login-options.png) no-repeat 0 -120px;
+  background: url(../img/icons-login-options.png) no-repeat 0 -120px;
   }
 
 #login-services li#yahoo-option a:hover{
-  background: url(img/icons-login-options.png) no-repeat -40px -120px;
+  background: url(../img/icons-login-options.png) no-repeat -40px -120px;
   }
 
 #login-services li#windows-option a{
-  background: url(img/icons-login-options.png) no-repeat 0 -160px;
+  background: url(../img/icons-login-options.png) no-repeat 0 -160px;
   }
 
 #login-services li#windows-option a:hover{
-  background: url(img/icons-login-options.png) no-repeat -40px -160px;
+  background: url(../img/icons-login-options.png) no-repeat -40px -160px;
   }
 
 #login-services li#myspace-option a{
-  background: url(img/icons-login-options.png) no-repeat 0 -200px;
+  background: url(../img/icons-login-options.png) no-repeat 0 -200px;
   }
 
 #login-services li#myspace-option a:hover{
-  background: url(img/icons-login-options.png) no-repeat -40px -200px;
+  background: url(../img/icons-login-options.png) no-repeat -40px -200px;
   }
 
 .openid-link .form-item,
 #openID-login .form-item {
-  background: url(img/icon-openID.gif) no-repeat left top;
+  background: url(../img/icon-openID.gif) no-repeat left top;
   padding-left: 30px;
   padding-right: 8px;
   }
@@ -4030,7 +4030,7 @@ form#login-form {margin: -2px;}
 #openID-login .btn-login {float: right; margin: 0;}
 
 #openID-login .btn-login a{
-   background: url(img/btn-login-grey.png) no-repeat;
+   background: url(../img/btn-login-grey.png) no-repeat;
    display: block;
    width: 67px;
    height: 23px;
@@ -4128,7 +4128,7 @@ input#edit-submit {
 #sign-up form.webform-client-form .form-item {margin: 0 0 18px 0;}
 
 #sign-up .webform-client-form .submit-wrapper input {
-  background: url(img/btn-create-new-account.gif) no-repeat scroll 0 0;
+  background: url(../img/btn-create-new-account.gif) no-repeat scroll 0 0;
   border:medium none;
   color:transparent;
   display:block;
@@ -4332,7 +4332,7 @@ text-transform:uppercase;
 }
 .edit-change a {
   text-indent: -9000px;
-  background: url('/profiles/petitions/themes/petitions44/img/button-edit-profile-change-password.gif') no-repeat 0;
+  background: url(../img/button-edit-profile-change-password.gif) no-repeat 0;
   height:25px;
   display:block;
   width:233px;
@@ -4344,7 +4344,7 @@ text-transform:uppercase;
 }
 .change-password-form-elements #edit-submit {
   text-indent: -9000px;
-  background: transparent url('../img/button-save-changes.gif') no-repeat scroll 0 0;
+  background: transparent url(../img/button-save-changes.gif) no-repeat scroll 0 0;
   height:25px;
   display:block;
   width:121px;
@@ -4481,7 +4481,7 @@ text-transform:uppercase;
 }
 
 #userreg-thanks {
-  background: url("/profiles/petitions/themes/petitions44/img/thank-you-bg.png") no-repeat scroll 0 0 transparent;
+  background: url(../img/thank-you-bg.png) no-repeat scroll 0 0 transparent;
   font-size: 20px;
   height: 70px;
   line-height: 25px;

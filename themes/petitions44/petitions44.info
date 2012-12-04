@@ -39,6 +39,8 @@ regions[page_bottom]    = Page bottom
 
 ; CSS
 stylesheets[all][] = css/style.css
+stylesheets-conditional[IE 6][all][] = css/ie6.css
+stylesheets-conditional[IE 7][all][] = css/ie7.css
 
 ; Scripts
 scripts[] = js/main.js

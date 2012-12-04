@@ -6,7 +6,7 @@
 /**
  * Implements hook_update_N().
  *
- * Enable these: 
+ * Enable these:
  *  - Petitions User Menu module, creates petitions-user-menu and makes it the secondary menu
  *  - Front Class module, adds a "front" class to the <front> page main menu list item
  *  - Petitions 44 (a subtheme of Zen 5 and Fortyfour)
@@ -54,5 +54,15 @@ function petitions_maintenance_update_7001() {
  */
 function petitions_maintenance_update_7002() {
   $module_list = array('petitions_homepage');
+  module_enable($module_list);
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Enable conditional_styles module.
+ */
+function petitions_maintenance_update_7003() {
+  $module_list = array('conditional_styles');
   module_enable($module_list);
 }
