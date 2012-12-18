@@ -172,7 +172,7 @@
     <?php print render($page['bottom']); ?>
     <?php if ($fortyfour_footer): ?>
       <?php print render($fortyfour_footer); ?>
-    <? endif; ?>
+    <?php endif; ?>
     <?php if ($fortyfour_subfooter): ?>
       <?php print render($fortyfour_subfooter); ?>
     <?php endif; ?>
