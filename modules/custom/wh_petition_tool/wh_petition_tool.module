@@ -11,7 +11,7 @@ define ('WH_PETITION_TOOL_PETITION_HOSTNAME', 'https://petitions.whitehouse.gov'
 function wh_petition_tool_permission() {
   return array(
     'administer petition tool hub settings' => array(
-      'title' => t('Administer Petition Tool hub Settings settings'), 
+      'title' => t('Administer Petition Tool hub Settings settings'),
       'description' => t('Manage the configuration of the Petition Tool Web Services integration with the OpenSaaS Hub'),
     ),
   );
@@ -20,7 +20,7 @@ function wh_petition_tool_permission() {
 /**
  * Implementation of hook_menu().
  */
-function wh_petition_tool_menu() { 
+function wh_petition_tool_menu() {
   $items['petitionpage'] = array(
     'title' => 'AJAX responses for Petitions',
     'page callback' => 'wh_petition_tool_page_init',
@@ -42,13 +42,13 @@ function wh_petition_tool_menu() {
     'page callback' => 'wh_petition_tool_metadata_json',
     'page arguments' => array(2),
     'access arguments' => array('access content'),
-  ); 
+  );
   $items['petitiontool/cron/response/%'] = array(
     'title' => 'Petition IDs that have been responded to lately',
     'page callback' => 'wh_petition_tool_page_responded_to',
-    'page arguments' => array(3),    
+    'page arguments' => array(3),
     'access arguments' => array('access content'),
-  ); 
+  );
   $items['admin/config/system/petition-tool-hub'] = array(
     'title' => 'Petition Tool Hub Settings',
     'description' => 'Manage Petition Tool Web Service integration with OpenSaas Hub.',
@@ -83,10 +83,10 @@ function wh_petition_tool_page_responded_to($last_id) {
   foreach ($result as $res) {
     $id = $res['petition']->__toString();
     array_push($petition_ids, $id);
-    if (empty($new_last_id)) { 
+    if (empty($new_last_id)) {
       $new_last_id = $res['_id']->__toString();
     }
-  }  
+  }
 
   drupal_json_output(array("ids" => $petition_ids, "last_id" => $new_last_id));
 }
@@ -112,7 +112,7 @@ function wh_petition_tool_page_json() {
 /**
  * Implementation of hook_theme().
  *
- * Addes the json theme key and tells Drupal to use our substitute for 
+ * Addes the json theme key and tells Drupal to use our substitute for
  * html.tpl.php, but still render the page's content as a page. This way, we
  * can use the page's render array to encode as json
  */
@@ -129,7 +129,7 @@ function wh_petition_tool_theme() {
     'wh_petition_tool_left_nav' => array(
       'arguments' => array(),
       'template' => 'wh-petition-tool-left-nav',
-    ),          
+    ),
   );
 }
 
@@ -139,13 +139,13 @@ function wh_petition_tool_theme() {
  */
 function _wh_petition_tool_page_content() {
   $content = array();
-  
+
   module_load_include('inc', 'wh_petitions', 'wh_petitions.pages');
   $content['markup'] = wh_petitions_show_petitions();
-  
+
   $content['css'] = drupal_get_css();
   $content['js'] = drupal_get_js();
-  
+
   return $content;
 }
 
@@ -218,36 +218,16 @@ function wh_petition_tool_left_nav() {
  *    The wh.gov short URL.
  */
 function wh_petition_tool_shortenurl($url) {
-  $op = 'petitiontool.shortenurl';
-  $api_key = variable_get('wh_petition_tool_hub_key', '');
   $server = variable_get('wh_petition_tool_hub_url', '');
-
-  // The domain you are sending the request from, which is specified also in the api key.
-  $domain = variable_get('wh_petition_tool_request_domain', ''); 
-  
-  // Timestamp for hash
-  $timestamp = (string) time();
-  
-  // Single use password
-  $nonce = user_password();
-  
-  // Create secure hash using your api key.
-  $hash = hash_hmac('sha256', $timestamp . ';' .$domain . ';' . $nonce . ';' . $op, $api_key);
-
-  // Get a node from the remote server.
-  $xmlrpc_result = xmlrpc($server, array(
-    $op => array($hash, $domain, $timestamp, $nonce, $url))
+  $data = array('url' => $url);
+  $response = drupal_http_request($server, array(
+       'method' => 'POST',
+       'data' => json_encode($data),
+       'max_redirects' => 0,
+       'headers' => array('Content-Type' => 'application/json', 'Accept' => 'application/json'))
   );
-  
-  if ($xmlrpc_result === FALSE) {
-    $xmlrpc_error = xmlrpc_error();
-    watchdog('wh_petition_tool', 'Services Error (@code): @message', array(
-      '@code' => $xmlrpc_error->code, 
-      '@message' => $xmlrpc_error->message
-    ), WATCHDOG_ERROR);
-  }
-  
-  return $xmlrpc_result;
+  $shortened_url = json_decode($response->data);
+  return $shortened_url[0];
 }
 
 /**
@@ -276,8 +256,8 @@ function wh_petition_tool_opengraph_json($type) {
  * Load the Petition and return the data used for the OpenGraph tags.
  */
 function wh_petition_tool_petition_opengraph($path) {
-  $conn = wh_petitions_mongo_petition_connection(); 
-  
+  $conn = wh_petitions_mongo_petition_connection();
+
   if ($petition = $conn->findOne(array('nice_url' => $path), array('title', 'body'))) {
     return array(
       'og:title' => $petition['title'],
@@ -285,7 +265,7 @@ function wh_petition_tool_petition_opengraph($path) {
       'og:type' => 'article',
     );
   }
-  
+
   return array();
 }
 
@@ -298,7 +278,7 @@ function wh_petition_tool_response_opengraph($path) {
     $node = node_load($nid);
 
     // TODO: Do we need to add the "Official Response to..." to the title
-    $title = check_plain($node->title);        
+    $title = check_plain($node->title);
     $body = strip_tags($node->body[$node->language][0]['value']);
     return array(
       'og:title' => $title,
@@ -306,7 +286,7 @@ function wh_petition_tool_response_opengraph($path) {
       'og:type' => 'article',
     );
   }
-  
+
   return array();
 }
 
@@ -336,7 +316,7 @@ function wh_petition_tool_metadata_json($type) {
  * Load the Petition and return the data used for the Metadata tags.
  */
 function wh_petition_tool_petition_metadata($path) {
-  $conn = wh_petitions_mongo_petition_connection(); 
+  $conn = wh_petitions_mongo_petition_connection();
 
   if ($petition = $conn->findOne(array('nice_url' => $path), array('title', 'body', 'petition_status', 'issues'))) {
     $issues = array();
@@ -347,7 +327,7 @@ function wh_petition_tool_petition_metadata($path) {
           array_push($issues, check_plain($term->name));
         }
       }
-    }   
+    }
     return array(
       'petition_id' => $petition['_id']->__toString(),
       'title' => check_plain($petition['title']),
@@ -356,7 +336,7 @@ function wh_petition_tool_petition_metadata($path) {
       'has_response' => ($petition['petition_status'] == WH_PETITION_STATUS_REVIEWED) ? 1 : 0,
     );
   }
-  
+
   return array();
 }
 
@@ -368,7 +348,7 @@ function wh_petition_tool_response_metadata($path) {
     $nid = arg(1, $url);
     $node = node_load($nid);
 
-    $title = check_plain($node->title);        
+    $title = check_plain($node->title);
     $body = str_replace("\r\n", ' ', strip_tags($node->body[$node->language][0]['value']));
     $issues = array();
     if (!empty($node->field_issues[$node->language][0])) {
@@ -379,15 +359,15 @@ function wh_petition_tool_response_metadata($path) {
         }
       }
     }
-    
+
     return array(
       'title' => $title,
       'description' => truncate_utf8($body, 320, TRUE, TRUE),
       'keywords' => implode(', ', $issues),
-      'has_response' => 1,      
+      'has_response' => 1,
     );
   }
-  
+
   return array();
 }
 
@@ -411,21 +391,21 @@ function wh_petition_tool_form_forward_form_alter(&$form, &$form_state) {
       '#value' => check_plain($nid),
     );
   }
-  
+
   $message = '';
   if (arg(0) == 'petition') {
     $message = variable_get('wh_petitions_email_forward_text', '');
     $conn = wh_petitions_mongo_petition_connection();
     $petition_id = arg(2);
     $petition = $conn->findOne(array('_id' => new MongoId($petition_id)), array('response_signatures', 'short_url', 'body', 'title', 'published', 'review_timeframe'));
-  
+
     if (!empty($petition)) {
       $time = $petition['published'];
       $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
-      $end_date = date("F d, Y", $end_date);  
-      
+      $end_date = date("F d, Y", $end_date);
+
       if (empty($petition['short_url'])) $petition['short_url'] = '';
-      
+
       $message = str_replace('!petition_description', $petition['body'], $message);
       $message = str_replace('!shorturl', $petition['short_url'], $message);
       $message = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message);
@@ -436,13 +416,13 @@ function wh_petition_tool_form_forward_form_alter(&$form, &$form_state) {
     $message = variable_get('wh_petitions_email_forward_response_text', '');
     $nid = arg(2);
     $node = node_load($nid);
-    $short_url = $node->field_shorturl[$node->language][0]['value'];  
+    $short_url = $node->field_shorturl[$node->language][0]['value'];
     if (!empty($node)) {
       $message = str_replace('!shorturl', $short_url, $message);
     }
-  }  
+  }
   $message = str_replace("\r\n", "<br />", $message);
-  
+
   $form['preview'] = array(
     '#type' => 'markup',
     '#markup' => $message,
@@ -502,21 +482,21 @@ function wh_petition_tool_mail_alter(&$message) {
       $conn = wh_petitions_mongo_petition_connection();
       $petition_id = arg(2);
       $petition = $conn->findOne(array('_id' => new MongoId($petition_id)), array('response_signatures', 'short_url', 'body', 'title', 'published', 'review_timeframe'));
-  
+
       if (!empty($petition)) {
         $time = $petition['published'];
         $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
-        $end_date = date("F d, Y", $end_date);  
-      
+        $end_date = date("F d, Y", $end_date);
+
         if (empty($petition['short_url'])) $petition['short_url'] = '';
-    
+
         $message['body'][0] = str_replace('!petition_description', $petition['body'], $message['body'][0]);
         $message['body'][0] = str_replace('!shorturl', $petition['short_url'], $message['body'][0]);
         $message['body'][0] = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message['body'][0]);
         $message['body'][0] = str_replace('!date_needed', $end_date, $message['body'][0]);
         $message['params']['body'] = str_replace('!petition_description', $petition['body'], $message['params']['body']);
         $message['params']['body'] = str_replace('!shorturl', $petition['short_url'], $message['params']['body']);
-        $message['params']['body'] = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message['params']['body']);      
+        $message['params']['body'] = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message['params']['body']);
         $message['params']['body'] = str_replace('!date_needed', $end_date, $message['params']['body']);
         $message['subject'] = $petition['title'];
         $message['params']['subject'] = $petition['title'];
@@ -525,7 +505,7 @@ function wh_petition_tool_mail_alter(&$message) {
     else {
       $nid = arg(2);
       $node = node_load($nid);
-      $short_url = $node->field_shorturl[$node->language][0]['value'];  
+      $short_url = $node->field_shorturl[$node->language][0]['value'];
       if (!empty($node)) {
         $message['body'][0] = str_replace('!shorturl', $short_url, $message['body'][0]);
         $message['params']['body'] = str_replace('!shorturl', $short_url, $message['params']['body']);
@@ -548,11 +528,11 @@ function wh_petition_tool_twitter_link($id, $title, $type = 'petition', $link_te
   $link .= 'url=' . $short_url;
   $link .= '&amp;text=' . urlencode($title);
   $link .= '&amp;counturl=' . $base_url .'/'. $nice_url;
-  
+
   if (empty($link_text)) {
     $link_text = t('Twitter');
   }
-  
+
   return '<a href="#" class="options-box no-follow" onclick=\'window.open("' . $link . '", "twitter", "status=0,toolbar=0,location=0,menubar=0,height=370,width=550,resizable=0"); return false;\'>' . $link_text . '</a>';
 }
 
@@ -566,6 +546,6 @@ function wh_petition_tool_facebook_link($id, $title, $type = 'petition', $link_t
   if (empty($link_text)) {
     $link_text = t('Facebook');
   }
-  
+
   return '<a href="#" class="options-box no-follow" onclick=\'window.open("http://www.facebook.com/share.php?u=' . urlencode($url) . '&amp;t='.urlencode($title) . '", "facebook", "status=0,toolbar=0,location=0,menubar=0,height=500,width=800,resizable=1"); return false;\'>' . $link_text . '</a>';
 }

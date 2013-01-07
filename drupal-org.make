@@ -59,6 +59,9 @@ projects[feeds][subdir] = contrib
 projects[forward][version] = 1.3
 projects[forward][subdir] = contrib
 
+projects[globalredirect[version] = 1.5
+projects[globalredirect][subdir] = contrib
+
 projects[google_analytics][version] = 1.2
 projects[google_analytics][subdir] = contrib
 

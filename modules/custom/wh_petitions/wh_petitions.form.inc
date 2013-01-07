@@ -906,6 +906,8 @@ function wh_petitions_create_petition_thank_you($form, &$form_state) {
   if (empty($petition['short_url'])) {
     // Service wasn't available, use the full URL
     $short_url = $full_link;
+    drupal_set_message(t('The ShortURL service is currently unavailable. We
+    apologize for the inconvenience.'), warning);
   }
   else {
     $short_url = l($petition['short_url'], $petition['short_url'], array('html' => TRUE, 'attributes' => array('target' => '_top')));
