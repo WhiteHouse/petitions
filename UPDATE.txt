@@ -1,6 +1,20 @@
 UPDATE
 ======
 
+Version 7.x-1.0-alpha24 -> 7.x-1.0-alpha25
+-----------------------------------------------
+
+Release notes:
+
+  - Add the Global Redirect module
+  - Update the shortenurl service consumption method
+
+Update steps:
+
+  1. Enable new contrib modules.
+
+       drush en globalredirect -y
+
 Version 7.x-1.0-alpha22 -> 7.x-1.0-alpha23
 -----------------------------------------------
 
