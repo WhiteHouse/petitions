@@ -1,6 +1,20 @@
 UPDATE
 ======
 
+Version 7.x-1.0-alpha25 -> 7.x-1.0-alpha26
+-----------------------------------------------
+
+Release notes:
+
+  - Add Colorbox and Libraries modules
+  - Add a custom module to alert users upon exiting the domaind
+
+Update steps:
+
+  1. Enable new contrib modules.
+
+       drush en colorbox libraries gatekeeper -y
+
 Version 7.x-1.0-alpha24 -> 7.x-1.0-alpha25
 -----------------------------------------------
 
