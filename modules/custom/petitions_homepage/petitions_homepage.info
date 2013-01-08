@@ -8,6 +8,3 @@ files[] = petitions_homepage.admin.inc
 ; CSS
 stylesheets[all][] = css/homepage.css
 stylesheets[all][] = css/petitions-grid.css
-
-; Scripts
-scripts[] = js/homepage.js

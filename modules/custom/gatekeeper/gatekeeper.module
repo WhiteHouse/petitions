@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Gatekeeper primary module file.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function gatekeeper_init() {
+  drupal_add_css(drupal_get_path('module', 'gatekeeper') . '/css/gatekeeper.css');
+  drupal_add_js(drupal_get_path('module', 'gatekeeper') . '/js/gatekeeper.js');
+}

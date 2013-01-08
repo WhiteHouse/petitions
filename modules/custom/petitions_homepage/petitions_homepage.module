@@ -5,6 +5,13 @@
  * Sets the content variable of the homepage per configuration settings.
  */
 
+function petitions_homepage_init() {
+  if (arg(0) == 'homepage' || arg(0) == '') {
+    drupal_add_js(drupal_get_path('module', 'petitions_homepage') . '/js/homepage.js');
+  }
+}
+
+
 /**
  * Implements hook_menu().
  */
@@ -15,7 +22,7 @@ function petitions_homepage_menu() {
     'title' => 'We the People: Your Voice in Our Government',
     'page callback' => 'petitions_homepage_page',
     'access arguments' => array('access content'),
-  );    
+  );
   // Provide an administration page for configuring homepage content.
   $items['admin/config/petitions/homepage'] = array(
     'title' => 'Homepage Content',
