@@ -228,23 +228,23 @@ function petitions_homepage_more_from_the_whitehouse_default() {
 
       <div class="grid-18 follow">
         <h4>Follow Us</h4>
-        <a href="https://www.facebook.com/whitehouse" class="facebook-link no-follow">Join the conversation</a>
-        <a href="https://www.twitter.com/whitehouse" class="twitter-link no-follow">Get the latest news and engage</a>
-        <a href="https://plus.google.com/105479712798762608629" class="gplus-link no-follow">Hangout and go behind the scenes</a>
+        <a href="https://www.facebook.com/whitehouse" class="facebook-link no-follow" target="_blank">Join the conversation</a>
+        <a href="https://www.twitter.com/whitehouse" class="twitter-link no-follow" target="_blank">Get the latest news and engage</a>
+        <a href="https://plus.google.com/105479712798762608629" class="gplus-link no-follow" target="_blank">Hangout and go behind the scenes</a>
       </div>
 
       <div class="grid-20 last-grid featured-1">
-        <a href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last" class="image-link no-follow"><img src="$path/img/petitions_landing_wh_content_01.jpg" /></a>
-        <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last">Blueprint for an America Built to Last</a>
-        <p>Learn more about President Obama's plan to build an economy that works for everyone.</p>
-        <a class="featured-link no-follow" href="http://www.whitehouse.gov/blog/2012/01/24/blueprint-america-built-last">Read the blueprint</a>
+        <a href="http://www.whitehouse.gov/blog" class="image-link no-follow"><img src="$path/img/petitions_landing_wh_content_01.jpg" /></a>
+        <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/blog">The White House Blog</a>
+        <p>Get the latest from the White House, including breaking news, policy explainers, behind-the-scenes exclusives and more.</p>
+        <a class="featured-link no-follow" href="http://www.whitehouse.gov/blog">Get the Latest News</a>
       </div>
 
       <div class="grid-20 last-grid featured-2">
-        <a href="http://www.whitehouse.gov/economy/jobs/we-cant-wait" class="image-link no-follow"><img src="$path/img/petitions_landing_wh_content_02.jpg" /></a>
-        <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/economy/jobs/we-cant-wait">We Can't Wait</a>
-        <p>President Obama is not letting congressional gridlock slow our economic growth.</p>
-        <a class="featured-link no-follow" href="http://www.whitehouse.gov/economy/jobs/we-cant-wait">Learn More</a>
+        <a href="http://www.whitehouse.gov/mobile" class="image-link no-follow"><img src="$path/img/petitions_landing_wh_content_02.jpg" /></a>
+        <a class="featured-link bold no-follow" href="http://www.whitehouse.gov/mobile">The White House Mobile App</a>
+        <p>Connect with everything that happens at 1600 Pennsylvania Ave. on your mobile device, no matter where you are.</p>
+        <a class="featured-link no-follow" href="http://www.whitehouse.gov/mobile">Get the App</a>
       </div>
     </div>
   </div>

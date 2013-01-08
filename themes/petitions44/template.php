@@ -101,6 +101,44 @@
  *   http://drupal.org/node/223440 and http://drupal.org/node/1089656
  */
 
+/**
+ * Preprocesses the wrapping HTML.
+ *
+ * @param array $vars
+ *   Template variables.
+ */
+function petitions44_preprocess_html(&$vars) {
+  // Set insecure facebook open graph image tag. There is a corresponding
+  // .htaccess rule that allows this image to be accessed via http. It is
+  // necessary to provide an http alternative of this image, due to FB bug.
+  // @see https://developers.facebook.com/bugs/405588419493203
+  $options = array('absolute' => TRUE, 'https' => FALSE);
+  $path = url(drupal_get_path('theme', 'petitions44') . '/img/fb_share_we_the_people.png', $options);
+  $path = str_replace('https://', 'http://', $path);
+  $meta_og_img = array(
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'property' => 'og:image',
+      'content' => $path,
+    ),
+  );
+  drupal_add_html_head($meta_og_img, 'meta_og_img');
+
+  // Set secure facebook open graph image tag.
+  $options = array('absolute' => TRUE, 'https' => TRUE);
+  $path = url(drupal_get_path('theme', 'petitions44') . '/img/fb_share_we_the_people.png', $options);
+  $meta_og_img_secure = array(
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'property' => 'og:image:secure_url',
+      'content' => $path,
+    ),
+  );
+  drupal_add_html_head($meta_og_img_secure, 'meta_og_img_secure');
+
+}
 
 /**
  * Override or insert variables into the page template.
@@ -118,16 +156,16 @@ function petitions44_process_page(&$variables) {
  * Override or insert variables into the forward template.
  */
 function petitions44_preprocess_forward(&$variables) {
-  
+
   $email_text = '';
-  
+
   if (arg(0) == 'petition') {
     $email_text = variable_get('wh_petitions_email_forward_text', 'Dear Friends,
 
     I wanted to let you know about an official petition I have signed at WhiteHouse.gov. Will you add your name to mine?  If this petition gets !signatures_needed signatures by !date_needed, the White House will review it and respond!
-    
+
     You can view and sign the petition here: !shorturl
-    
+
     Here\'s some more information about this petition:
     !petition_description');
 
@@ -137,13 +175,13 @@ function petitions44_preprocess_forward(&$variables) {
     $email_text = variable_get('wh_petitions_email_forward_response_text', 'Dear Friends,
 
     I wanted to let you know about an official petition I have signed at WhiteHouse.gov. Will you add your name to mine?  If this petition gets !signatures_needed signatures by !date_needed, the White House will review it and respond!
-    
+
     You can view and sign the petition here: !shorturl
-    
+
     Here\'s some more information about this petition:
-    !petition_description'); 
+    !petition_description');
   }
-  
+
   $variables['email_text'] = $email_text;
 }
 

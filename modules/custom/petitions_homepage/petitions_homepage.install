@@ -19,3 +19,12 @@ function petitions_homepage_uninstall() {
   variable_del('petitions_homepage_twitter');
   variable_del('petitions_homepage_more_from_the_whitehouse');
 }
+
+/**
+ * Implements hook_update_N().
+ *
+ * Updating the homepage content. 
+ */
+function petitions_homepage_update_7001() {
+  variable_set('petitions_homepage_more_from_the_whitehouse', petitions_homepage_more_from_the_whitehouse_default());
+}

@@ -76,12 +76,12 @@ body{
   height:100%;
   margin:0;
   padding:0;
-  background:#fff url(../img/bg-main-one-repeat.jpg) repeat-y center top;
+  background: none;
 }
 
 
 #petition-page {
- 	background: url(../img/bg-main.jpg) no-repeat scroll top center;
+ 	background: url(../img/wh_home_new_header.jpg) no-repeat scroll top center;
  /* background:url(../img/bg-main-one.jpg) center top no-repeat; */
   min-height: 1000px; /* Revised from 100% on site */
   margin: 0;
@@ -202,6 +202,8 @@ body.petition #page-inner {position: relative;}
 }
 
 #wh-footer {
+  background-image: url(../img/wh_home_footer.jpg);
+  background-position: 0px 0px;
   position:relative;
 }
 #petition-inner .right-rail .container {
@@ -1026,21 +1028,21 @@ a#button-create-a-petition:active {
   background:url(../img/sprite.gif) no-repeat 0 -728px;
   height: 23px;
   text-align: center;
-   display: block;
-   margin: 0 0 0 -1px;
-   text-transform: uppercase;
-   color: #737373;
-   font-size: 1em;
-   font-weight: bold;
-   letter-spacing: 0.03em;
-   padding: 10px 0 0 7px;
-   cursor: pointer;
+  display: block;
+  margin: 0 0 0 -1px;
+  text-transform: uppercase;
+  color: #737373;
+  font-size: .9em;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+  padding: 10px 0 0 7px;
+  cursor: pointer;
 }
 
 a.show-more-petitions-bar,
 a.show-more-responses-bar
  {
-   color: #737373;
+  color: #737373;
  }
 
 .show-more-responses-bar {letter-spacing: 0.01em; padding-left: 9px;}
@@ -2216,8 +2218,8 @@ input#button-report-this-petition {
   background: url(../img/sprite-buttons.png) no-repeat -310px -396px;
 }
 
-#share-this-petition li.twitter,
-#thank-you-modal ul.share-this-petition li.twitter
+#share-this-petition li.twitter a:active,
+#thank-you-modal ul.share-this-petition li.twitter a:active
  {
   background: url(../img/sprite-buttons.png) no-repeat -310px -423px;
 }

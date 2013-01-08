@@ -106,12 +106,12 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: white url(../img/bg-main-one-repeat.jpg) repeat-y center top;
+  background: none;
 }
 
 /* line 83, ../sass/style.scss */
 #petition-page {
-  background: url(../img/bg-main.jpg) no-repeat scroll top center;
+  background: url(../img/wh_home_new_header.jpg) no-repeat scroll top center;
   /* background:url(../img/bg-main-one.jpg) center top no-repeat; */
   min-height: 1000px;
   /* Revised from 100% on site */
@@ -257,6 +257,8 @@ body.petition #page-inner {
 
 /* line 204, ../sass/style.scss */
 #wh-footer {
+  background-image: url(../img/wh_home_footer.jpg);
+  background-position: 0px 0px;
   position: relative;
 }
 
@@ -2585,8 +2587,8 @@ input#button-report-this-petition {
 }
 
 /* line 2221, ../sass/style.scss */
-#share-this-petition li.twitter,
-#thank-you-modal ul.share-this-petition li.twitter {
+#share-this-petition li.twitter a:active,
+#thank-you-modal ul.share-this-petition li.twitter a:active {
   background: url(../img/sprite-buttons.png) no-repeat -310px -423px;
 }
 
