@@ -7,13 +7,22 @@ Version 7.x-1.0-alpha25 -> 7.x-1.0-alpha26
 Release notes:
 
   - Add Colorbox and Libraries modules
-  - Add a custom module to alert users upon exiting the domaind
+  - Add Colobox plugin
+  - Add a custom module to alert users upon exiting the domain
 
 Update steps:
 
   1. Enable new contrib modules.
 
        drush en colorbox libraries gatekeeper -y
+
+  2. Clear Drupal Caches
+
+       drush cc all
+
+  3. Update Databases
+
+       drush updb
 
 Version 7.x-1.0-alpha24 -> 7.x-1.0-alpha25
 -----------------------------------------------

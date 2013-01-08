@@ -178,11 +178,10 @@ projects[zen][version] = 5.1
 projects[fortyfour][type] = theme
 projects[fortyfour][download][type] = git
 projects[fortyfour][download][branch] = 7.x-1.x
-projects[fortyfour][download][tag] = 7.x-1.0-alpha4
+projects[fortyfour][download][tag] = 7.x-1.0-alpha5
 
 ; External libraries
 ; -----------------
 
 libraries[colorbox][download][type] = "file"
 libraries[colorbox][download][url] = "http://www.jacklmoore.com/colorbox/colorbox.zip"
-
