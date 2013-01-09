@@ -162,9 +162,20 @@ function wh_petitions_menu() {
     'weight' => -10,
     'file' => 'wh_petitions.admin.inc',
   );
+  
+  // Admin - Petition Dashboard
+  $items['admin/petitions/download_signatures/%/%'] = array(
+    'title' => 'Download Signatures',
+    'description' => 'Download petition signatures.',
+    'page callback' => 'wh_petitions_download_signatures_run_batch',
+    'page arguments' => array(3, 4),
+    'access arguments' => array('administer petitions'),
+    'weight' => -10,
+    'file' => 'wh_petitions.admin.inc',
+  );
 
 // Admin - Petition Dashboard
-  $items['admin/petitions/download_signatures/%/%'] = array(
+  $items['admin/petitions/download_signatures_finish/%/%'] = array(
     'title' => 'Download Signatures',
     'description' => 'Download petition signatures.',
     'page callback' => 'wh_petitions_download_signatures',

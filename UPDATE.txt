@@ -1,6 +1,19 @@
 UPDATE
 ======
 
+Version 7.x-1.0-alpha28 -> 7.x-1.0-alpha29
+-----------------------------------------------
+
+Release notes:
+
+  - Update petitions signature reports
+
+Update steps:
+
+  1. Clear Drupal Caches
+
+       drush cc all
+
 Version 7.x-1.0-alpha25 -> 7.x-1.0-alpha26
 -----------------------------------------------
 

@@ -919,6 +919,7 @@ function wh_petitions_admin_petitions() {
     }
     
     $action_string = $bookmark . ' | ' . $featured . ' | ' . $hidden_link;
+    $action_string .= ' | ' . l('Download Signature Email CSV', 'admin/petitions/download_signatures/' . check_plain($id) . '/email_csv', array('attributes' => array('target' => '_blank')));
     $action_string .= ' | ' . l('Download Signature List', 'admin/petitions/download_signatures/' . check_plain($id), array('attributes' => array('target' => '_blank')));
     $action_string .= ' | ' . l('Edit', 'admin/petitions/' . check_plain($id));
    
@@ -1322,7 +1323,7 @@ function wh_petitions_response_autocomplete($string = '') {
 /**
  * Generate a csv list of signatures on the given petition
  */
-function wh_petitions_download_signatures_run_batch($petition_id) {
+function wh_petitions_download_signatures_run_batch($petition_id, $report_type = '') {
   $limit = 500;
   $time_stamp = time();
   
@@ -1332,13 +1333,13 @@ function wh_petitions_download_signatures_run_batch($petition_id) {
     'title' => t('Exporting Petition Signatures'),
     'progress_message' => t('Dowload of the file will begin automatically when processing is complete.  After downloading, close this window.'),
     'operations' => array(
-      array('wh_petitions_download_signatures_batch', array($petition_id, $limit, $file_name)),
+      array('wh_petitions_download_signatures_batch', array($petition_id, $limit, $file_name, $report_type)),
     ),
     'file' => drupal_get_path('module', 'wh_petitions') . '/wh_petitions.admin.inc',
   );
 
   batch_set($batch);
-  batch_process('admin/petitions/download_signatures/' . $petition_id . '/' . $time_stamp);
+  batch_process('admin/petitions/download_signatures_finish/' . $petition_id . '/' . $time_stamp);
 }
 
 /**
@@ -1346,7 +1347,7 @@ function wh_petitions_download_signatures_run_batch($petition_id) {
  */
 function wh_petitions_download_signatures($petition_id, $time_stamp) {
   $file_name = variable_get('file_temporary_path', '/mnt/tmp/petitions') . '/subscriber_export_' . $petition_id . '_' . $time_stamp . '.csv';
-  if ($_GET['download']) { 
+  if ($_GET['download']) {
     if ($handle = fopen($file_name, 'r')) {
       drupal_add_http_header('Content-Type', 'text/csv; utf-8');
       drupal_add_http_header('Content-Disposition', 'attachment; filename="' . $file_name . '"');
@@ -1378,7 +1379,7 @@ function wh_petitions_download_signatures($petition_id, $time_stamp) {
  * @param $context
  *   Batch API state holder.
  */
-function wh_petitions_download_signatures_batch($petition_id, $limit, $file_name, &$context) {
+function wh_petitions_download_signatures_batch($petition_id, $limit, $file_name, $report_type = '', &$context) {
 
   $signatures_collection = wh_petitions_mongo_petition_signatures_connection();
  
@@ -1405,12 +1406,23 @@ function wh_petitions_download_signatures_batch($petition_id, $limit, $file_name
   }
  
   $mysql_query = db_select('users', 'u');
+  $mysql_query->join('field_data_field_zip', 'fz', 'u.uid = fz.entity_id');
   $mysql_query->fields('u', array('mail'));
-  $mysql_query->condition('uid', array($id_list), 'IN');
+  $mysql_query->fields('fz', array('field_zip_value'));
+  $mysql_query->condition('u.uid', array($id_list), 'IN');
   $result = $mysql_query->execute();
 
-  while ($email = $result->fetchField(0)) {
-    fwrite($file_handle, $email . PHP_EOL);
+  while ($record = $result->fetchAssoc()) {
+    
+    switch($report_type) {
+      case 'email_csv':
+        fwrite($file_handle, $record['mail'] . PHP_EOL);
+        break;
+      default:
+        fwrite($file_handle, $record['mail'] . ', ' . $record['field_zip_value'] . PHP_EOL);
+        break;  
+    }
+    
   }
 
   $context['results']['filename'] = $context['sandbox']['output_file'];
