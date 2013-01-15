@@ -17,6 +17,8 @@ Update steps:
 
        drush en services rest_server services_documentation api_resource_users petitions_stats_users petitions_api -y
 
+  2. Configure the Request URL to use the site's URL and define the Starting Year at /admin/config/services/stats/users
+
 Version 7.x-1.0-alpha28 -> 7.x-1.0-alpha29
 -----------------------------------------------
 
