@@ -1,0 +1,24 @@
+.services-documentation-versions {}
+.services-documentation-version {}
+
+.services-documentation-resource {
+  border-bottom: 1px solid #CECECE;
+  border-top: 1px solid #CECECE;
+  padding: 1em 0;
+}
+.services-documentation-method-bundle,
+.services-documentation-method {
+  margin-left: 1em;
+}
+
+.services-documentation-method .method-name{
+  font-weight: bold;
+}
+.services-documentation-method .method-description{}
+
+.services-documentation-method .method-arguments .title {
+  font-weight: bold;
+}
+
+.services-documentation-method .request-example{}
+.services-documentation-method .response-example{}

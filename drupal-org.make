@@ -117,6 +117,9 @@ projects[recaptcha][subdir] = contrib
 projects[rules][version] = 2.2
 projects[rules][subdir] = contrib
 
+projects[services][version] = 3.3
+projects[services][subdir] = contrib
+
 projects[simplehtmldom][version] = 1.12
 projects[simplehtmldom][subdir] = contrib
 

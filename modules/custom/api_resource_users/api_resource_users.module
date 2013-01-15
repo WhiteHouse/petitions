@@ -1,0 +1,209 @@
+<?php
+
+/**
+ * @file
+ * Provides user for Services according to Whitehouse API Standards
+ */
+
+/**
+ * Implements hook_services_resources().
+ */
+function api_resource_users_services_resources() {
+  $resources = array();
+
+  $resources['users'] = array(
+    'index' => array(
+      'callback' => '_api_resource_users_resource_index',
+      'args' => array(
+        array(
+          'name' => 'created_before',
+          'optional' => TRUE,
+          'type' => 'int',
+          'description' => 'Filters results to display items created before specified time. Accepts Unix timestamp.',
+          'source' => array('param' => 'createdBefore'),
+        ),
+        array(
+          'name' => 'created_after',
+          'optional' => TRUE,
+          'type' => 'int',
+          'description' => 'Filters results to display items created after specified time. Accepts Unix timestamp.',
+          'source' => array('param' => 'createdAfter'),
+        ),
+        array(
+          'name' => 'created_at',
+          'optional' => TRUE,
+          'type' => 'int',
+          'description' => 'Filters results based on exact creation time. Accepts Unix timestamp.',
+          'source' => array('param' => 'createdAt'),
+        ),
+        array(
+          'name' => 'limit',
+          'optional' => TRUE,
+          'type' => 'int',
+          'description' => 'The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
+          'default value' => 10,
+          'source' => array('param' => 'limit'),
+        ),
+        array(
+          'name' => 'offset',
+          'optional' => TRUE,
+          'type' => 'int',
+          'description' => 'Offset the returned results by this number. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
+          'default value' => 0,
+          'source' => array('param' => 'offset'),
+        ),
+        array(
+          'name' => 'mock',
+          'optional' => TRUE,
+          'type' => 'int',
+          'description' => 'When set to 1, this will cause the service to return a mock response.',
+          'default value' => 0,
+          'source' => array('param' => 'mock'),
+        ),
+      ),
+      'access callback' => 'services_access_menu',
+      'documentation callback' => '_api_resource_users_index_doc',
+      'documentation versions' => array(1000),
+    ),
+  );
+
+  return $resources;
+}
+
+/**
+ * Callback for Services users index method.
+ */
+function _api_resource_users_resource_index($created_before, $created_after, $created_at, $limit, $offset, $mock) {
+  // Return mock response.
+  if ($mock) {
+    $response = json_decode(_api_resource_users_mock_response());
+    return $response;
+  }
+
+  // Build user select query.
+  $user_select = db_select('users', 'u');
+
+  // Specify conditions.
+  if ($created_before) {
+    $user_select->condition('created', $created_before, '<');
+  }
+  elseif ($created_after) {
+    $user_select->condition('created', $created_after, '>');
+  }
+  elseif ($created_at) {
+    $user_select->condition('created', $created_at);
+  }
+  // Ignore user 0.
+  $user_select->condition('uid', 0, '<>');
+
+  // Specify fields. Not that we want uid even though we will not display it.
+  $user_select->fields('u', array('created', 'uid'));
+
+  // Set common join variables.
+  $vars = array(':entity_type' => 'profile2', ':bundle' => 'main');
+
+  // Join city profile field.
+  $join = "(fdfc.entity_id = u.uid AND fdfc.entity_type = :entity_type AND fdfc.bundle = :bundle)";
+  $user_select->leftJoin('field_data_field_city', 'fdfc', $join, $vars);
+  $user_select->fields('fdfc', array('field_city_value'));
+
+  // Join state profile field.
+  $join = "(fdfs.entity_id = u.uid AND fdfs.entity_type = :entity_type AND fdfs.bundle = :bundle)";
+  $user_select->leftJoin('field_data_field_state', 'fdfs', $join, $vars);
+  $user_select->fields('fdfs', array('field_state_value'));
+
+  // Join zip profile field.
+  $join = "(fdfz.entity_id = u.uid AND fdfz.entity_type = :entity_type AND fdfz.bundle = :bundle)";
+  $user_select->leftJoin('field_data_field_zip', 'fdfz', $join, $vars);
+  $user_select->fields('fdfz', array('field_zip_value'));
+
+  // Calculate result set size before doing real query.
+  $size_query = $user_select;
+  $size_result = services_resource_execute_index_query($size_query->countQuery());
+  $size = $size_result->fetchField();
+
+  // Enforce maximum limit size.
+  $resource = 'users';
+  $default_limit = variable_get("services_{$resource}_index_page_size", 100);
+
+  if (!user_access('perform unlimited index queries') && $limit > $default_limit) {
+    $limit = $default_limit;
+  }
+  $user_select->range($offset, $limit);
+  $user_select->orderBy('u.uid', 'ASC');
+
+  // This simply wraps the query execution in a try, catch condition.
+  $results = services_resource_execute_index_query($user_select);
+
+  // Performs default user sanitation.
+  $users = services_resource_build_index_list($results, 'user', 'uid');
+
+  // Reformat response.
+  $response = array(
+    'metadata' => array(
+        'count' => $size,
+        'offset' => $offset,
+        'limit' => $limit,
+    ),
+  );
+  foreach ($users as $user) {
+    $response['results'][] = array(
+      'type' => 'user',
+      'id' => $user->id,
+      'created' => $user->created,
+      'location' => array(
+        'city' => $user->field_city_value,
+        'state' => $user->field_state_value,
+        'zip' => $user->field_zip_value,
+      ),
+    );
+  }
+
+  return $response;
+}
+
+/**
+ * Implements services_account_object_alter().
+ */
+function api_resource_users_services_account_object_alter($account) {
+  // Obfuscate UID to create unique identifier.
+  $hashed_uid =  drupal_hmac_base64($account->uid, $account->uid . drupal_get_private_key() . drupal_get_hash_salt());
+  $account->id = $hashed_uid;
+
+  // Remove user data.
+  $remove = array(
+    'mail',
+    'init',
+    'uri',
+    'uid',
+  );
+
+  foreach ($remove as $property) {
+    if (isset($account->$property)) {
+      unset($account->$property);
+    }
+  }
+
+}
+
+/**
+ * Documentation callback for index operation of index resource.
+ */
+function _api_resource_users_index_doc() {
+  $element = array(
+    '#name' => t('Index'),
+    '#description' => t('Returns a list of users matching passed parameters.'),
+    '#request' => '/api/v1/users.json?limit=100&offset=0',
+    '#response' => _api_resource_users_mock_response(),
+  );
+
+  return $element;
+}
+
+/**
+ * Returns a mock response for the users index method.
+ */
+function _api_resource_users_mock_response() {
+  $response = file_get_contents(__DIR__ . '/example_responses/api_resource_users_index.response.json');
+  return $response;
+}

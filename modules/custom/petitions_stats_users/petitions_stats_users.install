@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function petitions_stats_users_schema() {
+  $schema['psu_stats'] = array(
+    'description' => 'Stores user creation statistics.',
+    'fields' => array(
+      'year' => array(
+        'description' => 'Year',
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+      ),
+      'month' => array(
+        'description' => 'Month',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+      ),
+      'day' => array(
+        'description' => 'Day',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+      ),
+      'hour' => array(
+        'description' => 'Hour',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+      ),
+      'count' => array(
+        'description' => 'Count of users created for this year, month, date, and hour.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'month_day' => array('month', 'day'),
+      'year_month' => array('year', 'month'),
+      'year_month_day' => array('year', 'month', 'day'),
+    ),
+  );
+
+  return $schema;
+}

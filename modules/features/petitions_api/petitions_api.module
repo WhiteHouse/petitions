@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the petitions_api feature.
+ */
+
+include_once 'petitions_api.features.inc';

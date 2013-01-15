@@ -1,0 +1,415 @@
+<?php
+
+/**
+ * @file
+ * Generates statistics for users via Petitions Read API.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function petitions_stats_users_menu() {
+  $items = array();
+
+  $items['admin/people/stats'] = array(
+    'title' => 'User Statistics',
+    'page callback' => 'petitions_stats_users_page',
+    'access arguments' => array('view users statistics'),
+    'file' => 'petitions_stats_users.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/people/stats/%'] = array(
+    'title' => 'Users Statistics',
+    'page callback' => 'petitions_stats_users_page',
+    'page arguments' => array(3),
+    'access arguments' => array('view users statistics'),
+    'file' => 'petitions_stats_users.pages.inc',
+  );
+  $items['admin/config/services/stats/users'] = array(
+    'title' => 'Petitions Users Statistics Settings',
+    'description' => 'Configuration settings for the Petitions Users Statistics module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('petitions_stats_users_admin_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'petitions_stats_users.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_perm().
+ */
+function petitions_stats_users_permission() {
+  return array(
+    'view user statistics' => array(
+      'title' => t('View Users Statistics'),
+      'description' => t('View statistics on the Users Statistics page.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function petitions_stats_users_theme($existing, $type, $theme, $path) {
+  $theme_path = drupal_get_path('module', 'petitions_stats_users') . '/theme';
+
+  return array(
+    'petitions_stats_users' => array(
+      'path' => $theme_path,
+      'template' => 'petitions-stats-users',
+      'variables' => array(
+        'date' => NULL,
+        'statistics' => NULL,
+      ),
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_cron().
+ */
+function petitions_stats_users_cron() {
+  // Queue data fetching tasks.
+  _petitions_stats_users_queue_tasks();
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function petitions_stats_users_cron_queue_info() {
+  // Run tasks in petitions_stats_users_fetch_data queue.
+  $queues['petitions_stats_users_fetch_queue'] = array(
+    'worker callback' => '_petitions_stats_users_fetch_data',
+    'time' => 120,
+  );
+  return $queues;
+}
+
+/**
+ * Queues data fetching tasks.
+ *
+ * @return boolean
+ *   Returns true if tasks were successfully queued.
+ */
+function _petitions_stats_users_queue_tasks() {
+  // Determine the number of result rows to fetch.
+  $batch_size = variable_get('psu_batch_size', 100);
+  $params = array('offset' => 0, 'limit' => $batch_size);
+  $request_url = variable_get('psu_request_url', 'http://petitions.whitehouse.gov/api/v1/users.json');
+  $response = _petitions_stats_users_request_data($request_url, $params, TRUE);
+  $count = isset($response->metadata->count) ? $response->metadata->count : 0;
+
+  // If there are results.
+  if ($count) {
+    // The $highwatermark indicates the last request that was queued during a
+    // previous cron. E.g, if we've made a request for offsets of 90, 100,
+    // and 110 in the past, the highwatermark would be 110. Our new requests
+    // would be for offsets between 110 and the new $count.
+    $highwatermark = variable_get('psu_highwatermark', 0);
+
+    // If there is new data to fetch.
+    if ($highwatermark < $count) {
+      // It's possible that our requested batch size exceeds the server's max
+      // batch size. To be safe, we use the server's response limit as a control.
+      if ($response->metadata->limit != $batch_size) {
+        $message = 'Default batch size of @default exceeds server limit. Using batch size of @server.';
+        $vars = array(
+          '@default' => $batch_size,
+          '@server' => $response->metadata->limit,
+        );
+        watchdog('petitions_stats_users', $message, $vars);
+        $batch_size = $response->metadata->limit;
+      }
+
+      // Fetch the queue object from Drupal's Queue API.
+      // Setting the queue to be reliable ensures that tasks are sequential.
+      $reliable = TRUE;
+      $queue = DrupalQueue::get('petitions_stats_users_fetch_queue', $reliable);
+      $queue->createQueue();
+
+      // We set a moximum number of tasks that may be queued during a given cron.
+      // Otherwise, we could queue millions of tasks, which would be bad.
+      $num_new_tasks = ceil(($count - $highwatermark) / $batch_size);
+      $num_existing_tasks = $queue->numberOfItems();
+      $max_cron_tasks = variable_get('psu_max_cron_tasks', 5000);
+
+      if ($num_new_tasks + $num_existing_tasks > $max_cron_tasks) {
+        $num_allowed_tasks = $max_cron_tasks - $num_existing_tasks;
+        $threshold = $highwatermark + ($num_allowed_tasks * $batch_size);
+      }
+      else {
+        $num_allowed_tasks = ceil($count / $batch_size);
+        $threshold = $count;
+      }
+
+      // Queue tasks via Queue API.
+      // @see http://www.hashbangcode.com/blog/drupal-7-queues-api-579.html
+      for ($i = $highwatermark; $i < $threshold; $i += $batch_size) {
+        $item = array(
+          'url' => $request_url,
+          'params' => array(
+            'offset' => $i,
+            'limit' => $batch_size,
+          ),
+        );
+        $queue->createItem($item);
+      }
+
+      // Set new highwatermark. This prevents us from queueing the same data in
+      // the future.
+      variable_set('psu_highwatermark', $threshold);
+      $message = '@existing_tasks tasks already queued. Queueing @new_tasks new tasks to fetch rows @from to @to in batches of @limit. @total_queued of @max_cron_tasks allowed tasks are now queued for processing.';
+      $vars = array(
+        '@from' => $highwatermark,
+        '@to' => $threshold,
+        '@limit' => $batch_size,
+        '@existing_tasks' => $num_existing_tasks,
+        '@new_tasks' => $num_allowed_tasks,
+        '@total_queued' => $num_allowed_tasks + $num_existing_tasks,
+        '@max_cron_tasks' => $max_cron_tasks,
+      );
+      watchdog('petitions_stats_users', $message, $vars);
+      return TRUE;
+    }
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Fetches and stores user data from Petitions API.
+ *
+ * @param array $data
+ *   An associative array passed by Queue API.
+ *   - url: the url to which a fetch request will be made.
+ *   - params:
+ *     - offset: the offset parameter for the API request.
+ *     - limit: the limit parameter for the API request.
+ *
+ * @return boolean
+ *   Returns true if data was successfully requested and saved.
+ */
+function _petitions_stats_users_fetch_data($data) {
+  // Request data.
+  $response = _petitions_stats_users_request_data($data['url'], $data['params']);
+  if ($response) {
+    $results = $response->results;
+
+    // Save data.
+    //return _petitions_stats_users_save_json_data($results);
+    return _petitions_stats_users_save_db_data($results);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Saves users statistics data to database.
+ */
+function _petitions_stats_users_save_db_data($results) {
+  $values = array();
+
+  // Created formatted array of user statistics.
+  foreach ($results as $user) {
+    // Get date params.
+    $year = date('Y', $user->created);
+    $month = date('m', $user->created);
+    $day = date('d', $user->created);
+    $hour = date('H', $user->created);
+
+    // Save user data object in structured array.
+    if (!isset($data[$year][$month][$day][$hour])) {
+      // Initialize to 1.
+      $values[$year][$month][$day][$hour] = 1;
+    }
+    else {
+      // Increment by 1.
+      $values[$year][$month][$day][$hour] =+ 1;
+    }
+  }
+
+  // Write statistics to database.
+  foreach ($values as $year => $months) {
+    foreach ($months as $month => $days) {
+      foreach ($days as $day => $hours) {
+        foreach ($hours as $hour => $count) {
+          // Perform UPSERT query.
+          $success = db_merge('psu_stats')
+            // Keys determine uniqueness of row.
+            ->key(array(
+              'year' => $year,
+              'month' => $month,
+              'day' => $day,
+              'hour' => $hour,
+            ))
+            // New fields to insert.
+            ->fields(array(
+              'year' => $year,
+              'month' => $month,
+              'day' => $day,
+              'hour' => $hour,
+              'count' => $count,
+            ))
+            // Update expression.
+            ->expression('count', 'count + :inc', array(':inc' => 1))
+            ->execute();
+
+          // If db_merge() fails, fail the entire task.
+          if (!$success) {
+            $message = 'Failed to upsert users statistics data for @date. If this fail occured mid-batch, it may result in inaccurate statistics.';
+            $vars = array(
+              '@date' => $year . '-' . $month . '-' . $day . ' ' . $hour . ':00',
+            );
+            watchdog('petitions_stats_users', $message, $vars);
+
+            return FALSE;
+          }
+        }
+      }
+    }
+  }
+
+  return TRUE;
+}
+
+/**
+ * Loads users statistics data from database.
+ *
+ * @param int $year
+ *   Year in YYYY format.
+ *
+ * @param int $month
+ *   Month in MM format.
+ *
+ * @param int $day
+ *   Day in DD format.
+ *
+ * @param int $hour
+ *   Hour in HH format.
+ *
+ * @return
+ */
+function _petitions_stats_users_load_db_statistics($year = NULL, $month = NULL, $day = NULL, $hour = NULL) {
+  $query = db_select('psu_stats', 'ps')
+  ->fields('ps', array(
+    'hour',
+    'count'))
+  ->orderBy('hour');
+
+  // Include optional conditions.
+  if ($year) {
+    $query->condition('year', $year);
+  }
+  if ($month) {
+    $query->condition('month', $month);
+  }
+  if ($day) {
+    $query->condition('day', $day);
+  }
+  if ($hour) {
+    $query->condition('hour', $hour);
+  }
+
+  $result = $query->execute()->fetchAllKeyed(0, 1);
+
+  return $result;
+}
+
+/**
+ * Makes request to Petitions API.
+ *
+ * @param (stirng) $url
+ *   The URL for this request.
+ * @param (array) $params
+ *   A PHP array of parameters to be appended to the request via $_GET.
+ *
+ * @return object
+ *   The response object if successful, a boolean FALSE if not.
+ */
+function _petitions_stats_users_request_data($url, $params = array()) {
+  // Set default params.
+  if (!$params) {
+    // Note that we absolutely rely on there being a default orderBy param on
+    // the server side. Without this, we could easily create duplicate entries.
+    // Our write functions are purely procedural.
+    $batch_size = variable_get('psu_batch_size', 100);
+    $params = array('offset' => 0,'limit' => $batch_size);
+  }
+
+  // Make request.
+  $request_url = url($url, array('query' => $params));
+  $curl = curl_init($request_url);
+  curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+  curl_setopt($curl, CURLOPT_HEADER, FALSE);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($curl, CURLOPT_FAILONERROR, TRUE);
+  curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+  curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+  $response = curl_exec($curl);
+  $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+  // If request was successful.
+  if ($http_code == 200) {
+    $response = json_decode($response);
+
+    return $response;
+  }
+  else {
+    // Get and log error message.
+    $http_message = curl_error($curl);
+    $vars = array(
+      '@url' => $url,
+      '@params' => var_export($params, TRUE),
+      '@http_message' => $http_message,
+      '@http_code' => $http_code,
+    );
+    $message = 'Failed to make request to @url with @params. HTTP error code @http_code with message: @http_message';
+    watchdog('petitions_stats_users', $message, $vars, WATCHDOG_ERROR);
+
+    return FALSE;
+  }
+}
+
+/**
+ * Wipes stored data from disk, resets variables.
+ *
+ * @return boolean
+ *   Returns true if all files were deleted.
+ */
+function _petitions_stats_users_wipe_data() {
+  // Remove variables.
+  variable_del('psu_highwatermark');
+
+  // Remove existing items from queue.
+  $reliable = TRUE;
+  $queue = DrupalQueue::get('petitions_stats_users_fetch_queue', $reliable);
+  $queue->deleteQueue();
+
+  // Wipe database data.
+  if (_petitions_stats_users_delete_db_data()) {
+    $message = 'Wiped Petitions Statistics Users data from database.';
+    watchdog('petitions_stats_users', $message, $vars);
+    return TRUE;
+  }
+  else {
+    $message = 'Could not wipe Petitions Statistics Users data from database';
+    watchdog('petitions_stats_users', $message, $vars, WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+}
+
+/**
+ * Deletes users statistics data from database.
+ */
+function _petitions_stats_users_delete_db_data() {
+  $num_deleted = db_delete('psu_stats')
+    ->execute();
+
+  return $num_deleted;
+}

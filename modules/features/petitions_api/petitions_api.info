@@ -1,0 +1,11 @@
+name = Petitions API
+description = Configuration of Services API endpoints and resources.
+core = 7.x
+package = Services
+dependencies[] = ctools
+dependencies[] = services
+dependencies[] = rest_server
+dependencies[] = api_resource_users
+features[ctools][] = services:services:3
+features[features_api][] = api:1
+features[services_endpoint][] = api_v1

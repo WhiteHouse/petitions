@@ -1,0 +1,44 @@
+#petitions-stats-users-date-form {
+  padding: 1em;
+  border: 1px #CCCCCC inset;
+  background: #F7F7F7;
+}
+.stats-block {
+  width: 500px;
+  background: white;
+  padding: 0 2em;
+}
+.stats-block h2 {
+  color: #274257;
+  font-size: 1.2em;
+  text-transform: uppercase;
+  font-family: helvetica;
+  border-bottom: 1px solid #2A75A9;
+}
+ul.bar-graph li {
+  position: relative;
+  margin: 0 0 2px 0;
+  list-style: none;
+  list-style-image: none;
+  height: 1.5em;
+}
+ul.bar-graph li em {
+  display: block;
+  float: right;
+  color: #9c863e;
+  position: relative;
+  z-index: 10;
+}
+ul.bar-graph li span {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #f3f2e8;
+  color: #3792b3;
+  z-index: 1;
+}
+ul.bar-graph li:hover span {
+  background: #ecebe1;
+}

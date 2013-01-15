@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "execution time": "43",
+        "resultset": {
+            "count": 123,
+            "offset": 0,
+            "limit": 10
+        }
+    },
+    "results": [
+        {
+            "type": "user",
+            "location": {
+                "city": "Washington",
+                "state": "DC",
+                "zip": "20006"
+            },
+            "created": "1231621302"
+        },
+        {
+            "type": "user",
+            "location": {
+                "city": "Washington",
+                "state": "DC",
+                "zip": "20006"
+            },
+            "created": "126251302"
+        }
+    ]
+}

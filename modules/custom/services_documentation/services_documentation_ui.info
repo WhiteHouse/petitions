@@ -1,0 +1,5 @@
+name = Services Documentation UI
+description = Provides UI for Services documentation module.
+core = 7.x
+package = Services
+dependencies[] = services_documentation

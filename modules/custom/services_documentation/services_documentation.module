@@ -1,0 +1,250 @@
+<?php
+
+/**
+ * @file
+ * Generates documentation pages for Services resources.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function services_documentation_menu() {
+  $base_path = variable_get('services_documentation_base_path', 'developers');
+  $version_info = services_documentation_versions_info();
+
+  // API versions overview.
+  $versions = $version_info['versions'];
+  $items[$base_path] = array(
+    'title' => 'Services Documentation',
+    'page callback' => 'services_documentation_versions_overview_page',
+    'access arguments' => array('view services documentation'),
+  );
+
+  // Build menu items for each API version.
+  foreach ($versions as $version) {
+    $version_path = $base_path . '/' . $version;
+    $items[$version_path] = array(
+      'title' => 'Version ' . $version,
+      'page callback' => 'services_documentation_version_page',
+      'access arguments' => array('view services documentation'),
+      'page arguments' => array("$version"),
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_element_info().
+ */
+function services_documentation_element_info() {
+  $types['services_documentation_method'] = array(
+    '#input' => FALSE,
+    '#pre_render' => array('services_documentation_format_method'),
+    '#theme' => array('services_documentation_method'),
+  );
+  return $types;
+}
+
+/**
+ * Formats documented Services methods.
+ */
+function services_documentation_format_method($element) {
+
+  // Create HTTP method key.
+  foreach($element['#method']['args'] as $key => $argument) {
+    if (is_array($argument['source'])) {
+      switch (key($argument['source'])) {
+        case 'param':
+          $element['#method']['args'][$key]['http_method'] = 'GET';
+          break;
+        case 'path':
+          $element['#method']['args'][$key]['http_method'] = 'URL';
+          break;
+      }
+    }
+    else {
+      $element['#method']['args'][$key]['http_method'] = 'POST';
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function services_documentation_permission() {
+  return array(
+    'view services documentation' => array(
+      'title' => t('view services documentation'),
+      'description' => t('View services documentation.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function services_documentation_theme($existing, $type, $theme, $path) {
+  $theme_path = drupal_get_path('module', 'services_documentation') . '/theme';
+
+  return array(
+    'services_documentation_versions_overview' => array(
+      'path' => $theme_path,
+      'template' => 'services-documentation-versions-overview',
+      'variables' => array('versions' => NULL),
+    ),
+    'services_documentation_resource' => array(
+      'path' => $theme_path,
+      'template' => 'services-documentation-resource',
+      'variables' => array(
+        'name' => NULL,
+        'method_bundles' => NULL,
+      ),
+    ),
+    'services_documentation_method_bundle' => array(
+      'path' => $theme_path,
+      'template' => 'services-documentation-method-bundle',
+      'variables' => array(
+        'name' => NULL,
+        'methods' => NULL,
+      ),
+    ),
+    'services_documentation_method' => array(
+      'path' => $theme_path,
+      'template' => 'services-documentation-method',
+      'variables' => array(
+        'name' => NULL,
+        'description' => NULL,
+        'parameters' => NULL,
+        'request' => NULL,
+        'response' => NULL,
+        'method' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Page callback for documentation versions overview.
+ */
+function services_documentation_versions_overview_page() {
+  $base_path = variable_get('services_documentation_base_path', 'developers');
+  $version_info = services_documentation_versions_info();
+  $versions = $version_info['versions'];
+
+  $items = array();
+  foreach ($versions as $version) {
+    $items[$version] = l(t($version), $base_path . '/' . $version);
+  }
+
+  $output = array(
+    '#items' => $items,
+    '#theme' => 'item_list',
+  );
+
+  return theme('services_documentation_versions_overview', array('versions' => $output));
+}
+
+/**
+ * Page callback for a given documentation version.
+ */
+function services_documentation_version_page($version) {
+  $theme_path = drupal_get_path('module', 'services_documentation') . '/theme';
+  drupal_add_css($theme_path . '/services_documentation.css');
+
+  $resources = services_documentation_build_documentation($version);
+  $table_of_contents = array();
+  $output = array();
+
+  // Build render array for methods belonging to this API version.
+  foreach ($resources as $resource_name => $resource) {
+    foreach ($resource as $method_bundle_type => $method_bundle) {
+      foreach ($method_bundle as $method_name => $method) {
+        $documentation_callback = $method['documentation callback'];
+        $element = call_user_func_array($documentation_callback, array());
+        // Specifying #type attaches #pre_render and #theme callbacks
+        // via hook_element_info() implementation.
+        $element['#type'] = 'services_documentation_method';
+        $element['#method'] = $method;
+        $output[$resource_name]['#method_bundles'][$method_bundle_type]['#methods'][$method_name] = $element;
+      }
+      $output[$resource_name]['#method_bundles'][$method_bundle_type]['#name'] = $method_bundle_type;
+      $output[$resource_name]['#method_bundles'][$method_bundle_type]['#theme'] = 'services_documentation_method_bundle';
+    }
+    $output[$resource_name]['#theme'] = 'services_documentation_resource';
+    $output[$resource_name]['#name'] = $resource_name;
+    $table_of_contents['#items'][$resource_name] = l($resource_name, current_path(), array('fragment' => $resource_name));
+  }
+
+  // Add table of contents to output.
+  asort($table_of_contents['#items']);
+  $table_of_contents['#prefix'] = t('Resources');
+  $table_of_contents['#theme'] = 'item_list';
+  array_unshift($output, $table_of_contents);
+
+  return $output;
+}
+
+/**
+ * Generates an array of Services resources keyed by API version.
+ */
+function services_documentation_build_documentation($version = NULL) {
+  $version_info = services_documentation_versions_info();
+  $documentation_resources = array();
+
+  // Build menu items for Services resource documentation.
+  if ($resources = services_get_resources()) {
+    // Cycle through resources. E.g., users, taxonomy_term, etc.
+    foreach ($resources as $resource_name => $resource) {
+      // Cycle through operation bundles. E.g., targeted_actionsm, actions, etc.
+      foreach ($resource as $method_bundle_type => $method_bundle) {
+        // Cycle through each operation in bundle. E.g., create, recieve, etc.
+        foreach ($method_bundle as $method_name => $method) {
+          if (is_array($method) && !empty($method['documentation callback'])) {
+
+            // Set default documentation version.
+            if (empty($resource['documentation versions'])) {
+              $resource['documentation versions'] = (array) $version_info['current_version'];
+            }
+
+            // Return resources for specified API version.
+            if ($version && in_array($version, $resource['documentation versions'])) {
+              $documentation_resources[$resource_name][$method_bundle_type][$method_name] = $method;
+            }
+
+            // Return resources for all API versions.
+            else {
+              foreach ($resource['documentation versions'] as $doc_version) {
+                $documentation_resources[$doc_version][$resource_name][$method_bundle_type][$method_name] = $method;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return $documentation_resources;
+}
+
+/**
+ * Returns version information about Services documentation.
+ *
+ * @return array
+ *   API version information. 'default_version' is the version that's assumed
+ *   if the module doesn't declare an API version. 'versions' is an array
+ *   containing the known API versions. 'current_version' is the current
+ *   version number.
+ */
+function services_documentation_versions_info() {
+  $info = array(
+    'default_version' => 1000,
+    'versions' => array(1000),
+  );
+  $info['current_version'] = max($info['versions']);
+  drupal_alter('services_documentation_versions', $info);
+
+  return $info;
+}

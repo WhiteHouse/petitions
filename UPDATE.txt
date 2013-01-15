@@ -1,6 +1,22 @@
 UPDATE
 ======
 
+Version 7.x-1.0-alpha29 -> 7.x-1.0-alpha30
+-----------------------------------------------
+
+Release notes:
+
+  - Add Services module
+  - Add custom Services Documentation, Users Resource, and Petitions
+    Statistics - Users modules
+  - Add Petitions API feature
+
+Update steps:
+
+  1. Enable new modules.
+
+       drush en services rest_server services_documentation api_resource_users petitions_stats_users petitions_api -y
+
 Version 7.x-1.0-alpha28 -> 7.x-1.0-alpha29
 -----------------------------------------------
 
@@ -14,7 +30,7 @@ Update steps:
 
        drush cc all
 
-Version 7.x-1.0-alpha25 -> 7.x-1.0-alpha26
+Version 7.x-1.0-alpha25 -> 7.x-1.0-alpha28
 -----------------------------------------------
 
 Release notes:
@@ -22,6 +38,7 @@ Release notes:
   - Add Colorbox and Libraries modules
   - Add Colobox plugin
   - Add a custom module to alert users upon exiting the domain
+  - Update various theme elements
 
 Update steps:
 
