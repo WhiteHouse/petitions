@@ -15,11 +15,11 @@ function wh_petitions_show_petitions() {
   // Variables that are passed by reference to the helper function.
   $count = 0;
   $total = 0;
-  
-  // Call the helper function to retrieve the HTML for the petitions to display on this page ( page 1 ).  Also passes the other variables by reference so they can be 
+
+  // Call the helper function to retrieve the HTML for the petitions to display on this page ( page 1 ).  Also passes the other variables by reference so they can be
   // sanitized and updated if need be.
-  $html = wh_petitions_get_petitions($sort, $page, $cols, $issues, $search, $count, $total);  
-  
+  $html = wh_petitions_get_petitions($sort, $page, $cols, $issues, $search, $count, $total);
+
   // Display the 'More' link if we had petitions on this page, plus the total count is more than the total count we've displayed so far.
   $next_page = '';
   if ($count > 0 && ($total > ($page * WH_PETITION_PETITIONS_PER_PAGE))) {
@@ -32,18 +32,18 @@ function wh_petitions_show_petitions() {
   $issues_form = drupal_render($issues_form);
   $search_form = drupal_get_form('wh_petitions_list_page_search_form');
   $search_form = drupal_render($search_form);
-  
+
   // Theme the petitions page
   return theme('wh_petitions_display_petition_page', array(
-    'petitions' => $html, 
-    'sort' => check_plain($sort), 
-    'page' => intval($page), 
-    'cols' => intval($cols), 
-    'issues_form' => $issues_form, 
-    'issues' => implode(' ', $issues), 
-    'search_form' => $search_form, 
-    'search' => urlencode($search), 
-    'next_page' => urlencode($next_page), 
+    'petitions' => $html,
+    'sort' => check_plain($sort),
+    'page' => intval($page),
+    'cols' => intval($cols),
+    'issues_form' => $issues_form,
+    'issues' => implode(' ', $issues),
+    'search_form' => $search_form,
+    'search' => urlencode($search),
+    'next_page' => urlencode($next_page),
     'count' => intval($count + (WH_RESPONSE_RESPONSES_PER_PAGE * ($page - 1))),
     'total' => wh_petitions_format_number($total),
   ));
@@ -72,19 +72,19 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
   if (!in_array($sort, array('all', 'trending', 'popular'))) {
     $sort = 'all';
   }
-  
+
   // Validate the page and calculate the offset for the query
   $page = intval($page);
   if ($page <= 0) {
     $page = 1;
   }
   $offset = ($page - 1) * WH_PETITION_PETITIONS_PER_PAGE;
-  
+
   // 1 Col or 2
   if ($cols != 1 && $cols != 2) {
     $cols = 2;
   }
-  
+
   // Issues
   if (!empty($issues)) {
     $issues = explode(" ", urldecode($issues));
@@ -94,7 +94,7 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
   }
 
   // Search
-  $search = strtolower(strip_tags(trim(urldecode($search)))); 
+  $search = strtolower(strip_tags(trim(urldecode($search))));
   $keywords = explode(' ', $search);
 
   // Retrieve only public and under_review petitions that aren't hidden from lists by admins
@@ -109,11 +109,11 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
   if (!empty($issues)) {
     $query['issues'] = array('$in' => $issues);
   }
-  
+
   // Retrieve petitions that have at least one of the same keywords from the search in their titles.
   if (!empty($search)) {
     $query['title_keywords'] = array('$in' => $keywords);
-  }  
+  }
 
   // Compose the sort option
   $sort_query = array();
@@ -135,7 +135,7 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
 
   // Fields to retrieve
   $retrieve_fields = array('title', 'signature_count', 'reached_public', 'nice_url');
-  
+
   // If we're searching by text, we should be displaying results that match the title first, then results that match the body.
   // To accomplish this, we do two queries, one matching title and one matching description
   // Based on the counts from each and the page we're on, we can figure out which query(s) to run and which results to get.
@@ -151,44 +151,44 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
     // Combine the results
     $total = $title_total + $body_total;
   }
-  
+
   // If we ran a search and had results, we need to figure out what to display.
-  if (!empty($search) && $total > 0) {    
+  if (!empty($search) && $total > 0) {
     // If we're not past the count of titles, query petitions based on title.
     if ($offset < $title_total) {
       $result = $conn->find($query, $retrieve_fields)->sort($sort_query)->skip($offset)->limit(WH_PETITION_PETITIONS_PER_PAGE);
-      
+
       foreach ($result as $res) {
         array_push($petitions, $res);
         $count++;
-      }      
+      }
     }
-    
-    // Query descriptions if we didn't find 8 (WH_PETITION_PETITIONS_PER_PAGE) results from title search ( either ran out of results or the offset is past the 
+
+    // Query descriptions if we didn't find 8 (WH_PETITION_PETITIONS_PER_PAGE) results from title search ( either ran out of results or the offset is past the
     // result count for titles )
     if ($count < WH_PETITION_PETITIONS_PER_PAGE) {
       $limit = WH_PETITION_PETITIONS_PER_PAGE;
-      if ($count < WH_PETITION_PETITIONS_PER_PAGE) { 
+      if ($count < WH_PETITION_PETITIONS_PER_PAGE) {
         $limit = WH_PETITION_PETITIONS_PER_PAGE - $count;
       }
       $body_offset = $offset - $title_total;
-      if ($body_offset < 0) { 
+      if ($body_offset < 0) {
         $body_offset = 0;
       }
       $body_result = $conn->find($body_query, $retrieve_fields)->sort($sort_query)->skip($body_offset)->limit($limit);
-      
+
       foreach ($body_result as $res) {
         array_push($petitions, $res);
         $count++;
-      }        
+      }
     }
   }
-  else { 
+  else {
     // We had a search but found no results, keep the page the same.
     if (!empty($search)) {
       return '<p class="no-results">' . t('There are no petitions that match this search.') . '</p>';
     }
-    
+
     // For Trending sort, we have a helper function to do this for us since this logic is used in multiple places.
     if ($sort == 'trending') {
       $total = 0;
@@ -207,26 +207,26 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
   }
 
   // We want something to occupy the place in the url in case there are no issues.
-  if (empty($issues)) { 
+  if (empty($issues)) {
     $issues = array(0);
   }
-  
+
   // Theme the petitions
   $i = 0;
   foreach ($petitions as $res) {
     $id = $res['_id']->__toString();
     $html .= theme('wh_petitions_display_list_petition', array(
-      'entry_num' => $i, 
-      'title' => check_plain($res['title']), 
-      'signature_count' => wh_petitions_format_number($res['signature_count']), 
-      'petition_link' => l(t('Find out more'), $res['nice_url']), 
-      'cols' => intval($cols), 
+      'entry_num' => $i,
+      'title' => check_plain($res['title']),
+      'signature_count' => wh_petitions_format_number($res['signature_count']),
+      'petition_link' => l(t('Find out more'), $res['nice_url']),
+      'cols' => intval($cols),
       'petition_id' => check_plain($id),
       'nice_url' => $res['nice_url'],
     ));
     $i++;
   }
-  
+
   if (!empty($issues) && empty($html) && $issues[0] != 0) {
     if (sizeof($issues) == 1) {
       $html = '<p class="no-results">' . t('There are no petitions that match this issue.') . '</p>';
@@ -235,8 +235,8 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
       $html = '<p class="no-results">' . t('There are no petitions that match these issues.') . '</p>';
     }
   }
-  
-  return $html;  
+
+  return $html;
 }
 
 /**
@@ -264,7 +264,7 @@ function wh_petitions_more_petitions($sort, $page, $cols, $issues) {
       $html .= '<div id="petition-bars"><div class="clear loading-more-petitions-bar">' . t('Viewing !count of !total', array('!count' => '<span id="petition-count">' . $count . '</span>', '!total' => wh_petitions_format_number($total))) . '</div><div class="display-none" id="page-num">' . $page . '</div></div>';
     }
   }
- 
+
   $data = array('markup' => $html);
   if (!empty($_GET['callback'])) {
     $callback = check_plain($_GET['callback']);
@@ -280,11 +280,11 @@ function wh_petitions_more_petitions($sort, $page, $cols, $issues) {
 /**
  * Function to retrieve the petition set for a trending query.  Logic is to retrieve results that have the most signatures within previous 24-hours.
  * To accomplish this, we need to get the results into an array and sort the result array based on signature count from the timeframe.
- * 
+ *
  * @todo: Note: Trending used to be a link on the /petitions page. This has been commented out, but the code is still here because we're concerned about breaking something else by removing it. Please revisit.
  */
 function wh_petitions_trending_results($conn, $offset, $per_page, &$total) {
-  $ids = variable_get('wh_petitions_trending_ids', array()); 
+  $ids = variable_get('wh_petitions_trending_ids', array());
   if (!empty($ids)) {
     $id_slice = array_slice($ids, $offset, $per_page);
     $query = array(
@@ -299,10 +299,10 @@ function wh_petitions_trending_results($conn, $offset, $per_page, &$total) {
       if ($res['_id'] == $val) {
         array_push($arr, $res);
       }
-    } 
+    }
   }
   $total = sizeof($ids);
-  
+
   return $arr;
 }
 
@@ -314,37 +314,37 @@ function wh_petitions_trending_results($conn, $offset, $per_page, &$total) {
 function wh_petitions_petition_detail($petition_id) {
   global $user;
   global $base_url;
-  
+
   $logged_in = ($user->uid > 0) ? TRUE : FALSE;
 
   // Make sure we got a petition id
   if (empty($petition_id)) {
     return '';
   }
-    
+
   // Load the petition
-  $conn = wh_petitions_mongo_petition_connection(); 
+  $conn = wh_petitions_mongo_petition_connection();
   $petition = wh_petitions_load_petition($conn, $petition_id);
 
   // If it wasn't a valid petition id, exit
   if (empty($petition)) {
     return '';
   }
-  
+
   // Check for the status of this. No one should be able to see draft petitions through this callback, not even admins.
   if ($petition['petition_status'] == WH_PETITION_STATUS_DRAFT) {
     return '';
   }
-  
+
   // Archived petitions should return a generic message page for all but admins
   if ($petition['petition_status'] == WH_PETITION_STATUS_CLOSED && !user_access('administer petitions')) {
     return theme('wh_petitions_page_archived', array('archived_text' => variable_get('wh_petitions_archived_page_text', '')));
-  }  
-  
+  }
+
   // Set a context variable for petition status we can use later.
   context_set('petition', 'status', $petition['petition_status']);
   drupal_set_title(filter_xss($petition['title'], array()), PASS_THROUGH);
-  
+
   // Clear some variables we'll set later for some petition statuses.
   $archived = FALSE;
   $published = TRUE;
@@ -358,8 +358,8 @@ function wh_petitions_petition_detail($petition_id) {
   $agency_seal = '';
   $agency_name = '';
   $response_intro = '';
-  
-  // Get petition details  
+
+  // Get petition details
   $timestamp = $petition['_id']->getTimestamp();
   $created = date("M d, Y", $timestamp);
   $issues = array();
@@ -371,33 +371,33 @@ function wh_petitions_petition_detail($petition_id) {
       }
     }
   }
-  $issues = implode(", ", $issues); 
+  $issues = implode(", ", $issues);
   $public_needed = $petition['public_signatures'];
   $total_needed = $petition['response_signatures'];
   $signatures_needed = $total_needed - $petition['signature_count'];
-  if ($signatures_needed < 0) { 
+  if ($signatures_needed < 0) {
     $signatures_needed = 0;
   }
   $signatures = $petition['signature_count'];
   $time = $petition['published'];
   $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
-  $end_date = date("F d, Y", $end_date);  
-  
+  $end_date = date("F d, Y", $end_date);
+
   // Set a flag for archived petitions
   if ($petition['petition_status'] == WH_PETITION_STATUS_CLOSED) {
     $archived = TRUE;
-  }  
+  }
   // Petitions that have been reviewed and have a response attached ( should always be there together, but check just in case )
-  elseif ($petition['petition_status'] == WH_PETITION_STATUS_REVIEWED) {    
+  elseif ($petition['petition_status'] == WH_PETITION_STATUS_REVIEWED) {
     if ($petition['response_status'] == WH_PETITION_RESPONSE_STATUS_ANSWERED) {
-      $responded = TRUE;    
-    
+      $responded = TRUE;
+
       // Get response details.  node_load might be a bit much in this case, but for now we'll stick with it.
       $node = node_load($petition['response_id']);
-      if (!empty($node) && $node->status > 0) {  
+      if (!empty($node) && $node->status > 0) {
         $response_title = check_plain($node->title);
         $response_body = $node->body[$node->language][0]['safe_value'];
-      
+
         $agency_name = '';
         if (!empty($node->field_agency_name[$node->language][0]['value'])) {
           $agency_name = $node->field_agency_name[$node->language][0]['value'];
@@ -413,14 +413,14 @@ function wh_petitions_petition_detail($petition_id) {
            'getsize' => TRUE,
          );
          $agency_seal = theme('image_style', $image_vars);
-       }        
-      
+       }
+
        // Retrieve the appropiate audio/video field info for the response.
        if (!empty($node->field_response_media[$node->language][0])) {
          $media_tid = $node->field_response_media[$node->language][0]['tid'];
          $media = taxonomy_term_load($media_tid);
          $media_name = $media->name;
-  
+
          switch ($media_name) {
            case 'Audio':
              if (!empty($node->field_audio_embed[$node->language][0])) {
@@ -431,14 +431,14 @@ function wh_petitions_petition_detail($petition_id) {
              if (!empty($node->field_video_embed[$node->language][0])) {
                $response_video = check_plain($node->field_video_embed[$node->language][0]['value']);
              }
-             break;                 
+             break;
           }
         }
       }
-      
+
       // Get the intro text
       $res_conn = wh_response_mongo_response_connection();
-      $obj = wh_response_load_petition_response($res_conn, $node->nid, $petition_id);   
+      $obj = wh_response_load_petition_response($res_conn, $node->nid, $petition_id);
       $response_intro = $obj['intro'];
     }
   }
@@ -446,7 +446,7 @@ function wh_petitions_petition_detail($petition_id) {
   elseif ($petition['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
     $flagged = TRUE;
   }
-  
+
   // Admin Functionality
   $admin = FALSE;
   $admin_link = '';
@@ -462,7 +462,7 @@ function wh_petitions_petition_detail($petition_id) {
     }
     $admin_link = l(t('Administer This Petition'), 'admin/petitions/' . check_plain($petition_id), array('attributes' => array('classes' => array('no-follow'))));
   }
-  
+
   $flagged_text = '';
   $flagged_text_owner = '';
   if ($flagged) {
@@ -481,17 +481,17 @@ function wh_petitions_petition_detail($petition_id) {
 
   // Theme the top petition detail part
   $petition_html = theme('wh_petitions_display_petition_info', array(
-    'title' => check_plain($petition['title']), 
-    'body' => wh_petitions_format_description($petition['body']), 
-    'created' => check_plain($created), 
-    'issues' => $issues, 
-    'published' => check_plain($published), 
-    'total_needed' => wh_petitions_format_number($total_needed), 
-    'signatures_needed' => wh_petitions_format_number($signatures_needed), 
-    'signatures' => wh_petitions_format_number($signatures), 
-    'end_date' => check_plain($end_date), 
-    'archived' => $archived, 
-    'responded' => $responded, 
+    'title' => check_plain($petition['title']),
+    'body' => wh_petitions_format_description($petition['body']),
+    'created' => check_plain($created),
+    'issues' => $issues,
+    'published' => check_plain($published),
+    'total_needed' => wh_petitions_format_number($total_needed),
+    'signatures_needed' => wh_petitions_format_number($signatures_needed),
+    'signatures' => wh_petitions_format_number($signatures),
+    'end_date' => check_plain($end_date),
+    'archived' => $archived,
+    'responded' => $responded,
     'flagged' => $flagged,
     'private_tags' => check_plain($private_tags),
     'user_tags' => check_plain($user_tags),
@@ -503,8 +503,8 @@ function wh_petitions_petition_detail($petition_id) {
     'flagged_text' => $flagged_text,
     'flagged_text_owner' => $flagged_text_owner,
     'govdelivery' => $govdelivery_topic,
-  )); 
-  
+  ));
+
   // See if this user already signed the petition
   $already_signed = FALSE;
   if (!empty($user->uid)) {
@@ -517,9 +517,9 @@ function wh_petitions_petition_detail($petition_id) {
     $result = $sig_conn->findOne($query);
     if (!empty($result)) {
       $already_signed = TRUE;
-    }  
+    }
   }
-  
+
   // Show the signature form for petitions that haven't been signed by this user and are available to be signed.
   $comment_form = '';
   $signature_url = '';
@@ -536,14 +536,14 @@ function wh_petitions_petition_detail($petition_id) {
     $signature_form = drupal_get_form('wh_petitions_sign_petition_form', $petition_id);
     $signature_form = drupal_render($signature_form);
     $comment_form = drupal_get_form('wh_petitions_comment_petition_form', $petition_id);
-    $comment_form = drupal_render($comment_form); 
+    $comment_form = drupal_render($comment_form);
     $signature_url = '';
     $signature_url = $base_url . "/petition/form/sign/" . check_plain($petition_id);
   }
   else {
     $signature_form = '';
   }
-  
+
   // Set the 'Report as Inappropriate' link if it should appear.  Should appear on public/private/under review
   $inappropriate_form = '';
   $has_reported = FALSE;
@@ -555,7 +555,7 @@ function wh_petitions_petition_detail($petition_id) {
     $has_reported = TRUE;
   }
   else {
-    $inappropriate_link = TRUE; 
+    $inappropriate_link = TRUE;
     module_load_include('inc', 'wh_petitions', 'wh_petitions.form');
     $inappropriate_form = drupal_get_form('wh_petitions_report_inappropriate_form', $petition_id);
     $inappropriate_form = drupal_render($inappropriate_form);
@@ -565,8 +565,8 @@ function wh_petitions_petition_detail($petition_id) {
   $has_share_bar = TRUE;
   if (in_array($petition['petition_status'], array(WH_PETITION_STATUS_DRAFT, WH_PETITION_STATUS_REVIEWED, WH_PETITION_STATUS_FLAGGED))) {
     $has_share_bar = FALSE;
-  }   
-  
+  }
+
   // Get the signatures to display
   $has_more = TRUE;
   $signature_html = '';
@@ -586,12 +586,12 @@ function wh_petitions_petition_detail($petition_id) {
   if (!empty($signatures)) {
     $last_id = $signatures[(sizeof($signatures) -1)]['_id']->__toString();
   }
-  
+
   $signature_html = theme('wh_petitions_display_signatures', array(
     'signatures' => $signatures,
-    'petition_id' => check_plain($petition_id), 
-    'page' => $page, 
-    'has_more' => $has_more, 
+    'petition_id' => check_plain($petition_id),
+    'page' => $page,
+    'has_more' => $has_more,
     'sigs_per_page' => $sigs_per_page,
     'last_id' => $last_id,
     'nice_url' => $petition['nice_url'],
@@ -602,7 +602,7 @@ function wh_petitions_petition_detail($petition_id) {
   $issues_form = drupal_get_form('wh_petitions_list_page_issues_form');
   $issues_form = drupal_render($issues_form);
   $search_form = drupal_get_form('wh_petitions_list_page_search_form');
-  $search_form = drupal_render($search_form);    
+  $search_form = drupal_render($search_form);
 
   $reported_link = variable_get('wh_petitions_reported_as_inappropriate_link', '');
   $short_url_link = '';
@@ -625,20 +625,20 @@ function wh_petitions_petition_detail($petition_id) {
 
   return theme('wh_petitions_page_petition', array(
     'petition_id' => check_plain($petition_id),
-    'response_title' => $response_title, 
-    'response_body' => $response_body, 
-    'response_audio' => $response_audio, 
-    'response_video' => $response_video, 
-    'petition' => $petition_html, 
+    'response_title' => $response_title,
+    'response_body' => $response_body,
+    'response_audio' => $response_audio,
+    'response_video' => $response_video,
+    'petition' => $petition_html,
     'petition_title' => check_plain($petition['title']),
-    'already_signed' => $already_signed, 
+    'already_signed' => $already_signed,
     'signature_form' => $signature_form,
     'comment_form' => $comment_form,
     'signature_html' => $signature_html,
-    'inappropriate_link' => $inappropriate_link, 
+    'inappropriate_link' => $inappropriate_link,
     'inappropriate_form' => $inappropriate_form,
-    'has_share_bar' => $has_share_bar, 
-    'issues_form' => $issues_form, 
+    'has_share_bar' => $has_share_bar,
+    'issues_form' => $issues_form,
     'search_form' => $search_form,
     'responded' => $responded,
     'archived' => $archived,
@@ -646,7 +646,7 @@ function wh_petitions_petition_detail($petition_id) {
     'agency_seal' => $agency_seal,
     'response_intro' => check_plain($response_intro),
     'flagged' => $flagged,
-    'signature_count' => sizeof($signatures), 
+    'signature_count' => sizeof($signatures),
     'signature_total' => wh_petitions_format_number($petition['signature_count']),
     'signature_url' => $signature_url,
     'has_reported' => $has_reported,
@@ -654,10 +654,10 @@ function wh_petitions_petition_detail($petition_id) {
     'reported_link' => $reported_link,
     'why_text' => $why_text,
     'return_destination' => $return_destination,
-    'total_needed' => wh_petitions_format_number($total_needed), 
-    'signatures_needed' => wh_petitions_format_number($thanks_needed), 
-    'signatures' => wh_petitions_format_number($signatures_thanks), 
-    'end_date' => check_plain($end_date),     
+    'total_needed' => wh_petitions_format_number($total_needed),
+    'signatures_needed' => wh_petitions_format_number($thanks_needed),
+    'signatures' => wh_petitions_format_number($signatures_thanks),
+    'end_date' => check_plain($end_date),
     'twitter_link' => wh_petition_tool_twitter_link(check_plain($petition_id), check_plain($petition['title']), 'petition', '', $petition['short_url'], $petition['nice_url']),
     'facebook_link' => wh_petition_tool_facebook_link(check_plain($petition_id), check_plain($petition['title']), 'petition', '', $petition['nice_url']),
     'short_url' => $short_url_link,
@@ -669,7 +669,7 @@ function wh_petitions_petition_detail($petition_id) {
  */
 function wh_petitions_petition_detail_niceurl($url) {
   // Load the petition
-  $conn = wh_petitions_mongo_petition_connection(); 
+  $conn = wh_petitions_mongo_petition_connection();
   $nice_url = check_plain($_GET['q']);
   $petition = $conn->findOne(array('nice_url' => $nice_url), array('title'));
 
@@ -679,7 +679,7 @@ function wh_petitions_petition_detail_niceurl($url) {
     context_set('context', 'petition', $context);
     return wh_petitions_petition_detail($petition['_id']);
   }
-  
+
   drupal_not_found();
 }
 
@@ -708,9 +708,9 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
   }
   else {
     $per_page = 19;
-  }  
+  }
   $sig_conn = wh_petitions_mongo_petition_signatures_connection();
-  
+
   // Find out if a user has signed the petition and capture their signature if they have
   if ($user->uid != $petition_uid) {
     $query = array(
@@ -723,11 +723,11 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
       $user_signature = $result;
     }
   }
-  
+
   // Get the signatures we should be retrieving
-  if ($page == 1) { 
+  if ($page == 1) {
     $skip = 0;
-    $max = 18;    
+    $max = 18;
   }
   else {
     $skip = 18 + (($page - 2) * $per_page);
@@ -737,30 +737,30 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
   $query = array(
     'petition_id' => (string)$petition_id,
   );
-  
+
   // If this current user has signed this petition, remove them from the possible signatures we retrieve ( they'll always be second on the first page )
   if (!empty($has_user_signed)) {
     $query['uid'] = array('$nin' => array((int)$user->uid));
-    if ($page == 1) { 
+    if ($page == 1) {
       $per_page = $per_page - 1;
     }
     else {
       $skip--;
     }
   }
-  
+
   // If we're on the first page, we want to get the creator's signature to display first.
   if ($page == 1) {
     $creator_signature = $sig_conn->findOne(array('petition_id' => (string)$petition_id, 'uid' => (int)$petition_uid));
   }
-  
+
   // We don't want to retrieve the creator's signature in any of the queries either.
   if (empty($query['uid']) && !empty($petition_uid)) {
     $query['uid'] = array('$nin' => array((int)$petition_uid));
   }
   else {
     array_push($query['uid']['$nin'], (int)$petition_uid);
-  }  
+  }
 
   // Get the first page of results
   if ($page == 1) {
@@ -775,7 +775,7 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
   else {
     $results = $sig_conn->find($query)->sort(array('_id' => -1))->skip($skip)->limit($per_page);
   }
-  
+
   // Put the results into an array
   foreach ($results as $res) {
     array_push($signatures, $res);
@@ -785,7 +785,7 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
   if ($max >= $signature_count) {
     $has_more = FALSE;
   }
-  
+
   // If we have a creator's signature, make it the first one.
   if (!empty($creator_signature)) {
     if (empty($signatures)) {
@@ -794,13 +794,13 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
     else {
       array_splice($signatures, 0, 1, array_merge(array($creator_signature), array($signatures[0])));
     }
-  }  
-  
+  }
+
   // If this user has signed it and we need to display their signature ( page = 1 ), add their signature
   if ($has_user_signed && $page == 1) {
     array_splice($signatures, 0, 1, array_merge(array($signatures[0]), array($user_signature)));
   }
-  
+
   // Set some themeing variables that will be available to the template for displaying the results.
   for ($i=0; $i<sizeof($signatures); $i++) {
     if ($signatures[$i]['uid'] == $petition_uid) {
@@ -808,43 +808,23 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
     }
     if ($signatures[$i]['uid'] == $user->uid) {
       $signatures[$i]['is_user'] = TRUE;
-    }    
-  
-    $signatures[$i]['comment'] = check_plain($signatures[$i]['comment']);  
+    }
+
+    $signatures[$i]['comment'] = check_plain($signatures[$i]['comment']);
     $signatures[$i]['number'] = wh_petitions_format_number($signatures[$i]['number']);
-      
-    $name = '';
-    if (!empty($signatures[$i]['user']['first_name'])) {
-      $name = $signatures[$i]['user']['first_name'];
+
+    $username = $signatures[$i]['user']['username'];
+    $first_name = $signatures[$i]['user']['first_name'];
+    $last_name = $signatures[$i]['user']['last_name'];
+    $name = petitions_signatures_display_style($username, $first_name, $last_name);
+
+    $zipcode = $signatures[$i]['user']['zip'];
+    $location = petitions_signatures_display_location($zipcode);
+
+    if ($location) {
+      $signatures[$i]['location'] = check_plain($location);
     }
-    if (!empty($signatures[$i]['user']['last_name'])) {
-      $last_name = trim($signatures[$i]['user']['last_name']);
-      $last_initial = mb_substr($last_name, 0, 1);
-      if (!empty($name)) {
-        $name .= ' ' . $last_initial;
-      }
-      else {
-        $name = $last_initial;
-      }
-    }
-    if (empty($name)) {
-      $name = $signatures[$i]['user']['username'];
-    }
-      
-    $location = '';
-    if (!empty($signatures[$i]['user']['city'])) {
-      $location = $signatures[$i]['user']['city'];
-    }
-    if (!empty($signatures[$i]['user']['state'])) {
-      if (!empty($name)) {
-        $location .= ', ' . $signatures[$i]['user']['state'];
-      }
-      else {
-        $location = $signatures[$i]['user']['state'];
-      }
-    }
-    $signatures[$i]['location'] = check_plain($location);
-    $signatures[$i]['full_name'] = check_plain($name);  
+    $signatures[$i]['full_name'] = check_plain($name);
   }
 
   return $signatures;
@@ -858,7 +838,7 @@ function wh_petitions_more_signatures($petition_id, $page, $last_id) {
   if (empty($petition_id)) {
     print '';
   }
-  
+
   // Determine what page we're on
   if (empty($page)) {
     $page = 1;
@@ -866,12 +846,12 @@ function wh_petitions_more_signatures($petition_id, $page, $last_id) {
   else {
     $page = intval($page);
   }
-  
+
   // Load the petition
   $conn = wh_petitions_mongo_petition_connection();
   $petition = array();
   $petition = wh_petitions_load_slim_petition($conn, $petition_id, array('uid', 'signature_count'));
-  
+
   // If it wasn't a valid petition id, exit
   if (empty($petition)) {
     print '';
@@ -879,26 +859,26 @@ function wh_petitions_more_signatures($petition_id, $page, $last_id) {
 
   $has_more = TRUE;
   $signatures = wh_petitions_get_signatures($petition_id, $petition['uid'], $page, $has_more, TRUE, $petition['signature_count'], $last_id);
-  
+
   // Set the last id that we found in the signature list for this page so we can pass that on to the next pagination query
   $last_id = '';
   if (!empty($signatures)) {
     $last_id = $signatures[(sizeof($signatures) -1)]['_id']->__toString();
-  }  
-  
+  }
+
   $signature_html = theme('wh_petitions_display_signatures', array(
-    'signatures' => $signatures, 
-    'petition_id' => check_plain($petition_id), 
-    'page' => $page + 1, 
-    'has_more' => $has_more, 
-    'count' => sizeof($signatures), 
+    'signatures' => $signatures,
+    'petition_id' => check_plain($petition_id),
+    'page' => $page + 1,
+    'has_more' => $has_more,
+    'count' => sizeof($signatures),
     'total' => wh_petitions_format_number($petition['signature_count']),
     'from_ajax' => TRUE,
     'sigs_per_page' => 20,
     'last_id' => $last_id,
     'nice_url' => $petition['nice_url'],
   ));
-  
+
   $data = array('markup' => $signature_html);
   if (!empty($_GET['callback'])) {
     $callback = check_plain($_GET['callback']);
@@ -926,35 +906,35 @@ function wh_petitions_user_dashboard() {
   if (empty($user->uid)) {
     drupal_goto('user/login');
   }
-  
+
   drupal_set_title(t('My Petitions'));
-  
+
   // Get this user's draft petitions, sort by the id ( descending in order created )
-  $conn = wh_petitions_mongo_petition_connection(); 
+  $conn = wh_petitions_mongo_petition_connection();
   $query = array(
     'uid' => (int)$user->uid,
     'petition_status' => (int)WH_PETITION_STATUS_DRAFT,
   );
   $result = $conn->find($query, array('title', 'signature_count', 'nice_url'));
-  
+
   // Delete Modal
   $draft_html = '';
   $count = 0;
   module_load_include('inc', 'wh_petitions', 'wh_petitions.form');
   $delete_text = variable_get('wh_petitions_delete_modal_text', '');
-  foreach ($result as $res) {  
-    $petition_status = WH_PETITION_STATUS_DRAFT; 
+  foreach ($result as $res) {
+    $petition_status = WH_PETITION_STATUS_DRAFT;
     $delete_form = drupal_get_form('wh_petitions_delete_petition_form', $res['_id']->__toString());
-    $delete_form = drupal_render($delete_form);    
-    
+    $delete_form = drupal_render($delete_form);
+
     $draft_html .= theme('wh_petitions_display_list_petition', array(
-      'title' => check_plain($res['title']), 
-      'signature_count' => wh_petitions_format_number($res['signature_count']), 
+      'title' => check_plain($res['title']),
+      'signature_count' => wh_petitions_format_number($res['signature_count']),
       'nice_url' => '',
-      'petition_link' => l(t('Finish'), 'petition/create/' . check_plain($res['_id']->__toString()), array('attributes' => array('class' => 'finish'))), 
-      'cols' => 2, 
-      'status' => $petition_status, 
-      'delete_link' => TRUE, 
+      'petition_link' => l(t('Finish'), 'petition/create/' . check_plain($res['_id']->__toString()), array('attributes' => array('class' => 'finish'))),
+      'cols' => 2,
+      'status' => $petition_status,
+      'delete_link' => TRUE,
       'petition_id' => check_plain($res['_id']->__toString()),
       'entry_num' => $count,
       'dashboard' => TRUE,
@@ -964,7 +944,7 @@ function wh_petitions_user_dashboard() {
     ));
     $count++;
   }
-  
+
   // Get the petitions this user has created
   $created_html = '';
   $query = array(
@@ -986,27 +966,27 @@ function wh_petitions_user_dashboard() {
           break;
         case WH_PETITION_STATUS_REVIEWED:
           $petition_status = 'response';
-          break; 
+          break;
         case WH_PETITION_STATUS_CLOSED:
           $petition_status = 'archived';
-          break;                
+          break;
       }
     }
 
     $created_html .= theme('wh_petitions_display_list_petition', array(
-      'title' => check_plain($res['title']), 
-      'signature_count' => wh_petitions_format_number($res['signature_count']), 
+      'title' => check_plain($res['title']),
+      'signature_count' => wh_petitions_format_number($res['signature_count']),
       'nice_url' => $res['nice_url'],
-      'petition_link' => l(t('View'), $res['nice_url'], array('attributes' => array('class' => 'view'))), 
-      'cols' => 2, 
-      'petition_status' => $petition_status, 
+      'petition_link' => l(t('View'), $res['nice_url'], array('attributes' => array('class' => 'view'))),
+      'cols' => 2,
+      'petition_status' => $petition_status,
       'petition_id' => check_plain($res['_id']->__toString()),
       'entry_num' => $count,
       'dashboard' => TRUE,
     ));
     $count++;
   }
-  
+
   // Get the petitions this user has signed ( but ones they're not a creator for, since creators automatically sign their petitions )
   $sig_conn = wh_petitions_mongo_petition_signatures_connection();
   $mongo_array = array();
@@ -1015,14 +995,14 @@ function wh_petitions_user_dashboard() {
     array_push($mongo_array, new MongoId($res['petition_id']));
   }
 
-  $signed_html = '';  
+  $signed_html = '';
   $query = array(
     'uid' => array('$ne' => (int)$user->uid),
     '_id' => array('$in' => $mongo_array),
     'petition_status' => array('$gt' => (int)WH_PETITION_STATUS_DRAFT),
   );
   $result = $conn->find($query, array('petition_status', 'title', 'signature_count', 'nice_url'));
-  
+
   $count = 0;
   foreach ($result as $res) {
     $petition_status = '';
@@ -1033,27 +1013,27 @@ function wh_petitions_user_dashboard() {
           break;
         case WH_PETITION_STATUS_REVIEWED:
           $petition_status = 'response';
-          break; 
+          break;
         case WH_PETITION_STATUS_CLOSED:
           $petition_status = 'archived';
-          break;                
+          break;
       }
     }
 
     $signed_html .= theme('wh_petitions_display_list_petition', array(
-      'title' => check_plain($res['title']), 
-      'signature_count' => wh_petitions_format_number($res['signature_count']), 
+      'title' => check_plain($res['title']),
+      'signature_count' => wh_petitions_format_number($res['signature_count']),
       'nice_url' => $res['nice_url'],
-      'petition_link' => l(t('View'), $res['nice_url'], array('attributes' => array('class' => 'view'))), 
-      'cols' => 2, 
-      'petition_status' => $petition_status, 
+      'petition_link' => l(t('View'), $res['nice_url'], array('attributes' => array('class' => 'view'))),
+      'cols' => 2,
+      'petition_status' => $petition_status,
       'petition_id' => check_plain($res['_id']->__toString()),
       'entry_num' => $count,
       'dashboard' => TRUE,
     ));
     $count++;
-  }  
-  
+  }
+
   $username = '';
   $user_load = user_load($user->uid);
   if (!empty($user_load->profile_first_name)) {
@@ -1061,12 +1041,12 @@ function wh_petitions_user_dashboard() {
   }
   if (empty($username)) {
     $username = $user->name;
-  } 
+  }
 
   return theme('wh_petitions_user_dashboard', array(
-    'username' => check_plain($username), 
-    'created' => $created_html, 
-    'signed' => $signed_html, 
+    'username' => check_plain($username),
+    'created' => $created_html,
+    'signed' => $signed_html,
     'draft' => $draft_html
   ));
 }
@@ -1089,32 +1069,32 @@ function wh_petitions_deleted_page() {
  * Callback to display the email a petition iframe.  Needs to be in an iframe otherwise the forward form and captcha fail if we bring this form over via the normal json.
  */
 function wh_petitions_email_petition($petition_id) {
-  $conn = wh_petitions_mongo_petition_connection(); 
+  $conn = wh_petitions_mongo_petition_connection();
   $petition = wh_petitions_load_slim_petition($conn, $petition_id);
   if (!empty($petition)) {
     global $base_url;
-    drupal_set_title(t('Email A Petition')); 
+    drupal_set_title(t('Email A Petition'));
     /**
      * @todo - Ben - We could probably switch this to use url() function now that the hostname isn't being modified.
      */
     $url = '/petition-tool/petition/email_frame/' . check_plain($petition_id);
     return '<iframe src="' . $url . '?t=' . microtime() . '" width="687" height="1000" frameborder="0"></iframe>';
-  } 
+  }
   return '';
 }
- 
+
 /**
  * Callback to display the email response form in the iframe from above.
  */
 function wh_petitions_email_petition_frame($petition_id) {
   $styles = drupal_get_css();
   $scripts = drupal_get_js();
-  $conn = wh_petitions_mongo_petition_connection(); 
+  $conn = wh_petitions_mongo_petition_connection();
   $petition = wh_petitions_load_slim_petition($conn, $petition_id);
   if (!empty($petition)) {
     $form_html = drupal_render(drupal_get_form('forward_form', 'petition/detail/' . check_plain($petition_id), $petition['title'], TRUE));
-    $messages = theme('status_messages');    
-  
+    $messages = theme('status_messages');
+
     $html = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" dir="ltr">
@@ -1143,10 +1123,10 @@ function wh_petitions_email_petition_frame($petition_id) {
 function wh_petitions_email_petition_thank_you($petition_id) {
   $styles = drupal_get_css();
   $scripts = drupal_get_js();
-  $conn = wh_petitions_mongo_petition_connection(); 
-  $petition = wh_petitions_load_slim_petition($conn, $petition_id);  
+  $conn = wh_petitions_mongo_petition_connection();
+  $petition = wh_petitions_load_slim_petition($conn, $petition_id);
   if (!empty($petition)) {
-    $messages = theme('status_messages');    
+    $messages = theme('status_messages');
     $nice_url = $petition['nice_url'];
     global $base_url;
     $html = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"

@@ -1,6 +1,20 @@
 UPDATE
 ======
 
+Version 7.x-1.0-alpha30 -> 7.x-1.0-alpha31
+-----------------------------------------------
+
+Release notes:
+
+  - Add custom Petitions Signatures Display module
+  - Updated signatures location display to use stored values associated with zip code
+
+Update steps:
+
+  1. Enable new modules.
+
+       drush en petitions_signatures_display -y
+
 Version 7.x-1.0-alpha29 -> 7.x-1.0-alpha30
 -----------------------------------------------
 

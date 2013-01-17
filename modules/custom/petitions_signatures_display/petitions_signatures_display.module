@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * @file
+ * This is the main module file for Petitions Signatures Display.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function petitions_signatures_display_menu() {
+  $items = array();
+
+  $items['admin/config/petitions/signatures'] = array(
+    'title' => 'Signatures Display',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('petitions_signatures_display_configure'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'petitions_signatures_display.admin.inc',
+    'description' => "Configure signatures display.",
+  );
+
+  return $items;
+}
+
+/**
+ * Returns [first name] [last initial].
+ */
+function petitions_signatures_display_fname_linitial($first_name = '', $last_name = '') {
+  if ($first_name) {
+    $name = ucfirst($first_name);
+  }
+
+  if ($last_name) {
+    if ($name) {
+      $name .= ' ' . ucfirst(mb_substr(trim($last_name), 0, 1)) . '.';
+    }
+    else {
+      $name = ucfirst(mb_substr(trim($last_name), 0, 1)) . '.';
+    }
+  }
+
+  return $name;
+}
+
+/**
+ * Returns [first initial] [last initial].
+ */
+function petitions_signatures_display_finitial_linitial($first_name = '', $last_name = '') {
+  if ($first_name) {
+    $name = ucfirst(mb_substr(trim($first_name), 0, 1)) . '.';
+  }
+
+  if ($last_name) {
+    if ($name) {
+      $name .= ' ' . ucfirst(mb_substr(trim($last_name), 0, 1)) . '.';
+    }
+    else {
+      $name = ucfirst(mb_substr(trim($last_name), 0, 1)) . '.';
+    }
+  }
+
+  return $name;
+}
+
+/**
+ * Returns formatted name.
+ */
+function petitions_signatures_display_style($username, $first_name = '', $last_name = '') {
+  $function = variable_get('petitions_signatures_display_initials', 'petitions_signatures_display_fname_linitial');
+
+  if ($first_name || $last_name) {
+    $name = $function($first_name, $last_name);
+  }
+  else {
+    $name = $username;
+  }
+
+  return $name;
+}
+
+/**
+ * Returns city and state.
+ * Invokes _perform_lookup() in wh_zipcodelookup.module.
+ */
+function petitions_signatures_display_location($zipcode = '') {
+  if (module_exists('wh_zipcodelookup') && function_exists('_perform_lookup')) {
+    $city_state = _perform_lookup($zipcode);
+    $city = $city_state[0][city];
+    $state = $city_state[0][state];
+    if ($city && $state) {
+      $location = $city . ', ' . $state;
+    }
+    elseif ($city && !$state) {
+      $location = $city;
+    }
+    elseif (!$city && $state) {
+      $location = $state;
+    }
+    return $location;
+  } else {
+    return;
+  }
+}
