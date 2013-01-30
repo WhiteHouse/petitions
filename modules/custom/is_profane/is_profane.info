@@ -1,0 +1,3 @@
+name = Is Profane
+description = Provides functions that allow modules to validate against a list of defined profanity terms.
+core = 7.x

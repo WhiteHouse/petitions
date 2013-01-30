@@ -6,34 +6,34 @@
  */
 
 /**
- * Implementation of hook_init().
+ * Implements hook_init().
  */
 function wh_core_init() {
-  // Add the javascript that will populate the 'origin' field in user reg forms
+  // Add the javascript that will populate the 'origin' field in user reg forms.
   drupal_add_js(drupal_get_path('module', 'wh_core') . '/wh_core.js', 'file');
 }
 
 /**
- * Implementation of hook_theme()
+ * Implements hook_theme().
  */
 function wh_core_theme($existing, $type, $theme, $path) {
   return array(
     'wh_core_register' => array(
-      'path' => drupal_get_path('module', 'wh_core').'/templates',
+      'path' => drupal_get_path('module', 'wh_core') . '/templates',
       'template' => 'wh_core_register',
       'variables' => array(
         'wh_core_register' => NULL,
       ),
     ),
     'wh_core_login' => array(
-      'path' => drupal_get_path('module', 'wh_core').'/templates',
+      'path' => drupal_get_path('module', 'wh_core') . '/templates',
       'template' => 'wh_core_login',
       'variables' => array(
         'wh_core_login' => NULL,
       ),
     ),
     'wh_core_password' => array(
-      'path' => drupal_get_path('module', 'wh_core').'/templates',
+      'path' => drupal_get_path('module', 'wh_core') . '/templates',
       'template' => 'wh_core_password',
       'variables' => array(
         'wh_core_password' => NULL,
@@ -43,17 +43,21 @@ function wh_core_theme($existing, $type, $theme, $path) {
 }
 
 /**
-* Implementation of hook_preprocess_hook ()
-*/
+ * Implements hook_preprocess_hook().
+ */
 function wh_core_preprocess_wh_core_login(&$variables) {
 
   $variables['options'] = array(
-    'attributes' => array('class' => array('password') 
-  ));
+    'attributes' => array(
+      'class' => array(
+        'password',
+      ),
+    ),
+  );
 
   $destination = check_plain($_GET['destination']);
   if (strlen($destination) > 0) {
-    $variables['options']['query'] = array('destination' => $destination); 
+    $variables['options']['query'] = array('destination' => $destination);
   }
 }
 
@@ -62,27 +66,30 @@ function wh_core_preprocess_wh_core_login(&$variables) {
  */
 function wh_core_form_alter(&$form, &$form_state, $form_id) {
 
-  if($form_id == 'user_register_form' || $form_id == 'user_profile_form') {
-    // Change the CAPTCHA text
+  if ($form_id == 'user_register_form' || $form_id == 'user_profile_form') {
+    // Change the CAPTCHA text.
     $form['actions']['captcha']['#description'] = t('For security, type the following text in the box below it.');
 
     // Remove some unwanted profile fields.
     unset($form['profile_main']['field_tag_line']);
     unset($form['profile_main']['field_intro']);
 
-    // Get rid of the Profile title label
+    // Get rid of the Profile title label.
     unset($form['profile_main']['#title']);
 
     // Hide the origin field for new user redirecting.
     $form['field_origin']['und'][0]['value']['#type'] = 'hidden';
     $form['field_origin']['und'][0]['value']['#default_value'] = 'petitions';
+
+    // Hide the country field.
+    $form['profile_main']['field_country']['#type'] = 'hidden';
   }
 
   if ($form_id == 'user_register_form' && arg(0) != 'admin') {
-    
+
     $form['register_content'] = array(
-      // Replace NULL with a value to be passed to pre_processors and 
-      // wh_core_password.TPL.PHP in the future. (Optional)
+      // Replace NULL with a value to be passed to pre_processors and
+      // wh_core_password.tpl.php in the future. (Optional).
       '#markup'   => theme('wh_core_register', array('wh_core_register' => NULL)),
       '#weight'   => -50,
     );
@@ -90,55 +97,50 @@ function wh_core_form_alter(&$form, &$form_state, $form_id) {
     $form['account']['name']['#access'] = FALSE;
     array_unshift($form['#validate'], 'wh_core_user_register_validate');
 
-    // Hide the country field
-    $form['profile_main']['field_country']['#type'] = 'hidden';
- 
-    // Add the email registration field
-    $form['email_updates'] = array (
+    // Add the email registration field.
+    $form['email_updates'] = array(
       '#title' => t('Sign up for email updates from President Obama and other senior administration officials'),
       '#type' => 'checkbox',
     );
-    
+
     $form['required_text'] = array(
       '#markup' => '<div class="required-field-wrapper"><span class="req-label">Required</span></div>',
-      '#weight' => 100000 // No really... this should be at the end.
+      // No really... this should be at the end.
+      '#weight' => 100000,
     );
-    
-    if(module_exists('wh_zipcodelookup')) {
-      $form['#attached']['js'][] = drupal_get_path('module', 'wh_zipcodelookup').'/wh_zipcodelookup.js';
-    }
-    
+
     $form['#submit'][] = 'wh_core_user_register_submit';
-    
+
   }
 
   if ($form_id == 'user_login') {
     $form['login_content'] = array(
-      // Replace NULL with a value to be passed to pre_processors and 
-      // wh_core_password.TPL.PHP in the future. (Optional)
+      // Replace NULL with a value to be passed to pre_processors and
+      // wh_core_password.tpl.php in the future. (Optional).
       '#markup'   => theme('wh_core_login', array('wh_core_login' => NULL)),
       '#weight'   => -50,
     );
     $form['name']['#title'] = t('E-Mail:');
     $form['name']['#description'] = t('You may login with your e-mail address.');
-    
+
     $form['pass']['#title'] = t('Password:');
     $form['pass']['#description'] = t('The password field is case sensitive.');
   }
   if ($form_id == 'user_pass') {
     $form['password_content'] = array(
-      // Replace NULL with a value to be passed to pre_processors and 
-      // wh_core_password.TPL.PHP in the future. (Optional)
+      // Replace NULL with a value to be passed to pre_processors and
+      // wh_core_password.tpl.php in the future. (Optional).
       '#markup'   => theme('wh_core_password', array('wh_core_password' => NULL)),
       '#weight'   => -50,
     );
     $form['name']['#title'] = t('E-Mail:');
-  }   
-}  
+  }
+}
 
 /**
- * Performs custom validation to munge email into a username and capture ip
- *  and user agent when a user registers.
+ * Registration validation to munge email into a username.
+ *
+ * Also captures ip and user agent.
  */
 function wh_core_user_register_validate($form, &$form_state) {
   if (empty($form_state['values']['name']) && !empty($form_state['values']['mail'])) {
@@ -155,12 +157,16 @@ function wh_core_user_register_validate($form, &$form_state) {
  */
 function wh_core_user_register_submit($form, &$form_state) {
   if (!empty($form_state['values']['email_updates']) && $form_state['values']['email_updates'] == 1) {
-    $request =  array('code' => 'USEOPWH_10128', 'email' => $form_state['values']['mail']);
+    $request = array(
+      'code' => 'USEOPWH_10128',
+      'email' => $form_state['values']['mail'],
+    );
     $key = md5(print_r($request, TRUE) . microtime() . strval(rand()));
     govdelivery_queue_set('govdelivery_subscription_queue', $key, $request);
   }
 }
-/* Implements hook_user_login().
+/**
+ * Implements hook_user_login().
  *
  * Set a custom cookie when a user logins in which can then be used to show
  * or hide links using javascript.

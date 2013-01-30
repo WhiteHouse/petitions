@@ -20,7 +20,7 @@ projects[captcha][subdir] = contrib
 projects[coder][version] = 1.0-beta6
 projects[coder][subdir] = contrib
 
-projects[colorbox][version] = 2.0
+projects[colorbox][version] = 2.2
 projects[colorbox][subdir] = contrib
 
 projects[conditional_styles][version] = 2.1

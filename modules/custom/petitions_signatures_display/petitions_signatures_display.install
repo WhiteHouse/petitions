@@ -9,4 +9,14 @@
  */
 function petitions_signatures_display_uninstall() {
   variable_del('petitions_signatures_display_initials');
+  variable_del('petitions_signatures_display_account_location');
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Update module weight.
+ */
+function petitions_signatures_display_update_7001() {
+  db_query("UPDATE {system} SET weight = 100 WHERE name = 'petitions_signatures_display'");
 }

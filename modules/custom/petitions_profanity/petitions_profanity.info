@@ -1,0 +1,5 @@
+name = Petitions Profanity
+description = Management module for all petitions specific profanity changes.
+package = "Custom"
+core = "7.x"
+version = "7.x-1.2"

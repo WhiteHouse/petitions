@@ -1,0 +1,102 @@
+<?php
+/**
+ * @file
+ * This is the main module file for is_profane.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function is_profane_menu() {
+  $items = array();
+
+  $items['admin/config/system/is_profane'] = array(
+    'title' => 'Is Profane Filter',
+    'description' => 'Configure the Is Profane module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('is_profane_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form().
+ *
+ * Administration form.
+ */
+function is_profane_form($form, &$form_state) {
+  $form['is_profane_terms'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Profane Terms'),
+    '#default_value' => variable_get('is_profane_terms', is_profane_terms_default()),
+    '#description' => "Enter profane terms, separated by comma.",
+    '#required' => FALSE,
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Runs the profane filters on the specified strings.
+ *
+ * @param array $strings
+ *   An array of strings to run profane filters on.
+ *
+ * @param array $terms
+ *   An optional array of profane terms to run on the specified strings.  Terms
+ *   must be separated by commas.
+ *
+ * @return string
+ *   TRUE if any filter matches any string, FALSE otherwise.
+ */
+function is_profane($string, $terms = array()) {
+  // If no terms have been passed to this function, check the
+  // is_profane_terms function.
+  if (!$terms) {
+    $terms = is_profane_terms();
+  }
+  foreach ($terms as $term) {
+    $term = str_replace(',', '', $term);
+    if (strpos($string, $term) !== FALSE) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Returns an array of profane terms as defined on the administration page.
+ */
+function is_profane_terms() {
+  $terms = variable_get('is_profane_terms', is_profane_terms_default());
+  if(!is_array($terms)) {
+    $terms = explode(", ", $terms);
+  }
+  return $terms;
+}
+
+/**
+ * List of default pre-determined profanity terms.
+ */
+function is_profane_terms_default() {
+  $profane = array(
+    'ass', 'bastard', 'bigot', 'bimbo', 'birther', 'bitch', 'blackie',
+    'bonehead', 'breeder', 'camel jockey', 'carpet muncher', 'chinaman', 'cock',
+    'coon', 'cracker', 'crip', 'cunt', 'dago', 'damn', 'dick', 'dink', 'douche',
+    'downy', 'dyke', 'election', 'faggot', 'fascist', 'fat ass', 'fenian',
+    'frog', 'fudge packer', 'fruitcake', 'fuck', 'gigolo', 'gimp', 'gook',
+    'gringo', 'guido', 'hayseed', 'hick', 'hillbilly', 'holy roller', 'honkey',
+    'hooch', 'hun', 'hymie', 'idiot', 'imbecile', 'injun', 'jap', 'Jesus',
+    'freak', 'kike', 'kraut', 'limey', 'louse', 'macaca', 'masochist', 'midget',
+    'motherfucker', 'mullato', 'mussie', 'nazi', 'nigger', 'paddy', 'paki',
+    'papist', 'pervert', 'pinhead', 'pinko', 'piss', 'polack', 'prod', 'pussy',
+    'racketeer', 'raghead', 'redneck', 'redskin', 'retard', 'Romney', 'russki',
+    'sadist', 'shit', 'schizo', 'schmuck', 'scumbag', 'shit', 'skank', 'spic',
+    'tea bagger', 'towel head', 'truther', 'twat', 'wanker', 'WASP', 'wetback',
+    'whitey', 'white trash', 'whore', 'wigger', 'wingnut', 'wop',
+  );
+  return implode(", ", $profane);
+}
