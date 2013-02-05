@@ -83,19 +83,19 @@ function is_profane_terms() {
  */
 function is_profane_terms_default() {
   $profane = array(
-    'ass', 'bastard', 'bigot', 'bimbo', 'birther', 'bitch', 'blackie',
+    'ass', 'bastard', 'bigot', 'bimbo', 'bitch', 'blackie',
     'bonehead', 'breeder', 'camel jockey', 'carpet muncher', 'chinaman', 'cock',
     'coon', 'cracker', 'crip', 'cunt', 'dago', 'damn', 'dick', 'dink', 'douche',
-    'downy', 'dyke', 'election', 'faggot', 'fascist', 'fat ass', 'fenian',
-    'frog', 'fudge packer', 'fruitcake', 'fuck', 'gigolo', 'gimp', 'gook',
+    'downy', 'dyke', 'faggot', 'fascist', 'fat ass', 'fenian',
+    'fudge packer', 'fruitcake', 'fuck', 'gigolo', 'gimp', 'gook',
     'gringo', 'guido', 'hayseed', 'hick', 'hillbilly', 'holy roller', 'honkey',
-    'hooch', 'hun', 'hymie', 'idiot', 'imbecile', 'injun', 'jap', 'Jesus',
+    'hooch', 'hun', 'hymie', 'idiot', 'imbecile', 'injun', 'jap',
     'freak', 'kike', 'kraut', 'limey', 'louse', 'macaca', 'masochist', 'midget',
     'motherfucker', 'mullato', 'mussie', 'nazi', 'nigger', 'paddy', 'paki',
     'papist', 'pervert', 'pinhead', 'pinko', 'piss', 'polack', 'prod', 'pussy',
-    'racketeer', 'raghead', 'redneck', 'redskin', 'retard', 'Romney', 'russki',
+    'raghead', 'redneck', 'redskin', 'retard', 'russki',
     'sadist', 'shit', 'schizo', 'schmuck', 'scumbag', 'shit', 'skank', 'spic',
-    'tea bagger', 'towel head', 'truther', 'twat', 'wanker', 'WASP', 'wetback',
+    'towel head', 'twat', 'wanker', 'wetback',
     'whitey', 'white trash', 'whore', 'wigger', 'wingnut', 'wop',
   );
   return implode(", ", $profane);
