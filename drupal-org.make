@@ -187,4 +187,4 @@ projects[fortyfour][download][tag] = 7.x-1.0-alpha5
 ; -----------------
 
 libraries[colorbox][download][type] = "file"
-libraries[colorbox][download][url] = "http://jacklmoore.com/colorbox/colorbox-master.zip"
+libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/archive/master.zip"
