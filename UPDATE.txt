@@ -16,8 +16,6 @@ Update steps:
 
        drush dis -y api_resource_users
 
-       drush pm-uninstall -y api_resource_users
-
   1. Run the update script to enable new modules.
 
        drush updb -y
