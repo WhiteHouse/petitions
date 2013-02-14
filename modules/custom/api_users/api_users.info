@@ -1,6 +1,12 @@
 name = Users Resource
 description = Provides users resource for Services according to Whitehouse API Standards
 core = 7.x
-package = Services
+package = Petitions API
 dependencies[] = services
-dependencies[] = petitions_api
+
+
+; Information added by drush on 2013-01-30
+version = ""
+project = "petitions"
+datestamp = "1359587545"
+

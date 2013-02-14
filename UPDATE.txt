@@ -1,6 +1,27 @@
 UPDATE
 ======
 
+Version 7.x-1.0 -> 7.x-2.0-beta1
+-----------------------------------------------
+
+Release notes:
+
+  - Add custom Petitions Data, Petitions Resource, and Petitions API Authentication modules
+  - Rename custom Users Resource module
+  - Update custom Services Documentation and Petitions Statistics - Users modules and Petitions API feature
+
+Update steps:
+
+  0. Prior to deploying the updated profile, disable and uninstall api_resource_users (optional but suggested)
+
+       drush dis -y api_resource_users
+
+       drush pm-uninstall -y api_resource_users
+
+  1. Run the update script to enable new modules.
+
+       drush updb -y
+
 Version 7.x-1.0-alpha31 -> 7.x-1.0-alpha32
 -----------------------------------------------
 

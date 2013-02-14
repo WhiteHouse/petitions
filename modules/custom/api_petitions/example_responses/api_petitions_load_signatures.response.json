@@ -1,0 +1,30 @@
+{
+    "metadata": {
+        "execution time": "43",
+        "resultset": {
+            "count": 123,
+            "offset": 0,
+            "limit": 10
+        }
+    },
+    "results": [
+        {
+            "id": 2411,
+            "type": "signature",
+            "name": "PW",
+            "city": "Washington",
+            "state": "DC",
+            "zip": "20006",
+            "created": "1231621302"
+        },
+        {
+            "id": 2412,
+            "type": "signature",
+            "name": "BH",
+            "city": "Boston",
+            "state": "MA",
+            "zip": "02130",
+            "created": "1231621002"
+        }
+    ]
+}

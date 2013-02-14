@@ -1,13 +1,16 @@
 <?php
 /**
  * @file
- * Template file for theming the documetnation for a given Services method.
+ * services-documentation-method.tpl.php
+ *
+ * Template file for theming the documentation for a given Services method.
  *
  * Available custom variables:
  * - $name:
  * - $description:
  * - $request:
  * - $response:
+ * - $example_implementation_bundles:
  * - $method: the method array defined in hook_services_resources().
  */
 ?>
@@ -32,14 +35,14 @@
               <em><?php print $argument['type']; ?></em>
               <strong><?php print $argument['name']; ?></strong>
 
-              <span class="method-argument-source">,
+              <span class="method-argument-source">
                 <?php if (is_array($argument['source'])): ?>
-                  <?php //print key($argument['source']) ?>
+                  <?php // print key($argument['source']) ?>
                   <?php print $argument['http_method'] ?>
                 <?php else: ?>
                   <?php print $argument['source']; ?>
                 <?php endif; ?>
-              </span
+              </span>
             </div>
 
             <div class="method-argument-description">
@@ -63,6 +66,13 @@
   <?php if (!empty($response)): ?>
     <h5>Response Example</h5>
     <pre class="response-example"><?php print $response; ?></pre>
+  <?php endif; ?>
+
+  <?php if (!empty($example_implementations_bundles)): ?>
+    <h5>Implementation Examples</h5>
+    <?php foreach ($example_implementations_bundles as $example_implementations_bundle): ?>
+      <?php print render($example_implementations_bundle); ?>
+    <?php endforeach; ?>
   <?php endif; ?>
 
 </div>

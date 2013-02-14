@@ -1,0 +1,35 @@
+{
+    "metadata": {
+        "execution time": "43"
+    },
+    "results": [
+        {
+            "id": "immediately-address-issue-gun-control-through-introduction-legislation-congress/2tgcXzQC",
+            "type": "petition",
+            "title": "Immediately address the issue of gun control through the introduction of legislation in Congress.",
+            "body": "Example Body",
+            "issues": [
+                {
+                    "id": 4,
+                    "name": "Civil Rights and Liberties"
+                },
+                {
+                    "id": 22,
+                    "name": "Firearms"
+                }
+            ],
+            "signature threshold": 100000,
+            "signature count": 197073,
+            "signatures needed": 0,
+            "url": "https://petitions.whitehouse.gov/petition/immediately-address-issue-gun-control-through-introduction-legislation-congress/2tgcXzQC",
+            "deadline": 0,
+            "status": "answered",
+            "response": {
+                "id": "17500",
+                "url": "https://petitions.whitehouse.gov/response/message-president-obama-about-your-petition-reducing-gun-violence",
+                "association time": "1231621002"
+            },
+            "created": "1231621302"
+        }
+    ]
+}

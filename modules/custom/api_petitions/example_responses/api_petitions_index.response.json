@@ -1,0 +1,106 @@
+{
+    "metadata": {
+        "execution time": "43"
+    },
+    "results": [
+        {
+            "id": 241237,
+            "type": "petition",
+            "title": "Example Title",
+            "body": "Example Body",
+            "issues": [
+                {
+                    "id": 17500,
+                    "name": "Civil Rights"
+                },
+                {
+                    "id": 15600,
+                    "name": "Health"
+                }
+            ],
+            "signature threshold": 20000,
+            "signature count": 104512,
+            "signatures needed": 0,
+            "deadline": 0,
+            "status": "answered",
+            "response": {
+                "id": "17500",
+                "url": "https://petitions.whitehouse.gov/response/title",
+                "association time": "1231621002"
+            },
+            "created": "1231621302"
+        },
+        {
+            "id": 241238,
+            "type": "petition",
+            "title": "Example Title",
+            "body": "Example Body",
+            "issues": [
+                {
+                    "id": 17500,
+                    "name": "Civil Rights"
+                },
+                {
+                    "id": 15600,
+                    "name": "Health"
+                }
+            ],
+            "signature threshold": 20000,
+            "signature count": 104512,
+            "signatures needed": 0,
+            "deadline": 0,
+            "status": "pending response",
+            "response": {
+            },
+            "created": "1231621302"
+        },
+        {
+            "id": 241239,
+            "type": "petition",
+            "title": "Example Title",
+            "body": "Example Body",
+            "issues": [
+                {
+                    "id": 17500,
+                    "name": "Civil Rights"
+                },
+                {
+                    "id": 15600,
+                    "name": "Health"
+                }
+            ],
+            "signature threshold": 100000,
+            "signature count": 4,
+            "signatures needed": 96996,
+            "deadline": 0,
+            "status": "expired",
+            "response": {
+            },
+            "created": "1231621302"
+        },
+        {
+            "id": 241240,
+            "type": "petition",
+            "title": "Example Title",
+            "body": "Example Body",
+            "issues": [
+                {
+                    "id": 17500,
+                    "name": "Civil Rights"
+                },
+                {
+                    "id": 15600,
+                    "name": "Health"
+                }
+            ],
+            "signature threshold": 100000,
+            "signature count": 104512,
+            "signatures needed": 0,
+            "deadline": 0,
+            "status": "open",
+            "response": {
+            },
+            "created": "1231621302"
+        }
+    ]
+}
