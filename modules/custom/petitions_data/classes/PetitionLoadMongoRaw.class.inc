@@ -146,8 +146,8 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
       'signatures needed' => $this->calcSignaturesNeeded($doc['response_signatures'], $doc['signature_count']),
       'url' => $this->formatReturnUrl($doc['nice_url']),
       'deadline' => $this->calcDeadline($doc['created'], $doc['review_timeframe']),
-      'status' => $doc['petition_status'],
-      'response' => $doc['response_id'] ? $this->formatReturnResponse($doc['response_id']) : array(),
+      'status' => $this->formatReturnPetitionStatus($doc['petition_status']),
+      'response' => $doc['response_id'] ? $this->formatReturnResponse($doc['response_id']) : NULL,
       'created' => $doc['created'],
     );
 
@@ -250,5 +250,36 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
     );
 
     return $response;
+  }
+  
+  /**
+   * Helper function to translate status codes into readable string formats.
+   *
+   * @param int $status_code
+   *   Status code as stored in mongodb.
+   *
+   * @return string
+   *   String representing status code.
+   */
+  protected function formatReturnPetitionStatus($status_code) {
+
+    switch ($status_code) {
+
+      // Has the required number of signatures to become public,
+      // visible everywhere on site.
+      case WH_PETITION_STATUS_PUBLIC:
+        return "open";
+      break;
+
+      // Has received the required number of signatures, visible on site.
+      case WH_PETITION_STATUS_UNDER_REVIEW:
+        return "pending response";
+      break;
+
+      // Has received a response.
+      case WH_PETITION_STATUS_REVIEWED:
+        return "responded";
+      break;
+    }
   }
 }

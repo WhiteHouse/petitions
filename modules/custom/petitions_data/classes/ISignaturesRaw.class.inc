@@ -7,12 +7,34 @@
 interface ISignaturesRaw {
 
   /**
+   * Set accessor for $this->zipcode.
+   *
+   * @param int $zipcode
+   *   Postal code to identify locations within the United States
+   *
+   * @return ISignaturesRaw
+   *   Returns current instance of object.
+   */
+  public function setZipCode($zipcode);
+
+  /**
+   * Set accessor for $this->country.
+   *
+   * @return string
+   *   Country name for signature.
+   *
+   * @return ISignaturesRaw
+   *   Returns current instance of object.
+   */
+  public function setCountry($country);
+
+  /**
    * Set accessor for $this->startDate.
    *
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsMongoRaw
+   * @return ISignaturesRaw
    *   Returns current instance of object.
    */
   public function setStartDate($date);
@@ -23,7 +45,7 @@ interface ISignaturesRaw {
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsMongoRaw
+   * @return ISignaturesRaw
    *   Returns current instance of object.
    */
   public function setEndDate($date);
@@ -34,7 +56,7 @@ interface ISignaturesRaw {
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsMongoRaw
+   * @return ISignaturesRaw
    *   Returns current instance of object.
    */
   public function setCreatedAt($date);
@@ -45,7 +67,7 @@ interface ISignaturesRaw {
    * @param int $limit
    *   Number of results to return
    *
-   * @return PetitionsMongoRaw
+   * @return ISignaturesRaw
    *   Returns current instance of object.
    */
   public function setLimit($limit);
@@ -56,7 +78,7 @@ interface ISignaturesRaw {
    * @param int $offset
    *   Number of results to skip before return.
    *
-   * @return PetitionsMongoRaw
+   * @return ISignaturesRaw
    *   Returns current instance of object.
    */
   public function setOffset($offset);
@@ -67,7 +89,7 @@ interface ISignaturesRaw {
    * @return array
    *   Results of query to MongoDB.
    */
-  public function load();
+  public function load($petition_id);
 
   /**
    * Get accessor for $this->result.

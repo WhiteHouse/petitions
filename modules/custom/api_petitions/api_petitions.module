@@ -159,7 +159,7 @@ function api_petitions_services_resources() {
             'optional' => TRUE,
             'type' => 'int',
             'description' => 'The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
-            'default value' => 10,
+            'default value' => 1000,
             'source' => array('param' => 'limit'),
           ),
           array(
@@ -194,7 +194,7 @@ function api_petitions_services_resources() {
  */
 function _api_petitions_resource_retrieve($petition_id, $mock) {
   global $base_url;
-  
+
   // Return mock response.
   if ($mock) {
     $response = json_decode(_api_petitions_mock_response('retrieve'));
@@ -236,14 +236,23 @@ function _api_petitions_resource_index($created_before, $created_after, $created
  * Callback for Services petitions signatures relationship method.
  */
 function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $country, $created_before, $created_after, $created_at, $limit, $offset, $mock) {
+
   // Return mock response.
   if ($mock) {
     $response = json_decode(_api_petitions_mock_response('load_signatures'));
     return $response;
   }
 
-  // No real results yet. Logic to return real results should go here.
-  $response = "Stub content. Submit with 'mock=1' to produce mock results.";
+  $resource = SignaturesRawFactory::create();
+  $resource->setZipCode($zipcode)
+    ->setCountry($country)
+    ->setStartDate($created_after)
+    ->setEndDate($created_before)
+    ->setCreatedAt($created_at)
+    ->setLimit($limit)
+    ->setOffset($offset);
+
+  $response = $resource->load($petition_id);
 
   return $response;
 }
@@ -255,7 +264,7 @@ function _api_petitions_retrieve_doc() {
   $element = array(
     '#name' => t('Retrieve'),
     '#description' => t('Returns a petition matching the petition id.'),
-    '#request' => '/api/v1/petitions/petition_id.json',
+    '#request' => '/api/v1/petitions/50cb6d2ba9a0b1c52e000017.json',
     '#response' => _api_petitions_mock_response('retrieve'),
     // '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
   );
@@ -301,7 +310,7 @@ function _api_petitions_index_doc() {
   $element = array(
     '#name' => t('Index'),
     '#description' => t('Returns a list of petitions matching passed parameters.'),
-    '#request' => '/api/v1/petitions.json?limit=100&offset=0',
+    '#request' => '/api/v1/petitions.json?limit=3&offset=0',
     '#response' => _api_petitions_mock_response('index'),
   );
 
@@ -315,7 +324,7 @@ function _api_petitions_load_signatures_doc() {
   $element = array(
     '#name' => t('Signatures List'),
     '#description' => t('Display signatures attached to a petition.'),
-    '#request' => '/api/v1/petitions/petition_id/signatures.json?limit=100&offset=0',
+    '#request' => '/api/v1/petitions/50cb6d2ba9a0b1c52e000017/signatures.json?limit=16&offset=0',
     '#response' => _api_petitions_mock_response('load_signatures'),
     // '#example_implementations_bundles' => _api_petitions_load_signatures_doc_example_implementations_bundles(),
   );

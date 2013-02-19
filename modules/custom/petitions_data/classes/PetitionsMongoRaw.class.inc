@@ -9,7 +9,8 @@ class PetitionsMongoRaw implements IPetitionsRaw {
   protected $startDate;
   protected $endDate;
   protected $createdDate;
-  protected $limit = 100;
+  protected $max_return_limit = 1000;
+  protected $limit;
   protected $offset;
   protected $query = array();
   protected $collection;
@@ -71,13 +72,13 @@ class PetitionsMongoRaw implements IPetitionsRaw {
    * @param int $limit
    *   Number of results to return
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setLimit($limit) {
     if (is_numeric($limit)) {
-      if ($limit > 100) {
-        $limit = 100;
+      if ($limit > $this->max_return_limit) {
+        $limit = $this->max_return_limit;
       }
       $this->limit = $limit;
     }
@@ -211,6 +212,11 @@ class PetitionsMongoRaw implements IPetitionsRaw {
    *   Number of results to return
    */
   protected function getLimit() {
+    
+    if(!intval($this->limit)){
+      return $this->max_return_limit;
+    }
+    
     return intval($this->limit);
   }
 
@@ -355,8 +361,8 @@ class PetitionsMongoRaw implements IPetitionsRaw {
         'signatures needed' => $this->calcSignaturesNeeded($doc['response_signatures'], $doc['signature_count']),
         'url' => $this->formatReturnUrl($doc['nice_url']),
         'deadline' => $this->calcDeadline($doc['created'], $doc['review_timeframe']),
-        'status' => $doc['petition_status'],
-        'response' => $this->formatReturnResponse($doc['response_id']),
+        'status' => $this->formatReturnPetitionStatus($doc['petition_status']),
+        'response' => $doc['response_id'] ? $this->formatReturnResponse($doc['response_id']) : NULL,
         'created' => $doc['created'],
       );
 
@@ -476,7 +482,7 @@ class PetitionsMongoRaw implements IPetitionsRaw {
    *   Signatures remaining to required to reach response threshold.
    */
   protected function calcSignaturesNeeded($total, $current) {
-    return ($current <= $total) ? 0 : $total - $current;
+    return ($current >= $total) ? 0 : $total - $current;
   }
 
   /**
@@ -516,5 +522,36 @@ class PetitionsMongoRaw implements IPetitionsRaw {
     );
 
     return $response;
+  }
+
+  /**
+   * Helper function to translate status codes into readable string formats.
+   *
+   * @param int $status_code
+   *   Status code as stored in mongodb.
+   *
+   * @return string
+   *   String representing status code.
+   */
+  protected function formatReturnPetitionStatus($status_code) {
+
+    switch ($status_code) {
+
+      // Has the required number of signatures to become public,
+      // visible everywhere on site.
+      case WH_PETITION_STATUS_PUBLIC:
+        return "open";
+      break;
+
+      // Has received the required number of signatures, visible on site.
+      case WH_PETITION_STATUS_UNDER_REVIEW:
+        return "pending response";
+      break;
+
+      // Has received a response.
+      case WH_PETITION_STATUS_REVIEWED:
+        return "responded";
+      break;
+    }
   }
 }

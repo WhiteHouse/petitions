@@ -4,14 +4,15 @@
  * File containing class that accesses data using mongodb queries.
  */
 
-class SignaturesMongoRaw implements iSignaturesRaw {
+class SignaturesMongoRaw implements ISignaturesRaw {
 
   protected $zipcode;
   protected $country;
   protected $startDate;
   protected $endDate;
   protected $createdDate;
-  protected $limit = 100;
+  protected $max_return_limit = 1000;
+  protected $limit;
   protected $offset;
   protected $query = array();
   protected $collection;
@@ -25,7 +26,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param int $zipcode
    *   Postal code to identify locations within the United States
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setZipCode($zipcode) {
@@ -41,7 +42,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @return string
    *   Country name for signature.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setCountry($country) {
@@ -56,7 +57,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setStartDate($date) {
@@ -72,7 +73,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setEndDate($date) {
@@ -88,7 +89,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setCreatedAt($date) {
@@ -104,13 +105,13 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param int $limit
    *   Number of results to return
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setLimit($limit) {
     if (is_numeric($limit)) {
-      if ($limit > 100) {
-        $limit = 100;
+      if ($limit > $this->max_return_limit) {
+        $limit = $this->max_return_limit;
       }
       $this->limit = $limit;
     }
@@ -123,7 +124,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param int $offset
    *   Number of results to skip before return.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setOffset($offset) {
@@ -139,7 +140,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param array $query
    *   Array of query parameters to get passed to mongodb.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   protected function setQuery($query) {
@@ -154,7 +155,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param MongoCollection $collection
    *   MongoCollection resource for querying against a collection.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   protected function setCollection($collection) {
@@ -168,7 +169,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param int $time
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   protected function setExecutionTime($time) {
@@ -183,7 +184,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param array $result
    *   Processed results of query to MongoDB.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   protected function setResult($result) {
@@ -198,7 +199,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    * @param array $base_url
    *   The base url for the site that absolute URLs will be constructed with.
    *
-   * @return PetitionsMongoRaw
+   * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url) {
@@ -264,6 +265,11 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    *   Number of results to return
    */
   protected function getLimit() {
+    
+    if(!intval($this->limit)){
+      return $this->max_return_limit;
+    }
+    
     return intval($this->limit);
   }
 
@@ -334,18 +340,6 @@ class SignaturesMongoRaw implements iSignaturesRaw {
     $this->setCollection(mongodb_collection('petition_signatures'));
     $this->setExecutionTime(microtime());
 
-    // @TODO: This really should be added as a publicly accessible method.
-    $this->setQuery(
-      array(
-        'petition_status' => array(
-          '$in' => array(
-            WH_PETITION_STATUS_PUBLIC,
-            WH_PETITION_STATUS_UNDER_REVIEW,
-            WH_PETITION_STATUS_REVIEWED,
-          ),
-        ),
-      )
-    );
   }
 
   /**
@@ -356,7 +350,7 @@ class SignaturesMongoRaw implements iSignaturesRaw {
    */
   public function load($petition_id) {
     $response = array();
-    $response['metadata'] = array();
+    $response['metadata'] = array('execution time' => '', 'resultset' => array());
     $response['results'] = array();
 
     if ($this->getCreatedDate()) {
@@ -373,8 +367,10 @@ class SignaturesMongoRaw implements iSignaturesRaw {
     $fields = array(
       'user.first_name',
       'user.last_name',
-      'user.city',
-      'user.state',
+      // Commenting out for consistancy with the web interface,
+      // we're not exposing city/state data for now.
+      // 'user.city',
+      // 'user.state',
       'user.zip',
       'timestamp',
     );
@@ -390,23 +386,30 @@ class SignaturesMongoRaw implements iSignaturesRaw {
       ->skip($this->getOffset())
       ->sort(array('timestamp' => -1));
 
+    // Set the result set information.
+    $response['metadata']['resultset'] = array(
+      'count' => $results->count(),
+      'offset' => $this->getOffset(),
+      'limit' => $this->getLimit(),
+    );
+
     foreach ($results as $doc) {
 
       $signature = array();
       $signature = array(
         'id' => $this->formatReturnId($doc['_id']),
         'type' => 'signature',
-        'name' => $this->formatReturnName($doc['user.first_name'], $doc['user.last_name']),
-        'city' => $doc['user.city'],
-        'state' => $doc['user.state'],
-        'zip' => $doc['user.zip'],
+        'name' => $this->formatReturnName($doc['user']['first_name'], $doc['user']['last_name']),
+        // Commenting out for consistancy with the web interface,
+        // we're not exposing city/state data for now.
+        // 'city' => $doc['user']['city'],
+        // 'state' => $doc['user']['state'],
+        'zip' => $doc['user']['zip'],
         'created' => $doc['timestamp'],
       );
 
       $response['results'][] = $signature;
     }
-
-    $response['results'] = "load method is working";
 
     $response['metadata']['execution time'] = $this->calcExecutionTime();
 
@@ -507,4 +510,18 @@ class SignaturesMongoRaw implements iSignaturesRaw {
     return $id->{'$id'};
   }
 
+  /**
+   * Helper function to format first and last name into initials.
+   *
+   * @param string $first_name
+   *   First name of petition signer.
+   * @param string $last_name
+   *   Last name of petition signer.
+   *
+   * @return string
+   *   First characters of first and last names.
+   */
+  protected function formatReturnName($first_name, $last_name) {
+    return substr($first_name, 0, 1) . substr($last_name, 0, 1);
+  }
 }

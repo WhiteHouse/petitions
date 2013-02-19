@@ -117,9 +117,6 @@ projects[recaptcha][subdir] = contrib
 projects[rules][version] = 2.2
 projects[rules][subdir] = contrib
 
-projects[services][version] = 3.3
-projects[services][subdir] = contrib
-
 projects[simplehtmldom][version] = 1.12
 projects[simplehtmldom][subdir] = contrib
 
@@ -166,6 +163,10 @@ projects[nagios][version] = 1.1
 projects[nagios][subdir] = contrib
 projects[nagios][patch][] = http://drupal.org/files/check_type.patch
 projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
+
+projects[services][version] = 3.3
+projects[services][subdir] = contrib
+projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
 
 ; Contrib themes
 ; -----------------

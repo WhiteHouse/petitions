@@ -1,6 +1,17 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta1 -> 7.x-2.0-beta4 (skipping beta2 and beta3)
+-----------------------------------------------
+
+Release notes:
+
+  - Update Petitions Data and Petitions Resource modules to return signature data and minor fixes
+
+Update steps:
+
+  1. Deploy the latest code. No other steps are necessary.
+
 Version 7.x-1.0 -> 7.x-2.0-beta1
 -----------------------------------------------
 
@@ -19,6 +30,10 @@ Update steps:
   1. Run the update script to enable new modules.
 
        drush updb -y
+
+  2. Flush caches.
+
+       drush cc all
 
 Version 7.x-1.0-alpha31 -> 7.x-1.0-alpha32
 -----------------------------------------------
