@@ -615,14 +615,13 @@ function wh_response_save_continue($form, &$form_state) {
  */
 function wh_response_shortenurl(&$node) {
   if ($node->type == 'wh_response' && $node->status) {
-    $canonical = $node->uri['path'];
-    $alias = drupal_get_path_alias($canonical, $node->language);
-    if ($alias != $canonical) {
-      $shorty = wh_petition_tool_shortenurl($alias);
-    }
-    else {
-      $shorty = wh_petition_tool_shortenurl('node/' . $node->nid);      
-    }
+
+    $path = vsprintf('node/%d', array($node->nid));
+
+    // If there is no alias, drupal_get_path_alias() will return the original function.
+    $alias = drupal_get_path_alias($path, $node->language);
+
+    $shorty = wh_petition_tool_shortenurl($alias);
     
     $node->field_shorturl[$node->language][0] = array('value' => $shorty);
   }

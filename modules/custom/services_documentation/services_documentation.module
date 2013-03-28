@@ -64,7 +64,6 @@ function services_documentation_format_method($element) {
         case 'path':
           $element['#method']['args'][$key]['http_method'] = 'URL';
           break;
-
       }
     }
     else {
@@ -142,9 +141,21 @@ function services_documentation_theme($existing, $type, $theme, $path) {
       'variables' => array(
         'name' => NULL,
         'description' => NULL,
-        'code' => NULL,
+        'location' => NULL,
+        'files' => NULL,
         'download_link' => NULL,
         'uses_sdk' => NULL,
+      ),
+    ),
+    'services_documentation_method_example_implementations_files' => array(
+      'path' => $theme_path,
+      'template' => 'services-documentation-method-example-implementations-files',
+      'variables' => array(
+        'name' => NULL,
+        'path' => NULL,
+        'type' => NULL,
+        'contents' => NULL,
+        'children' => NULL,
       ),
     ),
   );
@@ -212,6 +223,15 @@ function services_documentation_version_page($version) {
             // E.g., myExampleJavascriptApp.
             foreach ($example_bundle['#examples'] as $example_name => $example) {
               $element['#example_implementations_bundles'][$language]['#examples'][$example_name]['#theme'] = 'services_documentation_method_example_implementations';
+
+              // For this implementation, scan the files and directories.
+              if ($element['#example_implementations_bundles'][$language]['#examples'][$example_name]['#location']) {
+
+                // Recursively scan directories.
+                $directory = $element['#example_implementations_bundles'][$language]['#examples'][$example_name]['#location'];
+                $directory_contents = services_documenation_example_implementation_scan_recursively($directory);
+                $element['#example_implementations_bundles'][$language]['#examples'][$example_name]['#files'] = $directory_contents;
+              }
             }
           }
         }
@@ -300,4 +320,40 @@ function services_documentation_versions_info() {
   drupal_alter('services_documentation_versions', $info);
 
   return $info;
+}
+
+/**
+ * Recursively scan the directory of an example implementation.
+ */
+function services_documenation_example_implementation_scan_recursively($directory) {
+  $results = array();
+  $current_directory = scandir($directory);
+
+  // Remove "." and ".." from the array.
+  if (in_array(".", $current_directory) && in_array("..", $current_directory)) {
+    array_splice($current_directory, 0, 2);
+  }
+
+  // Contruct the array that will be returned for output.
+  foreach ($current_directory as $key => $value) {
+    if (!in_array($value, array(".", ".."))) {
+      $path = $directory . '/' . $value;
+      $results[$value] = array();
+      $results[$value]['#name'] = $value;
+      $results[$value]['#path'] = $path;
+      // Recursively scan directories.
+      if (is_dir($path)) {
+        $results[$value]['#type'] = 'directory';
+        $results[$value]['#children'] = services_documenation_example_implementation_scan_recursively($path);
+      }
+      // Otherwise output code.
+      else {
+        $results[$value]['#type'] = 'file';
+        $results[$value]['#contents'] = file_get_contents($path);
+      }
+      $results[$value]['#theme'] = 'services_documentation_method_example_implementations_files';
+    }
+  }
+
+  return $results;
 }

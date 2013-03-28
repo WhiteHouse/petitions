@@ -1,6 +1,20 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta4 -> 7.x-2.0-beta5
+-----------------------------------------------
+
+Release notes:
+
+  - Fixed a bug producing links to non-existent URLs via Short URLs for Responses
+  - Updated services_documentation to support example implementations of API resources
+  - Added framework for a Response resource to the Petitions API
+  - Added a comment to the Services module patch included with drupal-org.make
+
+Update steps:
+
+  1. Deploy the latest code. No other steps are necessary.
+
 Version 7.x-2.0-beta1 -> 7.x-2.0-beta4 (skipping beta2 and beta3)
 -----------------------------------------------
 

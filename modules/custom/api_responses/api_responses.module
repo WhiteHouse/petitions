@@ -1,0 +1,202 @@
+<?php
+
+/**
+ * @file
+ * api_responses.module
+ *
+ * Provides responses for Services according to Whitehouse API Standards.
+ */
+
+/**
+ * Implements hook_services_resources().
+ */
+function api_responses_services_resources() {
+  $resources = array();
+
+  $resources['responses'] = array(
+    'operations' => array(
+      'retrieve' => array(
+        'callback' => '_api_responses_resource_retrieve',
+        'args' => array(
+          array(
+            'name' => 'response_id',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+            'description' => 'The response id of the response to get.',
+          ),
+          array(
+            'name' => 'mock',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'When set to 1, this will cause the service to return a mock response.',
+            'default value' => 0,
+            'source' => array('param' => 'mock'),
+          ),
+        ),
+        'access callback' => 'services_access_menu',
+        'documentation callback' => '_api_responses_retrieve_doc',
+        'documentation versions' => array(1000),
+      ),
+      'index' => array(
+        'callback' => '_api_responses_resource_index',
+        'args' => array(
+          array(
+            'name' => 'created_before',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'Filters results to display items created before specified time. Accepts Unix timestamp.',
+            'source' => array('param' => 'createdBefore'),
+          ),
+          array(
+            'name' => 'created_after',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'Filters results to display items created after specified time. Accepts Unix timestamp.',
+            'source' => array('param' => 'createdAfter'),
+          ),
+          array(
+            'name' => 'created_at',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'Filters results based on exact creation time. Accepts Unix timestamp.',
+            'source' => array('param' => 'createdAt'),
+          ),
+          array(
+            'name' => 'limit',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
+            'default value' => 10,
+            'source' => array('param' => 'limit'),
+          ),
+          array(
+            'name' => 'offset',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'Offset the returned results by this number. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
+            'default value' => 0,
+            'source' => array('param' => 'offset'),
+          ),
+          array(
+            'name' => 'mock',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'When set to 1, this will cause the service to return a mock response.',
+            'default value' => 0,
+            'source' => array('param' => 'mock'),
+          ),
+        ),
+        'access callback' => 'services_access_menu',
+        'documentation callback' => '_api_responses_index_doc',
+        'documentation versions' => array(1000),
+      ),
+    ),
+  );
+
+  return $resources;
+}
+
+/**
+ * Callback for Services responses retrieve method.
+ */
+function _api_responses_resource_retrieve($response_id, $mock) {
+  global $base_url;
+
+  // Return mock response.
+  if ($mock) {
+    $response = json_decode(_api_responses_mock_response('retrieve'));
+    return $response;
+  }
+  $response = t('This resource is currently under development.');
+  return $response;
+}
+
+/**
+ * Callback for Services responses index method.
+ */
+function _api_responses_resource_index($created_before, $created_after, $created_at, $limit, $offset, $mock) {
+  global $base_url;
+  // Return mock response.
+  if ($mock) {
+    $response = json_decode(_api_responses_mock_response('index'));
+    return $response;
+  }
+  $response = t('This resource is currently under development.');
+  return $response;
+}
+
+/**
+ * Documentation callback for retrieve method of responses resource.
+ */
+function _api_responses_retrieve_doc() {
+  $element = array(
+    '#name' => t('Retrieve'),
+    '#description' => t('Returns a response matching the response id.'),
+    '#request' => '/api/v1/responses/50cb6d2ba9a0b1c52e000017.json',
+    '#response' => _api_responses_mock_response('retrieve'),
+    // '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
+  );
+
+  return $element;
+}
+
+/**
+ * Documentation callback for index method.
+ */
+function _api_responses_index_doc() {
+  $element = array(
+    '#name' => t('Index'),
+    '#description' => t('Returns a list of responses matching passed parameters.'),
+    '#request' => '/api/v1/responses.json?limit=3&offset=0',
+    '#response' => _api_responses_mock_response('index'),
+  );
+
+  return $element;
+}
+
+/**
+ * Returns a mock response for responses methods.
+ */
+function _api_responses_mock_response($method) {
+  switch ($method) {
+    case 'index':
+      $file = 'api_responses_index.response.json';
+      break;
+
+    case 'retrieve':
+      $file = 'api_responses_retrieve.response.json';
+      break;
+
+  }
+  $response = file_get_contents(__DIR__ . '/example_responses/' . $file);
+  return $response;
+}
+
+/**
+ * Returns an example implementation's code for responses methods.
+ */
+function _api_responses_example_implementation($method, $language, $example) {
+  $directory = __DIR__ . '/example_implementations/' . $language . '/' . $example;
+  // $directory_contents = _api_petitions_directory_scan_recursively($directory);
+  return 'stub';
+}
+
+/**
+ * Recursively scan the directory of an example implementation.
+ */
+function _api_responses_directory_scan_recursively($directory) {
+  $directory_contents = array();
+  $current_directory = scandir($directory);
+  foreach ($current_directory as $key => $value) {
+    if (!in_array($value, array(".", ".."))) {
+      if (is_dir($current_directory . '/' . $value)) {
+        $directory_contents[$value] = _api_responses_directory_scan_recursively($current_directory . '/' . $value);
+      }
+      else {
+        $directory_contents[] = $value;
+      }
+    }
+  }
+  return $directory_contents;
+}

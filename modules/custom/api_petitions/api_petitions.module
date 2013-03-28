@@ -236,7 +236,6 @@ function _api_petitions_resource_index($created_before, $created_after, $created
  * Callback for Services petitions signatures relationship method.
  */
 function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $country, $created_before, $created_after, $created_at, $limit, $offset, $mock) {
-
   // Return mock response.
   if ($mock) {
     $response = json_decode(_api_petitions_mock_response('load_signatures'));
@@ -266,7 +265,7 @@ function _api_petitions_retrieve_doc() {
     '#description' => t('Returns a petition matching the petition id.'),
     '#request' => '/api/v1/petitions/50cb6d2ba9a0b1c52e000017.json',
     '#response' => _api_petitions_mock_response('retrieve'),
-    // '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
+    '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
   );
 
   return $element;
@@ -294,7 +293,7 @@ function _api_petitions_retrieve_doc_example_implementations() {
     'thermometer' => array(
       '#name' => t('Thermometer'),
       '#description' => t('Display the status of a petition as a thermometer.'),
-      '#code' => _api_petitions_example_implementation('retrieve', 'javascript', 'thermometer'),
+      //'#location' => _api_petitions_example_implementation('retrieve', 'javascript', 'thermometer'),
       '#download_link' => drupal_get_path('module', 'api_petitions') . '/example_implementations/javascript/thermometer.zip',
       '#uses_sdk' => FALSE,
     ),
@@ -326,41 +325,9 @@ function _api_petitions_load_signatures_doc() {
     '#description' => t('Display signatures attached to a petition.'),
     '#request' => '/api/v1/petitions/50cb6d2ba9a0b1c52e000017/signatures.json?limit=16&offset=0',
     '#response' => _api_petitions_mock_response('load_signatures'),
-    // '#example_implementations_bundles' => _api_petitions_load_signatures_doc_example_implementations_bundles(),
   );
 
   return $element;
-}
-
-/**
- * Documentation callback for bundled examples implementing relationship method.
- */
-function _api_petitions_load_signatures_doc_example_implementations_bundles() {
-  $example_implementations_bundles = array(
-    'javascript' => array(
-      '#language' => t('JavaScript'),
-      '#examples' => _api_petitions_load_signatures_doc_example_implementations(),
-    ),
-  );
-
-  return $example_implementations_bundles;
-}
-
-/**
- * Documentation callback for examples implementing relationship method.
- */
-function _api_petitions_load_signatures_doc_example_implementations() {
-  $example_implementations = array(
-    'signatures_list' => array(
-      '#name' => t('Signatures List'),
-      '#description' => t('Display a list of signatures associated with a petition.'),
-      '#code' => _api_petitions_example_implementation('load_signatures', 'javascript', 'signatures_list'),
-      '#download_link' => url(drupal_get_path('module', 'api_petitions') . '/example_implementations/javascript/signatures_list.zip', array('absolute' => TRUE)),
-      '#uses_sdk' => FALSE,
-    ),
-  );
-
-  return $example_implementations;
 }
 
 /**
@@ -390,25 +357,5 @@ function _api_petitions_mock_response($method) {
  */
 function _api_petitions_example_implementation($method, $language, $example) {
   $directory = __DIR__ . '/example_implementations/' . $language . '/' . $example;
-  // $directory_contents = _api_petitions_directory_scan_recursively($directory);
-  return 'stub';
-}
-
-/**
- * Recursively scan the directory of an example implementation.
- */
-function _api_petitions_directory_scan_recursively($directory) {
-  $directory_contents = array();
-  $current_directory = scandir($directory);
-  foreach ($current_directory as $key => $value) {
-    if (!in_array($value, array(".", ".."))) {
-      if (is_dir($current_directory . '/' . $value)) {
-        $directory_contents[$value] = _api_petitions_directory_scan_recursively($current_directory . '/' . $value);
-      }
-      else {
-        $directory_contents[] = $value;
-      }
-    }
-  }
-  return $directory_contents;
+  return $directory;
 }

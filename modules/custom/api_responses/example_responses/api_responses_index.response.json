@@ -1,0 +1,55 @@
+{
+    "metadata": {
+        "execution time": 0.020001
+    },
+    "results": [
+        {
+            "id": 681,
+            "type": "response",
+            "title": "Example Title",
+            "body": "Example Body",
+            "petitions": [
+                {
+                    "id": "50cb6d2ba9a0b1c52e000017"
+                },
+                {
+                    "id": "50cb6d2ba9a0b1c52e000017"
+                }
+            ],
+            "url": "https://petitions.whitehouse.gov/response/message-president-obama-about-your-petition-reducing-gun-violence",
+            "created": 1355963976
+        },
+        {
+            "id": 682,
+            "type": "response",
+            "title": "Example Title 2",
+            "body": "Example Body 2",
+            "petitions": [
+                {
+                    "id": "50cb6d2ba9a0b1c52e000018"
+                },
+                {
+                    "id": "50cb6d2ba9a0b1c52e000018"
+                }
+            ],
+            "url": "https://petitions.whitehouse.gov/response/response-title-2",
+            "created": 1355963976
+        },
+        {
+            "id": 683,
+            "type": "response",
+            "title": "Example Title 3",
+            "body": "Example Body 3",
+            "petitions": [
+                {
+                    "id": "50cb6d2ba9a0b1c52e000017"
+                },
+                {
+                    "id": "50cb6d2ba9a0b1c52e000017"
+                }
+            ],
+            "url": "https://petitions.whitehouse.gov/response/response-title-3",
+            "created": 1355963976
+        }
+    ]
+}

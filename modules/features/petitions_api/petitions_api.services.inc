@@ -51,6 +51,16 @@ function petitions_api_default_services_endpoint() {
         ),
       ),
     ),
+    'responses' => array(
+      'operations' => array(
+        'retrieve' => array(
+          'enabled' => '1',
+        ),
+        'index' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
     'users' => array(
       'operations' => array(
         'index' => array(

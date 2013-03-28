@@ -1,0 +1,226 @@
+#thermometer-widget {
+  margin: auto;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #393939;
+  position: relative;
+  width: 500px;
+  height: auto;
+  border: 1px solid transparent;
+  box-shadow: 1px 2px 6px rgba(0,0,0, 0.5);
+  -moz-box-shadow: 1px 2px 6px rgba(0,0,0, 0.5);
+  -webkit-box-shadow: 1px 2px 6px rgba(0,0,0, 0.5);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+#thermometer-widget #top-container {
+  padding: 0px 10px 0px 10px;
+}
+
+#thermometer-widget #top-container #petition-title {
+  font-weight: bold;
+  font-size: 20px;
+  padding: 10px 0px 0px 0px;
+}
+
+#thermometer-widget #top-container #petition-title a {
+  color: #6ea500;
+  text-decoration: none;
+  line-height: 22px;
+}
+
+#thermometer-widget #top-container #petition-title a:hover {
+  color: #4d7400;
+  text-decoration: underline;
+}
+
+#thermometer-widget #top-container #petition-info {
+  margin: 5px 0px 0px 0px;
+  font-size: 12px;
+}
+
+#thermometer-widget #top-container #petition-info .label {
+  font-weight: bold;
+}
+
+#thermometer-widget #top-container #petition-info #created,
+#thermometer-widget #top-container #petition-info #issues {
+  padding: 1px 0px 0px 0px;
+}
+
+#thermometer-widget #main-container {
+  margin: 10px;
+}
+
+#thermometer-widget #data-container {
+  float: right;
+  width: 305px;
+  margin: 0px 0px 0px 10px;
+}
+
+#thermometer-widget #data-container #item-one,
+#thermometer-widget #data-container #item-two,
+#thermometer-widget #data-container #item-three {
+  width: 305px;
+  padding: 5px 0px 5px 0px ;
+  margin: 0px 0px 10px 0px;
+  position: relative;
+}
+
+#thermometer-widget #data-container #item-three {
+  margin-top: 25px;
+}
+
+#thermometer-widget #data-container .item-label {
+  float: left;
+  font-size: 14px;
+  text-transform: uppercase;
+  width: 183px;
+  margin: 0px 5px 0px 0px;
+}
+
+#thermometer-widget #data-container .item-label #response-deadline,
+#thermometer-widget #data-container .item-label #response-threshold {
+  font-weight: bold;
+}
+
+#thermometer-widget #data-container .data {
+  float: right;
+  width: 100px;
+  height: 24px;
+  text-align: center;
+  background: #E7E7E7;
+  border: 1px solid white;
+  padding: 5px;
+  box-shadow: 1px 2px 6px rgba(0,0,0, 0.5);
+  -moz-box-shadow: 1px 2px 6px rgba(0,0,0, 0.5);
+  -webkit-box-shadow: 1px 2px 6px rgba(0,0,0, 0.5);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  font-size: 20px;
+  margin: 0px 5px 0px 0px;
+}
+
+#thermometer-widget #data-container #response-link {
+  text-align: center;
+}
+
+#thermometer-widget #data-container #response-link a {
+  background-color: #6ea500;
+  color: #FFFFFF;
+  text-decoration: none;
+  padding: 6px 10px 7px 10px;
+  border: 1px solid #FFFFFF;
+  border-radius: 5px;
+}
+
+#thermometer-widget #data-container #response-link a:hover {
+  background-color: #4d7400;
+}
+
+#thermometer-widget #display {
+  float: left;
+  width: 165px;
+  text-align: center;
+}
+
+#thermometer-widget #display #top {
+  position: relative;
+  bottom: -3px;
+  margin: auto;
+  height: 12px;
+  width: 26px;
+  -webkit-border-top-left-radius: 15px;
+  -webkit-border-top-right-radius: 15px;
+  -moz-border-radius-topleft: 15px;
+  -moz-border-radius-topright: 15px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  border: 1px solid #000000;
+  border-bottom: 0px;
+}
+
+#thermometer-widget #display #middle {
+  position: relative;
+  bottom: -3px;
+  margin: auto;
+  text-align: center;
+  height: 130px;
+  width: 26px;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+}
+
+#thermometer-widget #display #middle .value {
+  position: absolute;
+  bottom: 0;
+  background-color: #4d7400;
+  width: 100%;
+}
+
+#thermometer-widget #display #middle .mark {
+  position: relative;
+  height: 2px;
+  border-left: 3px solid black;
+  border-right: 3px solid black;
+  width: 20px;
+  z-index: 10;
+}
+
+#thermometer-widget #display #middle .mark .tooltip {
+  display: none;
+}
+
+#thermometer-widget #display #middle .mark.mark-selected .tooltip {
+  display: block;
+  position: absolute;
+  left: 25px;
+
+  text-align: center;
+  width: 50px;
+  height: 20px;
+  line-height: 20px;
+  background-color: yellow;
+  border: 1px solid black;
+}
+
+#thermometer-widget #display #middle .mark.mark-selected {
+  height: 3px;
+  background-color: yellow;
+}
+
+#thermometer-widget #display #base {
+  margin: auto;
+  text-align: center;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 30px;
+  height: 60px;
+  width: 75px;
+  background-color: #4d7400;
+  border: 1px solid black;
+  border-top: 0;
+  color: #FFFFFF;
+}
+
+#thermometer-widget #display #base .display-total-signatures {
+  margin: auto;
+  text-align: center;
+  line-height: 60px;
+  font-weight: bold;
+}
+
+.clearfix:after {
+  content: ".";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+
+.clearfix {
+  display: inline-block;
+}

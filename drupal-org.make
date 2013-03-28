@@ -164,6 +164,12 @@ projects[nagios][subdir] = contrib
 projects[nagios][patch][] = http://drupal.org/files/check_type.patch
 projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 
+; 1917432-3.patch
+;   - Fixes issue where a relationship's source argument (path) only accepts numeric values.
+;   - Fix has been applied to the dev branch of the Services module. This patch can be removed when the next release is made available.
+;   - @see http://drupal.org/node/1917432
+;
+;------------------------------------
 projects[services][version] = 3.3
 projects[services][subdir] = contrib
 projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
