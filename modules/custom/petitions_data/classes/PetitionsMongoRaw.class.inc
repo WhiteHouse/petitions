@@ -337,7 +337,7 @@ class PetitionsMongoRaw implements IPetitionsRaw {
 
     $query = $this->getQuery();
     $results = $this->getCollection()
-      ->find($query, $fields)
+      ->find(clean_mongo_query($query), $fields)
       ->limit($this->getLimit())
       ->skip($this->getOffset())
       ->sort(array('created' => -1));

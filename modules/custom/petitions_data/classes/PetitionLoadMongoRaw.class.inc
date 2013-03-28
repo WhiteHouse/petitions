@@ -133,7 +133,7 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
     $response['results'] = array();
 
     $doc = $this->getCollection()
-      ->findOne(array('_id' => new MongoId($id)));
+      ->findOne(array('_id' => new MongoId(clean_mongo_query($id))));
 
     $petition = array(
       'id' => $this->formatReturnId($doc['_id']),
