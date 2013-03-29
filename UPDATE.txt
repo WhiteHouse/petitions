@@ -1,6 +1,22 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta5 -> 7.x-2.0-beta6
+-----------------------------------------------
+
+The only change in beta6 is UPDATE.txt instructions. 2.0-beta5, will break your site if 
+you don't manually enable the new Clean Mongo module. To update safely, enable
+the Clean Mongo module.
+
+  Do this via the GUI here:
+
+    Administer -> Modules -> Clean Mongo
+
+  Or via Drush like this:
+
+    drush en clean_mongo -y
+
+
 Version 7.x-2.0-beta4 -> 7.x-2.0-beta5
 -----------------------------------------------
 
