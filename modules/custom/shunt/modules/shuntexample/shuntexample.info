@@ -1,0 +1,6 @@
+name = Example Custom Shunt
+description = Shows how to implement a custom shunt.
+core = 7.x
+package = Shunt
+dependencies[] = shunt
+

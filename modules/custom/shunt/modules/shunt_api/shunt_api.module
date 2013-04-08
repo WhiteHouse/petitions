@@ -1,0 +1,107 @@
+<?php
+/**
+ * @file
+ * This is the main module file for the Petitions API Shunt.
+ */
+
+/**
+ * Implements hook_shunt().
+ *
+ * @todo The shunt module needs a mechanism to delete dynamically generated
+ * shunts.
+ *
+ * @todo Wrap the Petitions API shunts in a fieldset.
+ */
+function shunt_api_shunt() {
+  $shunts = array(
+    'shunt_api_shunt_is_enabled' => 'This is a shunt for the Petitions API.',
+  );
+
+  // Define shunts for enabled resources.
+  // This works to generate shunts, but logic is needed to implement them.
+  // $endpoints = services_endpoint_load_all();
+  // $resources = services_get_resources();
+  // foreach ($resources as $resource_key => $resource) {
+  //   foreach ($resource as $operation_key => $operation) {
+  //     foreach ($operation as $method_key => $method) {
+  //       foreach ($endpoints as $endpoint) {
+  //         if ($endpoint->resources[$resource_key][$operation_key][$method_key]['enabled']) {
+  //           $shunt_name = 'shunt_api_' . $resource_key . '_' . $method_key . '_shunt_is_enabled';
+  //           $shunt_description = 'This is a shunt for the ' . $resource_key . ' ' . $method_key . 'method.';
+  //           $shunts[$shunt_name] = $shunt_description;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
+  return $shunts;
+}
+
+/**
+ * Implements hook_services_resources_alter().
+ */
+function shunt_api_services_resources_alter(&$resources, $endpoint) {
+  // Confirm a resource has been requested.
+  $menu_item = menu_get_item();
+
+  // Load endpoints in order to check the status of resources.
+  $endpoints = services_endpoint_load_all();
+
+  // Define a callback parameter to be passed into the callback.
+  if ($menu_item['page_callback'] == 'services_endpoint_callback') {
+    // Loop through resources.
+    foreach ($resources as $resource_key => $resource) {
+      // Loop through operations, such as 'operations' and 'relationships'.
+      foreach ($resource as $operation_key => $operation) {
+        // Loop through methods, such as 'index' and 'retrieve'.
+        foreach ($operation as $method_key => $method) {
+          // Loop through defined endpoints.
+          foreach ($endpoints as $endpoint) {
+            // Only affect enabled resources, as defined by endpoints.
+            if ($endpoint->resources[$resource_key][$operation_key][$method_key]['enabled']) {
+              // Only affect elements with an existing 'args' key.
+              if (!empty($resources[$resource_key][$operation_key][$method_key]['args'])) {
+                // Preserve the existing callback as a parameter.
+                $resources[$resource_key][$operation_key][$method_key]['args'][] = array(
+                  'name' => 'callback',
+                  'optional' => TRUE,
+                  'type' => 'string',
+                  'description' => 'The resource callback function.',
+                  'default value' => $resources[$resource_key][$operation_key][$method_key]['callback'],
+                );
+                // Overwrite the existing callack.
+                $resources[$resource_key][$operation_key][$method_key]['callback'] = 'shunt_api_callback';
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * The new callback for all Services enabled methods.
+ *
+ * @todo Implement dynamic shunts for enabled resources.
+ *
+ * @todo Services treats POSTs differently so this function will need to be
+ * updated when the Write API is released.
+ */
+function shunt_api_callback() {
+  $shunt_is_enabled = variable_get('shunt_is_enabled', FALSE);
+  $shunt_api_shunt_is_enabled = variable_get('shunt_api_shunt_is_enabled', FALSE);
+
+  // Define an array of arguments passed into the callback.
+  $args = func_get_args();
+  // The last value is the original callback.
+  $function = array_pop($args);
+
+  if ($shunt_is_enabled || $shunt_api_shunt_is_enabled) {
+    drupal_not_found();
+  }
+  else {
+    return call_user_func_array($function, $args);
+  }
+}

@@ -98,7 +98,7 @@ function _petitions_stats_users_queue_tasks() {
   // Determine the number of result rows to fetch.
   $batch_size = variable_get('psu_batch_size', 100);
   $params = array('offset' => 0, 'limit' => $batch_size);
-  $request_url = variable_get('psu_request_url', 'http://petitions.whitehouse.gov/api/v1/users.json');
+  $request_url = variable_get('psu_request_url', 'http://api.whitehouse.gov/v1/users.json');
   $response = _petitions_stats_users_request_data($request_url, $params, TRUE);
   $count = isset($response->metadata->count) ? $response->metadata->count : 0;
 

@@ -75,7 +75,7 @@ To see an example of what the thermometer looks like, download or clone this rep
     <script type="text/javascript">
       $(function() {
         $.ajax({
-          url: 'https://petitions.whitehouse.gov/api/v1/petitions/50cb6d2ba9a0b1c52e000017.jsonp?key=aVmupNPJmgkweR9',
+          url: 'https://api.whitehouse.gov/v1/petitions/50cb6d2ba9a0b1c52e000017.jsonp?key=aVmupNPJmgkweR9',
           dataType: 'jsonp',
           success: function(data) {
             petitionData(data);
@@ -90,14 +90,14 @@ To see an example of what the thermometer looks like, download or clone this rep
 
   To change which petition the thermometer visualizes, just change the petition ID in the script. Find the ID `50cb6d2ba9a0b1c52e000017` here:
 
-        https://petitions.whitehouse.gov/api/v1/petitions/50cb6d2ba9a0b1c52e000017.jsonp?key=aVmupNPJmgkweR9
+        https://api.whitehouse.gov/v1/petitions/50cb6d2ba9a0b1c52e000017.jsonp?key=aVmupNPJmgkweR9
 
   then replace it with whatever petition ID you want. Look up the ID via the API. For example:
-  
-        https://petitions.whitehouse.gov/api/v1/petitions?key=aVmupNPJmgkweR9
+
+        https://api.whitehouse.gov/v1/petitions?key=aVmupNPJmgkweR9
 
   See additional documentation here: https://petitions.whitehouse.gov/developers.
-  
+
 
 
 ### Download and customize the example source code
@@ -125,11 +125,11 @@ To see an example of what the thermometer looks like, download or clone this rep
   This widget requires you to know a specific petition ID.  At the time of this release, the only way to look up a specific petition ID is by using the API. To view all
   petitions and their IDs, you can visit:
 
-    https://petitions.whitehouse.gov/api/v1/petitions.json?key=aVmupNPJmgkweR9
+    https://api.whitehouse.gov/v1/petitions.json?key=aVmupNPJmgkweR9
 
   Detailed documentation about the We the People API is available here:
 
-    https://petitions.whitehouse.gov/developers 
+    https://petitions.whitehouse.gov/developers
 
 
 

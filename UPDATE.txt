@@ -1,10 +1,24 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta6 -> 7.x-2.0-beta7
+-----------------------------------------------
+
+Release notes:
+
+  - Updated the path to the Petitions API endpoint
+  - Added the Shunt module
+
+Update steps:
+
+  1. Clear caches.
+
+       drush cc all
+
 Version 7.x-2.0-beta5 -> 7.x-2.0-beta6
 -----------------------------------------------
 
-The only change in beta6 is UPDATE.txt instructions. 2.0-beta5, will break your site if 
+The only change in beta6 is UPDATE.txt instructions. 2.0-beta5, will break your site if
 you don't manually enable the new Clean Mongo module. To update safely, enable
 the Clean Mongo module.
 
@@ -15,7 +29,6 @@ the Clean Mongo module.
   Or via Drush like this:
 
     drush en clean_mongo -y
-
 
 Version 7.x-2.0-beta4 -> 7.x-2.0-beta5
 -----------------------------------------------
