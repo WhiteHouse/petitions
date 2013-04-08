@@ -1,0 +1,4 @@
+name = Shunt
+description = This module lets site administrators "trip a shunt" to signal to modules that the site is strained and features should fail gracefully.
+core = 7.x
+package = Shunt

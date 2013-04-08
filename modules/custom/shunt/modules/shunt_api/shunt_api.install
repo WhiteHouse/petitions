@@ -1,0 +1,21 @@
+<?php
+/**
+ * @file
+ * Contains install and update functions for the Petitions API Shunt.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function shunt_api_install() {
+  // Create shunt_is_enabled variable. Set it to False.
+  variable_set('shunt_api_shunt_is_enabled', FALSE);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function shunt_api_uninstall() {
+  // Delete shunt_is_enabled variable.
+  variable_del('shunt_api_shunt_is_enabled');
+}
