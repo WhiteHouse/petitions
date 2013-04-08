@@ -1,0 +1,5 @@
+name = Petitions API Shunt
+description = Implements shunts for the Petitions API to disable resources without clearing caches.
+core = 7.x
+package = Shunt
+dependencies[] = shunt
