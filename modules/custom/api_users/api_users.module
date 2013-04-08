@@ -195,7 +195,7 @@ function _api_users_index_doc() {
   $element = array(
     '#name' => t('Index'),
     '#description' => t('Returns a list of users matching passed parameters.'),
-    '#request' => '/api/v1/users.json?limit=100&offset=0',
+    '#request' => '/v1/users.json?limit=100&offset=0',
     '#response' => _api_users_mock_response(),
   );
 

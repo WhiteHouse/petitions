@@ -15,7 +15,7 @@ function petitions_api_default_services_endpoint() {
   $endpoint->api_version = 3;
   $endpoint->name = 'api_v1';
   $endpoint->server = 'rest_server';
-  $endpoint->path = 'api/v1';
+  $endpoint->path = 'v1';
   $endpoint->authentication = array();
   $endpoint->server_settings = array(
     'formatters' => array(
