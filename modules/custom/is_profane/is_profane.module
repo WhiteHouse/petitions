@@ -60,7 +60,7 @@ function is_profane($string, $terms = array()) {
   }
   foreach ($terms as $term) {
     $term = str_replace(',', '', $term);
-    if (strpos($string, $term) !== FALSE) {
+    if (preg_match("/\b$string\b/", $term)) {
       return TRUE;
     }
   }
