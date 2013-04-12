@@ -18,7 +18,7 @@ Releasing the source code for this application is meant to empower other governm
 
 * Drupal 7.x
 * MySQL 5.x
-* MongoDB 1.8
+* MongoDB 2.2.4
 * PHP 5.2 or 5.3
 
 *Recommended:*
