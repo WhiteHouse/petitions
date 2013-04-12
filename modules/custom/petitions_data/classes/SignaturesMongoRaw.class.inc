@@ -203,7 +203,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url) {
-    $this->baseURL = $base_url;
+    $this->baseURL = variable_get('petitions_data_petitions_website_url', $base_url);
 
     return $this;
   }
@@ -265,11 +265,11 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    *   Number of results to return
    */
   protected function getLimit() {
-    
+
     if(!intval($this->limit)){
       return $this->max_return_limit;
     }
-    
+
     return intval($this->limit);
   }
 
@@ -381,7 +381,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
     );
 
     $results = $this->getCollection()
-      ->find(clean_mongo_query($query), $fields)
+      ->find($query, $fields)
       ->limit($this->getLimit())
       ->skip($this->getOffset())
       ->sort(array('timestamp' => -1));

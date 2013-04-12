@@ -671,7 +671,7 @@ function wh_petitions_petition_detail_niceurl($url) {
   // Load the petition
   $conn = wh_petitions_mongo_petition_connection();
   $nice_url = check_plain($_GET['q']);
-  $petition = $conn->findOne(array('nice_url' => clean_mongo_query($nice_url)), array('title'));
+  $petition = $conn->findOne(array('nice_url' => $nice_url), array('title'));
 
   if ($petition) {
     // These nice URLs can't be cleanly captured so force the Context.

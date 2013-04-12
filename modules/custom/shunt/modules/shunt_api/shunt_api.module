@@ -107,3 +107,11 @@ function shunt_api_callback() {
     return call_user_func_array($function, $args);
   }
 }
+
+/**
+ * Implements hook_shunt_enable().
+ */
+function shunt_api_shunt_enable($name) {
+  $text = t('CAUTION: If you have different memcache servers in front of your API site and your main website, you must trip the shunt on both sites or issue a cache clear for the shunt to actually get tripped.');
+  drupal_set_message($text, 'warning');
+}

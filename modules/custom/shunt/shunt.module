@@ -10,7 +10,7 @@
 function shunt_menu() {
   $items = array();
 
-  $items['admin/settings/shunt'] = array(
+  $items['admin/config/system/shunt'] = array(
     'title' => 'Shunt',
     'description' => 'Notify other modules to fail gracefully.',
     'page callback' => 'drupal_get_form',
@@ -22,29 +22,184 @@ function shunt_menu() {
 }
 
 /**
- * Callback for admin/settings/shunt.
+ * Callback for admin/config/system/shunt.
  *
  * @see system_settings_form
  */
 function shunt_admin_settings() {
-  // Generic shunt.
-  $form['shunt_is_enabled'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('shunt_is_enabled'),
-    '#default_value' => variable_get('shunt_is_enabled', FALSE),
-    '#description' => t('Trip (enable) the shunt to notify modules to fail gracefully.'),
-  );
-
-  // Add checkboxes for custom shunts.
-  $custom_shunts = module_invoke_all('shunt');
-  foreach ($custom_shunts as $custom_shunt => $description) {
-    $form[$custom_shunt] = array(
+  // Add checkboxes for shunt trips.
+  $shunts = module_invoke_all('shunt');
+  foreach ($shunts as $shunt => $description) {
+    $form[$shunt] = array(
       '#type' => 'checkbox',
-      '#title' => $custom_shunt,
-      '#default_value' => variable_get($custom_shunt, FALSE),
+      '#title' => $shunt,
+      '#default_value' => variable_get($shunt, FALSE),
       '#description' => t($description),
     );
   }
 
   return system_settings_form($form);
 }
+
+/**
+ * Implements hook_shunt().
+ */
+function shunt_shunt() {
+  return array(
+    'shunt_is_enabled' => t('Trip (enable) the shunt to notify modules to fail gracefully.'),
+  );  
+}
+
+/**
+ * Trip shunt(s).
+ *
+ * @param string $name
+ *  Optional. Machine name of a specific shunt to trip. (Default to all.)
+ */
+function shunt_enable($name = NULL) {
+  $shunts =  module_invoke_all('shunt');
+  // Check to see if $name is a valid shunt.
+  if (!empty($name) && !array_key_exists($name, $shunts)) {
+    $text = t('Sorry. @name is not a valid shunt.', array('@name' => $name));
+    drupal_set_message($text);
+  }
+  else if (!empty($name) && array_key_exists($name, $shunts)) {
+    _shunt_enable($name);
+  } 
+  // Trip all shunts if no specific $name is specified.
+  else {
+    foreach($shunts as $name => $description) {
+      _shunt_enable($name);
+    }
+  }
+}
+
+/**
+ * Disable shunt(s).
+ *
+ * @param string $name
+ *  Optional. Name of a specific shunt to trip. (Default to all.)
+ */
+function shunt_disable($name = NULL) {
+  $shunts =  module_invoke_all('shunt');
+  // Confirm $name is a valid shunt name.
+  if (!empty($name) && !array_key_exists($name, $shunts)) {
+    $text = t('Sorry. @name is not a valid shunt.', array('@name' => $name));
+    drupal_set_message($text);
+  }
+  else if (!empty($name) && array_key_exists($name, $shunts)) {
+    _shunt_disable($name);
+  } 
+  // Disable all shunts if no specific $name is specified.
+  else {
+    foreach($shunts as $name => $description) {
+      _shunt_disable($name);
+    }
+  }
+}
+
+/**
+ * @return array $shunts
+ *  Array of shunts that are enabled.
+ */
+function shunt_get_enabled() {
+  return _shunt_get('enabled');
+}
+
+/**
+ * @return array $shunts
+ *  Array of shunts that are disabled.
+ */
+function shunt_get_disabled() {
+  return _shunt_get('disabled');
+}
+
+/**
+ * Determine whether shunt is enabled.
+ *
+ * @param string $name.
+ *  Name of shunt to check status of.
+ *
+ * @return boolean $shunt_is_enabled.
+ *  Is $name shunt enabled?
+ */
+function shunt_is_enabled($name = NULL) {
+  if ($name) {
+    $shunts_enabled = shunt_get_enabled();
+    $shunt_is_enabled = in_array($name, $shunts_enabled);
+  }
+  else {
+    $shunt_is_enabled = variable_get('shunt_is_enabled', FALSE);  
+  }
+
+  return $shunt_is_enabled;
+}
+
+/**
+ * Internal function. Return array of enabled or disabled shunts.
+ *
+ * @param string $status
+ *  'enabled' or 'disabled'
+ *
+ * @return array
+ */
+function _shunt_get($status) {
+  $shunts_enabled = array();
+  $shunts_disabled = array();
+
+  // Check status for each shunt.
+  $shunts = module_invoke_all('shunt');
+  foreach ($shunts as $name => $description) {
+    if(variable_get($name, FALSE)) {
+      $shunts_enabled[] = $name;
+    }
+    else {
+      $shunts_disabled[] = $name;   
+    }
+  }
+
+  // Set $result to requested list of shunt trips.
+  if ($status == 'enabled'){
+   $result = $shunts_enabled;
+  }
+  else if ($status == 'disabled') {
+   $result = $shunts_disabled;
+  }
+
+  return $result;
+}
+
+/**
+ * Internal function to trip a specific shunt.
+ *
+ * @param string $name.
+ */
+function _shunt_enable($name) {
+  // Trip the shunt.
+  variable_set($name, TRUE);
+
+  // Give user a confirmation message.
+  $text = t('@name shunt has been tripped.', array('@name' => $name));
+  drupal_set_message($text);
+
+  // Give other modules an opportunity to react to this shunt being tripped.
+  module_invoke_all('shunt_enable', $name);
+}
+
+/**
+ * Internal function to disable a specific shunt.
+ *
+ * @param string $name.
+ */
+function _shunt_disable($name) {
+  // Trip the shunt.
+  variable_set($name, FALSE);
+
+  // Give user a confirmation message.
+  $text = t('@name shunt has been disabled.', array('@name' => $name));
+  drupal_set_message($text);
+
+  // Give other modules an opportunity to react to this shunt being disabled.
+  module_invoke_all('shunt_disable', $name);
+}
+

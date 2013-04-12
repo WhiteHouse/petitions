@@ -39,8 +39,6 @@ $ mongod  # This starts mongo.
 $ mongo   # This starts the mongo client.
 ```
 
-Note: The application was built to run on MongoDB 1.8 (not 2.x). This doesn't mean it won't work on 2.x. But it hasn't been rigorously tested on 2.x.
-
 
 Installing and configuring Petitions
 ------------------------------------

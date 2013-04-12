@@ -1,0 +1,40 @@
+<?php
+/**
+ * @file
+ * This is the main module file for petitions_data.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function petitions_data_menu() {
+  $items = array();
+
+  $items['admin/config/api/petitions_data'] = array(
+    'title' => 'Petitions Data Settings',
+    'description' => 'Configure settings for the Petitions Data module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('petitions_data_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form().
+ *
+ * Administration form.
+ */
+function petitions_data_form($form, &$form_state) {
+  $form['petitions_data_petitions_website_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Base URL'),
+    '#default_value' => variable_get('petitions_data_petitions_website_url', $base_url),
+    '#description' => "Enter a website URL used to generate links to petitions.",
+    '#required' => FALSE,
+  );
+
+  return system_settings_form($form);
+}
