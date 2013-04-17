@@ -10,30 +10,31 @@
  * @todo The shunt module needs a mechanism to delete dynamically generated
  * shunts.
  *
+ * @todo dynamically define shunts for enabled resources.
+ * This works to generate shunts, but logic is needed to implement them.
+ * $endpoints = services_endpoint_load_all();
+ * $resources = services_get_resources();
+ *   foreach ($resources as $resource_key => $resource) {
+ *     foreach ($resource as $operation_key => $operation) {
+ *       foreach ($operation as $method_key => $method) {
+ *         foreach ($endpoints as $endpoint) {
+ *           if ($endpoint->resources[$resource_key][$operation_key][$method_key]['enabled']) {
+ *             $shunt_name = 'shunt_api_' . $resource_key . '_' . $method_key . '_shunt_is_enabled';
+ *             $shunt_description = 'This is a shunt for the ' . $resource_key . ' ' . $method_key . 'method.';
+ *             $shunts[$shunt_name] = $shunt_description;
+ *           }
+ *         }
+ *       }
+ *     }
+ *   }
+ *
  * @todo Wrap the Petitions API shunts in a fieldset.
  */
 function shunt_api_shunt() {
   $shunts = array(
-    'shunt_api_shunt_is_enabled' => 'This is a shunt for the Petitions API.',
+    'shunt_api' => 'This is a shunt for the Petitions API.',
   );
 
-  // Define shunts for enabled resources.
-  // This works to generate shunts, but logic is needed to implement them.
-  // $endpoints = services_endpoint_load_all();
-  // $resources = services_get_resources();
-  // foreach ($resources as $resource_key => $resource) {
-  //   foreach ($resource as $operation_key => $operation) {
-  //     foreach ($operation as $method_key => $method) {
-  //       foreach ($endpoints as $endpoint) {
-  //         if ($endpoint->resources[$resource_key][$operation_key][$method_key]['enabled']) {
-  //           $shunt_name = 'shunt_api_' . $resource_key . '_' . $method_key . '_shunt_is_enabled';
-  //           $shunt_description = 'This is a shunt for the ' . $resource_key . ' ' . $method_key . 'method.';
-  //           $shunts[$shunt_name] = $shunt_description;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 
   return $shunts;
 }
@@ -90,28 +91,28 @@ function shunt_api_services_resources_alter(&$resources, $endpoint) {
  * updated when the Write API is released.
  */
 function shunt_api_callback() {
-  $shunt_is_enabled = variable_get('shunt_is_enabled', FALSE);
-  $shunt_api_shunt_is_enabled = variable_get('shunt_api_shunt_is_enabled', FALSE);
+  // If shunt_api has been tripped, 404.
+  if (shunt_is_enabled('shunt_api')){
+    drupal_not_found();
+    return;
+  }
 
+  // If the shunt has not been tripped, return normal Services callback.
   // Retrieve arguments passed by Services to the original Resource callback,
   // which have therefore been passed into this function.
   $args = func_get_args();
   // The last value is the original callback, as defined by
   // shunt_api_services_resources_alter().
   $function = array_pop($args);
-
-  if ($shunt_is_enabled || $shunt_api_shunt_is_enabled) {
-    drupal_not_found();
-  }
-  else {
-    return call_user_func_array($function, $args);
-  }
+  return call_user_func_array($function, $args);
 }
 
 /**
  * Implements hook_shunt_enable().
  */
 function shunt_api_shunt_enable($name) {
-  $text = t('CAUTION: If you have different memcache servers in front of your API site and your main website, you must trip the shunt on both sites or issue a cache clear for the shunt to actually get tripped.');
-  drupal_set_message($text, 'warning');
+  if ($name == 'shunt_api') {
+    $text = t('CAUTION: If you have different memcache servers in front of your API site and your main website, you must trip the shunt on both sites or issue a cache clear for the shunt to actually get tripped.');
+    drupal_set_message($text, 'warning');
+  }
 }
