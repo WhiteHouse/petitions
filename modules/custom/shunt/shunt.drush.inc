@@ -88,23 +88,17 @@ function drush_shunt_enable($name = NULL){
   $message = 'Choose which shunt to trip/enable.';
   $name = _drush_shunt_name_choices($name, $message);
 
-  // Get $self_name for log message.
-  $self_name = drush_sitealias_bootstrapped_site_name();
-  if (isset($self_name)) {
-    $site_label = dt(' in !name', array('!name' => $self_name));
-  }   
-
   // Trip shunt.
   if ($name == 'all') {
     $shunts = module_invoke_all('shunt'); 
     foreach ($shunts as $key => $description) {
       shunt_enable($key);
-      drush_log(dt("'!key' shunt was tripped !insitename", array('!key' => $key, '!insitename' => $site_label)), 'success');
+      drush_log(dt("'!key' shunt was tripped"));
     }
   }
   else {
     shunt_enable($name);
-    drush_log(dt("'!name' shunt was tripped !insitename", array('!name' => $name, '!insitename' => $site_label)), 'success');
+    drush_log(dt("'!name' shunt was tripped"));
   }
 }
 
@@ -150,23 +144,17 @@ function drush_shunt_disable($name = NULL){
   $message = 'Enter a number to choose which shunt to disable.';
   $name = _drush_shunt_name_choices($name, $message);
 
-  // Get $self_name for log message.
-  $self_name = drush_sitealias_bootstrapped_site_name();
-  if (isset($self_name)) {
-    $site_label = dt(' in !name', array('!name' => $self_name));
-  }   
-
   // Trip shunt.
   if ($name == 'all') {
     $shunts = module_invoke_all('shunt'); 
     foreach ($shunts as $key => $description) {
       shunt_disable($key);
-      drush_log(dt("'!key' shunt was disabled !insitename", array('!key' => $key, '!insitename' => $site_label)), 'success');
+      drush_log(dt("'!key' shunt was disabled !insitename"));
     }
   }
   else {
     shunt_disable($name);
-    drush_log(dt("'!name' shunt was disabled !insitename", array('!name' => $name, '!insitename' => $site_label)), 'success');
+    drush_log(dt("'!name' shunt was disabled !insitename"));
   }
 }
 
