@@ -79,6 +79,24 @@ function shunt_shunt() {
 }
 
 /**
+ * Implements hook_modules_uninstalled().
+ */
+function shunt_modules_uninstalled($modules) {
+  // Get a list of modules implementing shut trips.
+  $implementing_modules = module_implements('shunt'); 
+  foreach ($modules as $module) {
+    // Check if any modules being uninstalled implement shunt trips.
+    if (in_array($module, $implementing_modules)) {
+      $shunts = module_invoke($module, 'shunt');
+      foreach ($shunts as $variable => $description) {
+        // Delete custom shunt variables.
+        variable_del($variable);
+      }
+    }
+  }
+}
+
+/**
  * Trip shunt(s).
  *
  * @param string $name
