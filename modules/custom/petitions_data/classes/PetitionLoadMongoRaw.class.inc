@@ -35,7 +35,7 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url) {
-    $this->baseURL = $base_url;
+    $this->baseURL = variable_get('petitions_data_petitions_website_url', $base_url);
 
     return $this;
   }
@@ -133,7 +133,7 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
     $response['results'] = array();
 
     $doc = $this->getCollection()
-      ->findOne(array('_id' => new MongoId(clean_mongo_query($id))));
+      ->findOne(array('_id' => new MongoId($id)));
 
     $petition = array(
       'id' => $this->formatReturnId($doc['_id']),
@@ -251,7 +251,7 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
 
     return $response;
   }
-  
+
   /**
    * Helper function to translate status codes into readable string formats.
    *

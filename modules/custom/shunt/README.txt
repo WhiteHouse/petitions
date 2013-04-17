@@ -17,9 +17,8 @@ About
   getting white screens or getting frustrated when their data doesn't save).
 
   By itself, this module doesn't do anything. It just sets a
-  variable, shunt_is_enabled to TRUE or FALSE. This lets other
-  modules check if the shunt is enabled, and modify their
-  behavior accordingly.
+  variable to keep track of whether the shunt is enabled, lets modules check if
+  the shunt is enabled, and provides hooks to let modules react to shunts being enabled/disabled.
 
   Note: the primary function of this module is to degrade features gracefully
   without requiring any cache clears.
@@ -28,115 +27,36 @@ About
 Usage
 ------
 
-  Enable the shunt like this:
+  To see all available drush commands, do this:
+
+    drush --filter=shunt
+
+
+  Enable ("trip") the shunt to disable targeted site functionality like this:
 
     A. Via Drush:
 
-      drush vset shunt_is_enabled TRUE
+      drush shunt-enable
 
 
     B. Via admin GUI
 
       Go here:
-        admin/settings/shunt
+        admin/config/system/shunt
 
-      Enable shunt check box. Save.
+        Enable shunt check box. Save.
 
+  
+  Disable the shunt to renable site functionality like this:
 
-Developers
-----------
+    A. Via Drush:
 
-  Module developers can implement shunts for their own
-  modules like this:
-
-  <?php
-    // Check to see if Shunt module is installed and the
-    // shunt is enabled.
-    $shunt_is_enabled = variable_get('shunt_is_enabled', FALSE);
-
-    // Anywhere you want your module to be able to fail gracefully, do this:
-    if ($shunt_is_enabled) {
-      // Shunt is enabled. Fail gracefully.
-    }
-    else {
-      // Shunt is not enabled. Proceed.
-    }
-  ?>
+      drush shunt-disable
 
 
-  If you want more granular control, your module can have its own checkbox on
-  admin/settings/shunt. All you have to do is implement hook_shunt and
-  return an array keyed by your own module's variable name.
+    B. Via admin GUI
 
-  Please prefix your variable with your module's name.
+      Go here:
+        admin/config/system/shunt
 
-  <?php
-    /**
-     * Implements hook_shunt().
-     *
-     * @return
-     *  Array
-     *   key = shunt name
-     *   value = description
-     */
-    function example_shunt() {
-      return array(
-        // Make a custom shunt like this.
-        // Then you can check to see if your own shunt has been flipped
-        // by doing this:
-        //
-        // $example_shunt_is_enabled = variable_get('example_shunt_is_enabled', FALSE);
-        //
-        'example_shunt_is_enabled' => 'This is a shunt for Example module. It disables something specific in Example module.',
-        // You can implement as many shunts as you want. Here's a second
-        // shunt provided by example module.
-        'example_shunt_2_is_enabled' => 'Lorem ipsum.',
-      );
-    }
-  ?>
-
-
-  /**
-   * @TODO Implement hook_shunt_enable and hook_shunt_disable as documented below.
-   * @TODO Add example/test implementations of hook_shunt_enable and hook_shunt_disable to shuntexample module.
-   *
-   *  [ ]  Add a custom form submission handler to fire when shunt config is updated
-   *      - When shunt(s) are enabled, call module_invoke_all('shunt_enable', $values)
-   *      - When shunt(s) are disabled, call module_invoke_all('shunt_disable', $values)
-   *      - $values = array keyed by shunt name, value = shunt status (TRUE/FALSE for On/Off)
-   *
-   *  [ ] Provide a shunt_enable($name) function.
-   *      - Call variable_set($name, TRUE)
-   *      - Call module_invoke_all('shunt_enable', array($name => TRUE))
-   *  [ ] Provide a shunt_disable($name) function.
-   *      - Call variable_set($name, TRUE)
-   *      - Call module_invoke_all('shunt_disable', array($name => FALSE))
-   */
-
-  If your module needs to take a one-time action when the shunt is enabled
-  or disabled, implement hook_shunt_enable and hook_shunt_disable.
-
-  <?php
-
-    /**
-     * Implements hook_shunt_enable().
-     *
-     * @param $shunts
-     *  Array, keyed by shunt name, indicating the status of each
-     *  shunt.
-     */
-     function example_shunt_enable($shunts) {
-       // This function is called when shunts are enabled.
-     }
-
-    /**
-     * Implements hook_shunt_disable().
-     *
-     * @param $shunts
-     *  Array, keyed by shunt name, indicating the status of each
-     *  shunt.
-     */
-     function example_shunt_disable($shunts) {
-       // This function is called when shunts are disabled.
-     }
-  ?>
+        Disable shunt check box. Save.

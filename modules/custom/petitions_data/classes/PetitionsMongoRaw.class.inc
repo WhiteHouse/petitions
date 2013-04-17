@@ -170,7 +170,7 @@ class PetitionsMongoRaw implements IPetitionsRaw {
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url) {
-    $this->baseURL = $base_url;
+    $this->baseURL = variable_get('petitions_data_petitions_website_url', $base_url);
 
     return $this;
   }
@@ -212,11 +212,11 @@ class PetitionsMongoRaw implements IPetitionsRaw {
    *   Number of results to return
    */
   protected function getLimit() {
-    
+
     if(!intval($this->limit)){
       return $this->max_return_limit;
     }
-    
+
     return intval($this->limit);
   }
 
@@ -337,7 +337,7 @@ class PetitionsMongoRaw implements IPetitionsRaw {
 
     $query = $this->getQuery();
     $results = $this->getCollection()
-      ->find(clean_mongo_query($query), $fields)
+      ->find($query, $fields)
       ->limit($this->getLimit())
       ->skip($this->getOffset())
       ->sort(array('created' => -1));
