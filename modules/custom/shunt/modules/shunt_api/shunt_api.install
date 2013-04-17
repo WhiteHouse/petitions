@@ -8,9 +8,6 @@
  * Implements hook_install().
  */
 function shunt_api_install() {
-  // Create shunt_is_enabled variable. Set it to False.
-  variable_set('shunt_api_shunt_is_enabled', FALSE);
-
   // Set the module weight very high to prevent other invocations of
   // hook_services_resources_alter() from interfering with shunt_api appending
   // a value to enabled resources' args array.
@@ -18,12 +15,4 @@ function shunt_api_install() {
     ->fields(array('weight' => 1000))
     ->condition('name', 'shunt_api', '=')
     ->execute();
-}
-
-/**
- * Implements hook_uninstall().
- */
-function shunt_api_uninstall() {
-  // Delete shunt_is_enabled variable.
-  variable_del('shunt_api_shunt_is_enabled');
 }

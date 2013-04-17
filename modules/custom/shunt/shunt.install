@@ -5,23 +5,11 @@
  */
 
 /**
- * Implements hook_install().
- */
-function shunt_install() {
-  // Create shunt_is_enabled variable. Set it to False.
-  variable_set('shunt_is_enabled', FALSE);
-}
-
-/**
  * Implements hook_uninstall().
  */
 function shunt_uninstall() {
-  // Delete shunt_is_enabled variable.
-  variable_del('shunt_is_enabled');
-
   foreach (module_invoke_all('shunt') as $variable => $description) {
     // Delete custom shunt variables.
     variable_del($variable);
   }
-
 }
