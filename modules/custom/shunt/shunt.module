@@ -222,7 +222,7 @@ function _shunt_enable($name) {
   variable_set($name, TRUE);
 
   // Give user a confirmation message.
-  $text = t('@name shunt is tripped.', array('@name' => $name));
+  $text = t('"@name" shunt is tripped.', array('@name' => $name));
   drupal_set_message($text);
 
   // Give other modules an opportunity to react to this shunt being tripped.
@@ -239,7 +239,7 @@ function _shunt_disable($name) {
   variable_set($name, FALSE);
 
   // Give user a confirmation message.
-  $text = t('@name shunt is disabled.', array('@name' => $name));
+  $text = t('"@name" shunt is disabled.', array('@name' => $name));
   drupal_set_message($text);
 
   // Give other modules an opportunity to react to this shunt being disabled.
