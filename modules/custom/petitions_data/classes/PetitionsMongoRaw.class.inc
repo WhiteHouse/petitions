@@ -290,13 +290,10 @@ class PetitionsMongoRaw implements IPetitionsRaw {
     // @TODO: This really should be added as a publicly accessible method.
     $this->setQuery(
       array(
-        'petition_status' => array(
-          '$in' => array(
-            WH_PETITION_STATUS_PUBLIC,
-            WH_PETITION_STATUS_UNDER_REVIEW,
-            WH_PETITION_STATUS_REVIEWED,
-          ),
+        'signature_count' => array(
+          '$gt' => new MongoInt64(150)
         ),
+        'petition_status' => array('$ne' => new MongoInt64(WH_PETITION_STATUS_FLAGGED)) 
       )
     );
   }
@@ -368,6 +365,13 @@ class PetitionsMongoRaw implements IPetitionsRaw {
 
       $response['results'][] = $petition;
     }
+    
+        // Set the result set information.
+    $response['metadata']['resultset'] = array(
+      'count' => $results->count(),
+      'offset' => $this->getOffset(),
+      'limit' => $this->getLimit(),
+    );
 
     $response['metadata']['execution time'] = $this->calcExecutionTime();
 

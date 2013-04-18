@@ -1,6 +1,17 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta8 -> 7.x-2.0-beta9
+-----------------------------------------------
+
+Release notes:
+
+  - Added count, offset, and limit to the metadata for the petitions index method
+
+Update steps:
+
+  1. Deploy new code. There are no additional update steps.
+
 Version 7.x-2.0-beta7 -> 7.x-2.0-beta8
 -----------------------------------------------
 
@@ -25,6 +36,7 @@ Update steps:
   2. Run the update script.
 
        drush updb -y
+       drush cc all
 
 Version 7.x-2.0-beta6 -> 7.x-2.0-beta7
 -----------------------------------------------
