@@ -89,13 +89,9 @@ projects[memcache][subdir] = contrib
 projects[metatag][version] = 1.0-alpha8
 projects[metatag][subdir] = contrib
 
-; TODO: Remove this?
-; -------------------
 projects[migrate][version] = 2.4
 projects[migrate][subdir] = contrib
 
-; TODO: Remove this?
-; -------------------
 projects[migrate_extras][version] = 2.4
 projects[migrate_extras][subdir] = contrib
 
@@ -116,6 +112,9 @@ projects[recaptcha][subdir] = contrib
 
 projects[rules][version] = 2.2
 projects[rules][subdir] = contrib
+
+projects[services_documentation][version] = 1.0-beta1
+projects[services_documentation][subdir] = contrib
 
 projects[simplehtmldom][version] = 1.12
 projects[simplehtmldom][subdir] = contrib
