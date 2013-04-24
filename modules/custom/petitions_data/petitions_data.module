@@ -30,7 +30,7 @@ function petitions_data_menu() {
 function petitions_data_form($form, &$form_state) {
   $form['petitions_data_petitions_website_url'] = array(
     '#type' => 'textfield',
-    '#title' => t('Base URL'),
+    '#title' => t('Petitions Website URL'),
     '#default_value' => variable_get('petitions_data_petitions_website_url', $base_url),
     '#description' => "Enter a website URL used to generate links to petitions.",
     '#required' => FALSE,
