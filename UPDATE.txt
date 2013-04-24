@@ -1,6 +1,25 @@
 UPDATE
 ======
 
+ Release notes:
+ 
+   - Bug fix: Filter unsupported non-latin characters out from API results
+   - Minor CSS change: Added styles for the new API Gallery Page (White House
+ pecific, 
+     this will be moved somewhere else in the future)
+   - Bug fix: Filter for 'zip' field, limit to 31 characters
+   - Moved services_documentation module into contrib
+ 
+ Update steps:
+ 
+   Uninstall services_documentation:
+     drush dis services_documentation
+     drush pm-uninstall services_documentation
+
+   Deploy new code. Clear cache. Re-install services_documentation module. 
+     drush en services_documentation
+
+
 Version 7.x-2.0-beta8 -> 7.x-2.0-beta9
 -----------------------------------------------
 
