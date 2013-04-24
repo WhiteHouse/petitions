@@ -226,8 +226,20 @@ function wh_petition_tool_shortenurl($url) {
        'max_redirects' => 0,
        'headers' => array('Content-Type' => 'application/json', 'Accept' => 'application/json'))
   );
-  $shortened_url = json_decode($response->data);
-  return $shortened_url[0];
+  if ($response->code == 200) {
+    $shortened_url = json_decode($response->data);
+    return $shortened_url[0];
+  }
+  else {
+    // Log an error.
+    $text = t('Request to !url failed. Code: !code. Error: !error', array(
+      '!url' => $url,
+      '!code' => $response->code,
+      '!error' => $response->error,
+    ));
+    watchdog('wh_petition_tool', $text, 'error');
+    return FALSE;
+  }
 }
 
 /**
