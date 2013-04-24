@@ -280,6 +280,9 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
       case WH_PETITION_STATUS_REVIEWED:
         return "responded";
       break;
+      
+      default:
+        return "closed";
     }
   }
 }

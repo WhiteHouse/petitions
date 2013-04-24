@@ -556,6 +556,9 @@ class PetitionsMongoRaw implements IPetitionsRaw {
       case WH_PETITION_STATUS_REVIEWED:
         return "responded";
       break;
+      
+      default:
+        return "closed";
     }
   }
 }
