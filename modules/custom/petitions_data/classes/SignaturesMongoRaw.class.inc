@@ -522,6 +522,19 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    *   First characters of first and last names.
    */
   protected function formatReturnName($first_name, $last_name) {
-    return substr($first_name, 0, 1) . substr($last_name, 0, 1);
+    return $this->filterUTF16(substr($first_name, 0, 1) . substr($last_name, 0, 1));
+  }
+  
+  /**
+   * Helper function to replace utf-16 characters with question marks.
+   *
+   * @param string $string
+   *   String to be filtered for utf-16 characters.
+   *
+   * @return string
+   *   String with utf-16 characters replaced with question marks.
+   */
+  protected function filterUTF16($string) {
+    return preg_replace('/[^\00-\255]+/u', '?', $string);
   }
 }
