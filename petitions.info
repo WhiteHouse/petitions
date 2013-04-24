@@ -28,22 +28,38 @@ dependencies[] = file
 dependencies[] = rdf
 
 ; contrib
+dependencies[] = colorbox
 dependencies[] = context
 dependencies[] = context_ui
 dependencies[] = entity
 dependencies[] = entitycache
 dependencies[] = features
+dependencies[] = gatekeeper
+dependencies[] = globalredirect
 dependencies[] = imce
+dependencies[] = libraries
 dependencies[] = mongodb
 dependencies[] = pathauto
+dependencies[] = petitions_api
+dependencies[] = petitions_stats_users
+dependencies[] = rest_server
+dependencies[] = services
+dependencies[] = services_documentation
+dependencies[] = shunt
 dependencies[] = wysiwyg
 
 ; custom
+dependencies[] = api_petitions
+dependencies[] = api_users
 dependencies[] = front_class
 dependencies[] = is_not_cached
+dependencies[] = is_profane
+dependencies[] = petitions_api
 dependencies[] = petitions_homepage
 dependencies[] = petitions_maintenance
+dependencies[] = petitions_profanity 
 dependencies[] = petitions_usermenu
+dependencies[] = petitions_signatures_display
 
 ; files
 files[] =  petitions.profile
