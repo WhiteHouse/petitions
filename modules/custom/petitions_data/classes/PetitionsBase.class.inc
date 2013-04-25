@@ -1,15 +1,16 @@
 <?php
 /**
  * @file
- * File containing class that accesses data using mongodb queries.
+ * File containing class that accesses Petitions data.
  */
 
-class PetitionLoadMongoRaw implements IPetitionLoadRaw {
+class PetitionsBase {
 
   protected $collection;
+  protected $baseURL;
   protected $executionTime;
   protected $result;
-  protected $baseURL;
+  protected $query = array();
 
   /**
    * Set accessor for $this->collection.
@@ -35,7 +36,7 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url) {
-    $this->baseURL = variable_get('petitions_data_petitions_website_url', $base_url);
+    $this->baseURL = $base_url;
 
     return $this;
   }
@@ -71,6 +72,21 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
   }
 
   /**
+   * Set accessor for $this->query.
+   *
+   * @param array $query
+   *   Array of query parameters to get passed to mongodb.
+   *
+   * @return PetitionsMongoRaw
+   *   Returns current instance of object.
+   */
+  protected function setQuery($query) {
+    $this->query = $query;
+
+    return $this;
+  }
+
+  /**
    * Get accessor for $this->collection.
    *
    * @return array
@@ -78,6 +94,16 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
    */
   protected function getCollection() {
     return $this->collection;
+  }
+
+  /**
+   * Get accessor for $this->base_url.
+   *
+   * @return string
+   *   The base url for the site that absolute URLs will be constructed with.
+   */
+  protected function getBaseURL() {
+    return $this->baseURL;
   }
 
   /**
@@ -101,66 +127,17 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
   }
 
   /**
-   * Get accessor for $this->base_url.
-   *
-   * @return string
-   *   The base url for the site that absolute URLs will be constructed with.
-   */
-  protected function getBaseURL() {
-    return $this->baseURL;
-  }
-
-  /**
-   * Constructor.
-   */
-  public function __construct() {
-    $this->setCollection(mongodb_collection('petitions'));
-    $this->setExecutionTime(microtime());
-  }
-
-  /**
-   * Primary processing function of class. Makes query to MongoDB.
-   *
-   * @param string $id
-   *   Unique identifier of the requested petition.
+   * Get accessor for $this->query.
    *
    * @return array
    *   Results of query to MongoDB.
    */
-  public function load($id) {
-
-    $response['metadata'] = array();
-    $response['results'] = array();
-
-    $doc = $this->getCollection()
-      ->findOne(array('_id' => new MongoId($id)));
-
-    $petition = array(
-      'id' => $this->formatReturnId($doc['_id']),
-      'type' => 'petition',
-      'title' => $doc['title'],
-      'body' => $doc['body'],
-      'issues' => $this->formatReturnIssues($doc['issues']),
-      'signature threshold' => $doc['response_signatures'],
-      'signature count' => $doc['signature_count'],
-      'signatures needed' => $this->calcSignaturesNeeded($doc['response_signatures'], $doc['signature_count']),
-      'url' => $this->formatReturnUrl($doc['nice_url']),
-      'deadline' => $this->calcDeadline($doc['created'], $doc['review_timeframe']),
-      'status' => $this->formatReturnPetitionStatus($doc['petition_status']),
-      'response' => $doc['response_id'] ? $this->formatReturnResponse($doc['response_id']) : NULL,
-      'created' => $doc['created'],
-    );
-
-    $response['results'] = array($petition);
-
-    $response['metadata']['execution time'] = $this->calcExecutionTime();
-
-    $this->setResult($response);
-    return $response;
+  protected function getQuery() {
+    return $this->query;
   }
 
   /**
-   * Helper function to format return execution time field.
+   * Helper function to calculate the execution time of the load function.
    *
    * @return string
    *   Unique string identifier for a petition.
@@ -172,6 +149,9 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
   /**
    * Helper function to format return response ID field.
    *
+   * @param MongoId $id
+   *   Unformatted mongo id object.
+   *
    * @return string
    *   Unique string identifier for a petition.
    */
@@ -181,9 +161,18 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
 
   /**
    * Helper function to format return taxonomies.
+   *
+   * @param array $issues
+   *   Taxonomy term ids for specific issues stored in Drupal.
+   *
+   * @return array
+   *   Ids and term names of the related petitions.
    */
   protected function formatReturnIssues($issues) {
     $terms = array();
+    if (!is_array($issues)) {
+      $issues = array($issues);
+    }
     foreach ($issues as $issue_id) {
       $row = array();
       $term = taxonomy_term_load($issue_id);
@@ -200,7 +189,7 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
    * Helper function to format URL.
    */
   protected function formatReturnURL($uri) {
-    return $this->getBaseURL() . "/" . $uri;
+    return $this->getBaseURL() . '/' . $uri;
   }
 
   /**
@@ -269,18 +258,21 @@ class PetitionLoadMongoRaw implements IPetitionLoadRaw {
       // visible everywhere on site.
       case WH_PETITION_STATUS_PUBLIC:
         return "open";
+
       break;
 
       // Has received the required number of signatures, visible on site.
       case WH_PETITION_STATUS_UNDER_REVIEW:
         return "pending response";
+
       break;
 
       // Has received a response.
       case WH_PETITION_STATUS_REVIEWED:
         return "responded";
+
       break;
-      
+
       default:
         return "closed";
     }

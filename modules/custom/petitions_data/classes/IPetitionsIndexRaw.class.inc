@@ -4,7 +4,7 @@
  * Interface for backend queries for multiple petitions
  */
 
-interface IPetitionsRaw {
+interface IPetitionsIndexRaw {
 
   /**
    * Set accessor for $this->startDate.
@@ -71,6 +71,17 @@ interface IPetitionsRaw {
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url);
+
+  /**
+   * Set accessor for $this->response_id.
+   *
+   * @param int $response_id
+   *   The response ID used to filter results.
+   *
+   * @return IPetitionsRaw
+   *   Returns current instance of object.
+   */
+  public function setResponseID($response_id);
 
   /**
    * Primary processing function of class. Makes query to backend.
