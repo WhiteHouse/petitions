@@ -203,7 +203,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url) {
-    $this->baseURL = variable_get('petitions_data_petitions_website_url', $base_url);
+    $this->baseURL = $base_url;
 
     return $this;
   }
@@ -266,7 +266,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    */
   protected function getLimit() {
 
-    if(!intval($this->limit)){
+    if (!intval($this->limit)) {
       return $this->max_return_limit;
     }
 
@@ -524,7 +524,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
   protected function formatReturnName($first_name, $last_name) {
     return $this->filterUTF16(substr($first_name, 0, 1) . substr($last_name, 0, 1));
   }
-  
+
   /**
    * Helper function to replace utf-16 characters with question marks.
    *
