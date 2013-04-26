@@ -14,13 +14,13 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
     $this->setExecutionTime(microtime());
 
     // @TODO: This really should be added as a publicly accessible method.
-    $this->setQuery(
-      array(
-        'petition_status' => array(
-          '$ne' => new MongoInt64(WH_PETITION_STATUS_FLAGGED),
-        ),
-      )
-    );
+    // $this->setQuery(
+    //   array(
+    //     'petition_status' => array(
+    //       '$ne' => new MongoInt64(WH_PETITION_STATUS_FLAGGED),
+    //     ),
+    //   )
+    // );
   }
 
   /**
