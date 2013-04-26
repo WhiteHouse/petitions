@@ -96,22 +96,6 @@ function api_petitions_services_resources() {
             'source' => array('param' => 'body'),
           ),
           array(
-            'name' => 'issue_id',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results by Issue ID.',
-            'default value' => NULL,
-            'source' => array('param' => 'issueID'),
-          ),
-          array(
-            'name' => 'issue',
-            'optional' => TRUE,
-            'type' => 'string',
-            'description' => 'Filters results by Issue.',
-            'default value' => NULL,
-            'source' => array('param' => 'issue'),
-          ),
-          array(
             'name' => 'signature_threshold_ceiling',
             'optional' => TRUE,
             'type' => 'int',
@@ -160,60 +144,12 @@ function api_petitions_services_resources() {
             'source' => array('param' => 'signatureCountFloor'),
           ),
           array(
-            'name' => 'signatures_needed_ceiling',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results by maximum Signatures Needed.',
-            'default value' => NULL,
-            'source' => array('param' => 'signaturesNeededCeiling'),
-          ),
-          array(
-            'name' => 'signatures_needed',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results by exact Signatures Needed.',
-            'default value' => NULL,
-            'source' => array('param' => 'signaturesNeeded'),
-          ),
-          array(
-            'name' => 'signatures_needed_floor',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results by minimum Signatures Needed.',
-            'default value' => NULL,
-            'source' => array('param' => 'signaturesNeededFloor'),
-          ),
-          array(
             'name' => 'url',
             'optional' => TRUE,
             'type' => 'string',
             'description' => 'Filters results by Petition URL.',
             'default value' => NULL,
             'source' => array('param' => 'url'),
-          ),
-          array(
-            'name' => 'deadline_before',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results to display items with a Deadline before a specified time. Accepts Unix timestamp.',
-            'default value' => NULL,
-            'source' => array('param' => 'deadlineBefore'),
-          ),
-          array(
-            'name' => 'deadline',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results to display items with a Deadline at an exact specified time. Accepts Unix timestamp.',
-            'default value' => NULL,
-            'source' => array('param' => 'deadline'),
-          ),
-          array(
-            'name' => 'deadline_after',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results to display items with a Deadline after a specified time. Accepts Unix timestamp.',
-            'default value' => NULL,
-            'source' => array('param' => 'deadlineAfter'),
           ),
           array(
             'name' => 'status',
@@ -238,22 +174,6 @@ function api_petitions_services_resources() {
             'description' => 'Filters results to display items with a Response Assocation before a specified time. Accepts Unix timestamp.',
             'default value' => NULL,
             'source' => array('param' => 'responseAssociationTimeBefore'),
-          ),
-          array(
-            'name' => 'response_association_time',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results to display items with a Response Assocation at an exact specified time. Accepts Unix timestamp.',
-            'default value' => NULL,
-            'source' => array('param' => 'responseAssociationTime'),
-          ),
-          array(
-            'name' => 'response_association_time_after',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results to display items with a Response Association after a specified time. Accepts Unix timestamp.',
-            'default value' => NULL,
-            'source' => array('param' => 'responseAssociationTimeAfter'),
           ),
           array(
             'name' => 'mock',
@@ -389,7 +309,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 /**
  * Callback for Services petitions index method.
  */
-function _api_petitions_resource_index($created_before, $created_after, $created_at, $limit, $offset, $title, $body, $issue_id, $issue, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $signatures_needed_ceiling, $signatures_needed, $signatures_needed_floor, $url, $deadline_before, $deadline, $deadline_after, $status, $response_id, $response_association_time_before, $response_association_time, $response_association_time_after, $mock) {
+function _api_petitions_resource_index($created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $mock) {
   global $base_url;
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
@@ -411,26 +331,15 @@ function _api_petitions_resource_index($created_before, $created_after, $created
    ->setOffset($offset)
    ->setTitle($title)
    ->setBody($body)
-   ->setIssueID($issue_id)
-   //->setIssue($issue)
    ->setSignatureThresholdCeiling($signature_threshold_ceiling)
    ->setSignatureThreshold($signature_threshold)
    ->setSignatureThresholdFloor($signature_threshold_floor)
    ->setSignatureCountCeiling($signature_count_ceiling)
    ->setSignatureCount($signature_count)
    ->setSignatureCountFloor($signature_count_floor)
-   //->setSignaturesNeededCeiling($signatures_needed_ceiling)
-   //->setSignaturesNeeded($signatures_needed)
-   //->setSignaturesNeededFloor($signatures_needed_floor)
    ->setURL($url)
-   //->setDeadlineBefore($deadline_before)
-   //->setDeadline($deadline)
-   //->setDeadlineAfter($deadline_after)
    ->setStatus($status)
    ->setResponseID($response_id);
-   //->setResponseAssociationTimeBefore($response_association_time_before)
-   //->setResponseAssociationTime($response_association_time)
-   //->setResponseAssociationTimeAfter($response_association_time_after);
 
   $response = $resource->load();
 
