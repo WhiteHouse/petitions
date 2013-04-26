@@ -1,0 +1,6 @@
+name = Petitions API Errors
+description = Provides custom error handling for the services module
+core = 7.x
+package = Petitions API
+dependencies[] = services
+dependencies[] = rest_server
