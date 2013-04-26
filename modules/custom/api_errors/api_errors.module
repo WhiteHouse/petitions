@@ -48,10 +48,17 @@ function api_errors_rest_server_execute_errors_alter(&$error, $controller, $argu
   $error['body_data'] = array(
     'metadata' => array(
       'responseInfo' => array(
+        // Simplify error code. 200, 400, 500. Fancier stuff can go in
+        // errorCode.
         'status' => substr($error['code'], 0, 1) . '00',
         'developerMessage' => $error['header_message'],
+        // errorCode here can be 404 or 4444444 (where 4444444 might correspond
+        // with a drupal.org issue like drupal.org/node/4444444), or some number
+        // corresponding with a GitHub issue in the issue queue.
         'errorCode' => $error['code'],
         'userMessage' => $error['body_data']['userMessage'],
+        // Provide links to relevant issues on drupal.org, GitHub, etc. and any
+        // other relevant documentation or helpful links.
         'moreInfo' => $error['body_data']['moreInfo'],
       ),
     ),
