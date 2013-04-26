@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Provides custom error handling for the services module.
+ */
+
+/**
+ * Wrapper for services_error(), using WH API Standards parameters.
+ * @param  int $status               [description]
+ * @param  string $developer_message [description]
+ * @param  string $error_code        [description]
+ * @param  string $user_message      [description]
+ * @param  string $more_info         [description]
+ */
+function api_errors_throw_error($error_code, $developer_message, $user_message = NULL, $more_info = NULL) {
+
+  // Store our custom error response variables in an arbitrary data object,
+  // to be passed with other errors.
+  $data = array(
+    'userMessage' => $user_message,
+    'moreInfo' => $more_info,
+  );
+
+  // Throw the error. This will be formatted via
+  // api_errors_rest_server_execute_errors_alter().
+  services_error($developer_message, $error_code, $data);
+}
+
+
+/**
+ * Implements hook_rest_server_execute_errors_alter().
+ *
+ * @param array $errors
+ *  Array of following properties:
+ *   'code' -- error code
+ *   'header_message' -- message that will be returned in Status header
+ *   'body_data' -- data returned in the body of the response
+ *  You can alter 'header_message' and 'body_data' in your hook implementations.
+ * @param type $controller
+ *  Executed controller.
+ * @param type $arguments
+ *  Arguments of the controller.
+ */
+function api_errors_rest_server_execute_errors_alter(&$error, $controller, $arguments) {
+
+  // Modify error message.
+  $error['body_data'] = array(
+    'metadata' => array(
+      'responseInfo' => array(
+        'status' => substr($error['code'], 0, 1) . '00',
+        'developerMessage' => $error['header_message'],
+        'errorCode' => $error['code'],
+        'userMessage' => $error['body_data']['userMessage'],
+        'moreInfo' => $error['body_data']['moreInfo'],
+      ),
+    ),
+  );
+}
