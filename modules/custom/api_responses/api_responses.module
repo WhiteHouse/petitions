@@ -45,21 +45,27 @@ function api_responses_services_resources() {
             'name' => 'created_before',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => 'Filters results to display items created before specified time. Accepts Unix timestamp.',
+            'description' => t('Filters results to display items created before specified time. Accepts '
+                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
+                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
             'source' => array('param' => 'createdBefore'),
           ),
           array(
             'name' => 'created_after',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => 'Filters results to display items created after specified time. Accepts Unix timestamp.',
+            'description' => t('Filters results to display items created before specified time. Accepts '
+                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
+                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
             'source' => array('param' => 'createdAfter'),
           ),
           array(
             'name' => 'created_at',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => 'Filters results based on exact creation time. Accepts Unix timestamp.',
+            'description' => t('Filters results to display items created before specified time. Accepts '
+                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
+                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
             'source' => array('param' => 'createdAt'),
           ),
           array(
