@@ -235,7 +235,7 @@ class PetitionsBase {
     $response = array(
       'id' => $response_id,
       'url' => $this->getBaseURL() . '/' . $uri,
-      'association time' => $created_time,
+      'associationTime' => $created_time,
     );
 
     return $response;

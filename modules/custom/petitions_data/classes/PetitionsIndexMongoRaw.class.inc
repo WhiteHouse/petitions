@@ -120,7 +120,7 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
       'limit' => $this->getLimit(),
     );
 
-    $response['metadata']['execution time'] = $this->calcExecutionTime();
+    $response['metadata']['executionTime'] = $this->calcExecutionTime();
 
     $this->setResult($response);
     return $response;
