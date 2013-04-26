@@ -10,7 +10,7 @@ class PetitionsIndexBase extends PetitionsBase {
   protected $endDate;
   protected $createdDate;
   protected $limit;
-  protected $max_return_limit = 1000;
+  protected $maxReturnLimit = 1000;
   protected $offset;
   protected $title;
   protected $body;
@@ -22,7 +22,7 @@ class PetitionsIndexBase extends PetitionsBase {
   protected $signatureCountCeiling;
   protected $signatureCount;
   protected $signatureCountFloor;
-  protected $min_signature_count_floor = 150;
+  protected $minSignatureCountFloor = 150;
   protected $signaturesNeededCeiling;
   protected $signaturesNeeded;
   protected $signaturesNeededFloor;
@@ -95,8 +95,8 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setLimit($limit) {
     if (is_numeric($limit)) {
-      if ($limit > $this->max_return_limit) {
-        $limit = $this->max_return_limit;
+      if ($limit > $this->maxReturnLimit) {
+        $limit = $this->maxReturnLimit;
       }
       $this->limit = $limit;
     }
@@ -265,8 +265,8 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignatureCountFloor($signature_count_floor) {
     if (is_numeric($signature_count_floor)) {
-      if ($signature_count_floor < $this->min_signature_count_floor) {
-        $signature_count_floor = $this->min_signature_count_floor;
+      if ($signature_count_floor < $this->minSignatureCountFloor) {
+        $signature_count_floor = $this->minSignatureCountFloor;
       }
       $this->signatureCountFloor = $signature_count_floor;
     }
@@ -492,7 +492,7 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function getLimit() {
 
     if (!intval($this->limit)) {
-      return $this->max_return_limit;
+      return $this->maxReturnLimit;
     }
 
     return intval($this->limit);
