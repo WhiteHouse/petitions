@@ -101,7 +101,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by Issue ID.',
             'default value' => NULL,
-            'source' => array('param' => 'issue_id'),
+            'source' => array('param' => 'issueID'),
           ),
           array(
             'name' => 'issue',
@@ -117,7 +117,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by maximum Signature Threshold.',
             'default value' => NULL,
-            'source' => array('param' => 'signature_threshold_ceiling'),
+            'source' => array('param' => 'signatureThresholdCeiling'),
           ),
           array(
             'name' => 'signature_threshold',
@@ -125,7 +125,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by exact Signature Threshold.',
             'default value' => NULL,
-            'source' => array('param' => 'signature_threshold'),
+            'source' => array('param' => 'signatureThreshold'),
           ),
           array(
             'name' => 'signature_threshold_floor',
@@ -133,7 +133,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by minimum Signature Threshold.',
             'default value' => NULL,
-            'source' => array('param' => 'signature_threshold_floor'),
+            'source' => array('param' => 'signatureThresholdFloor'),
           ),
           array(
             'name' => 'signature_count_ceiling',
@@ -141,7 +141,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by maximum Signature Count.',
             'default value' => NULL,
-            'source' => array('param' => 'signature_count_ceiling'),
+            'source' => array('param' => 'signatureCountCeiling'),
           ),
           array(
             'name' => 'signature_count',
@@ -149,7 +149,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by exact Signature Count.',
             'default value' => NULL,
-            'source' => array('param' => 'signature_count'),
+            'source' => array('param' => 'signatureCount'),
           ),
           array(
             'name' => 'signature_count_floor',
@@ -157,7 +157,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by minimum Signature Count.',
             'default value' => 150,
-            'source' => array('param' => 'signature_count_floor'),
+            'source' => array('param' => 'signatureCountFloor'),
           ),
           array(
             'name' => 'signatures_needed_ceiling',
@@ -165,7 +165,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by maximum Signatures Needed.',
             'default value' => NULL,
-            'source' => array('param' => 'signatures_needed_ceiling'),
+            'source' => array('param' => 'signaturesNeededCeiling'),
           ),
           array(
             'name' => 'signatures_needed',
@@ -173,7 +173,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by exact Signatures Needed.',
             'default value' => NULL,
-            'source' => array('param' => 'signatures_needed'),
+            'source' => array('param' => 'signaturesNeeded'),
           ),
           array(
             'name' => 'signatures_needed_floor',
@@ -181,7 +181,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by minimum Signatures Needed.',
             'default value' => NULL,
-            'source' => array('param' => 'signatures_needed_floor'),
+            'source' => array('param' => 'signaturesNeededFloor'),
           ),
           array(
             'name' => 'url',
@@ -197,7 +197,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results to display items with a Deadline before a specified time. Accepts Unix timestamp.',
             'default value' => NULL,
-            'source' => array('param' => 'deadline_before'),
+            'source' => array('param' => 'deadlineBefore'),
           ),
           array(
             'name' => 'deadline',
@@ -213,7 +213,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results to display items with a Deadline after a specified time. Accepts Unix timestamp.',
             'default value' => NULL,
-            'source' => array('param' => 'deadline_after'),
+            'source' => array('param' => 'deadlineAfter'),
           ),
           array(
             'name' => 'status',
@@ -229,7 +229,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results by Response ID .',
             'default value' => NULL,
-            'source' => array('param' => 'response_id'),
+            'source' => array('param' => 'responseID'),
           ),
           array(
             'name' => 'response_association_time_before',
@@ -237,7 +237,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results to display items with a Response Assocation before a specified time. Accepts Unix timestamp.',
             'default value' => NULL,
-            'source' => array('param' => 'response_association_time_before'),
+            'source' => array('param' => 'responseAssociationTimeBefore'),
           ),
           array(
             'name' => 'response_association_time',
@@ -245,7 +245,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results to display items with a Response Assocation at an exact specified time. Accepts Unix timestamp.',
             'default value' => NULL,
-            'source' => array('param' => 'response_association_time'),
+            'source' => array('param' => 'responseAssociationTime'),
           ),
           array(
             'name' => 'response_association_time_after',
@@ -253,7 +253,7 @@ function api_petitions_services_resources() {
             'type' => 'int',
             'description' => 'Filters results to display items with a Response Association after a specified time. Accepts Unix timestamp.',
             'default value' => NULL,
-            'source' => array('param' => 'response_association_time_after'),
+            'source' => array('param' => 'responseAssociationTimeAfter'),
           ),
           array(
             'name' => 'mock',
