@@ -3,4 +3,5 @@ description = Provides users resource for Services according to Whitehouse API S
 core = 7.x
 package = Petitions API
 dependencies[] = services
+dependencies[] = services_documentation
 dependencies[] = api_errors
