@@ -140,11 +140,11 @@ function petitionData(data) {
     petitionDate = new Date(data.results[0].created * 1000);
     petitionCreated = dateFormat(petitionDate, "mmm dd, yyyy");
     petitionIssues = data.results[0].issues;
-    signaturesTotal = data.results[0]['signature count'];
-    signaturesNeeded = data.results[0]['signatures needed'];
+    signaturesTotal = data.results[0]['signatureCount'];
+    signaturesNeeded = data.results[0]['signaturesNeeded'];
     petitionDeadline = new Date(data.results[0].deadline * 1000);
     deadlineDate = dateFormat(petitionDeadline, "mmm dd, yyyy");
-    responseThreshold = data.results[0]['signature threshold'];
+    responseThreshold = data.results[0]['signatureThreshold'];
     if (data.results[0].response !== null) {
         responseUrl = data.results[0].response.url;
     }

@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "execution time": 0.01
+        "executionTime": 0.01
     },
     "results": [
         {
@@ -18,16 +18,16 @@
                     "name": "Firearms"
                 }
             ],
-            "signature threshold": 25000,
-            "signature count": 197073,
-            "signatures needed": 0,
+            "signatureThreshold": 25000,
+            "signatureCount": 197073,
+            "signaturesNeeded": 0,
             "url": "https://petitions.whitehouse.gov/petition/immediately-address-issue-gun-control-through-introduction-legislation-congress/2tgcXzQC",
             "deadline": 1358101035,
             "status": "responded",
             "response": {
                 "id": "681",
                 "url": "https://petitions.whitehouse.gov/response/message-president-obama-about-your-petition-reducing-gun-violence",
-                "association time": "1355963976"
+                "associationTime": "1355963976"
             },
             "created": 1355509035
         }
