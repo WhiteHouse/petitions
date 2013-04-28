@@ -171,10 +171,14 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 ;   - Fix has been applied to the dev branch of the Services module. This patch can be removed when the next release is made available.
 ;   - @see http://drupal.org/node/1917432
 ;
+; exception-data-1935472-D7-6.patch
+;  - Data could not be attached to services exception objects.
+;  - @see http://drupal.org/node/1935472.
 ;------------------------------------
 projects[services][version] = 3.3
 projects[services][subdir] = contrib
-projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
+projects[services][patch][] = http://drupal.org/files/services-relationshiprelationship-source-arg-path-1917432-3.patch
+projects[services][patch][] = http://drupal.org/files/exception-data-1935472-D7-6.patch
 
 ; Contrib themes
 ; -----------------
