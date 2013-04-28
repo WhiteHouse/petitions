@@ -177,7 +177,7 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 ;------------------------------------
 projects[services][version] = 3.3
 projects[services][subdir] = contrib
-projects[services][patch][] = http://drupal.org/files/services-relationshiprelationship-source-arg-path-1917432-3.patch
+projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
 projects[services][patch][] = http://drupal.org/files/exception-data-1935472-D7-6.patch
 
 ; Contrib themes
