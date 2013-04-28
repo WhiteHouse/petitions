@@ -11,7 +11,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
   protected $startDate;
   protected $endDate;
   protected $createdDate;
-  protected $maxReturnLimit = 1000;
+  protected $max_return_limit = 1000;
   protected $limit;
   protected $offset;
   protected $query = array();
@@ -110,8 +110,8 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    */
   public function setLimit($limit) {
     if (is_numeric($limit)) {
-      if ($limit > $this->maxReturnLimit) {
-        $limit = $this->maxReturnLimit;
+      if ($limit > $this->max_return_limit) {
+        $limit = $this->max_return_limit;
       }
       $this->limit = $limit;
     }
@@ -203,7 +203,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url) {
-    $this->baseURL = $base_url;
+    $this->baseURL = variable_get('petitions_data_petitions_website_url', $base_url);
 
     return $this;
   }
@@ -266,8 +266,8 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    */
   protected function getLimit() {
 
-    if (!intval($this->limit)) {
-      return $this->maxReturnLimit;
+    if(!intval($this->limit)){
+      return $this->max_return_limit;
     }
 
     return intval($this->limit);
@@ -350,7 +350,14 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    */
   public function load($petition_id) {
     $response = array();
-    $response['metadata'] = array('execution time' => '', 'resultset' => array());
+    $response['metadata'] = array(
+      'executionTime' => '',
+      'resultset' => array(),
+      'responseInfo' => array(
+        'status' => 200,
+        'developerMessage' => t('OK'),
+      ),
+    );
     $response['results'] = array();
 
     if ($this->getCreatedDate()) {
@@ -404,14 +411,14 @@ class SignaturesMongoRaw implements ISignaturesRaw {
         // we're not exposing city/state data for now.
         // 'city' => $doc['user']['city'],
         // 'state' => $doc['user']['state'],
-        'zip' => $doc['user']['zip'],
+        'zip' => $this->filterUTF16($doc['user']['zip']),
         'created' => $doc['timestamp'],
       );
 
       $response['results'][] = $signature;
     }
 
-    $response['metadata']['execution time'] = $this->calcExecutionTime();
+    $response['metadata']['executionTime'] = $this->calcExecutionTime();
 
     $this->setResult($response);
     return $response;
@@ -491,7 +498,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
   }
 
   /**
-   * Helper function to calculate the execution time of the load function.
+   * Helper function to calculate the executionTime of the load function.
    */
   protected function calcExecutionTime() {
     return microtime() - $this->getExecutionTime();
@@ -511,6 +518,22 @@ class SignaturesMongoRaw implements ISignaturesRaw {
   }
 
   /**
+   * Helper function to format characters in a string.
+   *
+   * @param string $string
+   *   The raw input string from mongo.
+   *
+   * @return string
+   *   Formatted output string.
+   */
+  protected function filterUTF16($string) {
+    // Replace non-english characters with x's.
+    $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
+
+    return $string;
+  }
+
+  /**
    * Helper function to format first and last name into initials.
    *
    * @param string $first_name
@@ -522,19 +545,19 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    *   First characters of first and last names.
    */
   protected function formatReturnName($first_name, $last_name) {
-    return $this->filterUTF16(substr($first_name, 0, 1) . substr($last_name, 0, 1));
-  }
 
-  /**
-   * Helper function to replace utf-16 characters with question marks.
-   *
-   * @param string $string
-   *   String to be filtered for utf-16 characters.
-   *
-   * @return string
-   *   String with utf-16 characters replaced with question marks.
-   */
-  protected function filterUTF16($string) {
-    return preg_replace('/[^\00-\255]+/u', '?', $string);
+    // Replace non-english characters with x's.
+    $first_name = $this->filterUTF16($first_name);
+    $last_name = $this->filterUTF16($last_name);
+
+    // Grab first letter of first and last name.
+    $name = substr($first_name, 0, 1) . substr($last_name, 0, 1);
+
+    // Set default empty value for name.
+    if (empty($name)) {
+      $name = ' ';
+    }
+
+    return $name;
   }
 }
