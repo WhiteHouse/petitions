@@ -31,7 +31,12 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
    */
   public function load() {
     $response = array();
-    $response['metadata'] = array();
+    $response['metadata'] = array(
+        'responseInfo' => array(
+        'status' => 200,
+        'developerMessage' => t('OK'),
+      ),
+    );
     $response['results'] = array();
 
     if ($this->getCreatedDate()) {
@@ -88,7 +93,7 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
 
     if (!$results->hasNext()) {
       $response['noresults'] = 1;
-      $response['metadata']['execution time'] = $this->calcExecutionTime();
+      $response['metadata']['executionTime'] = $this->calcExecutionTime();
       return $response;
     }
 
@@ -97,8 +102,8 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
       $petition = array(
         'id' => $this->formatReturnId($doc['_id']),
         'type' => 'petition',
-        'title' => $doc['title'],
-        'body' => $doc['body'],
+        'title' => $this->filterUTF16($doc['title']),
+        'body' => $this->filterUTF16($doc['body']),
         'issues' => $this->formatReturnIssues($doc['issues']),
         'signatureThreshold' => $doc['response_signatures'],
         'signatureCount' => $doc['signature_count'],
