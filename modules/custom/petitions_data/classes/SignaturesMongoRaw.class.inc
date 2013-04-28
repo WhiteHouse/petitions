@@ -11,7 +11,7 @@ class SignaturesMongoRaw implements ISignaturesRaw {
   protected $startDate;
   protected $endDate;
   protected $createdDate;
-  protected $max_return_limit = 1000;
+  protected $maxReturnLimit = 1000;
   protected $limit;
   protected $offset;
   protected $query = array();
@@ -110,8 +110,8 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    */
   public function setLimit($limit) {
     if (is_numeric($limit)) {
-      if ($limit > $this->max_return_limit) {
-        $limit = $this->max_return_limit;
+      if ($limit > $this->maxReturnLimit) {
+        $limit = $this->maxReturnLimit;
       }
       $this->limit = $limit;
     }
@@ -266,8 +266,8 @@ class SignaturesMongoRaw implements ISignaturesRaw {
    */
   protected function getLimit() {
 
-    if(!intval($this->limit)){
-      return $this->max_return_limit;
+    if (!intval($this->limit)) {
+      return $this->maxReturnLimit;
     }
 
     return intval($this->limit);
