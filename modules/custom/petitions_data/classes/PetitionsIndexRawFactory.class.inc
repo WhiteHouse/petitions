@@ -4,7 +4,7 @@
  * Factory class for Petitions queries.
  */
 
-class PetitionsRawFactory {
+class PetitionsIndexRawFactory {
 
   /**
    * Instantiate and return a new instance of IPetitionsRaw.
@@ -13,6 +13,6 @@ class PetitionsRawFactory {
    *   New instance of IPetitionsRaw.
    */
   public static function create() {
-    return new PetitionsMongoRaw();
+    return new PetitionsIndexMongoRaw();
   }
 }

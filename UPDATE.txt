@@ -1,6 +1,28 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta9 -> 7.x-2.0-beta11
+-----------------------------------------------
+
+Release notes:
+  
+  - Move shunt module into contrib.
+
+Update steps:
+
+  Uninstall shunt:
+    drush dis shunt
+    drush pm-uninstall shunt
+
+  Deploy new code
+
+  Re-install shunt:
+    drush en shunt
+
+
+Version 7.x-2.0-beta9 -> 7.x-2.0-beta11
+-----------------------------------------------
+
  Release notes:
  
    - Bug fix: Filter unsupported non-latin characters out from API results

@@ -1,10 +1,10 @@
 <?php
 /**
  * @file
- * Interface for backend queries for multiple petitions
+ * Interface for backend queries for a single Petition.
  */
 
-interface IPetitionLoadRaw {
+interface IPetitionsRetrieveRaw {
 
   /**
    * Primary processing function of class. Makes query to data backend.

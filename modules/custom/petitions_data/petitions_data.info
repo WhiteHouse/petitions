@@ -1,17 +1,20 @@
 name = Petitions Data
-description = Data abstraction for use with services and to provide a flexible backend.
+description = Data abstraction for use with services to provide a flexible backend.
 core = 7.x
 package = Petitions API
 
 ; Petitions Data access layer
-files[] = classes/IPetitionsRaw.class.inc
-files[] = classes/IPetitionLoadRaw.class.inc
+files[] = classes/IPetitionsIndexRaw.class.inc
+files[] = classes/IPetitionsRetrieveRaw.class.inc
 files[] = classes/ISignaturesRaw.class.inc
-files[] = classes/PetitionsRawFactory.class.inc
-files[] = classes/PetitionLoadRawFactory.class.inc
+files[] = classes/PetitionsIndexRawFactory.class.inc
+files[] = classes/PetitionsRetrieveRawFactory.class.inc
 files[] = classes/SignaturesRawFactory.class.inc
+files[] = classes/PetitionsBase.class.inc
+files[] = classes/PetitionsIndexBase.class.inc
+files[] = classes/PetitionsRetrieveBase.class.inc
 
 ; Petitions Data Plugins
-files[] = classes/PetitionsMongoRaw.class.inc
-files[] = classes/PetitionLoadMongoRaw.class.inc
+files[] = classes/PetitionsIndexMongoRaw.class.inc
+files[] = classes/PetitionsRetrieveMongoRaw.class.inc
 files[] = classes/SignaturesMongoRaw.class.inc

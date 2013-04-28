@@ -21,21 +21,27 @@ function api_users_services_resources() {
           'name' => 'created_before',
           'optional' => TRUE,
           'type' => 'int',
-          'description' => 'Filters results to display items created before specified time. Accepts Unix timestamp.',
+          'description' => t('Filters results to display items created before specified time. Accepts '
+                           . 'Unix timestamp. (There\'s a handy unix timestamp converter '
+                           . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
           'source' => array('param' => 'createdBefore'),
         ),
         array(
           'name' => 'created_after',
           'optional' => TRUE,
           'type' => 'int',
-          'description' => 'Filters results to display items created after specified time. Accepts Unix timestamp.',
+          'description' => t('Filters results to display items created before specified time. Accepts '
+                           . 'Unix timestamp. (There\'s a handy unix timestamp converter '
+                           . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
           'source' => array('param' => 'createdAfter'),
         ),
         array(
           'name' => 'created_at',
           'optional' => TRUE,
           'type' => 'int',
-          'description' => 'Filters results based on exact creation time. Accepts Unix timestamp.',
+          'description' => t('Filters results to display items created before specified time. Accepts '
+                           . 'Unix timestamp. (There\'s a handy unix timestamp converter '
+                           . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
           'source' => array('param' => 'createdAt'),
         ),
         array(
@@ -119,10 +125,21 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
   $user_select->leftJoin('field_data_field_zip', 'fdfz', $join, $vars);
   $user_select->fields('fdfz', array('field_zip_value'));
 
-  // Calculate result set size before doing real query.
-  $size_query = $user_select;
-  $size_result = services_resource_execute_index_query($size_query->countQuery());
-  $size = $size_result->fetchField();
+  try {
+    // Calculate result set size before doing real query.
+    $size_query = $user_select;
+    $size_result = services_resource_execute_index_query($size_query->countQuery());
+    $size = $size_result->fetchField();
+  }
+  // Catch any error causing the query to fail. Throw our own, custom error
+  // instead.
+  catch (Exception $e) {
+    $status = 500;
+    $error_code = 598;
+    $developer_message = t("Could not perform resource query.");
+    $user_message = t("The resource that you requested in temporarily unavailable.");
+    api_errors_throw_error($status, $developer_message, $error_code, $user_message);
+  }
 
   // Enforce maximum limit size.
   $resource = 'users';
@@ -134,8 +151,19 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
   $user_select->range($offset, $limit);
   $user_select->orderBy('u.uid', 'ASC');
 
-  // This simply wraps the query execution in a try, catch condition.
-  $results = services_resource_execute_index_query($user_select);
+  try {
+    // This simply wraps the query execution in a try, catch condition.
+    $results = services_resource_execute_index_query($user_select);
+  }
+  // Catch any error causing the query to fail. Throw our own, custom error
+  // instead.
+  catch (Exception $e) {
+    $status = 500;
+    $error_code = 598;
+    $developer_message = t("Could not perform resource query.");
+    $user_message = t("The resource that you requested in temporarily unavailable.");
+    api_errors_throw_error($status, $developer_message, $error_code, $user_message);
+  }
 
   // Performs default user sanitation.
   $users = services_resource_build_index_list($results, 'user', 'uid');
@@ -143,9 +171,15 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
   // Reformat response.
   $response = array(
     'metadata' => array(
-      'count' => $size,
-      'offset' => $offset,
-      'limit' => $limit,
+      'resultset' => array(
+        'count' => $size,
+        'offset' => $offset,
+        'limit' => $limit,
+      ),
+      'responseInfo' => array(
+        'status' => 200,
+        'developerMessage' => 'OK',
+      ),
     ),
   );
   foreach ($users as $user) {
@@ -154,9 +188,9 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
       'id' => $user->id,
       'created' => $user->created,
       'location' => array(
-        'city' => $user->field_city_value,
-        'state' => $user->field_state_value,
-        'zip' => $user->field_zip_value,
+        'city' => _api_users_filterUTF16($user->field_city_value),
+        'state' => _api_users_filterUTF16($user->field_state_value),
+        'zip' => _api_users_filterUTF16($user->field_zip_value),
       ),
     );
   }
@@ -208,4 +242,21 @@ function _api_users_index_doc() {
 function _api_users_mock_response() {
   $response = file_get_contents(__DIR__ . '/example_responses/api_users_index.response.json');
   return $response;
+}
+
+
+/**
+ * Helper function to format characters in a string.
+ *
+ * @param string $string
+ *   The raw input string from mongo.
+ *
+ * @return string
+ *   Formatted output string.
+ */
+function _api_users_filterUTF16($string) {
+  // Replace non-english characters with x's.
+  $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
+
+  return $string;
 }
