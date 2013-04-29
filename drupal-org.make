@@ -149,7 +149,7 @@ projects[wysiwyg][subdir] = contrib
 projects[logintoboggan][version] = 1.3
 projects[logintoboggan][subdir] = contrib
 projects[logintoboggan][patch][] = http://drupal.org/files/1747878-2-remove-lower.patch
-;projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
+projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
 
 ; check_type.patch
 ;  - Data types were not checked before getting 'status' key from them
@@ -178,7 +178,7 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 projects[services][version] = 3.3
 projects[services][subdir] = contrib
 projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
-projects[services][patch][] = http://drupal.org/files/exception-data-1935472-D7-6.patch
+;projects[services][patch][] = http://drupal.org/files/exception-data-1935472-D7-6.patch
 
 ; Contrib themes
 ; -----------------
