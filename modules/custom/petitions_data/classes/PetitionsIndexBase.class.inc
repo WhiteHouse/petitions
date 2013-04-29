@@ -265,11 +265,26 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignatureCountFloor($signature_count_floor) {
     if (is_numeric($signature_count_floor)) {
-      if ($signature_count_floor < $this->minSignatureCountFloor) {
-        $signature_count_floor = $this->minSignatureCountFloor;
+      if ($signature_count_floor < $this->getMinSignatureCountFloor()) {
+        $signature_count_floor = $this->getMinSignatureCountFloor();
       }
       $this->signatureCountFloor = $signature_count_floor;
     }
+    return $this;
+  }
+
+  /**
+   * Set accessor for $this->minSignatureCountFloor.
+   *
+   * @param int $min_signature_count_floor
+   *   The absolute minimum signature count used to filter results.
+   *
+   * @return PetitionsMongoRaw
+   *   Returns current instance of object.
+   */
+  public function setMinSignatureCountFloor($min_signature_count_floor) {
+    $this->minSignatureCountFloor = $min_signature_count_floor;
+
     return $this;
   }
 
@@ -606,6 +621,16 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   protected function getSignatureCountFloor() {
     return $this->signatureCountFloor;
+  }
+
+  /**
+   * Get accessor for $this->signatureCountFloor.
+   *
+   * @return int
+   *   The absolute minimum signature count used to filter results.
+   */
+  public function getMinSignatureCountFloor() {
+    return $this->minSignatureCountFloor;
   }
 
   /**
