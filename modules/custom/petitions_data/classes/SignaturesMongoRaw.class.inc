@@ -339,18 +339,6 @@ class SignaturesMongoRaw implements ISignaturesRaw {
   public function __construct() {
     $this->setCollection(mongodb_collection('petition_signatures'));
     $this->setExecutionTime(microtime());
-
-    // @TODO: This really should be added as a publicly accessible method.
-    // Only get petitions that have received enough signatures to be public.
-    $public_threshold = variable_get('wh_petitions_public_signatures', 150) - 1;
-    $this->setQuery(
-      array(
-        'signature_count' => array(
-          '$gt' => new MongoInt64($public_threshold),
-        ),
-        'petition_status' => array('$ne' => new MongoInt64(WH_PETITION_STATUS_FLAGGED)) 
-      )
-    );
   }
 
   /**
