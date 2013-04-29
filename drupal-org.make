@@ -113,7 +113,7 @@ projects[recaptcha][subdir] = contrib
 projects[rules][version] = 2.2
 projects[rules][subdir] = contrib
 
-projects[services_documentation][version] = 1.0-beta2
+;projects[services_documentation][version] = USING LATEST
 projects[services_documentation][subdir] = contrib
 
 projects[shunt][version] = 1.0
@@ -177,8 +177,8 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 ;------------------------------------
 projects[services][version] = 3.3
 projects[services][subdir] = contrib
-projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
-;projects[services][patch][] = http://drupal.org/files/exception-data-1935472-D7-6.patch
+;projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
+projects[services][patch][] = http://drupal.org/files/exception-data-1935472-D7-6.patch
 
 ; Contrib themes
 ; -----------------
