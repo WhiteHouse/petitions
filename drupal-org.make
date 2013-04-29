@@ -113,7 +113,7 @@ projects[recaptcha][subdir] = contrib
 projects[rules][version] = 2.2
 projects[rules][subdir] = contrib
 
-projects[services_documentation][version] = USING LATEST
+projects[services_documentation][version] = 1.0-beta2
 projects[services_documentation][subdir] = contrib
 
 projects[shunt][version] = 1.0
@@ -149,7 +149,7 @@ projects[wysiwyg][subdir] = contrib
 projects[logintoboggan][version] = 1.3
 projects[logintoboggan][subdir] = contrib
 projects[logintoboggan][patch][] = http://drupal.org/files/1747878-2-remove-lower.patch
-projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
+;projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
 
 ; check_type.patch
 ;  - Data types were not checked before getting 'status' key from them
