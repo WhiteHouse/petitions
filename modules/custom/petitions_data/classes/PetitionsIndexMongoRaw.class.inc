@@ -58,6 +58,14 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
       $this->addSignatureThresholdFloorToQuery();
     }
 
+    if ($this->getSignatureCount()) {
+      $this->addSignatureCountToQuery();
+    }
+    else {
+      $this->addSignatureCountCeilingToQuery();
+      $this->addSignatureCountFloorToQuery();
+    }
+
     $this->addTitleToQuery();
     $this->addBodyToQuery();
     $this->addURLToQuery();
