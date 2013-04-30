@@ -321,7 +321,7 @@ function _api_petitions_resource_index($created_before, $created_after, $created
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
 
-  $public_threshold = variable_get('wh_petitions_public_signatures', 150) - 1;
+  $public_threshold = variable_get('wh_petitions_public_signatures', 150);
 
   // Return mock response.
   if ($mock) {
