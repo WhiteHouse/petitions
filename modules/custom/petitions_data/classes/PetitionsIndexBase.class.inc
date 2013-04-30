@@ -22,7 +22,7 @@ class PetitionsIndexBase extends PetitionsBase {
   protected $signatureCountCeiling;
   protected $signatureCount;
   protected $signatureCountFloor;
-  protected $minSignatureCountFloor = 150;
+  protected $minSignatureCount;
   protected $signaturesNeededCeiling;
   protected $signaturesNeeded;
   protected $signaturesNeededFloor;
@@ -234,8 +234,13 @@ class PetitionsIndexBase extends PetitionsBase {
    *   Returns current instance of object.
    */
   public function setSignatureCountCeiling($signature_count_ceiling) {
-    $this->signatureCountCeiling = $signature_count_ceiling;
-
+    if (is_numeric($signature_count_ceiling)) {
+      // Enforce absolute minimum allowed signature count.
+      if ($signature_count_ceiling < $this->getMinSignatureCount()) {
+        $signature_count_ceiling = $this->getMinSignatureCount();
+      }
+      $this->signatureCountCeiling = $signature_count_ceiling;
+    }
     return $this;
   }
 
@@ -249,8 +254,13 @@ class PetitionsIndexBase extends PetitionsBase {
    *   Returns current instance of object.
    */
   public function setSignatureCount($signature_count) {
-    $this->signatureCount = $signature_count;
-
+    if (is_numeric($signature_count)) {
+      // Enforce absolute minimum allowed signature count.
+      if ($signature_count < $this->getMinSignatureCount()) {
+        $signature_count = $this->getMinSignatureCount();
+      }
+      $this->signatureCount = $signature_count;
+    }
     return $this;
   }
 
@@ -265,8 +275,9 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignatureCountFloor($signature_count_floor) {
     if (is_numeric($signature_count_floor)) {
-      if ($signature_count_floor < $this->getMinSignatureCountFloor()) {
-        $signature_count_floor = $this->getMinSignatureCountFloor();
+      // Enforce absolute minimum allowed signature count.
+      if ($signature_count_floor < $this->getMinSignatureCount()) {
+        $signature_count_floor = $this->getMinSignatureCount();
       }
       $this->signatureCountFloor = $signature_count_floor;
     }
@@ -274,7 +285,7 @@ class PetitionsIndexBase extends PetitionsBase {
   }
 
   /**
-   * Set accessor for $this->minSignatureCountFloor.
+   * Set accessor for $this->minSignatureCount.
    *
    * @param int $min_signature_count_floor
    *   The absolute minimum signature count used to filter results.
@@ -282,8 +293,8 @@ class PetitionsIndexBase extends PetitionsBase {
    * @return PetitionsMongoRaw
    *   Returns current instance of object.
    */
-  public function setMinSignatureCountFloor($min_signature_count_floor) {
-    $this->minSignatureCountFloor = $min_signature_count_floor;
+  public function setMinSignatureCount($min_signature_count) {
+    $this->minSignatureCount = $min_signature_count;
 
     return $this;
   }
@@ -624,13 +635,13 @@ class PetitionsIndexBase extends PetitionsBase {
   }
 
   /**
-   * Get accessor for $this->signatureCountFloor.
+   * Get accessor for $this->signatureCount.
    *
    * @return int
    *   The absolute minimum signature count used to filter results.
    */
-  public function getMinSignatureCountFloor() {
-    return $this->minSignatureCountFloor;
+  public function getMinSignatureCount() {
+    return $this->minSignatureCount;
   }
 
   /**
@@ -853,9 +864,11 @@ class PetitionsIndexBase extends PetitionsBase {
     if ($this->getSignatureThresholdCeiling()) {
       $query = $this->getQuery();
 
-      $query += array(
-        'response_signatures' => array('$lt' => new MongoInt64($this->getSignatureThresholdCeiling())),
-      );
+      // Do not overwrite any other parameters that use 'response_signatures'.
+      if (!isset($query['response_signatures'])) {
+        $query['response_signatures'] = array();
+      }
+      $query['response_signatures'] += array('$lt' => new MongoInt64($this->getSignatureThresholdCeiling()));
       $this->setQuery($query);
     }
   }
@@ -881,9 +894,11 @@ class PetitionsIndexBase extends PetitionsBase {
     if ($this->getSignatureThresholdFloor()) {
       $query = $this->getQuery();
 
-      $query += array(
-        'response_signatures' => array('$gt' => new MongoInt64($this->getSignatureThresholdFloor())),
-      );
+      // Do not overwrite any other parameters that use 'response_signatures'.
+      if (!isset($query['response_signatures'])) {
+        $query['response_signatures'] = array();
+      }
+      $query['response_signatures'] += array('$gt' => new MongoInt64($this->getSignatureThresholdFloor()));
       $this->setQuery($query);
     }
   }
@@ -895,9 +910,11 @@ class PetitionsIndexBase extends PetitionsBase {
     if ($this->getSignatureCountCeiling()) {
       $query = $this->getQuery();
 
-      $query += array(
-        'signature_count' => array('$lt' => new MongoInt64($this->getSignatureCountCeiling())),
-      );
+      // Do not overwrite any other parameters that use 'signature_count'.
+      if (!isset($query['signature_count'])) {
+        $query['signature_count'] = array();
+      }
+      $query['signature_count'] += array('$lt' => new MongoInt64($this->getSignatureCountCeiling()));
       $this->setQuery($query);
     }
   }
@@ -923,9 +940,11 @@ class PetitionsIndexBase extends PetitionsBase {
     if ($this->getSignatureCountFloor()) {
       $query = $this->getQuery();
 
-      $query += array(
-        'signature_count' => array('$gt' => new MongoInt64($this->getSignatureCountFloor())),
-      );
+      // Do not overwrite any other parameters that use 'signature_count'.
+      if (!isset($query['signature_count'])) {
+        $query['signature_count'] = array();
+      }
+      $query['signature_count'] += array('$gt' => new MongoInt64($this->getSignatureCountFloor()));
       $this->setQuery($query);
     }
   }

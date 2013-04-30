@@ -321,7 +321,7 @@ function _api_petitions_resource_index($created_before, $created_after, $created
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
 
-  $public_threshold = variable_get('wh_petitions_public_signatures', 150);
+  $public_threshold = variable_get('wh_petitions_public_signatures', 150) - 1;
 
   // Return mock response.
   if ($mock) {
@@ -334,7 +334,7 @@ function _api_petitions_resource_index($created_before, $created_after, $created
 
     // Scaffolding is in place for inactive parameters but logic is required.
     $resource->setBaseURL($website_url)
-     ->setMinSignatureCountFloor($public_threshold)
+     ->setMinSignatureCount($public_threshold)
      ->setStartDate($created_after)
      ->setEndDate($created_before)
      ->setCreatedAt($created_at)
