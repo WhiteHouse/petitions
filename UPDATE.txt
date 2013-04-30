@@ -1,7 +1,7 @@
 UPDATE
 ======
 
-Version 7.x-2.0-beta11 -> 7.x-2.0-beta13
+Version 7.x-2.0-beta11 -> 7.x-2.0-beta16
 -----------------------------------------------
 
 Release notes:
