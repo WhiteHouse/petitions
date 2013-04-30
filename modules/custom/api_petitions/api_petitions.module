@@ -126,30 +126,6 @@ function api_petitions_services_resources() {
             'source' => array('param' => 'signatureThresholdFloor'),
           ),
           array(
-            'name' => 'signature_count_ceiling',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results by maximum Signature Count.',
-            'default value' => NULL,
-            'source' => array('param' => 'signatureCountCeiling'),
-          ),
-          array(
-            'name' => 'signature_count',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results by exact Signature Count.',
-            'default value' => NULL,
-            'source' => array('param' => 'signatureCount'),
-          ),
-          array(
-            'name' => 'signature_count_floor',
-            'optional' => TRUE,
-            'type' => 'int',
-            'description' => 'Filters results by minimum Signature Count.',
-            'default value' => 0,
-            'source' => array('param' => 'signatureCountFloor'),
-          ),
-          array(
             'name' => 'url',
             'optional' => TRUE,
             'type' => 'string',
@@ -340,7 +316,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 /**
  * Callback for Services petitions index method.
  */
-function _api_petitions_resource_index($created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $mock) {
+function _api_petitions_resource_index($created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $url, $status, $response_id, $mock) {
   global $base_url;
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
@@ -369,9 +345,6 @@ function _api_petitions_resource_index($created_before, $created_after, $created
      ->setSignatureThresholdCeiling($signature_threshold_ceiling)
      ->setSignatureThreshold($signature_threshold)
      ->setSignatureThresholdFloor($signature_threshold_floor)
-     ->setSignatureCountCeiling($signature_count_ceiling)
-     ->setSignatureCount($signature_count)
-     ->setSignatureCountFloor($signature_count_floor)
      ->setURL($url)
      ->setStatus($status)
      ->setResponseID($response_id);
