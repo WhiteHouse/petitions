@@ -1,12 +1,19 @@
 UPDATE
 ======
 
-Version 7.x-2.0-beta11 -> 7.x-2.0-beta12
+Version 7.x-2.0-beta11 -> 7.x-2.0-beta13
 -----------------------------------------------
 
 Release notes:
 
-  - Move shunt module into contrib.
+  - Move shunt module into contrib
+  - Updated petitions.info to include newer dependencies on install
+  - Added api_errors module for API error responses
+  - Added new parameters to make data API more flexible
+  - Convert API properties and params to camelCase
+  - Make API obey site administrator defined public petition thresholds
+  - Includes new Services Documentation config settings form
+
 
 Update steps:
 
