@@ -1054,9 +1054,15 @@ class PetitionsIndexBase extends PetitionsBase {
       }
 
       $query = $this->getQuery();
-
       $query += array(
         'petition_status' => new MongoInt64($status),
+      );
+      $this->setQuery($query);
+    }
+    else {
+      $query = $this->getQuery();
+      $query += array(
+        'petition_status' => array('$ne' => new MongoInt64(WH_PETITION_STATUS_FLAGGED)),
       );
       $this->setQuery($query);
     }
