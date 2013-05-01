@@ -12,18 +12,6 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
   public function __construct() {
     $this->setCollection(mongodb_collection('petitions'));
     $this->setExecutionTime(microtime());
-
-    // @TODO: This really should be added as a publicly accessible method.
-    // $this->setQuery(
-    //   array(
-    //     'signature_count' => array(
-    //       '$gt' => new MongoInt64(150)
-    //     ),
-    //     'petition_status' => array(
-    //       '$ne' => new MongoInt64(WH_PETITION_STATUS_FLAGGED),
-    //     ),
-    //   )
-    // );
   }
 
   /**
