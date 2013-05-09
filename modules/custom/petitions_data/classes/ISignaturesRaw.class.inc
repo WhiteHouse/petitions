@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Interface for backend queries for multiple petitions
+ * Interface for backend queries for Petition signatures.
  */
 
 interface ISignaturesRaw {
@@ -10,7 +10,7 @@ interface ISignaturesRaw {
    * Set accessor for $this->zipcode.
    *
    * @param int $zipcode
-   *   Postal code to identify locations within the United States
+   *   Postal code to identify locations within the United States.
    *
    * @return ISignaturesRaw
    *   Returns current instance of object.
@@ -20,7 +20,7 @@ interface ISignaturesRaw {
   /**
    * Set accessor for $this->country.
    *
-   * @return string
+   * @param string $country
    *   Country name for signature.
    *
    * @return ISignaturesRaw
@@ -65,7 +65,7 @@ interface ISignaturesRaw {
    * Set accessor for $this->limit.
    *
    * @param int $limit
-   *   Number of results to return
+   *   Number of results to return.
    *
    * @return ISignaturesRaw
    *   Returns current instance of object.
@@ -82,6 +82,28 @@ interface ISignaturesRaw {
    *   Returns current instance of object.
    */
   public function setOffset($offset);
+
+  /**
+   * Set accessor for $this->nameFormat.
+   *
+   * @param string $nameFormat
+   *   Function used to format name values.
+   *
+   * @return ISignaturesRaw
+   *   Returns current instance of object.
+   */
+  public function setNameFormat($nameFormat);
+
+  /**
+   * Set accessor for $this->locationFormat.
+   *
+   * @param string $locationFormat
+   *   Function used to format location values.
+   *
+   * @return ISignaturesRaw
+   *   Returns current instance of object.
+   */
+  public function setLocationFormat($locationFormat);
 
   /**
    * Primary processing function of class. Makes query to backend.

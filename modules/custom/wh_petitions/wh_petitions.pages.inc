@@ -819,7 +819,9 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
     $name = petitions_signatures_display_style($username, $first_name, $last_name);
 
     $zipcode = $signatures[$i]['user']['zip'];
-    $location = petitions_signatures_display_location_formatted($zipcode);
+    $city = $signatures[$i]['user']['city'];
+    $state = $signatures[$i]['user']['state'];
+    $location = petitions_signatures_display_location_formatted($zipcode, $city, $state);
 
     if ($location) {
       $signatures[$i]['location'] = check_plain($location);

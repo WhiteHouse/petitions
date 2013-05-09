@@ -24,5 +24,4 @@ interface IPetitionsRetrieveRaw {
    *   Results of query to data backend.
    */
   public function result();
-
 }

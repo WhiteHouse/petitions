@@ -23,7 +23,7 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
   public function load() {
     $response = array();
     $response['metadata'] = array(
-        'responseInfo' => array(
+      'responseInfo' => array(
         'status' => 200,
         'developerMessage' => t('OK'),
       ),

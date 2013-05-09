@@ -32,9 +32,25 @@ function petitions_data_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Petitions Website URL'),
     '#default_value' => variable_get('petitions_data_petitions_website_url', $base_url),
-    '#description' => "Enter a website URL used to generate links to petitions.",
+    '#description' => t('Enter a website URL used to generate links to petitions.'),
     '#required' => FALSE,
   );
+  if (module_exists('petitions_signatures_display')) {
+    $form['petitions_data_signatures_display_names'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Display names using Petitions Signatures Display settings'),
+      '#default_value' => variable_get('petitions_data_signatures_display_names', 0),
+      '#description' => t('Format names returned by the Signatures method in the same manner in which they are displayed on account profiles and in Petition signatures as configured by the <a href="@url">Petitions Signatures Display module</a>.', array('@url' => '/admin/config/petitions/signatures')),
+      '#required' => FALSE,
+    );
+    $form['petitions_data_signatures_display_locations'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Display locations using Petitions Signatures Display settings'),
+      '#default_value' => variable_get('petitions_data_signatures_display_locations', 0),
+      '#description' => t('Format locations returned by the Signatures method in the same manner in which they are displayed on account profiles and in Petition signatures as configured by the <a href="@url">Petitions Signatures Display module</a>.', array('@url' => '/admin/config/petitions/signatures')),
+      '#required' => FALSE,
+    );
+  }
 
   return system_settings_form($form);
 }
