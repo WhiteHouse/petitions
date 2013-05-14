@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Interface for backend queries for multiple petitions
+ * Interface for backend queries for multiple Petitions.
  */
 
 interface IPetitionsIndexRaw {
@@ -64,7 +64,7 @@ interface IPetitionsIndexRaw {
   /**
    * Set accessor for $this->base_url.
    *
-   * @param array $base_url
+   * @param string $base_url
    *   The base url for the site that absolute URLs will be constructed with.
    *
    * @return IPetitionsRaw

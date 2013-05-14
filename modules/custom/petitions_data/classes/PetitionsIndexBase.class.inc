@@ -122,7 +122,7 @@ class PetitionsIndexBase extends PetitionsBase {
   /**
    * Set accessor for $this->title.
    *
-   * @param int $title
+   * @param string $title
    *   The petition title used to filter results.
    *
    * @return PetitionsMongoRaw
@@ -130,14 +130,13 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setTitle($title) {
     $this->title = $title;
-
     return $this;
   }
 
   /**
    * Set accessor for $this->body.
    *
-   * @param int $body
+   * @param string $body
    *   The petition body used to filter results.
    *
    * @return PetitionsMongoRaw
@@ -145,7 +144,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setBody($body) {
     $this->body = $body;
-
     return $this;
   }
 
@@ -160,14 +158,13 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setIssueID($issue_id) {
     $this->issueID = $issue_id;
-
     return $this;
   }
 
   /**
    * Set accessor for $this->issue.
    *
-   * @param int $issue
+   * @param string $issue
    *   The issue used to filter results.
    *
    * @return PetitionsMongoRaw
@@ -175,7 +172,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setIssue($issue) {
     $this->issue = $issue;
-
     return $this;
   }
 
@@ -190,7 +186,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignatureThresholdCeiling($signature_threshold_ceiling) {
     $this->signatureThresholdCeiling = $signature_threshold_ceiling;
-
     return $this;
   }
 
@@ -205,7 +200,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignatureThreshold($signature_threshold) {
     $this->signatureThreshold = $signature_threshold;
-
     return $this;
   }
 
@@ -220,7 +214,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignatureThresholdFloor($signature_threshold_floor) {
     $this->signatureThresholdFloor = $signature_threshold_floor;
-
     return $this;
   }
 
@@ -287,7 +280,7 @@ class PetitionsIndexBase extends PetitionsBase {
   /**
    * Set accessor for $this->minSignatureCount.
    *
-   * @param int $min_signature_count_floor
+   * @param int $min_signature_count
    *   The absolute minimum signature count used to filter results.
    *
    * @return PetitionsMongoRaw
@@ -295,7 +288,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setMinSignatureCount($min_signature_count) {
     $this->minSignatureCount = $min_signature_count;
-
     return $this;
   }
 
@@ -310,7 +302,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignaturesNeededCeiling($signatures_needed_ceiling) {
     $this->signaturesNeededCeiling = $signatures_needed_ceiling;
-
     return $this;
   }
 
@@ -325,7 +316,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignaturesNeeded($signatures_needed) {
     $this->signaturesNeeded = $signatures_needed;
-
     return $this;
   }
 
@@ -340,14 +330,13 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setSignaturesNeededFloor($signatures_needed_floor) {
     $this->signaturesNeededFloor = $signatures_needed_floor;
-
     return $this;
   }
 
   /**
    * Set accessor for $this->url.
    *
-   * @param int $url
+   * @param string $url
    *   The petition URL used to filter results.
    *
    * @return PetitionsMongoRaw
@@ -355,7 +344,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setURL($url) {
     $this->url = $url;
-
     return $this;
   }
 
@@ -370,7 +358,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setDeadlineBefore($deadline_before) {
     $this->deadlineBefore = $deadline_before;
-
     return $this;
   }
 
@@ -385,7 +372,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setDeadline($deadline) {
     $this->deadline = $deadline;
-
     return $this;
   }
 
@@ -400,14 +386,13 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setDeadlineAfter($deadline_after) {
     $this->deadlineAfter = $deadline_after;
-
     return $this;
   }
 
   /**
    * Set accessor for $this->status.
    *
-   * @param int $status
+   * @param string $status
    *   The petition status used to filter results.
    *
    * @return PetitionsMongoRaw
@@ -415,7 +400,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setStatus($status) {
     $this->status = $status;
-
     return $this;
   }
 
@@ -430,7 +414,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setResponseID($response_id) {
     $this->responseID = $response_id;
-
     return $this;
   }
 
@@ -445,7 +428,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setResponseAssocationTimeBefore($response_association_time_before) {
     $this->responseAssocationTimeBefore = $response_association_time_before;
-
     return $this;
   }
 
@@ -460,7 +442,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setResponseAssocationTime($response_association_time) {
     $this->responseAssocationTime = $response_association_time;
-
     return $this;
   }
 
@@ -475,7 +456,6 @@ class PetitionsIndexBase extends PetitionsBase {
    */
   public function setResponseAssocationTimeAfter($response_association_time_after) {
     $this->responseAssocationTimeAfter = $response_association_time_after;
-
     return $this;
   }
 
@@ -537,7 +517,7 @@ class PetitionsIndexBase extends PetitionsBase {
   /**
    * Get accessor for $this->title.
    *
-   * @return int
+   * @return string
    *   The petition title used to filter results.
    */
   protected function getTitle() {
@@ -547,7 +527,7 @@ class PetitionsIndexBase extends PetitionsBase {
   /**
    * Get accessor for $this->body.
    *
-   * @return int
+   * @return string
    *   The petition body used to filter results.
    */
   protected function getBody() {
@@ -567,7 +547,7 @@ class PetitionsIndexBase extends PetitionsBase {
   /**
    * Get accessor for $this->issue.
    *
-   * @return int
+   * @return string
    *   The issue used to filter results.
    */
   protected function getIssue() {
@@ -677,7 +657,7 @@ class PetitionsIndexBase extends PetitionsBase {
   /**
    * Get accessor for $this->url.
    *
-   * @return int
+   * @return string
    *   The petition URL used to filter results.
    */
   protected function getURL() {
@@ -717,7 +697,7 @@ class PetitionsIndexBase extends PetitionsBase {
   /**
    * Get accessor for $this->status.
    *
-   * @return int
+   * @return string
    *   The petition status used to filter results.
    */
   protected function getStatus() {
@@ -770,13 +750,11 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addStartDateToQuery() {
     if ($this->getStartDate()) {
       $query = $this->getQuery();
-
       // Do not overwrite any other parameters that use 'created'.
       if (!isset($query['created'])) {
         $query['created'] = array();
       }
       $query['created'] += array('$gt' => $this->getStartDate());
-
       $this->setQuery($query);
     }
   }
@@ -787,7 +765,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addEndDateToQuery() {
     if ($this->getEndDate()) {
       $query = $this->getQuery();
-
       // Do not overwrite any other parameters that use 'created'.
       if (!isset($query['created'])) {
         $query['created'] = array();
@@ -803,7 +780,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addCreatedDateToQuery() {
     if ($this->getCreatedDate()) {
       $query = $this->getQuery();
-
       $query += array(
         'created' => $this->getCreatedDate(),
       );
@@ -813,12 +789,10 @@ class PetitionsIndexBase extends PetitionsBase {
 
   /**
    * Helper function to add $this->title as a query parameter.
-   * @todo add $this->title as a query parameter.
    */
   protected function addTitleToQuery() {
     if ($this->getTitle()) {
       $query = $this->getQuery();
-
       $query += array(
         'title' => new MongoRegex("/" . $this->getTitle() . "/"),
       );
@@ -828,12 +802,10 @@ class PetitionsIndexBase extends PetitionsBase {
 
   /**
    * Helper function to add $this->body as a query parameter.
-   * @todo add $this->body as a query parameter.
    */
   protected function addBodyToQuery() {
     if ($this->getBody()) {
       $query = $this->getQuery();
-
       $query += array(
         'body' => new MongoRegex("/" . $this->getBody() . "/"),
       );
@@ -863,7 +835,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addSignatureThresholdCeilingToQuery() {
     if ($this->getSignatureThresholdCeiling()) {
       $query = $this->getQuery();
-
       // Do not overwrite any other parameters that use 'response_signatures'.
       if (!isset($query['response_signatures'])) {
         $query['response_signatures'] = array();
@@ -879,7 +850,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addSignatureThresholdToQuery() {
     if ($this->getSignatureThreshold()) {
       $query = $this->getQuery();
-
       $query += array(
         'response_signatures' => new MongoInt64($this->getSignatureThreshold()),
       );
@@ -893,7 +863,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addSignatureThresholdFloorToQuery() {
     if ($this->getSignatureThresholdFloor()) {
       $query = $this->getQuery();
-
       // Do not overwrite any other parameters that use 'response_signatures'.
       if (!isset($query['response_signatures'])) {
         $query['response_signatures'] = array();
@@ -909,7 +878,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addSignatureCountCeilingToQuery() {
     if ($this->getSignatureCountCeiling()) {
       $query = $this->getQuery();
-
       // Do not overwrite any other parameters that use 'signature_count'.
       if (!isset($query['signature_count'])) {
         $query['signature_count'] = array();
@@ -925,7 +893,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addSignatureCountToQuery() {
     if ($this->getSignatureCount()) {
       $query = $this->getQuery();
-
       $query += array(
         'signature_count' => new MongoInt64($this->getSignatureCount()),
       );
@@ -939,7 +906,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addSignatureCountFloorToQuery() {
     if ($this->getSignatureCountFloor()) {
       $query = $this->getQuery();
-
       // Do not overwrite any other parameters that use 'signature_count'.
       if (!isset($query['signature_count'])) {
         $query['signature_count'] = array();
@@ -975,17 +941,13 @@ class PetitionsIndexBase extends PetitionsBase {
 
   /**
    * Helper function to add $this->url as a query parameter.
-   * @todo add $this->url as a query parameter.
    */
   protected function addURLToQuery() {
     // Filter by URL.
     if ($this->getURL()) {
-
       $uri = explode($this->getBaseURL() . '/', $this->getURL());
       $nice_url = $uri[1];
-
       $query = $this->getQuery();
-
       $query += array(
         'nice_url' => $nice_url,
       );
@@ -1019,12 +981,10 @@ class PetitionsIndexBase extends PetitionsBase {
 
   /**
    * Helper function to add $this->status as a query parameter.
-   * @todo add $this->status as a query parameter.
    */
   protected function addStatusToQuery() {
     // Filter by status.
     $status = '';
-
     if ($this->getStatus()) {
       switch ($this->getStatus()) {
         // Has the required number of signatures to become public,
@@ -1052,7 +1012,6 @@ class PetitionsIndexBase extends PetitionsBase {
 
           break;
       }
-
       $query = $this->getQuery();
       $query += array(
         'petition_status' => new MongoInt64($status),
@@ -1074,7 +1033,6 @@ class PetitionsIndexBase extends PetitionsBase {
   protected function addResponseIDToQuery() {
     if ($this->getResponseID()) {
       $query = $this->getQuery();
-
       $query += array(
         'response_id' => $this->getResponseID(),
       );

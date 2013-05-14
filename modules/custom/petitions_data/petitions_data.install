@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file
+ * This file is necessary to reset the configuration settings on uninstall.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function petitions_data_uninstall() {
+  variable_del('petitions_data_petitions_website_url');
+  variable_del('petitions_data_signatures_display_names');
+  variable_del('petitions_data_signatures_display_locations');
+}

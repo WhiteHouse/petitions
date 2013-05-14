@@ -13,6 +13,7 @@ files[] = classes/SignaturesRawFactory.class.inc
 files[] = classes/PetitionsBase.class.inc
 files[] = classes/PetitionsIndexBase.class.inc
 files[] = classes/PetitionsRetrieveBase.class.inc
+files[] = classes/SignaturesBase.class.inc
 
 ; Petitions Data Plugins
 files[] = classes/PetitionsIndexMongoRaw.class.inc

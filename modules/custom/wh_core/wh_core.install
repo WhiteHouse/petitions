@@ -190,3 +190,18 @@ function wh_core_update_7006() {
   module_enable(array('petitions_maintenance'));
   petitions_maintenance_update_7001();
 }
+
+/**
+ * Implements hook_update_N().
+ *
+ * Set petitions_data variables to implement petitions_signatures_display.
+ */
+function wh_core_update_7007() {
+  $variables = array(
+    'petitions_data_signatures_display_names' => 1,
+    'petitions_data_signatures_display_locations' => 1,
+   );
+  foreach ($variables as $key => $value) {
+    variable_set($key, $value);
+  }
+}

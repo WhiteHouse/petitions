@@ -7,10 +7,10 @@
 class PetitionsRetrieveRawFactory {
 
   /**
-   * Instantiate and return a new instance of iPetitionRetrieveRaw.
+   * Instantiate and return a new instance of IPetitionsRetrieveRaw.
    *
-   * @return iPetitionRetrieveRaw
-   *   New instance of iPetitionRetrieveRaw.
+   * @return IPetitionsRetrieveRaw
+   *   New instance of IPetitionsRetrieveRaw.
    */
   public static function create() {
     return new PetitionsRetrieveMongoRaw();

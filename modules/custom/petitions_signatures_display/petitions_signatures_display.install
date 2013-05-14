@@ -10,6 +10,8 @@
 function petitions_signatures_display_uninstall() {
   variable_del('petitions_signatures_display_initials');
   variable_del('petitions_signatures_display_account_location');
+  variable_del('petitions_signatures_display_profile_location');
+  variable_del('petitions_signatures_display_signature_location');
 }
 
 /**

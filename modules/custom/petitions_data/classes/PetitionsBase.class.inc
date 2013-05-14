@@ -29,7 +29,7 @@ class PetitionsBase {
   /**
    * Set accessor for $this->base_url.
    *
-   * @param array $base_url
+   * @param string $base_url
    *   The base url for the site that absolute URLs will be constructed with.
    *
    * @return PetitionsMongoRaw
@@ -37,7 +37,6 @@ class PetitionsBase {
    */
   public function setBaseURL($base_url) {
     $this->baseURL = $base_url;
-
     return $this;
   }
 
@@ -52,7 +51,6 @@ class PetitionsBase {
    */
   protected function setExecutionTime($time) {
     $this->executionTime = $time;
-
     return $this;
   }
 
@@ -67,7 +65,6 @@ class PetitionsBase {
    */
   protected function setResult($result) {
     $this->result = $result;
-
     return $this;
   }
 
@@ -82,7 +79,6 @@ class PetitionsBase {
    */
   protected function setQuery($query) {
     $this->query = $query;
-
     return $this;
   }
 
@@ -187,6 +183,12 @@ class PetitionsBase {
 
   /**
    * Helper function to format URL.
+   *
+   * @param string $uri
+   *   Petition path.
+   *
+   * @return string
+   *   Full Petition URL.
    */
   protected function formatReturnURL($uri) {
     return $this->getBaseURL() . '/' . $uri;
@@ -194,6 +196,12 @@ class PetitionsBase {
 
   /**
    * Helper function to calculate needed signatures.
+   *
+   * @param int $total
+   *   Signatures required to solicit a response.
+   *
+   * @param int $current
+   *   Current number of signatures.
    *
    * @return int
    *   Signatures remaining to required to reach response threshold.
@@ -204,6 +212,15 @@ class PetitionsBase {
 
   /**
    * Helper function to calculate deadline.
+   *
+   * @param int $created
+   *   Epoch (UNIX style) time stamp.
+   *
+   * @param int $days
+   *   Number of days from creation that the Petition will remain open.
+   *
+   * @return int
+   *   Epoch (UNIX style) time stamp.
    */
   protected function calcDeadline($created, $days) {
     return strtotime("+" . $days . " days", $created);
@@ -219,7 +236,6 @@ class PetitionsBase {
    *   Basic information and a link to the associated petition response.
    */
   protected function formatReturnResponse($response_id = '') {
-
     if (!$response_id) {
       return array();
     }
@@ -231,13 +247,11 @@ class PetitionsBase {
       ->range(0, 1)
       ->execute()
       ->fetchField();
-
     $response = array(
       'id' => $response_id,
       'url' => $this->getBaseURL() . '/' . $uri,
       'associationTime' => $created_time,
     );
-
     return $response;
   }
 
@@ -251,9 +265,7 @@ class PetitionsBase {
    *   String representing status code.
    */
   protected function formatReturnPetitionStatus($status_code) {
-
     switch ($status_code) {
-
       // Has the required number of signatures to become public,
       // visible everywhere on site.
       case WH_PETITION_STATUS_PUBLIC:
@@ -290,7 +302,6 @@ class PetitionsBase {
   protected function filterUTF16($string) {
     // Replace non-english characters with x's.
     $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
-
     return $string;
   }
 }

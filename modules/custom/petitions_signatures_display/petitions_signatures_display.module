@@ -99,24 +99,41 @@ function petitions_signatures_display_location($zipcode = '') {
  *
  * Invokes _perform_lookup() in wh_zipcodelookup.module.
  */
-function petitions_signatures_display_location_formatted($zipcode = '') {
-  if (module_exists('wh_zipcodelookup') && function_exists('_perform_lookup')) {
+function petitions_signatures_display_location_formatted($zipcode, $city, $state, $format = '') {
+  $location = array();
+  $display = variable_get('petitions_signatures_display_signature_location', 'petitions_signatures_display_signature_db_city_state');
+  if ($display == 'petitions_signatures_display_signature_db_city_state') {
     $location = petitions_signatures_display_location($zipcode);
-    $city = $location[0]['city'];
-    $state = $location[0]['state'];
-    if ($city && $state) {
-      $formatted_location = $city . ', ' . $state;
-    }
-    elseif ($city && !$state) {
-      $formatted_location = $city;
-    }
-    elseif (!$city && $state) {
-      $formatted_location = $state;
-    }
-    return $formatted_location;
   }
   else {
-    return;
+    $location[0] = array(
+      'city' => $city,
+      'state' => $state,
+    );
+  }
+  $location[0]['zipcode'] = $zipcode;
+
+  switch ($format) {
+    case 'api':
+      return $location[0];
+
+    break;
+
+    default:
+      $city = $location[0]['city'];
+      $state = $location[0]['state'];
+      if ($city && $state) {
+        $formatted_location = $city . ', ' . $state;
+      }
+      elseif ($city && !$state) {
+        $formatted_location = $city;
+      }
+      elseif (!$city && $state) {
+        $formatted_location = $state;
+      }
+      return $formatted_location;
+
+    break;
   }
 }
 

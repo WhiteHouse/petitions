@@ -25,6 +25,11 @@ function petitions_signatures_display_configure() {
     'petitions_signatures_display_profile_db_city_state' => t('Display city and state fields associated to the user-defined zip code'),
   );
 
+  $signature_location = array(
+    'petitions_signatures_display_signature_db_city_state' => t('Display city and state fields associated to the user-defined zip code (Default)'),
+    'petitions_signatures_display_signature_user_city_state' => t('Display user-defined city and state fields'),
+  );
+
   $form['petitions_signatures_display_initials'] = array(
     '#type' => 'radios',
     '#title' => t('Signature display options'),
@@ -45,9 +50,17 @@ function petitions_signatures_display_configure() {
   $form['petitions_signatures_display_profile_location'] = array(
     '#type' => 'radios',
     '#title' => t('Profile location fields display options'),
-    '#description' => t('Select the manner in which to present city, state, and country fields on account creation and edit pages.'),
+    '#description' => t('Select the manner in which to present city, state, and country fields on user profiles.'),
     '#options' => $profile_location,
     '#default_value' => variable_get('petitions_signatures_display_profile_location', 'petitions_signatures_display_profile_user_city_state'),
+  );
+
+  $form['petitions_signatures_display_signature_location'] = array(
+    '#type' => 'radios',
+    '#title' => t('Petition signature location display options'),
+    '#description' => t('Select the manner in which to present city, state, and country fields on Petition signatures.'),
+    '#options' => $signature_location,
+    '#default_value' => variable_get('petitions_signatures_display_signature_location', 'petitions_signatures_display_signature_db_city_state'),
   );
 
   return system_settings_form($form);

@@ -1,6 +1,23 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta17 -> 7.x-2.0-beta18
+-----------------------------------------------
+
+Release notes:
+
+  - Updated petitions_data to implement petitions_signatures_display settings and formatting
+
+Update steps:
+
+  Update steps:
+
+  1. Deploy new code
+
+  2. Run the update script.
+
+       drush updb -y
+
 Version 7.x-2.0-beta16 -> 7.x-2.0-beta17
 -----------------------------------------------
 
