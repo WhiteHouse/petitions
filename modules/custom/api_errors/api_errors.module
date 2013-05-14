@@ -15,6 +15,9 @@
  */
 function api_errors_throw_error($error_code, $developer_message, $user_message = NULL, $more_info = NULL) {
 
+  // Load services.runtime.inc from the Services module.
+  module_load_include('inc', 'services', 'services.runtime');
+
   // Store our custom error response variables in an arbitrary data object,
   // to be passed with other errors.
   $data = array(
