@@ -1,6 +1,24 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta18 -> 7.x-2.0-beta19
+-----------------------------------------------
+
+Release notes:
+
+  - Updated api_users resource to display the total users count returned from a
+    set variable instead of querying the database for each API call.
+
+Update steps:
+
+  Update steps:
+
+  1. Deploy new code
+
+  2. Run the update script.
+
+       drush updb -y
+
 Version 7.x-2.0-beta17 -> 7.x-2.0-beta18
 -----------------------------------------------
 

@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Contains install and update functions for api_users.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function api_users_uninstall() {
+  variable_del('api_users_count');
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Sets the initial variable of users.
+ */
+function api_users_update_7001() {
+  $count = db_query("SELECT count(uid) FROM {users} WHERE login != 0 AND status != 0")->fetchField();
+  variable_set('api_users_count', $count);
+}
