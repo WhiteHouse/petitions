@@ -40,6 +40,11 @@ class SignaturesMongoRaw extends SignaturesBase implements ISignaturesRaw {
       $this->addEndDateToQuery();
     }
 
+    $this->addCityToQuery();
+    $this->addStateToQuery();
+    $this->addZipToQuery();
+    $this->addCountryToQuery();
+
     $fields = array(
       'user.first_name',
       'user.last_name',

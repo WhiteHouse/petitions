@@ -7,6 +7,28 @@
 interface ISignaturesRaw {
 
   /**
+   * Set accessor for $this->city.
+   *
+   * @param int $city
+   *   City used to filter results.
+   *
+   * @return ISignaturesRaw
+   *   Returns current instance of object.
+   */
+  public function setCity($city);
+
+  /**
+   * Set accessor for $this->state.
+   *
+   * @param int $state
+   *   State used to filter results.
+   *
+   * @return ISignaturesRaw
+   *   Returns current instance of object.
+   */
+  public function setState($state);
+
+  /**
    * Set accessor for $this->zipcode.
    *
    * @param int $zipcode

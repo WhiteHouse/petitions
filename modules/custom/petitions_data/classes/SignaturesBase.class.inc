@@ -6,6 +6,8 @@
 
 class SignaturesBase {
 
+  protected $city;
+  protected $state;
   protected $zipcode;
   protected $country;
   protected $startDate;
@@ -20,6 +22,36 @@ class SignaturesBase {
   protected $collection;
   protected $executionTime;
   protected $result;
+
+  /**
+   * Set accessor for $this->city.
+   *
+   * @param string $city
+   *   City name for signature.
+   *
+   * @return SignaturesMongoRaw
+   *   Returns current instance of object.
+   */
+  public function setCity($city) {
+    $this->city = $city;
+
+    return $this;
+  }
+
+  /**
+   * Set accessor for $this->state.
+   *
+   * @param string $state
+   *   State name for signature.
+   *
+   * @return SignaturesMongoRaw
+   *   Returns current instance of object.
+   */
+  public function setState($state) {
+    $this->state = $state;
+
+    return $this;
+  }
 
   /**
    * Set accessor for $this->zipcode.
@@ -222,6 +254,26 @@ class SignaturesBase {
   }
 
   /**
+   * Get accessor for $this->city.
+   *
+   * @return string
+   *   City name for signature.
+   */
+  protected function getCity() {
+    return $this->city;
+  }
+
+  /**
+   * Get accessor for $this->state.
+   *
+   * @return string
+   *   State name for signature.
+   */
+  protected function getState() {
+    return $this->state;
+  }
+
+  /**
    * Get accessor for $this->zipcode.
    *
    * @return int
@@ -357,17 +409,55 @@ class SignaturesBase {
   }
 
   /**
+   * Helper function to add $this->city as a query parameter.
+   */
+  protected function addCityToQuery() {
+    if ($this->getCity()) {
+      $query = $this->getQuery();
+      $query += array(
+        'user.city' => new MongoRegex("/" . $this->getCity() . "/i"),
+      );
+      $this->setQuery($query);
+    }
+  }
+
+  /**
+   * Helper function to add $this->state as a query parameter.
+   */
+  protected function addStateToQuery() {
+    if ($this->getState()) {
+      $query = $this->getQuery();
+      $query += array(
+        'user.state' => new MongoRegex("/" . $this->getState() . "/i"),
+      );
+      $this->setQuery($query);
+    }
+  }
+
+  /**
    * Helper function to add $this->zipcode as a query parameter.
-   * @todo add $this->zipcode as a query parameter.
    */
   protected function addZipToQuery() {
+    if ($this->getZipCode()) {
+      $query = $this->getQuery();
+      $query += array(
+        'user.zip' => "{$this->getZipCode()}",
+      );
+      $this->setQuery($query);
+    }
   }
 
   /**
    * Helper function to add $this->country as a query parameter.
-   * @todo add $this->country as a query parameter.
    */
   protected function addCountryToQuery() {
+    if ($this->getCountry()) {
+      $query = $this->getQuery();
+      $query += array(
+        'user.country' => new MongoRegex("/" . $this->getCountry() . "/i"),
+      );
+      $this->setQuery($query);
+    }
   }
 
   /**
@@ -379,9 +469,9 @@ class SignaturesBase {
 
       // Do not overwrite any other parameters that use 'created'.
       if (!isset($query['created'])) {
-        $query['created'] = array();
+        $query['timestamp'] = array();
       }
-      $query['created'] += array('$gt' => $this->getStartDate());
+      $query['timestamp'] += array('$gt' => $this->getStartDate());
 
       $this->setQuery($query);
     }
@@ -396,9 +486,9 @@ class SignaturesBase {
 
       // Do not overwrite any other parameters that use 'created'.
       if (!isset($query['created'])) {
-        $query['created'] = array();
+        $query['timestamp'] = array();
       }
-      $query['created'] += array('$lt' => $this->getEndDate());
+      $query['timestamp'] += array('$lt' => $this->getEndDate());
       $this->setQuery($query);
     }
   }
@@ -411,7 +501,7 @@ class SignaturesBase {
       $query = $this->getQuery();
 
       $query += array(
-        'created' => $this->getCreatedDate(),
+        'timestamp' => $this->getCreatedDate(),
       );
       $this->setQuery($query);
     }

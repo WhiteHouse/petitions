@@ -794,7 +794,7 @@ class PetitionsIndexBase extends PetitionsBase {
     if ($this->getTitle()) {
       $query = $this->getQuery();
       $query += array(
-        'title' => new MongoRegex("/" . $this->getTitle() . "/"),
+        'title' => new MongoRegex("/" . $this->getTitle() . "/i"),
       );
       $this->setQuery($query);
     }
@@ -807,7 +807,7 @@ class PetitionsIndexBase extends PetitionsBase {
     if ($this->getBody()) {
       $query = $this->getQuery();
       $query += array(
-        'body' => new MongoRegex("/" . $this->getBody() . "/"),
+        'body' => new MongoRegex("/" . $this->getBody() . "/i"),
       );
       $this->setQuery($query);
     }
