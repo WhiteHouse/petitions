@@ -156,16 +156,20 @@ projects[logintoboggan][patch][] = http://drupal.org/files/password_token-116512
 ;  - Make textcaptcha serve challenge questions from local db (more reliable
 ;    than web service)
 ;  - @see http://drupal.org/node/2013859
-; 
+;
 ; improve-accessibility-2014753-1.patch
 ;  - Prepend challenge question with Challenge Description for accessibility
 ;  - @see https://drupal.org/node/2014753
 ;
 ; ----------------------------------------
-projects[textcaptcha][version] = 1.2
+projects[textcaptcha][type] = module
 projects[textcaptcha][subdir] = contrib
-projects[textcaptcha][patch][] = https://drupal.org/files/use-local-db-2013859-6.patch
-projects[textcaptcha][patch][] = https://drupal.org/files/improve-accessibility-2014753-3.patch
+projects[textcaptcha][download][type] = git
+projects[textcaptcha][download][branch] = 7.x-1.x
+projects[textcaptcha][download][tag] = bh1
+projects[textcaptcha][download][url] = "https://github.com/bryanhirsch/textcaptcha"
+;projects[textcaptcha][patch][] = https://drupal.org/files/use-local-db-2013859-6.patch
+;projects[textcaptcha][patch][] = https://drupal.org/files/improve-accessibility-2014753-3.patch
 
 ; check_type.patch
 ;  - Data types were not checked before getting 'status' key from them
