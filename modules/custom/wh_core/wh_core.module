@@ -101,6 +101,7 @@ function wh_core_form_alter(&$form, &$form_state, $form_id) {
     $form['email_updates'] = array(
       '#title' => t('Sign up for email updates from President Obama and other senior administration officials'),
       '#type' => 'checkbox',
+      '#attributes' => array('class' => array('clearfix'))
     );
 
     $form['required_text'] = array(

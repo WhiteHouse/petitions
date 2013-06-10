@@ -1,6 +1,27 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta19 -> 7.x-2.0-beta20
+-----------------------------------------------
+
+Release notes:
+
+  - Install patched version of textcaptcha module for improved accessibility
+  - Replace all instances of reCaptcha challenge with Text Captcha
+  - Fixed the createdAt, createdBefore, and createdAfter parameters for the Signatures resource
+  - Removed case sensitivity from title and body parameters
+  - Added city, state, zip, and country parameters to the Signatures resource
+
+Update steps:
+
+  Update steps:
+
+  1. Deploy new code
+
+  2. Run update.php
+
+  3. Clear caches
+
 Version 7.x-2.0-beta18 -> 7.x-2.0-beta19
 -----------------------------------------------
 

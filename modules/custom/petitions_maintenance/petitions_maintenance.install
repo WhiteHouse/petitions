@@ -66,3 +66,48 @@ function petitions_maintenance_update_7003() {
   $module_list = array('conditional_styles');
   module_enable($module_list);
 }
+
+/**
+ * Implements hook_update_N().
+ * 
+ * Enable textcaptcha module. Replace recaptcha with textcaptcha.
+ */
+function petitions_maintenance_update_7004() {
+  // Enable new modules.
+  $modules = array('textcaptcha');
+  module_enable($modules);
+
+  // Update captcha challenges.
+  variable_set('captcha_default_challenge', 'textcaptcha/Text Captcha');
+
+  $results = db_select('captcha_points', 'c')
+    ->fields('c', array('form_id', 'module', 'captcha_type'))
+    ->condition('captcha_type', 'reCAPTCHA', '=')
+    ->execute()
+    ->fetchAll();
+
+  foreach($results as $result) {
+    $form_id = $result->form_id;
+    $module = 'textcaptcha';
+    $type = 'Text Captcha';
+
+    $text = t('Updating !form_id to use !type', array('!form_id' => $form_id, '!type' => $type));
+    drupal_set_message($text);
+
+    db_merge('captcha_points')
+      ->key(array('form_id' => $form_id))
+      ->fields(array('module' => $module, 'captcha_type' => $type))
+      ->execute();
+  }
+
+  variable_set('textcaptcha_cache_limit', 100); // This sets the limit to 40 using default cache.
+  drupal_set_message('Text Captcha has been configured cache up to 100 challenge questions at a time.');
+
+  // Set textcaptcha apikey.
+  $text = t('Text Captcha module has been installed. Wherever reCaptcha was in use, it has now been replaced by Text Captcha. To complete set up: (1) Go to the configuration page here: !admin, (2) Enter your textcaptcha.com API key, (3) Then click "Retrieve new captcha challenges" to fill your local cache with challenge questions.', array('!admin' => l('admin/config/people/captcha/textcaptcha', 'admin/config/people/captcha/textcaptcha')));
+  drupal_set_message($text);
+
+  // Clear cache, otherwise if textcaptcha was already enabled, the admin form
+  // looks funky.
+  cache_clear_all();
+}

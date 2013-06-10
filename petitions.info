@@ -28,6 +28,7 @@ dependencies[] = file
 dependencies[] = rdf
 
 ; contrib
+dependencies[] = captcha
 dependencies[] = colorbox
 dependencies[] = context
 dependencies[] = context_ui
@@ -46,6 +47,7 @@ dependencies[] = rest_server
 dependencies[] = services
 dependencies[] = services_documentation
 dependencies[] = shunt
+dependencies[] = textcaptcha
 dependencies[] = wysiwyg
 
 ; custom
@@ -63,3 +65,10 @@ dependencies[] = petitions_signatures_display
 
 ; files
 files[] =  petitions.profile
+
+
+; Information added by drush on 2013-05-16
+version = ""
+project = "petitions"
+datestamp = "1368679058"
+

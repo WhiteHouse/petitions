@@ -127,7 +127,7 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
 
   try {
     // Calculate result set size before doing real query.
-    $size = variable_get('api_users_count', '');
+    $size = ($size = variable_get('api_users_count', FALSE)) ? $size : api_users_get_count();
 
     // The following 3 lines previously calculated the total user count.  They
     // are no longer being used.
@@ -266,11 +266,20 @@ function _api_users_filterUTF16($string) {
 }
 
 /**
+ * Queries the database for total number of users in the database with some
+ * specific conditions.
+ */
+function api_users_get_count() {
+  $count = db_query("SELECT count(uid) FROM {users} WHERE login != 0 AND status != 0")->fetchField();
+  return $count;
+}
+
+/**
  * Retrieves, increments, and stores api_user_count variable.
  */
 function _api_users_increment_count() {
   // Retrieve the current api_users_count from the database.
-  $current_count = variable_get('api_users_count', '');
+  $current_count = ($current_count = variable_get('api_users_count', FALSE)) ? $current_count : api_users_get_count();
 
   // Increment the returned counter by 1.
   $new_count = ++$current_count;
@@ -292,14 +301,16 @@ function api_users_user_login(&$edit, $account) {
  * Implements hook_cron().
  */
 function api_users_cron() {
-  // Check to see if the time is between 1AM and 1:19AM.
-  if ((date("Gi") >= '0100') && (date("Gi") <= '0119')) {
+  // Check to see when the last time cron was run.  If it's greater then 24
+  // hours, then run count check.
+  $last_cron = ($last_cron = variable_get('cron_last', FALSE)) ? $last_cront : time();
 
+  if ((time() - $last_cron) >= 86400) {
     // Retrieve the user count by directly querying the database.
-    $count = db_query("SELECT count(uid) FROM {users} WHERE login != 0 AND status != 0")->fetchField();
+    $count = api_users_get_count();
 
     // Retrieve the current api_users_count from the database.
-    $current_count = variable_get('api_users_count', '');
+    $current_count = ($current_count = variable_get('api_users_count', FALSE)) ? $current_count : api_users_get_count();
 
     // If the DB $count does not match the current_count, log the error and reset
     // the api_users_count variable.

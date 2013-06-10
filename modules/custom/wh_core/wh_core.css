@@ -37,7 +37,7 @@ form#user-pass .form-item {
 
 #user-register-form-wrapper .webform-description {
   margin: 12px 0px 25px 0px;
-  border-bottom: 1px solid #E6E6E6;  
+  border-bottom: 1px solid #E6E6E6;
 }
 
 #user-password-form-wrapper p {
@@ -103,12 +103,28 @@ form#user-register-form label {
   margin: 8px -32px 0px 0px;
 }
 
+form#user-register-form div.form-item-email-updates {
+  margin: 0;
+}
+
+form#user-register-form div.form-item-email-updates:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
 form#user-register-form div.form-item-email-updates label {
   float: right;
   font-weight: normal;
   font-size: small;
   width: 300px;
   margin: 0px 166px 10px 0px;
+}
+
+form#user-register-form .form-item-captcha-response label {
+  width: 384px;
 }
 
 form#user-login label,
@@ -128,10 +144,10 @@ form#user-pass label {
 
 /* Form input field styling */
 
-form#user-register-form .form-text, 
+form#user-register-form .form-text,
 form#user-login .form-text,
-form#user-pass .form-text, 
-#user-profile-form .form-text, 
+form#user-pass .form-text,
+#user-profile-form .form-text,
 #user-profile-form select {
   height: 25px;
 }
@@ -158,7 +174,7 @@ form#user-register-form .fieldset-legend {
 }
 
 form#user-register-form .form-item {
-  margin: 0em 0em 1em 0em;
+  10px 0px 10px 0px;
 }
 
 form#user-register-form .fieldset-description {
@@ -239,15 +255,15 @@ form#user-register-form  #edit-submit {
   text-indent: -9000px;
 }
 
-form#user-register-form #edit-submit, 
-form#user-register-form #edit-submit:hover, 
+form#user-register-form #edit-submit,
+form#user-register-form #edit-submit:hover,
 form#user-register-form #edit-submit:focus{
   background: url(../wh_core/img/login/user_account_create_account_btn.png);
   padding: 3px 108px 16px 109px;
   margin: 20px 0 20px 172px;
 }
 
-form#user-register-form #edit-submit:hover, 
+form#user-register-form #edit-submit:hover,
 form#user-register-form #edit-submit:focus{
   background-position: 0px 32px;
 }
@@ -259,15 +275,15 @@ form#user-login input#edit-submit {
   margin-left: 419px;
 }
 
-form#user-login input#edit-submit, 
-form#user-login input#edit-submit:hover, 
+form#user-login input#edit-submit,
+form#user-login input#edit-submit:hover,
 form#user-login input#edit-submit:focus {
   background: url(../wh_core/img/login/user_account_login_btn.png);
   width: 106px;
   height: 32px;
 }
 
-form#user-login input#edit-submit:hover, 
+form#user-login input#edit-submit:hover,
 form#user-login input#edit-submit:focus {
   background-position: 0px 32px;
 }
@@ -279,15 +295,39 @@ form#user-pass input#edit-submit {
   margin-left: 419px;
 }
 
-form#user-pass input#edit-submit, 
-form#user-pass input#edit-submit:hover, 
+form#user-pass input#edit-submit,
+form#user-pass input#edit-submit:hover,
 form#user-pass input#edit-submit:focus {
   background: url(../wh_core/img/login/user_account_submit_btn.png);
   width: 101px;
   height: 33px;
 }
 
-form#user-pass input#edit-submit:hover, 
+form#user-pass input#edit-submit:hover,
 form#user-pass input#edit-submit:focus {
   background-position: 0px 32px;
+}
+
+form#user-register-form fieldset.captcha {
+  margin: 0px 0px 0px 53px;
+}
+
+form#user-register-form .fieldset-description {
+  margin: 0px 0px 10px 117px;
+}
+
+form#user-register-form .form-item-captcha-response label {
+  width: 112px;
+  text-indent: 0px;
+}
+
+form#user-register-form span.textcaptcha-question {
+  position: relative;
+  left: 388px;
+  width: 384px;
+  float: right;
+  margin: -28px 0px 0px 0px;
+}
+form#user-register-form input#edit-captcha-response {
+  margin: 46px 0px 0px 36px;
 }
