@@ -111,3 +111,12 @@ function petitions_maintenance_update_7004() {
   // looks funky.
   cache_clear_all();
 }
+
+/**
+ * Implements hook_update_N().
+ * 
+ * Clean up variables table from old textcaptcha cache variables.
+ */
+function petitions_maintenance_update_7005() {
+  db_query("DELETE FROM {variable} WHERE name = ':var'", array(':var' => 'textcaptcha_cache_limit'));
+}

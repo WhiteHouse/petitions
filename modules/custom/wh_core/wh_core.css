@@ -123,10 +123,6 @@ form#user-register-form div.form-item-email-updates label {
   margin: 0px 166px 10px 0px;
 }
 
-form#user-register-form .form-item-captcha-response label {
-  width: 384px;
-}
-
 form#user-login label,
 form#user-pass label {
   color: #666666 !important;
@@ -316,9 +312,21 @@ form#user-register-form .fieldset-description {
   margin: 0px 0px 10px 117px;
 }
 
-form#user-register-form .form-item-captcha-response label {
+form#user-register-form span.textcaptcha-challenge-description {
   width: 108px;
+  float: left;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+form#user-register-form .form-item-captcha-response label {
+  width: 384px;
+  margin-top: 0;
   text-indent: 0px;
+}
+
+form#user-register-form .form-item-captcha-response label .form-required {
+  display: none;
 }
 
 form#user-register-form span.textcaptcha-question {
@@ -329,5 +337,5 @@ form#user-register-form span.textcaptcha-question {
   margin: -28px 0px 0px 0px;
 }
 form#user-register-form input#edit-captcha-response {
-  margin: 46px 0px 0px 36px;
+  margin: 10px 0px 0px 118px;
 }

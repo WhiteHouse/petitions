@@ -1,6 +1,31 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta20 -> 7.x-2.0-beta21
+-----------------------------------------------
+
+Release notes:
+
+  - Several changes to the textCAPTCHA module:
+    - Make it more accessible
+    - Store and manage challenge questions locally in textcaptcha tables (rather than cache table)
+    - Give site admin option to disable fetching/processing questions on cron
+    - Add Drush command for requesting and storing questions/answers
+
+Update steps:
+
+  Update steps:
+
+  1. Deploy new code
+
+  2. Run update.php
+
+  3. Clear caches
+
+  4. Set up Text CAPTCHA by geting an API key at http://textcaptcha.com/.
+  Then go to the admin configuration page (admin/config/people/captcha/textcaptcha)
+  to save your key and retrieve some challenge questions.
+
 Version 7.x-2.0-beta19 -> 7.x-2.0-beta20
 -----------------------------------------------
 
