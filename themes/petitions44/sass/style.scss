@@ -4526,3 +4526,131 @@ text-transform:uppercase;
   position: relative;
   z-index: 100;
 }
+
+/* Services Documentation */
+.section-developers {
+  #petition-inner {
+    padding: 0;
+
+    #main-content-wrapper {
+      width: 100%;
+
+      .services-documentation-version {
+        pre {
+          color: black;
+          border: 1px dotted grey;
+          font-family: courier;
+          font-size: .9em;
+          padding: 10px;
+          margin-left: 20px;
+        }
+
+        h1 {
+          color: #669900;
+          font-size: 1.667em;
+          letter-spacing: 0.04em;
+          margin: 20px 0;
+        }
+
+        h2 {
+          font-size: 2em;
+          margin: 1em 0;
+        }
+
+        h3 {
+          font-size: 1.5em;
+          margin: 1em 0;
+          text-decoration: underline;
+        }
+
+        h4 {
+          font-size: 1.4em;
+          margin: 1em 0;
+        }
+
+        h5 {
+          font-size: 1.2em;
+          margin: .5em 0;
+        }
+
+        h6 {
+          font-size: 1.1em;
+          margin: .25em 0;
+        }
+
+        .services-version-description {
+          border-bottom: double black;
+          margin: 0 0 2em 0;
+        }
+
+        .services-documentation-toc {
+          border-bottom: double black;
+          margin: 0 0 2em 0;
+        }
+        .services-documentation-resources {
+
+          .services-documentation-resource {
+            padding: 0;
+            border: none;
+
+            .resource-title {}
+            .resource-description {}
+            .resource-limit {}
+            .resource-method-bundle {
+              .bundle-title {
+                text-transform: capitalize;
+              }
+
+              .resource-method {
+                .method-name {}
+                .method-description {}
+                .method-arguments {
+                  ul {
+                    li.method-argument {
+                      margin: 0 0 1em 1.5em;
+
+                      .argument-title {
+                        .argument-type {}
+                        .argument-key {}
+                        .argument-source {}
+                      }
+                      .argument-description {}
+                    }
+                  }
+                }
+                .method-request {
+                  .request-title {}
+                  .request-body {}
+                }
+                .method-response {
+                  .response-title {}
+                  .response-body {}
+                }
+                .implementations {
+                  .implementations-title {}
+                  .implementation-bundle {
+                    .implementation-bundle-language {}
+                    .implementation {
+                      .implementation-name {
+                        font-weight: bold;
+                        margin: 0 0 .25em 0;
+                      }
+                      .implementation-uses-sdk {}
+                      .implementation-description {}
+                      .implementation-files {}
+                      .implementation-download {
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        margin: .25em 0;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

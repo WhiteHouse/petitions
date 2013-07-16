@@ -11,7 +11,7 @@ class PetitionsRetrieveMongoRaw extends PetitionsRetrieveBase implements IPetiti
    */
   public function __construct() {
     $this->setCollection(mongodb_collection('petitions'));
-    $this->setExecutionTime(microtime());
+    $this->setExecutionTime(microtime(TRUE));
   }
 
   /**

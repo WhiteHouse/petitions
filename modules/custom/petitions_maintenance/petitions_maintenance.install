@@ -69,7 +69,7 @@ function petitions_maintenance_update_7003() {
 
 /**
  * Implements hook_update_N().
- * 
+ *
  * Enable textcaptcha module. Replace recaptcha with textcaptcha.
  */
 function petitions_maintenance_update_7004() {
@@ -114,9 +114,38 @@ function petitions_maintenance_update_7004() {
 
 /**
  * Implements hook_update_N().
- * 
+ *
  * Clean up variables table from old textcaptcha cache variables.
  */
 function petitions_maintenance_update_7005() {
   db_query("DELETE FROM {variable} WHERE name = ':var'", array(':var' => 'textcaptcha_cache_limit'));
+}
+
+/**
+ * Sets default intro text for services_documentation, update menu link.
+ */
+function petitions_maintenance_update_7006() {
+  $intro_text = '<h1>We the People API</h1>
+<p>The We the People API currently provides read-only access to data within <a href="http://petitions.whitehouse.gov/">We the People</a>, the White House petitions system. This API provides access to data on all petitions that passed the 150 signature threshold required to become publicly-available on the site. We\'ve also published a <a href="https://petitions.whitehouse.gov/how-why/api-gallery">gallery of projects leveraging the We the People API</a>, including links to live examples and GitHub repositories.</p>
+<p><strong>Bulk Data Download:</strong> For those who don\'t need real time data, we\'ve provided a SQL dump of the same dataset exposed via the API. You can download it here: <a href="https://api.whitehouse.gov/v1/downloads/data.sql.zip">https://api.whitehouse.gov/v1/downloads/data.sql.zip</a> (203.5 MB, last updated 5/1/2013)</p>
+<p>Developers and users leveraging the We the People API should keep the stability of the API\'s infrastructure and their own applications in mind. Individual users issuing requests in excess of 10 per second will experience degraded performance and may be blocked entirely. Additionally, there is currently a maximum limit of 1000 results per request. Having problems? <a href="http://www.whitehouse.gov/developers/feedback">Contact us</a>.</p>
+<p>To learn more about open data and open source projects at the White House, visit <a href="http://www.whitehouse.gov/developers">WhiteHouse.gov/developers</a> or follow our tech team on Twitter <a href="http://twitter.com/whweb">@WHWeb</a>.</p>';
+
+  variable_set('services_documentation_intro', $intro_text);
+  variable_set('petitions_data_petitions_api_url', 'api.whitehouse.gov');
+
+  $num_updated = db_update('menu_links')
+    ->fields(array(
+       'router_path' => 'developers/1000',
+       'link_path' => 'developers/1000',
+    ))
+    ->condition('mlid', 6791)
+    ->execute();
+}
+
+/**
+ * Sets default method verbs for services_documentation.
+ */
+function petitions_maintenance_update_7007() {
+  variable_set('services_documentation_verbs', 'http');
 }

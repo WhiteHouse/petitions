@@ -13,6 +13,8 @@
  */
 function api_petitions_services_resources() {
   $resources = array();
+  $petitions_default_limit = variable_get('api_petitions_index_max_limit', 1000);
+  $signatures_default_limit = variable_get('api_petitions_signatures_index_max_limit', 1000);
 
   $resources['petitions'] = array(
     'operations' => array(
@@ -73,7 +75,7 @@ function api_petitions_services_resources() {
             'name' => 'limit',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => 'The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
+            'description' => "The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is $petitions_default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.",
             'default value' => 10,
             'source' => array('param' => 'limit'),
           ),
@@ -266,7 +268,7 @@ function api_petitions_services_resources() {
             'name' => 'limit',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => 'The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
+            'description' => "The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is $signatures_default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.",
             'default value' => 1000,
             'source' => array('param' => 'limit'),
           ),
@@ -344,7 +346,6 @@ function _api_petitions_resource_index($created_before, $created_after, $created
   global $base_url;
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
-
   $public_threshold = variable_get('wh_petitions_public_signatures', 150) - 1;
 
   // Return mock response.
@@ -443,8 +444,10 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
 function _api_petitions_retrieve_doc() {
   $element = array(
     '#name' => t('Retrieve'),
+    '#path' => '/petitions/{petition_id}',
+    '#weight' => 2,
     '#description' => t('Returns a petition matching the petition id.'),
-    '#request' => '/v1/petitions/50cb6d2ba9a0b1c52e000017.json',
+    '#request' => variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50cb6d2ba9a0b1c52e000017.json',
     '#response' => _api_petitions_mock_response('retrieve'),
     '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
   );
@@ -489,8 +492,12 @@ function _api_petitions_retrieve_doc_example_implementations() {
 function _api_petitions_index_doc() {
   $element = array(
     '#name' => t('Index'),
-    '#description' => t('Returns a list of petitions matching passed parameters.'),
-    '#request' => '/v1/petitions.json?limit=3&offset=0',
+    '#path' => '/petitions',
+    '#weight' => 1,
+    '#description' => t('Returns a list of petitions, individual petitions, and signatures attached to an individual petition. Unsupported non-Latin characters are replaced with an "x".
+
+Limits: 10 requests per second. Developers who need historic data on all public petitions should consider using our bulk data download, described above.'),
+    '#request' => variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions.json?limit=3&offset=0',
     '#response' => _api_petitions_mock_response('index'),
   );
 
@@ -503,8 +510,10 @@ function _api_petitions_index_doc() {
 function _api_petitions_load_signatures_doc() {
   $element = array(
     '#name' => t('Signatures List'),
-    '#description' => t('Display signatures attached to a petition.'),
-    '#request' => '/v1/petitions/50cb6d2ba9a0b1c52e000017/signatures.json?limit=16&offset=0',
+    '#path' => '/petitions/{petition_id}/signatures',
+    '#weight' => 3,
+    '#description' => t('Display signatures attached to a petition. Unsupported non-Latin characters are replaced with an "x".'),
+    '#request' => variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50cb6d2ba9a0b1c52e000017/signatures.json?limit=16&offset=0',
     '#response' => _api_petitions_mock_response('load_signatures'),
   );
 
@@ -529,7 +538,7 @@ function _api_petitions_mock_response($method) {
       break;
 
   }
-  $response = file_get_contents(__DIR__ . '/example_responses/' . $file);
+  $response = file_get_contents(drupal_get_path('module', 'api_petitions') . '/example_responses/' . $file);
   return $response;
 }
 
@@ -537,6 +546,24 @@ function _api_petitions_mock_response($method) {
  * Returns an example implementation's code for petitions methods.
  */
 function _api_petitions_example_implementation($method, $language, $example) {
-  $directory = __DIR__ . '/example_implementations/' . $language . '/' . $example;
+  $directory = drupal_get_path('module', 'api_petitions') . '/example_implementations/' . $language . '/' . $example;
   return $directory;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function api_petitions_form_petitions_data_form_alter(&$form, &$form_state) {
+  $form['petitions_data_limits']['api_petitions_index_max_limit'] = array(
+    '#title' => t('Petitions maximum result limit'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('api_petitions_index_max_limit', 1000),
+    '#element_validate' => array('element_validate_number'),
+  );
+  $form['petitions_data_limits']['api_petitions_signatures_index_max_limit'] = array(
+    '#title' => t('Signatures maximum result limit'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('api_petitions_signatures_index_max_limit', 1000),
+    '#element_validate' => array('element_validate_number'),
+  );
 }

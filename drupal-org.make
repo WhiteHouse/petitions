@@ -113,7 +113,7 @@ projects[recaptcha][subdir] = contrib
 projects[rules][version] = 2.2
 projects[rules][subdir] = contrib
 
-projects[services_documentation][version] = 1.0-beta5
+projects[services_documentation][version] = 1.0-beta6
 projects[services_documentation][subdir] = contrib
 
 projects[shunt][version] = 1.0

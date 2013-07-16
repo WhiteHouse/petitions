@@ -14,7 +14,7 @@ class SignaturesBase {
   protected $endDate;
   protected $createdDate;
   protected $limit;
-  protected $maxReturnLimit = 1000;
+  protected $maxReturnLimit;
   protected $offset;
   protected $nameFormat;
   protected $locationFormat;
@@ -147,6 +147,16 @@ class SignaturesBase {
         $limit = $this->maxReturnLimit;
       }
       $this->limit = $limit;
+    }
+    return $this;
+  }
+
+  /**
+   * Set accessor for $this->maxReturnLimit.
+   */
+  protected function setMaxReturnLimit($maxReturnLimit) {
+    if (is_numeric($maxReturnLimit)) {
+      $this->maxReturnLimit = $maxReturnLimit;
     }
     return $this;
   }
@@ -339,6 +349,16 @@ class SignaturesBase {
   }
 
   /**
+   * Get accessor for $this->maxReturnLimit.
+   *
+   * @return int
+   *   Max number of results to return
+   */
+  protected function getMaxReturnLimit() {
+    return intval($this->maxReturnLimit);
+  }
+
+  /**
    * Get accessor for $this->offset.
    *
    * @return int
@@ -511,7 +531,7 @@ class SignaturesBase {
    * Helper function to calculate the executionTime of the load function.
    */
   protected function calcExecutionTime() {
-    return microtime() - $this->getExecutionTime();
+    return microtime(TRUE) - $this->getExecutionTime();
   }
 
   /**

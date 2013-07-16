@@ -469,14 +469,14 @@ permanent solution will need to be created in the future. */
 #petition-header ul.secondary-links li.menu-5401 a {
   padding-right: 5px;
   margin-right: 5px;
-  border-right: 1px solid #FFFFFF;
+  border-right: 1px solid white;
 }
 
 /* line 397, ../sass/style.scss */
 #petition-header ul.secondary-links li.menu-5396 a {
   padding-right: 5px;
   margin-right: 5px;
-  border-right: 1px solid #FFFFFF;
+  border-right: 1px solid white;
 }
 
 /* END OF CUSTOM CODE */
@@ -826,7 +826,7 @@ h1.title {
   /* for webkit browsers */
   background: -moz-linear-gradient(top, #e1e1e1, #b7b7b7);
   /* for firefox 3.6+ */
-  border-top: 1px solid #FFF;
+  border-top: 1px solid white;
   padding: 0 10px 0 16px;
   border-bottom-right-radius: 5px;
   -moz-border-radius-bottomright: 5px;
@@ -834,7 +834,7 @@ h1.title {
   border-bottom-left-radius: 5px;
   -moz-border-radius-bottomleft: 5px;
   -webkit-border-radius-bottomleft: 5px;
-  text-shadow: 0 1px 0 #ffffff;
+  text-shadow: 0 1px 0 white;
 }
 
 /* line 719, ../sass/style.scss */
@@ -845,7 +845,7 @@ h1.title {
 /* line 723, ../sass/style.scss */
 .petition-list .responses .response-entry .action-bar, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
   background: url(../img/bg-action-bar-grey.png) repeat-x;
-  border-top: 1px solid #FFF;
+  border-top: 1px solid white;
   padding: 0 10px 0 16px;
   border-bottom-right-radius: 5px;
   -moz-border-radius-bottomright: 5px;
@@ -853,7 +853,7 @@ h1.title {
   border-bottom-left-radius: 5px;
   -moz-border-radius-bottomleft: 5px;
   -webkit-border-radius-bottomleft: 5px;
-  text-shadow: 0 1px 0 #ffffff;
+  text-shadow: 0 1px 0 white;
 }
 
 /* line 736, ../sass/style.scss */
@@ -1610,7 +1610,7 @@ input#button-filter-petitions {
 .response-filter ul li {
   float: left;
   list-style-type: none;
-  text-shadow: 0 1px 0 #dcdcdc;
+  text-shadow: 0 1px 0 gainsboro;
 }
 
 /* line 1375, ../sass/style.scss */
@@ -1818,7 +1818,7 @@ li.view-one-column a:hover {
   padding: 5px 0 0 0;
   font-size: 1.083em;
   -moz-box-shadow: 0 0 3px #ececec;
-  -webkit-box-shadow: 0 0 3px#ececec;
+  -webkit-box-shadow: 0 0 3px #ececec;
   box-shadow: 0 0 3px #ececec;
   float: left;
   margin-right: 12px;
@@ -1939,7 +1939,7 @@ li.view-one-column a:hover {
 .modal form textarea,
 .modal form input.input-text,
 #sign-in input.input-text {
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   border-bottom: 1px solid #e5e5e5;
   background: #fdfdfd url(../img/bg-textarea.png) repeat-x;
   font-size: 1.167em;
@@ -2086,7 +2086,7 @@ h2.trigger {
   height: 36px;
   line-height: 36px;
   padding: 0 15px;
-  border-bottom: 1px solid #FFF;
+  border-bottom: 1px solid white;
   color: #737373;
   display: block;
   cursor: pointer;
@@ -2125,7 +2125,7 @@ h2.trigger:hover {
 #qa-content h2.trigger {
   background: none;
   filter: none;
-  border-bottom: 1px solid #CCC;
+  border-bottom: 1px solid #cccccc;
 }
 
 /* line 1819, ../sass/style.scss */
@@ -2480,9 +2480,9 @@ form#form-sign-this-petition textarea#add-comment-with-sig {
   padding: 10px 10px 0 0;
   z-index: 500;
   position: absolute;
-  -moz-box-shadow: 0 0 3px #000000;
-  -webkit-box-shadow: 0 0 3px #000000;
-  box-shadow: 0 0 3px #000000;
+  -moz-box-shadow: 0 0 3px black;
+  -webkit-box-shadow: 0 0 3px black;
+  box-shadow: 0 0 3px black;
   background: #FFF;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -2764,9 +2764,9 @@ input#button-report-this-petition {
 .modal {
   z-index: 100;
   position: absolute;
-  -moz-box-shadow: 0 0 3px #000000;
-  -webkit-box-shadow: 0 0 3px #000000;
-  box-shadow: 0 0 3px #000000;
+  -moz-box-shadow: 0 0 3px black;
+  -webkit-box-shadow: 0 0 3px black;
+  box-shadow: 0 0 3px black;
 }
 
 /* line 2386, ../sass/style.scss */
@@ -3511,7 +3511,7 @@ img.img-float-right {
 
 /* line 3012, ../sass/style.scss */
 #how-why-content .api-project img {
-  border: 1px solid #d3d3d3;
+  border: 1px solid lightgrey;
 }
 
 /* line 3016, ../sass/style.scss */
@@ -4406,7 +4406,7 @@ li#profile-info a:hover span, #your-comments a:hover span {
 
 /* line 3715, ../sass/style.scss */
 #user-page #content, #forgot-pass, #user-profile-form #content {
-  border-right: 1px solid #CECECE !important;
+  border-right: 1px solid #cecece !important;
   float: left;
   margin: 40px 10px 20px 70px !important;
   padding: 0px 30px 0px 0px !important;
@@ -4632,7 +4632,7 @@ li#profile-info a:hover span, #your-comments a:hover span {
 /* line 3904, ../sass/style.scss */
 #register #recaptcha_response_field {
   background: url(../img/backgrounds/bg-form-item.png) repeat-x scroll 0 0 #fdfdfd;
-  border-color: #CECECE #DCDCDC #DCDCDC !important;
+  border-color: #cecece gainsboro gainsboro !important;
   border-style: solid !important;
   border-width: 1px !important;
   color: #666666;
@@ -4649,17 +4649,17 @@ li#profile-info a:hover span, #your-comments a:hover span {
 /* line 3917, ../sass/style.scss */
 .user-message ul {
   display: block;
-  background: none repeat scroll 0 0 #FFCCCC;
+  background: none repeat scroll 0 0 #ffcccc;
   color: #220000;
   padding: 2px;
-  border: 1px solid #DD7777;
+  border: 1px solid #dd7777;
   list-style: none;
   font-weight: bold;
   width: 900px;
   margin: 20px 0px;
-  -moz-box-shadow: 1px 1px 1px #333;
-  -webkit-box-shadow: 1px 1px 1px #333;
-  box-shadow: 1px 1px 2px #333;
+  -moz-box-shadow: 1px 1px 1px #333333;
+  -webkit-box-shadow: 1px 1px 1px #333333;
+  box-shadow: 1px 1px 2px #333333;
 }
 
 /* line 3931, ../sass/style.scss */
@@ -4907,7 +4907,7 @@ p#what-is-openid {
 /* line 4099, ../sass/style.scss */
 .change-password-form-elements #edit-pass-wrapper .form-text {
   background: #fdfdfd url(../img/backgrounds/bg-form-item.png) repeat-x scroll 0 0;
-  border-color: #CECECE #DCDCDC #DCDCDC;
+  border-color: #cecece gainsboro gainsboro;
   border-style: solid;
   border-width: 1px;
   color: #666666;
@@ -5053,7 +5053,7 @@ input#edit-submit {
 
 /* line 4197, ../sass/style.scss */
 .main-content #forgot-pass h1 {
-  border-bottom: 1px solid #CECECE;
+  border-bottom: 1px solid #cecece;
   color: #666;
   font-size: 1.75em;
   font-weight: normal;
@@ -5151,7 +5151,7 @@ input#edit-submit {
 /* line 4277, ../sass/style.scss */
 #recaptcha_response_field {
   background: #fdfdfd url(../img/backgrounds/bg-form-item.png) repeat-x scroll 0 0;
-  border-color: #CECECE #DCDCDC #DCDCDC;
+  border-color: #cecece gainsboro gainsboro;
   border-style: solid;
   border-width: 1px;
   color: #666666;
@@ -5210,7 +5210,7 @@ body.full-white #right-rail {
 
 /* line 4319, ../sass/style.scss */
 #user-page #profile-header {
-  border-bottom: 1px solid #DDDDDD;
+  border-bottom: 1px solid #dddddd;
 }
 
 /* line 4323, ../sass/style.scss */
@@ -5223,7 +5223,7 @@ body.full-white #right-rail {
 #account-profile {
   margin: 10px 0;
   padding: 0 0 10px 0;
-  border-bottom: 1px solid #E6E6E6;
+  border-bottom: 1px solid #e6e6e6;
 }
 
 /* line 4334, ../sass/style.scss */
@@ -5247,7 +5247,7 @@ body.full-white #right-rail {
 
 /* line 4350, ../sass/style.scss */
 #account-profile {
-  border-bottom: 1px solid #DDDDDD;
+  border-bottom: 1px solid #dddddd;
   padding-bottom: 10px;
   margin-bottom: 15px;
   margin-top: 15px;
@@ -5369,16 +5369,16 @@ body.full-white #right-rail {
 
 /* line 4443, ../sass/style.scss */
 #user-profile-form ul.secondary li.active {
-  border-left: 1px solid #DDDDDD;
-  border-right: 1px solid #DDDDDD;
-  border-top: 1px solid #DDDDDD;
+  border-left: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
   border-bottom: 1px solid white;
   padding-bottom: 6px;
 }
 
 /* line 4451, ../sass/style.scss */
 #user-profile-form ul.secondary {
-  border-bottom: 1px solid #DDDDDD;
+  border-bottom: 1px solid #dddddd;
 }
 
 /* line 4454, ../sass/style.scss */
@@ -5410,8 +5410,8 @@ body.full-white #right-rail {
 /* line 4477, ../sass/style.scss */
 .page-user-edit ul.petitions44-user-edit {
   width: 600px;
-  border-top: 1px solid #BBBBBB;
-  border-bottom: 1px solid #BBBBBB;
+  border-top: 1px solid #bbbbbb;
+  border-bottom: 1px solid #bbbbbb;
   margin: 5px;
   margin: 0px 5px 5px 5px;
   padding: 10px 5px 10px 5px;
@@ -5419,7 +5419,7 @@ body.full-white #right-rail {
 
 /* line 4486, ../sass/style.scss */
 .page-user-edit ul.petitions44-user-edit li {
-  border-right: 1px solid #CCCCCC;
+  border-right: 1px solid #cccccc;
   display: inline;
   padding: 0 1em;
 }
@@ -5466,4 +5466,90 @@ body.full-white #right-rail {
   padding: 8px 0px 0px 70px;
   position: relative;
   z-index: 100;
+}
+
+/* Services Documentation */
+/* line 4532, ../sass/style.scss */
+.section-developers #petition-inner {
+  padding: 0;
+}
+/* line 4535, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper {
+  width: 100%;
+}
+/* line 4539, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version pre {
+  color: black;
+  border: 1px dotted grey;
+  font-family: courier;
+  font-size: .9em;
+  padding: 10px;
+  margin-left: 20px;
+}
+/* line 4548, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version h1 {
+  color: #669900;
+  font-size: 1.667em;
+  letter-spacing: 0.04em;
+  margin: 20px 0;
+}
+/* line 4555, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version h2 {
+  font-size: 2em;
+  margin: 1em 0;
+}
+/* line 4560, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version h3 {
+  font-size: 1.5em;
+  margin: 1em 0;
+  text-decoration: underline;
+}
+/* line 4566, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version h4 {
+  font-size: 1.4em;
+  margin: 1em 0;
+}
+/* line 4571, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version h5 {
+  font-size: 1.2em;
+  margin: 0.5em 0;
+}
+/* line 4576, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version h6 {
+  font-size: 1.1em;
+  margin: 0.25em 0;
+}
+/* line 4581, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-version-description {
+  border-bottom: double black;
+  margin: 0 0 2em 0;
+}
+/* line 4586, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc {
+  border-bottom: double black;
+  margin: 0 0 2em 0;
+}
+/* line 4592, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource {
+  padding: 0;
+  border: none;
+}
+/* line 4600, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .bundle-title {
+  text-transform: capitalize;
+}
+/* line 4609, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument {
+  margin: 0 0 1em 1.5em;
+}
+/* line 4634, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-name {
+  font-weight: bold;
+  margin: 0 0 0.25em 0;
+}
+/* line 4641, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-download {
+  font-weight: bold;
+  text-transform: uppercase;
+  margin: 0.25em 0;
 }

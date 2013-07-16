@@ -72,7 +72,7 @@ function api_responses_services_resources() {
             'name' => 'limit',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => 'The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
+            'description' => 'The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is 1000; developers who need historic data on all public petitions should consider using our bulk data download, described above.',
             'default value' => 10,
             'source' => array('param' => 'limit'),
           ),
@@ -138,6 +138,8 @@ function _api_responses_resource_index($created_before, $created_after, $created
 function _api_responses_retrieve_doc() {
   $element = array(
     '#name' => t('Retrieve'),
+    '#path' => '/responses/{response_id}',
+    '#weight' => 2,
     '#description' => t('Returns a response matching the response id.'),
     '#request' => '/v1/responses/50cb6d2ba9a0b1c52e000017.json',
     '#response' => _api_responses_mock_response('retrieve'),
@@ -153,6 +155,8 @@ function _api_responses_retrieve_doc() {
 function _api_responses_index_doc() {
   $element = array(
     '#name' => t('Index'),
+    '#path' => '/responses',
+    '#weight' => 1,
     '#description' => t('Returns a list of responses matching passed parameters.'),
     '#request' => '/v1/responses.json?limit=3&offset=0',
     '#response' => _api_responses_mock_response('index'),

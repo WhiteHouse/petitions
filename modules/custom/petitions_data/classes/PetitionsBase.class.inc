@@ -139,7 +139,7 @@ class PetitionsBase {
    *   Unique string identifier for a petition.
    */
   protected function calcExecutionTime() {
-    return microtime() - $this->getExecutionTime();
+    return microtime(TRUE) - $this->getExecutionTime();
   }
 
   /**

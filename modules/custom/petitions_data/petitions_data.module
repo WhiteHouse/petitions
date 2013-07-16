@@ -10,7 +10,7 @@
 function petitions_data_menu() {
   $items = array();
 
-  $items['admin/config/api/petitions_data'] = array(
+  $items['admin/config/services/petitions_data'] = array(
     'title' => 'Petitions Data Settings',
     'description' => 'Configure settings for the Petitions Data module.',
     'page callback' => 'drupal_get_form',
@@ -32,9 +32,22 @@ function petitions_data_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Petitions Website URL'),
     '#default_value' => variable_get('petitions_data_petitions_website_url', $base_url),
-    '#description' => t('Enter a website URL used to generate links to petitions.'),
+    '#description' => t('Enter a website URL used to generate links to petitions site.'),
     '#required' => FALSE,
   );
+  $form['petitions_data_petitions_api_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Petitions API URL'),
+    '#default_value' => variable_get('petitions_data_petitions_api_url', $base_url),
+    '#description' => t('Enter an API URL used to generate links to API.'),
+    '#required' => FALSE,
+  );
+  $form['petitions_data_limits'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Resource limits'),
+    '#description' => t('Limit maximum resultset size for resources'),
+  );
+
   if (module_exists('petitions_signatures_display')) {
     $form['petitions_data_signatures_display_names'] = array(
       '#type' => 'checkbox',

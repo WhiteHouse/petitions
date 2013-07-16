@@ -10,7 +10,7 @@ class PetitionsIndexBase extends PetitionsBase {
   protected $endDate;
   protected $createdDate;
   protected $limit;
-  protected $maxReturnLimit = 1000;
+  protected $maxReturnLimit;
   protected $offset;
   protected $title;
   protected $body;
@@ -92,13 +92,23 @@ class PetitionsIndexBase extends PetitionsBase {
    *
    * @return SignaturesMongoRaw
    *   Returns current instance of object.
-   */
+nah, nah   */
   public function setLimit($limit) {
     if (is_numeric($limit)) {
       if ($limit > $this->maxReturnLimit) {
         $limit = $this->maxReturnLimit;
       }
       $this->limit = $limit;
+    }
+    return $this;
+  }
+
+  /**
+   * Set accessor for $this->maxReturnLimit.
+   */
+  protected function setMaxReturnLimit($maxReturnLimit) {
+    if (is_numeric($maxReturnLimit)) {
+      $this->maxReturnLimit = $maxReturnLimit;
     }
     return $this;
   }
@@ -502,6 +512,16 @@ class PetitionsIndexBase extends PetitionsBase {
     }
 
     return intval($this->limit);
+  }
+
+  /**
+   * Get accessor for $this->maxReturnLimit.
+   *
+   * @return int
+   *   Max number of results to return
+   */
+  protected function getMaxReturnLimit() {
+    return intval($this->maxReturnLimit);
   }
 
   /**

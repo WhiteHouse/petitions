@@ -12,6 +12,7 @@
  */
 function api_users_services_resources() {
   $resources = array();
+  $default_limit = variable_get("api_users_index_max_limit", 100);
 
   $resources['users'] = array(
     'index' => array(
@@ -48,7 +49,7 @@ function api_users_services_resources() {
           'name' => 'limit',
           'optional' => TRUE,
           'type' => 'int',
-          'description' => 'The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.',
+          'description' => "The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is $default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.",
           'default value' => 10,
           'source' => array('param' => 'limit'),
         ),
@@ -232,6 +233,8 @@ function api_users_services_account_object_alter($account) {
 function _api_users_index_doc() {
   $element = array(
     '#name' => t('Index'),
+    '#path' => '/users',
+    '#weight' => 1,
     '#description' => t('Returns a list of users matching passed parameters.'),
     '#request' => '/v1/users.json?limit=100&offset=0',
     '#response' => _api_users_mock_response(),
@@ -244,7 +247,7 @@ function _api_users_index_doc() {
  * Returns a mock response for the users index method.
  */
 function _api_users_mock_response() {
-  $response = file_get_contents(__DIR__ . '/example_responses/api_users_index.response.json');
+  $response = file_get_contents(drupal_get_path('module', 'api_users') . '/example_responses/api_users_index.response.json');
   return $response;
 }
 
@@ -321,4 +324,16 @@ function api_users_cron() {
       variable_set('api_users_count', $count);
     }
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function api_users_form_petitions_data_form_alter(&$form, &$form_state) {
+  $form['petitions_data_limits']['api_users_index_max_limit'] = array(
+    '#title' => t('Users maximum result limit'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('api_users_index_max_limit', 100),
+    '#element_validate' => array('element_validate_number'),
+  );
 }

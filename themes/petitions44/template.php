@@ -236,3 +236,10 @@ function _petitions44_help_text() {
   }
   return $petitions44_help_text;
 }
+
+/**
+ * Preprocess services_documentation_version template.
+ */
+function template_preprocess_services_documentation_version(&$vars) {
+  $vars['left_nav'] = wh_petition_tool_left_nav();
+}
