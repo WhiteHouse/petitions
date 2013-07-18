@@ -1,6 +1,23 @@
 UPDATE
 ======
 
+Version 7.x-2.0-beta22 -> 7.x-2.0-beta23
+-----------------------------------------------
+
+Release notes:
+
+  - Removed the Users resource from the petitions_api Features module
+
+Update steps:
+
+  Update steps:
+
+  1. Deploy new code
+
+  2. Run update.php
+
+  3. Clear caches
+
 Version 7.x-2.0-beta21 -> 7.x-2.0-beta22
 -----------------------------------------------
 

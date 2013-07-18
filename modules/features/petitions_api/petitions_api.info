@@ -5,7 +5,6 @@ package = Petitions API
 dependencies[] = ctools
 dependencies[] = services
 dependencies[] = rest_server
-dependencies[] = api_users
 dependencies[] = api_petitions
 features[ctools][] = services:services:3
 features[features_api][] = api:1
@@ -16,4 +15,11 @@ features[services_endpoint][] = api_v1
 version = ""
 project = "petitions"
 datestamp = "1359587545"
+
+
+
+; Information added by drush on 2013-07-16
+version = ""
+project = "petitions"
+datestamp = "1374011942"
 

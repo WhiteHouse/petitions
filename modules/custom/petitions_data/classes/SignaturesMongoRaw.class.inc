@@ -12,6 +12,7 @@ class SignaturesMongoRaw extends SignaturesBase implements ISignaturesRaw {
   public function __construct() {
     $this->setCollection(mongodb_collection('petition_signatures'));
     $this->setExecutionTime(microtime());
+    $this->setMaxReturnLimit();
   }
 
   /**

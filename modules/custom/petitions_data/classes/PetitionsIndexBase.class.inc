@@ -106,7 +106,7 @@ nah, nah   */
   /**
    * Set accessor for $this->maxReturnLimit.
    */
-  protected function setMaxReturnLimit($maxReturnLimit) {
+  public function setMaxReturnLimit($maxReturnLimit) {
     if (is_numeric($maxReturnLimit)) {
       $this->maxReturnLimit = $maxReturnLimit;
     }

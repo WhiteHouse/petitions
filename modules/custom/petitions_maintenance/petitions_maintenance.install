@@ -149,3 +149,37 @@ function petitions_maintenance_update_7006() {
 function petitions_maintenance_update_7007() {
   variable_set('services_documentation_verbs', 'http');
 }
+
+/**
+ * Disables the api_users and petitions_stats_users modules and updates
+ * Services Documentation settings.
+ */
+function petitions_maintenance_update_7008() {
+  // Delete the stale path alias.
+  if ($path = path_load(array('alias' => variable_get('services_documentation_base_path')))) {
+    path_delete($path);
+  }
+
+  // Update variable.
+  $variables = array(
+    'services_documentation_toc' => 0,
+    'services_documentation_base_path' => 'developers',
+    'services_documentation_homepage' => 'developers/1000',
+  );
+  foreach ($variables as $variable => $value) {
+    variable_set($variable, $value);
+  }
+
+  // Update path alias.
+  $path = array(
+    'source' => variable_get('services_documentation_homepage'),
+    'alias' => variable_get('services_documentation_base_path'),
+  );
+  path_save($path);
+
+  $modules = array (
+    'api_users',
+  );
+
+  module_disable($modules, TRUE);
+}

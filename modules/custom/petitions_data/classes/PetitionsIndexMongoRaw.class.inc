@@ -12,6 +12,7 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
   public function __construct() {
     $this->setCollection(mongodb_collection('petitions'));
     $this->setExecutionTime(microtime());
+    $this->setMaxReturnLimit();
   }
 
   /**

@@ -13,8 +13,6 @@
  */
 function api_petitions_services_resources() {
   $resources = array();
-  $petitions_default_limit = variable_get('api_petitions_index_max_limit', 1000);
-  $signatures_default_limit = variable_get('api_petitions_signatures_index_max_limit', 1000);
 
   $resources['petitions'] = array(
     'operations' => array(
@@ -75,7 +73,8 @@ function api_petitions_services_resources() {
             'name' => 'limit',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => "The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is $petitions_default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.",
+            'description' => t('The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is @petitions_default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.',
+              array('@petitions_default_limit' => variable_get('api_petitions_index_max_limit', 1000))),
             'default value' => 10,
             'source' => array('param' => 'limit'),
           ),
@@ -268,7 +267,8 @@ function api_petitions_services_resources() {
             'name' => 'limit',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => "The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is $signatures_default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.",
+            'description' => t('The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is @signatures_default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.',
+              array('@signatures_default_limit' => variable_get('api_petitions_signatures_index_max_limit', 1000))),
             'default value' => 1000,
             'source' => array('param' => 'limit'),
           ),
@@ -347,6 +347,7 @@ function _api_petitions_resource_index($created_before, $created_after, $created
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
   $public_threshold = variable_get('wh_petitions_public_signatures', 150) - 1;
+  $petitions_default_limit = variable_get('api_petitions_index_max_limit', 1000);
 
   // Return mock response.
   if ($mock) {
@@ -360,6 +361,7 @@ function _api_petitions_resource_index($created_before, $created_after, $created
     // Scaffolding is in place for inactive parameters but logic is required.
     $resource->setBaseURL($website_url)
      ->setMinSignatureCount($public_threshold)
+     ->setMaxReturnLimit($petitions_default_limit)
      ->setStartDate($created_after)
      ->setEndDate($created_before)
      ->setCreatedAt($created_at)
@@ -400,6 +402,8 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
     return $response;
   }
 
+  $signatures_default_limit = variable_get('api_petitions_signatures_index_max_limit', 1000);
+
   $name_format = '';
   $location_format = '';
   if (module_exists('petitions_signatures_display')) {
@@ -423,7 +427,8 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
       ->setLimit($limit)
       ->setOffset($offset)
       ->setNameFormat($name_format)
-      ->setLocationFormat($location_format);
+      ->setLocationFormat($location_format)
+      ->setMaxReturnLimit($signatures_default_limit);
 
     $response = $resource->load($petition_id);
 
