@@ -12,7 +12,7 @@ President Obama is committed to creating the most open and participatory governm
 
 -- President Barack Obama, September 20, 2011
 
-Releasing the source code for this application is meant to empower other governments and organizations to use this platform to engage their own citizens and constituencies. In addition, public review and contribution to the application’s code base will help strengthen and improve the platform. 
+Releasing the source code for this application is meant to empower other governments and organizations to use this platform to engage their own citizens and constituencies. In addition, public review and contribution to the application’s code base will help strengthen and improve the platform.
 
 ## Requirements
 
@@ -30,11 +30,11 @@ Releasing the source code for this application is meant to empower other governm
 
 Site visitors can create a user account, log in, and create petitions. Petition creators can share the URL for their petition to generate signatures. When the petition crosses a certain threshold, the petition becomes "public" and is listed as an open petition on the site's "open petitions" page.
 
-Visitors can sign petitions. Petitions that receive a designated number of signatures (at the White House the number is 25,000 in one month) get a response.
+Visitors can sign petitions. Petitions that receive a designated number of signatures (at the White House the number is 100,000 in one month) get a response.
 
 For installation instructions, see INSTALL.md.
 
-NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience.  The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 themeing conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
+NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience. The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 themeing conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
 
 ## Roadmap
 
@@ -46,9 +46,9 @@ The following descriptions are for informational purposes only and should not be
 
 *Move from MongoDB to MySQL*
 
-The current release depends on MongoDB. When we first created the application, we wanted to make sure we had a highly scalable application and database to meet our anticipated performance needs under high loads.  We have been running MongoDB in production for over a year, but we have decided that the performance benefits it provides are outweighed by the complexity of trying to extend Drupal features backed by MongoDB.
+The current release depends on MongoDB. When we first created the application, we wanted to make sure we had a highly scalable application and database to meet our anticipated performance needs under high loads. We have been running MongoDB in production for over a year, but we have decided that the performance benefits it provides are outweighed by the complexity of trying to extend Drupal features backed by MongoDB.
 
-We are currently moving to a fully MySQL-backed application to increase the speed the development of new features and other aspects of maintaining the Drupal application.  Our next release will be a dev branch that will be fully backed by MySQL, and once there is a tag for that branch, we will no longer maintain the MongoDB branch.
+We are currently moving to a fully MySQL-backed application to increase the speed the development of new features and other aspects of maintaining the Drupal application. Our next release will be a dev branch that will be fully backed by MySQL, and once there is a tag for that branch, we will no longer maintain the MongoDB branch.
 
 *Install Profile*
 
@@ -60,8 +60,8 @@ The current codebase replicates the theme used on the White House website. In th
 
 *Streamline Petition Signing Workflow*
 
-The current workflow for a new user to sign a petition involves 1. creating a user account, 2. verifying the email address used to create the account by clicking a link in an email set to it and  3. returning to the petition to click to sign.
-The new workflow will start with 1. clicking to sign a petition and adding an email address, and 2. verifying the signature via email.  Signing a petition will not require Drupal users logging into the site.
+The current workflow for a new user to sign a petition involves 1. creating a user account, 2. verifying the email address used to create the account by clicking a link in an email set to it and 3. returning to the petition to click to sign.
+The new workflow will start with 1. clicking to sign a petition and adding an email address, and 2. verifying the signature via email. Signing a petition will not require Drupal users logging into the site.
 
 *API Development*
 
@@ -69,7 +69,7 @@ We would like to develop a set of read-only API methods that would allow users t
 
 *Improved Social Media Integration*
 
-The current platform allows basic sharing of petitions, responses and other content on the site via social media platforms like Facebook and Twitter.  In the future, we would like reduce the friction of signing a petition by making it possible to sign a petition in the context of a social network (e.g. by “liking” an object on facebook). 
+The current platform allows basic sharing of petitions, responses and other content on the site via social media platforms like Facebook and Twitter. In the future, we would like reduce the friction of signing a petition by making it possible to sign a petition in the context of a social network (e.g. by “liking” an object on facebook).
 
 *Mobile interface*
 
@@ -77,7 +77,7 @@ Whether through a mobile browser or standalone application, We the People should
 
 ## Contributing
 
-Anyone is encouraged to contribute to the project by [forking](https://help.github.com/articles/fork-a-repo) and submitting a pull request. (If you are new to GitHub, you might start with a [basic tutorial](https://help.github.com/articles/set-up-git).) 
+Anyone is encouraged to contribute to the project by [forking](https://help.github.com/articles/fork-a-repo) and submitting a pull request. (If you are new to GitHub, you might start with a [basic tutorial](https://help.github.com/articles/set-up-git).)
 
 By contributing to this project, you grant a world-wide, royalty-free, perpetual, irrevocable, non-exclusive, transferable license to all users under the terms of the [Gnu General Public License v2](http://www.gnu.org/licenses/gpl-2.0.html) or later.
 
