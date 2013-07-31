@@ -1,0 +1,118 @@
+<?php
+/**
+ * @file signatures_queue.module
+ */
+
+// @todo How are we loading classes in petitions_data module? Let's do the same
+// here.
+require_once('classes/SignaturesQueue.inc');
+
+/**
+ * Implements hook_menu().
+ */
+function signatures_queue_menu() {
+  $items = array();
+  
+  $items['admin/config/system/signatures-queue'] = array(
+    'title' => 'Petition Signatures Queue',
+    'description' => 'Overview of petition signatures queue system',
+    'page callback' => 'signatures_queue_overview',
+    'access arguments' => array('monitor queues'),
+    'file' => 'signatures_queue.pages.inc',
+  );
+  $items['admin/config/system/signatures-queue/monitor'] = array(
+    'title' => 'Monitor',
+    'description' => 'Monitor signature queues',
+    'page callback' => 'signatures_queue_monitor_page',
+    'access arguments' => array('monitor queues'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+    'file' => 'signatures_queue.pages.inc',
+  );
+  $items['admin/config/system/signatures-queue/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Configure signature queues',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('signatures_queue_configure'),
+    'access arguments' => array('administer queues'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+    'file' => 'signatures_queue.admin.inc',
+  );
+  $items['admin/config/development/generate/signatures'] = array(
+    'title' => 'Generate signatures',
+    'description' => 'Generate signature records in signatures queues',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('signatures_queue_generate_form'),
+    'access arguments' => array('administer queues'),
+    'weight' => 6,
+    'file' => 'signatures_queue.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function signatures_queue_permission() {
+  return array(
+    'administer queues' => array(
+      'title' => t('Administer signatures queue'),
+    ),
+    'monitor queues' => array(
+      'title' => t('Monitor signatures queue'),
+    ),
+  );
+}
+
+/**
+ * Generate dummy data in signature queues.
+ */
+function signatures_queue_generate($queue_name, $number = 10, $delete_first = FALSE) {
+  // Remove all items first.  
+  if ($delete_first) {
+    $queue = SignaturesQueue::get($queue_name);
+    $queue->createQueue();  // There is no harm in trying to recreate existing.
+    $count = $queue->numberOfItems(); 
+    $queue->deleteQueue();
+    $text = t('@name: This queue was deleted with @count items remaining in it.',
+      array('@name' => $queue_name, '@count' => $count)
+    );
+    drupal_set_message($text);
+  }
+
+  // Generate items.  
+  $queue = SignaturesQueue::get($queue_name);
+  $queue->createQueue(); // There is no harm in trying to recreate existing.
+  for ($i = 0; $i <= $number; $i++) {
+    $item = SignaturesQueue::getDummyItem($queue_name);
+    $queue->createItem($item);
+  }
+  $text = t('@name: @number items have been created.',
+    array('@name' => $queue_name, '@number' => $number)
+  );
+  drupal_set_message($text);
+  
+}
+
+/**
+ * @return array
+ *  Array of signature queues and descriptions keyed by queue name.
+ *
+ *  Note: Real queues are named something_queue. The tables listed here that
+ *  don't end in the suffix "_queue" aren't actually queues. Conceptually
+ *  they're part of the "signatures queue" in the sense that these are holding
+ *  bins where signatures go before they're done being processed and counted.
+ *  But they're not DrupalQueue queues.
+ */
+function signatures_queue_get_queue_names() {
+  return array(
+    'signatures_submitted_queue' => t('Queue submissions received via API POST requests or form submissions by unauthenticated users.'),
+    'signatures_pending_validation_queue' => t('Retrieve petitons from signatures_submitted_queue, send a validation email, then move the pending signature here.'),
+    'signatures_validated_queue' => t('When a user clicks a validation link received via email, store the secret validation key here.'),
+    'signatures_validated' => t('Move records from signatures_validated_queue to here for processing.'),
+    'signatures_pending_validation' => t('Move records from signatures_pending_validation_queue to here for processing.'),
+    'signatures_orphans' => t('When processing validated signatures, records in signatures_validated that do not have matching records in signatures_pending_validation are orphans.'),
+  );
+}

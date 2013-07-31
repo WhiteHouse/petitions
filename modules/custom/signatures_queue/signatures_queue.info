@@ -1,0 +1,6 @@
+name = Signatures Queue
+description = Provide SignaturesQueue class, configuration for signatures queues, and a queue monitoring dashboard.
+core = 7.x
+package = Petitions
+configure = admin/config/system/petitions/signatures-queue
+files[] = classes/SignaturesQueue.inc
