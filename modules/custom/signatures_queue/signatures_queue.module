@@ -9,7 +9,6 @@
 
 // @todo How are we loading classes in petitions_data module? Let's do the same
 // here.
-require_once 'classes/SignaturesQueue.inc';
 
 /**
  * Implements hook_menu().
