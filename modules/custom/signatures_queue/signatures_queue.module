@@ -87,7 +87,7 @@ function signatures_queue_generate($queue_name, $number = 10, $delete_first = FA
   $queue = SignaturesQueue::get($queue_name);
   // There is no harm in trying to recreate existing.
   $queue->createQueue();
-  for ($i = 0; $i <= $number; $i++) {
+  for ($i = 0; $i < $number; $i++) {
     $item = SignaturesQueue::getDummyItem($queue_name);
     $queue->createItem($item);
   }
