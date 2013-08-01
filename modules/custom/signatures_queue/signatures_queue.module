@@ -1,18 +1,22 @@
 <?php
 /**
- * @file signatures_queue.module
+ * @file
+ * The signature queue system.
+ *
+ * Provides SignaturesQueue class, configuration for signatures queues, and a
+ * queue monitoring dashboard.
  */
 
 // @todo How are we loading classes in petitions_data module? Let's do the same
 // here.
-require_once('classes/SignaturesQueue.inc');
+require_once 'classes/SignaturesQueue.inc';
 
 /**
  * Implements hook_menu().
  */
 function signatures_queue_menu() {
   $items = array();
-  
+
   $items['admin/config/system/signatures-queue'] = array(
     'title' => 'Petition Signatures Queue',
     'description' => 'Overview of petition signatures queue system',
@@ -70,11 +74,12 @@ function signatures_queue_permission() {
  * Generate dummy data in signature queues.
  */
 function signatures_queue_generate($queue_name, $number = 10, $delete_first = FALSE) {
-  // Remove all items first.  
+  // Remove all items first.
   if ($delete_first) {
     $queue = SignaturesQueue::get($queue_name);
-    $queue->createQueue();  // There is no harm in trying to recreate existing.
-    $count = $queue->numberOfItems(); 
+    // There is no harm in trying to recreate existing.
+    $queue->createQueue();
+    $count = $queue->numberOfItems();
     $queue->deleteQueue();
     $text = t('@name: This queue was deleted with @count items remaining in it.',
       array('@name' => $queue_name, '@count' => $count)
@@ -82,9 +87,10 @@ function signatures_queue_generate($queue_name, $number = 10, $delete_first = FA
     drupal_set_message($text);
   }
 
-  // Generate items.  
+  // Generate items.
   $queue = SignaturesQueue::get($queue_name);
-  $queue->createQueue(); // There is no harm in trying to recreate existing.
+  // There is no harm in trying to recreate existing.
+  $queue->createQueue();
   for ($i = 0; $i <= $number; $i++) {
     $item = SignaturesQueue::getDummyItem($queue_name);
     $queue->createItem($item);
@@ -93,18 +99,20 @@ function signatures_queue_generate($queue_name, $number = 10, $delete_first = FA
     array('@name' => $queue_name, '@number' => $number)
   );
   drupal_set_message($text);
-  
+
 }
 
 /**
- * @return array
- *  Array of signature queues and descriptions keyed by queue name.
+ * Gets an array of queue names.
  *
- *  Note: Real queues are named something_queue. The tables listed here that
- *  don't end in the suffix "_queue" aren't actually queues. Conceptually
- *  they're part of the "signatures queue" in the sense that these are holding
- *  bins where signatures go before they're done being processed and counted.
- *  But they're not DrupalQueue queues.
+ * Note: Real queues are named something_queue. The tables listed here that
+ * don't end in the suffix "_queue" aren't actually queues. Conceptually
+ * they're part of the "signatures queue" in the sense that these are holding
+ * bins where signatures go before they're done being processed and counted.
+ * But they're not DrupalQueue queues.
+ *
+ * @return array
+ *   Array of signature queues and descriptions keyed by queue name.
  */
 function signatures_queue_get_queue_names() {
   return array(

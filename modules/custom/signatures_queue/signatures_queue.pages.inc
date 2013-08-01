@@ -1,7 +1,7 @@
 <?php
 /**
- * @file signatures_queue.pages.inc
- *  Page callbacks for signatures_queue module.
+ * @file
+ * Page callbacks for signatures_queue module.
  */
 
 /**
@@ -10,7 +10,7 @@
  * Provide basic dashboard for monitoring signatures queues.
  */
 function signatures_queue_monitor_page() {
-  return 'Hello world!';  
+  return 'Hello world!';
 }
 
 /**
@@ -31,7 +31,7 @@ function signatures_queue_overview() {
       t('Queue name'),
       t('Description')),
     'rows' => $rows,
-    ));
+  ));
 
   return $output;
 }

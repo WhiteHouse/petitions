@@ -1,13 +1,13 @@
 <?php
 /**
- * @file signatures_queue.admin.inc
- *  Provides admin settings for signatures_queue module.
+ * @file
+ * Provides admin settings for signatures_queue module.
  */
 
 /**
  * Configuration for signatures queues.
  *
- * @see system_settings_form().
+ * @see system_settings_form()
  */
 function signatures_queue_configure() {
   $form = array();
@@ -24,7 +24,7 @@ function signatures_queue_configure() {
     '#title' => 'Hello world!',
   );
 
-  return system_settings_form($form);  
+  return system_settings_form($form);
 }
 
 /**
@@ -40,13 +40,11 @@ function signatures_queue_generate_form() {
       $real_queues[$name] = $name;
     }
   }
-  
+
   $form['queues'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Signatures Queues'),
-    '#description' => t('The "signatures queue" is really made up of several '
-      . 'queues. Select which ones you want to generate '
-      . 'records in.'),
+    '#description' => t('The "signatures queue" is really made up of several queues. Select which ones you want to generate records in.'),
     '#options' => $real_queues,
   );
   $form['delete_first'] = array(
