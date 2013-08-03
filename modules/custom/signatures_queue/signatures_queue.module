@@ -78,6 +78,24 @@ function signatures_queue_permission() {
 }
 
 /**
+ * Implements hook_mail().
+ */
+function signatures_queue_mail($key, &$message, $params) {
+  if ($key == 'initiate_signature_validation') {
+    // TODO PT-978 Grab admin-defined email message. Replace tokens with dynamic
+    // content. Here's a placeholder:
+    $signature = $params['signature info'];
+    $validation_link = l(
+      'Click HERE to validate your signature',
+      sprintf('thank-you/%s/%s', $signature['md5_encryption_key'], $signature['secret_validation_key']),
+      array('query' => array('pid' => $signature['petition_id']))
+    );
+    $message['subject'] = 'TODO Validation email subject goes here.';
+    $message['body'][] = "Here's a validation link: $validation_link."; 
+  }
+}
+
+/**
  * Generate dummy data in signature queues.
  */
 function signatures_queue_generate($queue_name, $number = 10, $delete_first = FALSE) {

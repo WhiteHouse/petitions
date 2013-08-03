@@ -12,16 +12,18 @@
 function signatures_queue_configure() {
   $form = array();
 
-  $form['signatures_queue'] = array(
+  $form['initiate_signature_validation'] = array(
     '#type' => 'fieldset',
-    '#title' => 'Signatures Queue',
+    '#title' => t('Step 2: Initiate signature validation'),
     '#weight' => 1,
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['signatures_queue']['signatures_queue_hello_world'] = array(
-    '#type' => 'item',
-    '#title' => 'Hello world!',
+  $form['initiate_signature_validation']['signatures_queue_salt'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Salt'),
+    '#description' => 'This makes secret validation keys truely secret.',
+    '#default_value' => variable_get('signatures_queue_salt', ''),
   );
 
   $form['preprocess_signatures'] = array(
