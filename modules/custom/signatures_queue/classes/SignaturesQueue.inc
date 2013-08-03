@@ -126,7 +126,6 @@ class SignaturesQueue extends DrupalQueue {
         $item['secret_validation_key'] = sha1($email . $timestamp . $item['petition_id'] . $salt);
         $item['timestamp_validated'] = time();
         $item['client_ip'] = ip_address();
-        $item['petition_id'] = self::generateRandomPetitionID();
         break;
 
       default:
