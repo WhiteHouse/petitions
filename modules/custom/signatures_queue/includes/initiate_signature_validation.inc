@@ -10,10 +10,12 @@
 
 /**
  * Initiate signature validation.
+ *
+ * @todo Consider adding some exception handling around the queue interactions,
+ *   but note that failed emails are already handled in
+ *   signatures_queue_send_validation_emails().
  */
 function signatures_queue_initiate_signature_validation() {
-  $success = FALSE;
-
   // Retrieve and delete signatures from the signatures_submitted_queue.
   $signatures = signatures_queue_retrieve_submitted_signatures();
 
@@ -28,23 +30,21 @@ function signatures_queue_initiate_signature_validation() {
 
   // Queue signatures for next step.
   if (!empty($signatures['sent'])) {
+    // Successfully sent records move to next queue.
+    $queue = SignaturesQueue::get('signatures_pending_validation_queue');
+    $queue->createQueue();
     foreach ($signatures['sent'] as $signature) {
-      // Successfully sent records move to next queue.
-      $queue = SignaturesQueue::get('signatures_pending_validation_queue');
-      $queue->createQueue();
       $queue->createItem($signature);
     }
   }
   if (!empty($signatures['not sent'])) {
+    // Unsuccessful mail gets re-queued with signatures submitted.
+    $queue = SignaturesQueue::get('signatures_submitted_queue');
+    $queue->createQueue();
     foreach ($signatures['not sent'] as $signature) {
-      // Unsuccessful mail gets re-queued with signatures submitted.
-      $queue = SignaturesQueue::get('signatures_submitted_queue');
-      $queue->createQueue();
       $queue->createItem($signature);
     }
   }
-
-  return $success;
 }
 
 /**
@@ -67,9 +67,9 @@ function signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
 
   // Retrieve items from signatures_submitted_queue.
   $signatures = array();
+  $queue = SignaturesQueue::get('signatures_submitted_queue');
+  $queue->createQueue();
   for ($i = 0; $i < $batch_size; $i++) {
-    $queue = SignaturesQueue::get('signatures_submitted_queue');
-    $queue->createQueue();
     $item = $queue->claimItem();
     $signatures[] = $item->data;
     // Remove item from signatures_submitted_queue (AWS SQS only guarantees you
