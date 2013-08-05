@@ -86,12 +86,12 @@ function signatures_queue_mail($key, &$message, $params) {
     // content. Here's a placeholder:
     $signature = $params['signature info'];
     $validation_link = l(
-      'Click HERE to validate your signature',
+      t('Click HERE to validate your signature'),
       sprintf('thank-you/%s/%s', $signature['md5_encryption_key'], $signature['secret_validation_key']),
       array('query' => array('pid' => $signature['petition_id']))
     );
     $message['subject'] = 'TODO Validation email subject goes here.';
-    $message['body'][] = "Here's a validation link: $validation_link."; 
+    $message['body'][] = "Here's a validation link: $validation_link.";
   }
 }
 

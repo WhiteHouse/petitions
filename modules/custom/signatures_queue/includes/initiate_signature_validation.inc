@@ -15,7 +15,7 @@ function signatures_queue_initiate_signature_validation() {
   $success = FALSE;
 
   // Retrieve and delete signatures from the signatures_submitted_queue.
-  $signatures = signatures_queue_retrieve_submitted_signatures();  
+  $signatures = signatures_queue_retrieve_submitted_signatures();
 
   // Assign secret validation keys to each signature.
   $signatures = signatures_queue_assign_validation_keys($signatures);
@@ -51,6 +51,7 @@ function signatures_queue_initiate_signature_validation() {
  * Retrieve and delete signatures from the signatures_submitted_queue.
  *
  * @param int $batch_size
+ *   The number of signatures to process in this batch.
  *
  * @return array
  *   Array of signature submissions.
@@ -60,7 +61,8 @@ function signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
   // batch size by passing it as a parameter. Otherwise use admin-defined batch
   // size, or default to 1.
   if (empty($batch_size)) {
-    $batch_size = variable_get('signatures_queue_TODO', 10);  // TODO update name of this variable based on form element name TC chooses.
+    // TODO Update name of this variable based on form element name TC chooses.
+    $batch_size = variable_get('signatures_queue_TODO', 10);
   }
 
   // Retrieve items from signatures_submitted_queue.
@@ -72,8 +74,8 @@ function signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
     $signatures[] = $item->data;
     // Remove item from signatures_submitted_queue (AWS SQS only guarantees you
     // can retrieve each message once, if we don't successfully complete
-    // processing, we should re-queue, rather than just leave the item sitting in
-    // the queue).
+    // processing, we should re-queue, rather than just leave the item sitting
+    // in the queue).
     $queue->deleteItem($item);
   }
 
@@ -98,7 +100,7 @@ function signatures_queue_assign_validation_keys($signatures) {
     $timestamp = $signature['timestamp_submitted'];
     $petition_id = $signature['petition_id'];
     $salt = variable_get('signatures_queue_salt', '');
-    $signature['secret_validation_key'] = sha1($email. $timestamp . $petition_id . $salt);
+    $signature['secret_validation_key'] = sha1($email . $timestamp . $petition_id . $salt);
     $signatures_with_keys[] = $signature;
   }
 
@@ -132,7 +134,7 @@ function signatures_queue_add_md5_evaluation_keys($signatures) {
  * @param array $signatures
  *   Array of submitted signatures.
  *
- * @return
+ * @return array
  *   Array of signatures organized like this:
  *     array('sent' => $signatures_sent, 'not sent' => $signatures_not_sent)
  */
@@ -146,19 +148,20 @@ function signatures_queue_send_validation_emails($signatures) {
     // Send validation email.
     $to = $signature['email'];
     global $language;
-    $params = array('signature info' => $signature); 
-    $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params); 
+    $params = array('signature info' => $signature);
+    $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
 
     // TODO Figure out how we determine success/failure here...
     $text = 'This is where a message gets sent to ' . $signature['first_name'] . ' ' . $signature['last_name'];
     drupal_set_message($text);
-    if ($result) { // VERIFY SUCCESS HERE.
+    // VERIFY SUCCESS HERE.
+    if ($result) {
       $signatures_mailed['sent'][] = $signature;
     }
     else {
       $signatures_mailed['not sent'][] = $signature;
     }
   }
-  
+
   return $signatures_mailed;
 }
