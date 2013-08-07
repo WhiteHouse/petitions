@@ -17,16 +17,16 @@
  */
 function signatures_queue_initiate_signature_validation() {
   // Retrieve and delete signatures from the signatures_submitted_queue.
-  $signatures = signatures_queue_retrieve_submitted_signatures();
+  $signatures = _signatures_queue_retrieve_submitted_signatures();
 
   // Assign secret validation keys to each signature.
-  $signatures = signatures_queue_assign_validation_keys($signatures);
+  $signatures = _signatures_queue_assign_validation_keys($signatures);
 
   // Add md5 evaluation key to prevent spam.
-  $signatures = signatures_queue_add_md5_evaluation_keys($signatures);
+  $signatures = _signatures_queue_add_md5_evaluation_keys($signatures);
 
   // Send validation emails.
-  $signatures = signatures_queue_send_validation_emails($signatures);
+  $signatures = _signatures_queue_send_validation_emails($signatures);
 
   // Queue signatures for next step.
   if (!empty($signatures['sent'])) {
@@ -56,7 +56,7 @@ function signatures_queue_initiate_signature_validation() {
  * @return array
  *   Array of signature submissions.
  */
-function signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
+function _signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
   // If this function is called directly, the calling function can determine
   // batch size by passing it as a parameter. Otherwise use admin-defined batch
   // size, or default to 1.
@@ -91,7 +91,7 @@ function signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
  * @return array
  *   Array of submitted signatures with secret validation keys assigned.
  */
-function signatures_queue_assign_validation_keys($signatures) {
+function _signatures_queue_assign_validation_keys($signatures) {
   $signatures_with_keys = array();
 
   // Generate secret validation keys.
@@ -116,7 +116,7 @@ function signatures_queue_assign_validation_keys($signatures) {
  * @return array
  *   Array of submitted signatures with evaluation keys.
  */
-function signatures_queue_add_md5_evaluation_keys($signatures) {
+function _signatures_queue_add_md5_evaluation_keys($signatures) {
   $signatures_with_keys = array();
 
   // Generate secret validation keys.
@@ -138,7 +138,7 @@ function signatures_queue_add_md5_evaluation_keys($signatures) {
  *   Array of signatures organized like this:
  *     array('sent' => $signatures_sent, 'not sent' => $signatures_not_sent)
  */
-function signatures_queue_send_validation_emails($signatures) {
+function _signatures_queue_send_validation_emails($signatures) {
   $signatures_mailed = array();
 
   // TODO Looks like we can only call drupal_mail() one-by-one. Is there any way
