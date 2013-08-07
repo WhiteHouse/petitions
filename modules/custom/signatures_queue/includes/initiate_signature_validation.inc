@@ -9,13 +9,17 @@
  */
 
 /**
- * Initiate signature validation.
+ * Initiates signature validation.
  *
- * @todo Consider adding some exception handling around the queue interactions,
- *   but note that failed emails are already handled in
- *   signatures_queue_send_validation_emails().
+ * @return bool
+ *   Returns TRUE if the function completes or FALSE if not, e.g., if it
+ *   terminates early due to a shunt trip.
  */
 function signatures_queue_initiate_signature_validation() {
+  if (shunt_is_enabled('signature_queue_initiate_signature_validation')) {
+    return FALSE;
+  }
+
   // Retrieve and delete signatures from the signatures_submitted_queue.
   $signatures = _signatures_queue_retrieve_submitted_signatures();
 
@@ -45,6 +49,8 @@ function signatures_queue_initiate_signature_validation() {
       $queue->createItem($signature);
     }
   }
+
+  return TRUE;
 }
 
 /**
