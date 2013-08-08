@@ -98,7 +98,7 @@ function signatures_queue_generate($queue_name, $number = 10, $delete_first = FA
 
 }
 
-/*
+/**
  * Implements hook_shunt().
  */
 function signatures_queue_shunt() {
@@ -132,5 +132,22 @@ function signatures_queue_get_queue_names() {
     'signatures_validated' => t('Move records from signatures_validated_queue to here for processing.'),
     'signatures_pending_validation' => t('Move records from signatures_pending_validation_queue to here for processing.'),
     'signatures_orphans' => t('When processing validated signatures, records in signatures_validated that do not have matching records in signatures_pending_validation are orphans.'),
+  );
+}
+
+/**
+ * Gets a list of workflow names.
+ *
+ * @return array
+ *   An indexed array of workflow names.
+ */
+function signatures_queue_get_workflow_names() {
+  return array(
+    'receive_new_signatures',
+    'initiate_signature_validation',
+    'receive_signature_validation',
+    'preprocess_signatures',
+    'process_signatures',
+    'archive_signatures',
   );
 }
