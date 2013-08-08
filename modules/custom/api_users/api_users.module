@@ -193,9 +193,9 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
       'id' => $user->id,
       'created' => $user->created,
       'location' => array(
-        'city' => _api_users_filterUTF16($user->field_city_value),
-        'state' => _api_users_filterUTF16($user->field_state_value),
-        'zip' => _api_users_filterUTF16($user->field_zip_value),
+        'city' => petitions_data_make_xml_safe($user->field_city_value),
+        'state' => petitions_data_make_xml_safe($user->field_state_value),
+        'zip' => petitions_data_make_xml_safe($user->field_zip_value),
       ),
     );
   }
@@ -249,23 +249,6 @@ function _api_users_index_doc() {
 function _api_users_mock_response() {
   $response = file_get_contents(drupal_get_path('module', 'api_users') . '/example_responses/api_users_index.response.json');
   return $response;
-}
-
-
-/**
- * Helper function to format characters in a string.
- *
- * @param string $string
- *   The raw input string from mongo.
- *
- * @return string
- *   Formatted output string.
- */
-function _api_users_filterUTF16($string) {
-  // Replace non-english characters with x's.
-  $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
-
-  return $string;
 }
 
 /**

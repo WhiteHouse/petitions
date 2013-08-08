@@ -35,8 +35,8 @@ class PetitionsRetrieveMongoRaw extends PetitionsRetrieveBase implements IPetiti
       $petition = array(
         'id' => $this->formatReturnId($doc['_id']),
         'type' => 'petition',
-        'title' => $doc['title'],
-        'body' => $doc['body'],
+        'title' => petitions_data_make_xml_safe($doc['title']),
+        'body' => petitions_data_make_xml_safe($doc['body']),
         'issues' => $this->formatReturnIssues($doc['issues']),
         'signatureThreshold' => $doc['response_signatures'],
         'signatureCount' => $doc['signature_count'],

@@ -19,3 +19,10 @@ files[] = classes/SignaturesBase.class.inc
 files[] = classes/PetitionsIndexMongoRaw.class.inc
 files[] = classes/PetitionsRetrieveMongoRaw.class.inc
 files[] = classes/SignaturesMongoRaw.class.inc
+
+
+; Information added by drush on 2013-07-18
+version = ""
+project = "petitions"
+datestamp = "1374161596"
+

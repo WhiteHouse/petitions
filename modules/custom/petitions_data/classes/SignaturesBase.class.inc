@@ -548,22 +548,6 @@ class SignaturesBase {
   }
 
   /**
-   * Helper function to format characters in a string.
-   *
-   * @param string $string
-   *   The raw input string from mongo.
-   *
-   * @return string
-   *   Formatted output string.
-   */
-  protected function filterUTF16($string) {
-    // Replace non-english characters with x's.
-    $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
-
-    return $string;
-  }
-
-  /**
    * Helper function to format first and last name.
    *
    * @param string $username
@@ -580,12 +564,12 @@ class SignaturesBase {
     if ($this->getNameFormat()) {
       // Format name and replace non-english characters with x's.
       $function = $this->getNameFormat();
-      $name = $this->filterUTF16($function($username, $first_name, $last_name));
+      $name = petitions_data_make_xml_safe($function($username, $first_name, $last_name));
     }
     else {
       // Replace non-english characters with x's.
-      $first_name = $this->filterUTF16($first_name);
-      $last_name = $this->filterUTF16($last_name);
+      $first_name = petitions_data_make_xml_safe($first_name);
+      $last_name = petitions_data_make_xml_safe($last_name);
 
       // Grab first letter of first and last name.
       $name = substr($first_name, 0, 1) . substr($last_name, 0, 1);

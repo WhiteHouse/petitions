@@ -174,7 +174,7 @@ class PetitionsBase {
       $term = taxonomy_term_load($issue_id);
       $row = array(
         'id' => $term->tid,
-        'name' => $this->filterUTF16($term->name),
+        'name' => petitions_data_make_xml_safe($term->name),
       );
       $terms[] = $row;
     }
@@ -288,20 +288,5 @@ class PetitionsBase {
       default:
         return "closed";
     }
-  }
-
-  /**
-   * Helper function to format characters in a string.
-   *
-   * @param string $string
-   *   The raw input string.
-   *
-   * @return string
-   *   Formatted output string.
-   */
-  protected function filterUTF16($string) {
-    // Replace non-english characters with x's.
-    $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
-    return $string;
   }
 }

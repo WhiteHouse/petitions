@@ -82,9 +82,9 @@ class SignaturesMongoRaw extends SignaturesBase implements ISignaturesRaw {
         'id' => $this->formatReturnId($doc['_id']),
         'type' => 'signature',
         'name' => $this->formatReturnName($doc['user']['username'], $doc['user']['first_name'], $doc['user']['last_name']),
-        'city' => $this->filterUTF16($location['city']),
-        'state' => $this->filterUTF16($location['state']),
-        'zip' => $this->filterUTF16($location['zipcode']),
+        'city' => petitions_data_make_xml_safe($location['city']),
+        'state' => petitions_data_make_xml_safe($location['state']),
+        'zip' => petitions_data_make_xml_safe($location['zipcode']),
         'created' => $doc['timestamp'],
       );
 
