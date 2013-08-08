@@ -11,11 +11,16 @@
 /**
  * Initiates signature validation.
  *
+ * @param string $server_name
+ *   The name of the active server.
+ * @param string $worker_name
+ *   An arbitrary worker identifier.
+ *
  * @return bool
  *   Returns TRUE if the function completes or FALSE if not, e.g., if it
  *   terminates early due to a shunt trip.
  */
-function signatures_queue_initiate_signature_validation() {
+function signatures_queue_initiate_signature_validation($server_name, $worker_name) {
   if (shunt_is_enabled('signature_queue_initiate_signature_validation')) {
     return FALSE;
   }
