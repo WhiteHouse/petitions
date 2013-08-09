@@ -125,6 +125,9 @@ projects[simplehtmldom][subdir] = contrib
 projects[strongarm][version] = 2.0
 projects[strongarm][subdir] = contrib
 
+projects[textcaptcha][version] = 1.3
+projects[textcaptcha][subdir] = contrib
+
 projects[token][version] = 1.2
 projects[token][subdir] = contrib
 
@@ -150,27 +153,6 @@ projects[logintoboggan][version] = 1.3
 projects[logintoboggan][subdir] = contrib
 projects[logintoboggan][patch][] = http://drupal.org/files/1747878-2-remove-lower.patch
 projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
-
-
-; use-local-db-2013859-6-13.patch
-;  - Make textcaptcha serve challenge questions from local db (more reliable
-;    than web service)
-;  - @see http://drupal.org/node/2013859
-;
-; improve-accessibility-2014753-5.patch
-;  - Prepend challenge question with Challenge Description for accessibility
-;  - @see https://drupal.org/node/2014753
-;
-; ----------------------------------------
-;projects[textcaptcha][version] = 1.3
-projects[textcaptcha][type] = module
-projects[textcaptcha][subdir] = contrib
-projects[textcaptcha][download][type] = git
-projects[textcaptcha][download][branch] = 7.x-1.x
-projects[textcaptcha][download][tag] = dp1
-projects[textcaptcha][download][url] = "https://github.com/bryanhirsch/textcaptcha"
-;projects[textcaptcha][patch][] = https://drupal.org/files/use-local-db-2013859-13.patch
-;projects[textcaptcha][patch][] = https://drupal.org/files/improve-accessibility-2014753-5.patch
 
 ; check_type.patch
 ;  - Data types were not checked before getting 'status' key from them
