@@ -113,14 +113,17 @@ function signatures_queue_generate($queue_name, $number = 10, $delete_first = FA
  * Implements hook_shunt().
  */
 function signatures_queue_shunt() {
-  return array(
-    'signature_queue_receive_new_signatures' => t('A shunt for the "Receive new signatures" workflow.'),
-    'signature_queue_initiate_signature_validation' => t('A shunt for the "Initiate signature validation" workflow.'),
-    'signature_queue_receive_signature_validation' => t('A shunt for the "Receive signature validation" workflow.'),
-    'signature_queue_preprocess_signatures' => t('A shunt for the "Preprocess signatures" workflow.'),
-    'signature_queue_process_signatures' => t('A shunt for the "Process signatures" workflow.'),
-    'signature_queue_archive_signatures' => t('A shunt for the "Archive signatures" workflow.'),
-  );
+  // Automatically declare a shunt for each workflow.
+  $shunts = array();
+  $workflows = signatures_queue_get_workflow_names();
+  foreach ($workflows as $workflow) {
+    $name = "signatures_queue_{$workflow}";
+    $description = t('A shunt for the "@workflow" workflow.', array(
+      '@workflow' => str_replace('_', ' ', ucfirst($workflow)),
+    ));
+    $shunts[$name] = $description;
+  }
+  return $shunts;
 }
 
 /**
@@ -184,7 +187,7 @@ function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_Q
   }
 
   // Detect a shunt trip.
-  $shunt_name = "signature_queue_{$workflow}";
+  $shunt_name = "signatures_queue_{$workflow}";
   if (shunt_is_enabled($shunt_name)) {
     // Return TRUE because the workflow didn't fail--it was deliberately
     // deferred, which isn't properly an error condition.
