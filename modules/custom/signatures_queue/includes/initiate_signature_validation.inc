@@ -17,14 +17,9 @@
  *   An arbitrary worker identifier.
  *
  * @return bool
- *   Returns TRUE if the function completes or FALSE if not, e.g., if it
- *   terminates early due to a shunt trip.
+ *   Returns TRUE if the function completes or FALSE if not.
  */
 function signatures_queue_initiate_signature_validation($server_name, $worker_name) {
-  if (shunt_is_enabled('signature_queue_initiate_signature_validation')) {
-    return FALSE;
-  }
-
   // Retrieve and delete signatures from the signatures_submitted_queue.
   $signatures = _signatures_queue_retrieve_submitted_signatures();
 
