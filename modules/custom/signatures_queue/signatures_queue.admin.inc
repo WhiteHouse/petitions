@@ -12,6 +12,19 @@
 function signatures_queue_configure() {
   $form = array();
 
+  $form['all'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('All steps'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['all']['signatures_queue_log_events'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Log events to database',
+    '#description' => t('Maintain a log of workflow events, including start and completion times of each job, for reporting. Turn this off to reduce load on the database. Turn it on for debugging.'),
+    '#default_value' => variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT),
+  );
+
   $form['initiate_signature_validation'] = array(
     '#type' => 'fieldset',
     '#title' => t('Step 2: Initiate signature validation'),

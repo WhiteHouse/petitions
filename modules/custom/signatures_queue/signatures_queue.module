@@ -9,6 +9,11 @@
  */
 
 /**
+ * The default value for the signatures_queue_log_events variable.
+ */
+define('SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT', TRUE);
+
+/**
  * The default value for the server-name event logging value.
  */
 define('SIGNATURES_QUEUE_SERVER_NAME_DEFAULT', 'default');
