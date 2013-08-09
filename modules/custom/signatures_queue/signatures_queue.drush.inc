@@ -66,13 +66,8 @@ function drush_signatures_queue_invoke_workflow_validate() {
 function drush_signatures_queue_invoke_workflow() {
   $args = drush_get_arguments();
   $workflow = $args[1];
-
-  // Dispatch specific workflow commands.
-  module_load_include('inc', 'signatures_queue', "includes/{$workflow}");
-  $function_name = "signatures_queue_{$workflow}";
-  if (function_exists($function_name)) {
-    $server_name = drush_get_option('server-name', 'default');
-    $worker_name = drush_get_option('worker-name', 'default');
-    $success = call_user_func($function_name, $server_name, $worker_name);
-  }
+  $server_name = drush_get_option('server-name', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT);
+  $worker_name = drush_get_option('worker-name', SIGNATURES_QUEUE_WORKER_NAME_DEFAULT);
+  $success = signatures_queue_invoke_workflow($workflow, $server_name, $worker_name);
+  return $success;
 }

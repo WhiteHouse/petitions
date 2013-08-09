@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * The signature queue system.
@@ -6,6 +7,16 @@
  * Provides SignaturesQueue class, configuration for signatures queues, and a
  * queue monitoring dashboard.
  */
+
+/**
+ * The default value for the server-name event logging value.
+ */
+define('SIGNATURES_QUEUE_SERVER_NAME_DEFAULT', 'default');
+
+/**
+ * The default value for the worker-name event logging value.
+ */
+define('SIGNATURES_QUEUE_WORKER_NAME_DEFAULT', 'default');
 
 /**
  * Implements hook_menu().
@@ -150,4 +161,47 @@ function signatures_queue_get_workflow_names() {
     'process_signatures',
     'archive_signatures',
   );
+}
+
+/**
+ * Invokes a given workflow.
+ *
+ * @param string $workflow
+ *   The name of the workflow to invoke, as defined in
+ *   signatures_queue_get_workflow_names().
+ * @param string $server_name
+ *   The name of the server processing the workflow.
+ * @param string $worker_name
+ *   An arbitrary identifier for the invoking process (e.g., cron job).
+ *
+ * @return bool
+ *   Returns TRUE if the workflow was successfully processed or FALSE if not.
+ */
+function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT) {
+  // Fail if given workflow is invalid.
+  if (!in_array($workflow, signatures_queue_get_workflow_names())) {
+    return FALSE;
+  }
+
+  // Detect a shunt trip.
+  $shunt_name = "signature_queue_{$workflow}";
+  if (shunt_is_enabled($shunt_name)) {
+    // Return TRUE because the workflow didn't fail--it was deliberately
+    // deferred, which isn't properly an error condition.
+    return TRUE;
+  }
+
+  $logging_enabled = variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT);
+
+  // Invoke the workflow.
+  module_load_include('inc', 'signatures_queue', "includes/{$workflow}");
+  $function_name = "signatures_queue_{$workflow}";
+  $success = FALSE;
+  if (function_exists($function_name)) {
+    $server_name = drush_get_option('server-name', 'default');
+    $worker_name = drush_get_option('worker-name', 'default');
+    $success = call_user_func($function_name, $server_name, $worker_name);
+  }
+
+  return $success;
 }
