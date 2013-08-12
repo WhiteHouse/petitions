@@ -69,6 +69,12 @@ function signatures_queue_menu() {
     'weight' => 6,
     'file' => 'signatures_queue.admin.inc',
   );
+  $items['thank-you'] = array(
+    'title' => 'Thank You',
+    'page callback' => '_signatures_queue_validation_page_callback',
+    'access arguments' => array('access content'),
+    'file' => 'signatures_queue.pages.inc',
+  );
 
   return $items;
 }
