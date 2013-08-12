@@ -236,16 +236,22 @@ function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_Q
     return TRUE;
   }
 
-  $logging_enabled = variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT);
-
   // Invoke the workflow.
   module_load_include('inc', 'signatures_queue', "includes/{$workflow}");
   $function_name = "signatures_queue_{$workflow}";
   $success = FALSE;
   if (function_exists($function_name)) {
-    $success = call_user_func($function_name, $server_name, $worker_name);
-  }
+    // Log job start.
+    module_load_include('inc', 'signatures_queue');
+    $job_id = _signatures_queue_create_job_id($workflow, $server_name, $worker_name);
+    _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'started');
 
+    // Dispatch the worker.
+    $success = call_user_func($function_name, $server_name, $worker_name);
+
+    // Log job completion.
+    _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'completed');
+  }
   return $success;
 }
 
