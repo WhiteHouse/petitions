@@ -210,7 +210,7 @@ function signatures_queue_shunt() {
   $shunts = array();
   $workflows = signatures_queue_get_workflow_names();
   foreach ($workflows as $workflow) {
-    $name = "signatures_queue_{$workflow}";
+    $name = "shunt_signatures_queue_{$workflow}";
     $description = t('A shunt for the "@workflow" workflow.', array(
       '@workflow' => str_replace('_', ' ', ucfirst($workflow)),
     ));
@@ -280,7 +280,7 @@ function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_Q
   }
 
   // Detect a shunt trip.
-  $shunt_name = "signatures_queue_{$workflow}";
+  $shunt_name = "shunt_signatures_queue_{$workflow}";
   if (shunt_is_enabled($shunt_name)) {
     // Return TRUE because the workflow didn't fail--it was deliberately
     // deferred, which isn't properly an error condition.
