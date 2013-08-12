@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * The "initiate signature validation" step.
@@ -76,7 +77,14 @@ function _signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
   $queue->createQueue();
   for ($i = 0; $i < $batch_size; $i++) {
     $item = $queue->claimItem();
+
+    // claimItem() returns FALSE when there are no more items in the queue.
+    if (!$item) {
+      break;
+    }
+
     $signatures[] = $item->data;
+
     // Remove item from signatures_submitted_queue (AWS SQS only guarantees you
     // can retrieve each message once, if we don't successfully complete
     // processing, we should re-queue, rather than just leave the item sitting
