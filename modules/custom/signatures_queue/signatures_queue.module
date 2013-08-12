@@ -109,6 +109,11 @@ function signatures_queue_mail($key, &$message, $params) {
  * Generate dummy data in signature queues.
  */
 function signatures_queue_generate($queue_name, $number = 10, $delete_first = FALSE) {
+  // If Drupal didn't autoload SignaturesQueue, load it manually here.
+  if (!class_exists('SignaturesQueue')) {
+    module_load_include('inc', 'signatures_queue', 'classes/SignaturesQueue');
+  }
+
   // Remove all items first.
   if ($delete_first) {
     $queue = SignaturesQueue::get($queue_name);
