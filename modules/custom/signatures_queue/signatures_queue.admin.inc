@@ -14,7 +14,7 @@ function signatures_queue_configure() {
 
   $form['all'] = array(
     '#type' => 'fieldset',
-    '#title' => t('All steps'),
+    '#title' => t('All workflows'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
@@ -27,7 +27,7 @@ function signatures_queue_configure() {
 
   $form['initiate_signature_validation'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Step 2: Initiate signature validation'),
+    '#title' => t('"Initiate signature validation" workflow'),
     '#weight' => 1,
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
