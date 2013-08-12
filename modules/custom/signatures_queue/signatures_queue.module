@@ -9,6 +9,11 @@
  */
 
 /**
+ * The default workflow batch size.
+ */
+define('SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT', 10);
+
+/**
  * The default value for the signatures_queue_log_events variable.
  */
 define('SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT', TRUE);

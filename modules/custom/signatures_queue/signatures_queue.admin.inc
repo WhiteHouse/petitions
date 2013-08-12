@@ -42,7 +42,7 @@ function signatures_queue_configure() {
     '#type' => 'textfield',
     '#title' => t('Batch size'),
     '#description' => 'The number of signatures to initiate validation for per batch.',
-    '#default_value' => variable_get('signatures_queue_initiate_signature_validation_batch_size', 10),
+    '#default_value' => variable_get('signatures_queue_initiate_signature_validation_batch_size', SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT),
   );
 
   $form['preprocess_signatures'] = array(

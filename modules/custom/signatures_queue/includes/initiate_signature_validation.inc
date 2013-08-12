@@ -67,7 +67,7 @@ function _signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
   // batch size by passing it as a parameter. Otherwise use admin-defined batch
   // size, or default to 1.
   if (empty($batch_size)) {
-    $batch_size = variable_get('signatures_queue_initiate_signature_validation_batch_size', 10);
+    $batch_size = variable_get('signatures_queue_initiate_signature_validation_batch_size', SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT);
   }
 
   // Retrieve items from signatures_submitted_queue.
