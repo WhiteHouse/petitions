@@ -43,23 +43,28 @@ function signatures_queue_overview() {
  * parameter (the unique signature validation key).
  */
 function _signatures_queue_validation_page_callback() {
-  $key = '';
-  $md5 = '';
-  $petition = '';
-
-  if (isset($_GET['k']) && $_GET['k']) {
-    $key = $_GET['k'];
+  // Confirm that expected parameters were submitted via URL.
+  if (isset($_GET['k']) && isset($_GET['m']) && isset($_GET['p'])) {
+    // Confirm that 'm' is the MD5 hash of 'k'.
+    if ($_GET['m'] == md5($_GET['k'])) {
+      // Load the petition via the API retrieve method.
+      $petition = PetitionsRetrieveRawFactory::create()->load($_GET['p']);
+      // Confirm that petition 'p' hasn't expired.
+      if ($petition['results'][0]['status'] == 'open') {
+        //Validate the signature.
+      }
+      // The petition has expired. Return error.
+      else {
+        return FALSE;
+      }
+    }
+    // Hashes do not match. Return error.
+    else {
+      return FALSE;
+    }
   }
-
-  if (isset($_GET['m']) && $_GET['m']) {
-    $md5 = $_GET['m'];
-  }
-
-  if (isset($_GET['p']) && $_GET['p']) {
-    $petition = $_GET['p'];
-  }
-
-  if ($md5 == md5($key)) {
-
+  // Parameters are missing. Return error.
+  else {
+    return FALSE;
   }
 }
