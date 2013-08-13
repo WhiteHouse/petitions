@@ -19,9 +19,9 @@
  * @return bool
  *   Returns TRUE if the function completes or FALSE if not.
  */
-function signatures_queue_receive_signature_validation($server_name, $worker_name) {
+function signatures_queue_receive_signature_validation($server_name, $worker_name, $options) {
   // Construct the validated signature data array.
-  $signature_data = _signatures_queue_validated_signature_data($signature, $petition_id);
+  $signature_data = _signatures_queue_validated_signature_data($options['signature'], $options['petition_id']);
 
   // Queue validated signatures for next step.
   $queue = SignaturesQueue::get('signatures_validated_queue');

@@ -52,6 +52,12 @@ function _signatures_queue_validation_page_callback() {
       // Confirm that petition 'p' hasn't expired.
       if ($petition['results'][0]['status'] == 'open') {
         //Validate the signature.
+        $options = array(
+          'validation_key' => $_GET['k'],
+          'petition_id' => $_GET['p'],
+        );
+        $response = signatures_queue_invoke_workflow('receive_signature_validation', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
+        return $response;
       }
       // The petition has expired. Return error.
       else {

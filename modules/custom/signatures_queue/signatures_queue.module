@@ -279,7 +279,7 @@ function signatures_queue_get_workflow_names() {
  * @return bool
  *   Returns TRUE if the workflow was successfully processed or FALSE if not.
  */
-function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT) {
+function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options) {
   // Fail if given workflow is invalid.
   if (!in_array($workflow, signatures_queue_get_workflow_names())) {
     return FALSE;
@@ -293,6 +293,8 @@ function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_Q
     return TRUE;
   }
 
+  $logging_enabled = variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT);
+
   // Invoke the workflow.
   module_load_include('inc', 'signatures_queue', "includes/{$workflow}");
   $function_name = "signatures_queue_{$workflow}";
@@ -305,7 +307,7 @@ function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_Q
     _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'started');
 
     // Dispatch the worker.
-    $success = call_user_func($function_name, $job_id, $server_name, $worker_name);
+    $success = call_user_func($function_name, $job_id, $server_name, $worker_name, $options);
 
     // Log job completion.
     _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'completed');
