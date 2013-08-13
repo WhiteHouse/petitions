@@ -253,7 +253,7 @@ function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_Q
     _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'started');
 
     // Dispatch the worker.
-    $success = call_user_func($function_name, $server_name, $worker_name);
+    $success = call_user_func($function_name, $job_id, $server_name, $worker_name);
 
     // Log job completion.
     _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'completed');

@@ -9,14 +9,14 @@
  * Creates a unique job ID.
  *
  * @param string $workflow
- *   The name of the workflow to invoke, as defined in
+ *   The name of the workflow being invoked, as defined in
  *   signatures_queue_get_workflow_names().
  * @param string $server_name
  *   The name of the server processing the workflow.
  * @param string $worker_name
  *   An arbitrary identifier for the invoking process (e.g., cron job).
  *
- * @return int
+ * @return string
  *   An md5 hash (a 32-character hexadecimal number).
  */
 function _signatures_queue_create_job_id($workflow, $server_name, $worker_name) {
@@ -26,8 +26,8 @@ function _signatures_queue_create_job_id($workflow, $server_name, $worker_name) 
 /**
  * Logs signature processing events to the database.
  *
- * @param int $job_id
- *   A unique identifier for the job as created by
+ * @param string $job_id
+ *   A unique identifier for the job, as created by
  *   _signatures_queue_create_job_id().
  * @param string $workflow
  *   The name of the workflow to invoke, as defined in
@@ -40,12 +40,26 @@ function _signatures_queue_create_job_id($workflow, $server_name, $worker_name) 
  *   Either "started" or "completed".
  */
 function _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, $status) {
-  // Just return if logging is disabled.
+  // Ignore if $status is invalid.
+  if (!in_array($status, array('started', 'completed'))) {
+    return;
+  }
+
+  // Log to watchdog regardless of whether event logging is enabled or not.
+  $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
+  watchdog('signatures_queue', '@status job. @suffix', array(
+    '@status' => ucfirst($status),
+    '@job_id' => $job_id,
+    '@suffix' => $watchdog_suffix,
+  ), WATCHDOG_INFO);
+
+  // Return if event logging is disabled.
   $logging_enabled = variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT);
   if (!$logging_enabled) {
     return;
   }
 
+  // Log to database.
   db_insert('signatures_queue_log')
     ->fields(array(
       'job_id' => $job_id,

@@ -20,7 +20,9 @@
  * @return bool
  *   Returns TRUE if the function completes or FALSE if not.
  */
-function signatures_queue_initiate_signature_validation($server_name, $worker_name) {
+function signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name) {
+  $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
+
   // Retrieve and delete signatures from the signatures_submitted_queue.
   $signatures = _signatures_queue_retrieve_submitted_signatures();
 
