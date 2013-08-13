@@ -24,6 +24,11 @@ function signatures_queue_initiate_signature_validation($server_name, $worker_na
   // Retrieve and delete signatures from the signatures_submitted_queue.
   $signatures = _signatures_queue_retrieve_submitted_signatures();
 
+  // Return if there's nothing to do.
+  if (empty($signatures)) {
+    return TRUE;
+  }
+
   // Assign secret validation keys to each signature.
   $signatures = _signatures_queue_assign_validation_keys($signatures);
 
@@ -33,23 +38,11 @@ function signatures_queue_initiate_signature_validation($server_name, $worker_na
   // Send validation emails.
   $signatures = _signatures_queue_send_validation_emails($signatures);
 
-  // Queue signatures for next step.
-  if (!empty($signatures['sent'])) {
-    // Successfully sent records move to next queue.
-    $queue = SignaturesQueue::get('signatures_pending_validation_queue');
-    $queue->createQueue();
-    foreach ($signatures['sent'] as $signature) {
-      $queue->createItem($signature);
-    }
-  }
-  if (!empty($signatures['not sent'])) {
-    // Unsuccessful mail gets re-queued with signatures submitted.
-    $queue = SignaturesQueue::get('signatures_submitted_queue');
-    $queue->createQueue();
-    foreach ($signatures['not sent'] as $signature) {
-      $queue->createItem($signature);
-    }
-  }
+  // Advance successfully-processed signatures to the next workflow.
+  _signatures_queue_advance_successful_signatures($signatures['sent']);
+
+  // Return failed signatures to the queue for re-processing.
+  _signatures_queue_return_failed_signatures($signatures['not sent']);
 
   return TRUE;
 }
@@ -104,7 +97,7 @@ function _signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
  * @return array
  *   Array of submitted signatures with secret validation keys assigned.
  */
-function _signatures_queue_assign_validation_keys($signatures) {
+function _signatures_queue_assign_validation_keys(array $signatures) {
   $signatures_with_keys = array();
 
   // Generate secret validation keys.
@@ -129,7 +122,7 @@ function _signatures_queue_assign_validation_keys($signatures) {
  * @return array
  *   Array of submitted signatures with evaluation keys.
  */
-function _signatures_queue_add_md5_evaluation_keys($signatures) {
+function _signatures_queue_add_md5_evaluation_keys(array $signatures) {
   $signatures_with_keys = array();
 
   // Generate secret validation keys.
@@ -151,8 +144,8 @@ function _signatures_queue_add_md5_evaluation_keys($signatures) {
  *   Array of signatures organized like this:
  *     array('sent' => $signatures_sent, 'not sent' => $signatures_not_sent)
  */
-function _signatures_queue_send_validation_emails($signatures) {
-  $signatures_mailed = array();
+function _signatures_queue_send_validation_emails(array $signatures) {
+  $signatures_mailed = array('sent' => array(), 'not sent' => array());
 
   // TODO Looks like we can only call drupal_mail() one-by-one. Is there any way
   // to submit these in bulk? Or do we need to make an API call to for every
@@ -177,4 +170,32 @@ function _signatures_queue_send_validation_emails($signatures) {
   }
 
   return $signatures_mailed;
+}
+
+/**
+ * Advances signatures to "signatures_pending_validation_queue".
+ *
+ * @param array $signatures
+ *   An array of signatures.
+ */
+function _signatures_queue_advance_successful_signatures(array $signatures) {
+  $queue = SignaturesQueue::get('signatures_pending_validation_queue');
+  $queue->createQueue();
+  foreach ($signatures as $signature) {
+    $queue->createItem($signature);
+  }
+}
+
+/**
+ * Returns signatures to "signatures_submitted_queue".
+ *
+ * @param array $signatures
+ *   An array of signatures.
+ */
+function _signatures_queue_return_failed_signatures(array $signatures) {
+  $queue = SignaturesQueue::get('signatures_submitted_queue');
+  $queue->createQueue();
+  foreach ($signatures as $signature) {
+    $queue->createItem($signature);
+  }
 }
