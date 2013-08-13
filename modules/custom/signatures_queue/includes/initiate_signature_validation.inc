@@ -2,7 +2,7 @@
 
 /**
  * @file
- * The "initiate signature validation" step.
+ * The "initiate signature validation" workflow.
  *
  * Retrieve and delete batches of signatures from signatures_submitted_queue,
  * send a validation email, then store signature info in
@@ -18,13 +18,13 @@
  *   An arbitrary worker identifier.
  *
  * @return bool
- *   Returns TRUE if the function completes or FALSE if not.
+ *   Returns TRUE if the workflow executes successfully or FALSE if not.
  */
 function signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
 
   // Retrieve and delete signatures from the signatures_submitted_queue.
-  $signatures = _signatures_queue_retrieve_submitted_signatures();
+  $signatures = _signatures_queue_retrieve_submitted_signatures($watchdog_suffix);
 
   // Return if there's nothing to do.
   if (empty($signatures)) {
@@ -38,13 +38,13 @@ function signatures_queue_initiate_signature_validation($job_id, $server_name, $
   $signatures = _signatures_queue_add_md5_evaluation_keys($signatures);
 
   // Send validation emails.
-  $signatures = _signatures_queue_send_validation_emails($signatures);
+  $signatures = _signatures_queue_send_validation_emails($signatures, $watchdog_suffix);
 
   // Advance successfully-processed signatures to the next workflow.
-  _signatures_queue_advance_successful_signatures($signatures['sent']);
+  _signatures_queue_advance_successful_signatures($signatures['sent'], $watchdog_suffix);
 
   // Return failed signatures to the queue for re-processing.
-  _signatures_queue_return_failed_signatures($signatures['not sent']);
+  _signatures_queue_return_failed_signatures($signatures['not sent'], $watchdog_suffix);
 
   return TRUE;
 }
@@ -58,7 +58,7 @@ function signatures_queue_initiate_signature_validation($job_id, $server_name, $
  * @return array
  *   Array of signature submissions.
  */
-function _signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
+function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batch_size = 0) {
   // If this function is called directly, the calling function can determine
   // batch size by passing it as a parameter. Otherwise use admin-defined batch
   // size, or default to 1.
@@ -70,6 +70,17 @@ function _signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
   $signatures = array();
   $queue = SignaturesQueue::get('signatures_submitted_queue');
   $queue->createQueue();
+  $number_of_items = $queue->numberOfItems();
+
+  // Return if the queue is empty.
+  if (!$number_of_items) {
+    watchdog('signatures_queue', 'signatures_submitted_queue is empty. No validation emails will be sent. @suffix', array(
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_INFO);
+    return $signatures;
+  }
+
+  // Process the queue.
   for ($i = 0; $i < $batch_size; $i++) {
     $item = $queue->claimItem();
 
@@ -80,11 +91,24 @@ function _signatures_queue_retrieve_submitted_signatures($batch_size = 0) {
 
     $signatures[] = $item->data;
 
-    // Remove item from signatures_submitted_queue (AWS SQS only guarantees you
-    // can retrieve each message once, if we don't successfully complete
+    // Remove item from signatures_submitted_queue. (AWS SQS only guarantees you
+    // can retrieve each message once.) If we don't successfully complete
     // processing, we should re-queue, rather than just leave the item sitting
     // in the queue).
     $queue->deleteItem($item);
+  }
+
+  if ($i) {
+    watchdog('signatures_queue', '@number records retrieved and deleted from signatures_submitted_queue. @suffix', array(
+      '@number' => number_format($i),
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_INFO);
+  }
+  else {
+    watchdog('signatures_queue', 'signatures_submitted_queue contains @number record(s), but none were retrieved. @suffix', array(
+      '@number' => number_format($number_of_items),
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_ERROR);
   }
 
   return $signatures;
@@ -146,7 +170,7 @@ function _signatures_queue_add_md5_evaluation_keys(array $signatures) {
  *   Array of signatures organized like this:
  *     array('sent' => $signatures_sent, 'not sent' => $signatures_not_sent)
  */
-function _signatures_queue_send_validation_emails(array $signatures) {
+function _signatures_queue_send_validation_emails(array $signatures, $watchdog_suffix) {
   $signatures_mailed = array('sent' => array(), 'not sent' => array());
 
   // TODO Looks like we can only call drupal_mail() one-by-one. Is there any way
@@ -171,6 +195,37 @@ function _signatures_queue_send_validation_emails(array $signatures) {
     }
   }
 
+  // Identify the active mail system.
+  // @todo There should be a nicer way to do this once the broader question of
+  //   mail handling has been addressed per PT-1003.
+  $mail_systems = variable_get('mail_system', array(
+    'default-system' => 'DefaultMailSystem',
+  ));
+  if (!empty($mail_systems['default-system']) && is_string($mail_systems['default-system'])) {
+    $active_mail_system = $mail_systems['default-system'];
+  }
+  else {
+    $active_mail_system = 'DefaultMailSystem';
+  }
+
+  // Log successes.
+  if (!empty($signatures_mailed['sent'])) {
+    watchdog('signatures_queue', '@number signature validation emails sent via @mail_system. @suffix', array(
+      '@number' => number_format(count($signatures_mailed['sent'])),
+      '@mail_system' => $active_mail_system,
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_INFO);
+  }
+
+  // Log failures.
+  if (!empty($signatures_mailed['not sent'])) {
+    watchdog('signatures_queue', '@number signature validation emails failed via @mail_system. (Will try again.) @suffix', array(
+      '@number' => number_format(count($signatures_mailed['not sent'])),
+      '@mail_system' => $active_mail_system,
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_ERROR);
+  }
+
   return $signatures_mailed;
 }
 
@@ -180,12 +235,17 @@ function _signatures_queue_send_validation_emails(array $signatures) {
  * @param array $signatures
  *   An array of signatures.
  */
-function _signatures_queue_advance_successful_signatures(array $signatures) {
+function _signatures_queue_advance_successful_signatures(array $signatures, $watchdog_suffix) {
   $queue = SignaturesQueue::get('signatures_pending_validation_queue');
   $queue->createQueue();
   foreach ($signatures as $signature) {
     $queue->createItem($signature);
   }
+
+  watchdog('signatures_queue', '@number records added to signatures_pending_validation_queue. @suffix', array(
+    '@number' => number_format(count($signatures)),
+    '@suffix' => $watchdog_suffix,
+  ), WATCHDOG_INFO);
 }
 
 /**
@@ -194,10 +254,15 @@ function _signatures_queue_advance_successful_signatures(array $signatures) {
  * @param array $signatures
  *   An array of signatures.
  */
-function _signatures_queue_return_failed_signatures(array $signatures) {
+function _signatures_queue_return_failed_signatures(array $signatures, $watchdog_suffix) {
   $queue = SignaturesQueue::get('signatures_submitted_queue');
   $queue->createQueue();
   foreach ($signatures as $signature) {
     $queue->createItem($signature);
   }
+
+  watchdog('signatures_queue', '@number records returned to signatures_submitted_queue. @suffix', array(
+    '@number' => number_format(count($signatures)),
+    '@suffix' => $watchdog_suffix,
+  ), WATCHDOG_INFO);
 }
