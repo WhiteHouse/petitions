@@ -75,6 +75,18 @@ function signatures_queue_menu() {
     'access arguments' => array('access content'),
     'file' => 'signatures_queue.pages.inc',
   );
+  $items['validation-error'] = array(
+    'title' => 'Validation Error',
+    'page callback' => '_signatures_queue_validation_error_page_callback',
+    'access arguments' => array('access content'),
+    'file' => 'signatures_queue.pages.inc',
+  );
+  $items['petition-error'] = array(
+    'title' => 'Petition Not Found',
+    'page callback' => '_signatures_queue_petition_error_page_callback',
+    'access arguments' => array('access content'),
+    'file' => 'signatures_queue.pages.inc',
+  );
 
   return $items;
 }

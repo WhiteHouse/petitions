@@ -37,12 +37,14 @@ function signatures_queue_overview() {
 }
 
 /**
- * Callback fo thank-you.
+ * Callback for thank-you.
  *
  * Compares the second parameter in the request to the MD5 hash of the first
  * parameter (the unique signature validation key).
  */
 function _signatures_queue_validation_page_callback() {
+  $output = '';
+
   // Confirm that expected parameters were submitted via URL.
   if (isset($_GET['k']) && isset($_GET['m']) && isset($_GET['p'])) {
     // Confirm that 'm' is the MD5 hash of 'k'.
@@ -57,20 +59,45 @@ function _signatures_queue_validation_page_callback() {
           'petition_id' => $_GET['p'],
         );
         $response = signatures_queue_invoke_workflow('receive_signature_validation', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
-        return $response;
+        // If the workflow succeeds (shunt isn't tripped) return output.
+        if ($response == TRUE) {
+          $output = "Thank you. Your signature has been counted.";
+        }
+        // If the workflow fails (shunt is tripped) drupal_goto() apology page.
+        else {
+          drupal_goto('validation-error', array(), 503);
+        }
       }
-      // The petition has expired. Return error.
+      // The petition has been removed, expired, or doesn't exist. Return error.
       else {
-        return FALSE;
+        drupal_goto('petition-error', array(), 404);
       }
     }
     // Hashes do not match. Return error.
     else {
-      return FALSE;
+      drupal_not_found();
     }
   }
   // Parameters are missing. Return error.
   else {
-    return FALSE;
+    drupal_not_found();
   }
+
+  return $output;
+}
+
+/**
+ * Callback for validation-error.
+ */
+function _signatures_queue_validation_error_page_callback() {
+  $output = "This service is temporarily unavailable. Please try again later.";
+  return $output;
+}
+
+/**
+ * Callback fo petition-error.
+ */
+function _signatures_queue_petition_error_page_callback() {
+  $output = "Sorry, your petition has been removed, expired, or doesn't exist.";
+  return $output;
 }
