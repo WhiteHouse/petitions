@@ -15,20 +15,31 @@
  *   The name of the active server.
  * @param string $worker_name
  *   An arbitrary worker identifier.
+ * @param array $options
+ *   An array of options
  *
- * @return bool
- *   Returns TRUE if the function completes or FALSE if not.
+ * @return string
+ *   Returns thank-you/$petition_id if hashes match and error is they do not.
  */
 function signatures_queue_receive_signature_validation($server_name, $worker_name, $options) {
-  // Construct the validated signature data array.
-  $signature_data = _signatures_queue_validated_signature_data($options['signature'], $options['petition_id']);
+  // Confirm that 'm' is the MD5 hash of 'k'
+  if ($options['md5'] == md5($options['validation_key'])) {
+    // Construct the validated signature data array.
+    $signature_data = _signatures_queue_validated_signature_data($options['signature'], $options['petition_id']);
 
-  // Queue validated signatures for next step.
-  $queue = SignaturesQueue::get('signatures_validated_queue');
-  $queue->createQueue();
-  $queue->createItem($signature_data);
+    // Queue validated signatures for next step.
+    $queue = SignaturesQueue::get('signatures_validated_queue');
+    $queue->createQueue();
+    $queue->createItem($signature_data);
 
-  return TRUE;
+    $path_redirect = 'thank-you/' . $options['petition_id'];
+
+    return $path_redirect;
+  }
+  // Hashes do not match. Return error.
+  else {
+    return 'error';
+  }
 }
 
 /**

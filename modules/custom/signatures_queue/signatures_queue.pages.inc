@@ -43,47 +43,56 @@ function signatures_queue_overview() {
  * parameter (the unique signature validation key).
  */
 function _signatures_queue_validation_page_callback() {
-  $output = '';
-
   // Confirm that expected parameters were submitted via URL.
   if (isset($_GET['k']) && isset($_GET['m']) && isset($_GET['p'])) {
-    // Confirm that 'm' is the MD5 hash of 'k'.
-    if ($_GET['m'] == md5($_GET['k'])) {
-      // Load the petition via the API retrieve method.
-      $petition = PetitionsRetrieveRawFactory::create()->load($_GET['p']);
-      // Confirm that petition 'p' hasn't expired.
-      if ($petition['results'][0]['status'] == 'open') {
-        //Validate the signature.
-        $options = array(
-          'validation_key' => $_GET['k'],
-          'petition_id' => $_GET['p'],
-        );
-        $response = signatures_queue_invoke_workflow('receive_signature_validation', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
-        // If the workflow succeeds (shunt isn't tripped) return output.
-        if ($response == TRUE) {
-          $output = "Thank you. Your signature has been counted.";
-        }
-        // If the workflow fails (shunt is tripped) drupal_goto() apology page.
-        else {
-          drupal_goto('validation-error', array(), 503);
-        }
+    // check_plain() parameters and save to an $options array.
+    $validation_key = check_plain($_GET['k']);
+    $md5 = check_plain($_GET['m']);
+    $petition_id = check_plain($_GET['p']);
+    $options = array(
+      'validation_key' => $validation_key,
+      'md5' => $md5,
+      'petition_id' => $petition_id,
+    );
+    // Invoke the workflow.
+    $response = signatures_queue_invoke_workflow('receive_signature_validation', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
+    if ($response != FALSE) {
+      // If the workflow succeeds (shunt isn't tripped) return output.
+      if ($response != 'error') {
+        drupal_goto($response, array(), 301);
       }
-      // The petition has been removed, expired, or doesn't exist. Return error.
+      // Hashes do not match. Return error.
       else {
-        drupal_goto('petition-error', array(), 404);
+        drupal_not_found();
       }
     }
-    // Hashes do not match. Return error.
+    // If the workflow fails (shunt is tripped) drupal_goto() apology page.
     else {
-      drupal_not_found();
+      drupal_goto('validation-error', array(), 503);
     }
   }
   // Parameters are missing. Return error.
   else {
     drupal_not_found();
   }
+}
 
-  return $output;
+/**
+ * Callback for thank-you/%.
+ */
+function _signatures_queue_validated_page_callback($petition_id) {
+  // Load the petition via the API retrieve method.
+  $petition = PetitionsRetrieveRawFactory::create()->load($petition_id);
+  // Confirm that the petition is open.
+  if ($petition['results'][0]['status'] == 'open') {
+    $title = $petition['results'][0]['title'];
+    $output = "Thank you for signing '{$title}' Your signature has been counted.";
+    return $output;
+  }
+  // The petition has been removed, expired, or doesn't exist. Return error.
+  else {
+    drupal_goto('petition-error', array(), 404);
+  }
 }
 
 /**

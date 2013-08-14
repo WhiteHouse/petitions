@@ -75,6 +75,13 @@ function signatures_queue_menu() {
     'access arguments' => array('access content'),
     'file' => 'signatures_queue.pages.inc',
   );
+  $items['thank-you/%'] = array(
+    'title' => 'Thank You',
+    'page callback' => '_signatures_queue_validated_page_callback',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'file' => 'signatures_queue.pages.inc',
+  );
   $items['validation-error'] = array(
     'title' => 'Validation Error',
     'page callback' => '_signatures_queue_validation_error_page_callback',
@@ -252,7 +259,7 @@ function signatures_queue_shunt() {
 function signatures_queue_get_queue_names() {
   return array(
     'signatures_submitted_queue' => t('Queue submissions received via API POST requests or form submissions by unauthenticated users.'),
-    'signatures_pending_validation_queue' => t('Retrieve petitons from signatures_submitted_queue, send a validation email, then move the pending signature here.'),
+    'signatures_pending_validation_queue' => t('Retrieve petitions from signatures_submitted_queue, send a validation email, then move the pending signature here.'),
     'signatures_validated_queue' => t('When a user clicks a validation link received via email, store the secret validation key here.'),
     'signatures_validated' => t('Move records from signatures_validated_queue to here for processing.'),
     'signatures_pending_validation' => t('Move records from signatures_pending_validation_queue to here for processing.'),
@@ -287,6 +294,8 @@ function signatures_queue_get_workflow_names() {
  *   The name of the server processing the workflow.
  * @param string $worker_name
  *   An arbitrary identifier for the invoking process (e.g., cron job).
+ * @param array $options
+ *   An array of options
  *
  * @return bool
  *   Returns TRUE if the workflow was successfully processed or FALSE if not.
