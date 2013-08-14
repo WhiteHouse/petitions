@@ -1,0 +1,202 @@
+<?php
+/**
+ * @file
+ * Handle [un]install for Signature Queue module.
+ */
+
+require_once "signatures_queue.module";
+
+/**
+ * Implements hook_install().
+ */
+function signatures_queue_install() {
+  $t = get_t();
+
+  // Set database so that we create the tables there.
+  signatures_queue_set_db();
+
+  $schema = signatures_queue_schema_tables();
+  foreach ($schema as $name => $table) {
+    db_create_table($name, $table);
+  }
+
+  // Set back to default and get the previously active db.
+  $previous = db_set_active();
+  if ($previous != 'signatures_processing') {
+    drupal_set_message($t('IMPORTANT! Signature processing tables created in default database. This is not recommended for production installations. See INSTALL.md for more information.'), 'warning');
+  }
+
+}
+
+/**
+ * Signature processing schema for creation on any database.
+ *
+ * Typically tables are created using hook_schema() but we allow these tables to
+ * be added to a secondary database.
+ *
+ * @see signatures_queue_install()
+ */
+function signatures_queue_schema_tables() {
+  $schema = array();
+
+  // Schema for signatures_validated table.
+  $schema['signatures_validated'] = array(
+    'description' => 'Validated signatures.',
+    'fields' => array(
+      'secret_validation_key' => array(
+        'description' => 'The unique, hashed secret validation key.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'timestamp_validated' => array(
+        'description' => 'Time of the validation.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'client_ip' => array(
+        'description' => 'Client IP address',
+        'type' => 'varchar',
+        'length' => 40,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'petition_id' => array(
+        'description' => 'Petition ID.',
+        'type' => 'varchar',
+        'length' => 25,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'indexes' => array(
+      'signatures_validated_key' => array('secret_validation_key'),
+      'signatures_validated_petition_id' => array('petition_id'),
+    ),
+    'unique keys' => array(
+      'secret_validation_key' => array('secret_validation_key'),
+    ),
+    'primary key' => array('secret_validation_key'),
+  );
+
+  // The signatures_orphans table has the same fields as signatures_validated.
+  $schema['signatures_orphans'] = $schema['signatures_validated'];
+  $schema['signatures_orphans']['description'] = 'Unvalidated signatures.';
+  $schema['signatures_orphans']['indexes'] = array(
+    'signatures_orphans_key' => array('secret_validation_key'),
+    'signatures_orphans_petition_id' => array('petition_id'),
+  );
+
+  // Schema for signatures_pending_validation table.
+  $schema['signatures_pending_validation'] = array(
+    'description' => 'Validated signatures.',
+    'fields' => array(
+      'secret_validation_key' => array(
+        'description' => 'The unique, hashed secret validation key.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'signature_source_api_key' => array(
+        'description' => 'The source api key.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'timestamp_petition_close' => array(
+        'description' => 'Time petition closes/expires.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'petition_id' => array(
+        'description' => 'Petition ID.',
+        'type' => 'varchar',
+        'length' => 25,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'first_name' => array(
+        'description' => 'First Name.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'last_name' => array(
+        'description' => 'Last Name.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'zip' => array(
+        'description' => 'Zip code.',
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'email' => array(
+        'description' => 'Email address.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'signup' => array(
+        'description' => 'Email list Signup.',
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'timestamp_validation_email_sent' => array(
+        'description' => 'Time validation email was sent.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'timestamp_submitted' => array(
+        'description' => 'Time signature was submitted.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'signatures_pending_validation_key' => array('secret_validation_key'),
+      'signatures_pending_petition_id' => array('petition_id'),
+    ),
+    'unique keys' => array(
+      'secret_validation_key' => array('secret_validation_key'),
+    ),
+    'primary key' => array('secret_validation_key'),
+  );
+
+  // The signatures_not_valid table has the same fields as
+  // signatures_pending_validation.
+  $schema['signatures_not_valid'] = $schema['signatures_pending_validation'];
+  $schema['signatures_not_valid']['description'] = 'Not valid signatures.';
+  $schema['signatures_not_valid']['indexes'] = array(
+    'signatures_not_valid_validation_key' => array('secret_validation_key'),
+    'signatures_not_valid_petition_id' => array('petition_id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function signatures_queue_uninstall() {
+  // Set database so that we drop the tables there.
+  signatures_queue_set_db();
+
+  // Remove the tables defined in signatures_queue_schema_tables().
+  $schema = signatures_queue_schema_tables();
+  foreach (array_keys($schema) as $name) {
+    db_drop_table($name);
+  }
+
+  db_set_active();
+}
