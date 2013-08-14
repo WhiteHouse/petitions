@@ -16,7 +16,7 @@ INSTALL.md
 "Alpha" means we cannot promise to provide an upgrade path to users who build sites on the current code base.
 
 Later releases will remove this application's dependence on MongoDB. Our intention is to evolve this code base into an install profile that others can easily reuse, extend and contribute to. This is not the state of the current application, which was made specifically for the White House's particular use cases and hosting environment.
- 
+
 These instructions will help you install Drupal, get Drupal talking to MySQL and MongoDB, and let you try out the existing code base.
 
 Where the application still has dependencies on configuration stored in the site's database, these are areas where the install profile remains a work in progress. We will release improvements as we make them on GitHub. In the meanwhile, patches are welcome too.
@@ -30,7 +30,7 @@ For local development on Mac OSX with MAMP (similar with XAMPP), install Homebre
 ```
 $ brew versions mongo
 $ cd /usr/local/Cellar
-$ git checkout dae14ec /usr/local/Library/Formula/mongodb.rb 
+$ git checkout dae14ec /usr/local/Library/Formula/mongodb.rb
 $ brew install mongo
 
 $ /Applications/MAMP/bin/php/php5.3.6/bin/pecl install mongo
@@ -59,7 +59,7 @@ drush -y make --no-core --contrib-destination=. drupal-org.make
      a profile, select "Petitions." Drupal will rewrite your settings.php file.
      After it does, you will be prompted to add a snippet like this to the end
      of settings.php. Do this before you visit your site, otherwise Drupal will
-     be unhappy: 
+     be unhappy:
 
 ```php
       // Set mongo configuration
@@ -78,8 +78,8 @@ drush -y make --no-core --contrib-destination=. drupal-org.make
         'petition_response' => 'petition_tool_response',
         'petition_signatures' => 'petition_tool_signatures',
       );
-  
-      # (Optional): 
+
+      # (Optional):
       # $conf['mongodb_options'] = array(
       #   'replicaSet' => 'petitions',
       #   'timeout' => 1,
@@ -101,8 +101,8 @@ drush en -y petition_install3
 drush en -y petition_install4
 ```
 
-Drupal will complain when you install these modules. If you ignore the error 
-messages and proceed, you should be able to get a site running with the 
+Drupal will complain when you install these modules. If you ignore the error
+messages and proceed, you should be able to get a site running with the
 basic White House petition creation and signing workflow.
 
 For development, you may prefer to look at the .info files in the Petition
@@ -167,9 +167,9 @@ Here is a list of modules that should be enabled for the system to run properly:
   </tr>
 </table>
 
-8) The "main" profile should have these fields: First Name, Last Name, City, 
+8) The "main" profile should have these fields: First Name, Last Name, City,
      State, Zip, Country. To confirm, check here:
-       
+
 * `admin/structure/profiles`
 * `admin/structure/profiles/manage/main/fields`
 
@@ -237,7 +237,7 @@ Import the user_submit rule here (check "Overwrite"):
         `admin/config/people/captcha/recaptcha`
 
 12) For development, you may want to add this to settings.php:
- 
+
 ```php
         $conf['error_level'] = 2;         // Show all messages on your screen.
         ini_set('display_errors', TRUE);  // These lines give you content on
