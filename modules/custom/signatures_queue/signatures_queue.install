@@ -43,6 +43,12 @@ function signatures_queue_schema_tables() {
   $schema['signatures_validated'] = array(
     'description' => 'Validated signatures.',
     'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: Signature ID.',
+      ),
       'secret_validation_key' => array(
         'description' => 'The unique, hashed secret validation key.',
         'type' => 'varchar',
@@ -77,7 +83,7 @@ function signatures_queue_schema_tables() {
     'unique keys' => array(
       'secret_validation_key' => array('secret_validation_key'),
     ),
-    'primary key' => array('secret_validation_key'),
+    'primary key' => array('id'),
   );
 
   // The signatures_orphans table has the same fields as signatures_validated.
@@ -92,6 +98,12 @@ function signatures_queue_schema_tables() {
   $schema['signatures_pending_validation'] = array(
     'description' => 'Validated signatures.',
     'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: Signature ID.',
+      ),
       'secret_validation_key' => array(
         'description' => 'The unique, hashed secret validation key.',
         'type' => 'varchar',
@@ -170,7 +182,7 @@ function signatures_queue_schema_tables() {
     'unique keys' => array(
       'secret_validation_key' => array('secret_validation_key'),
     ),
-    'primary key' => array('secret_validation_key'),
+    'primary key' => array('id'),
   );
 
   // The signatures_not_valid table has the same fields as
