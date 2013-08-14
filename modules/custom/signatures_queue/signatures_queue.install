@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Handle [un]install for Signature Queue module.
+ * Install, update and uninstall functions for the Signatures Queue module.
  */
 
 require_once "signatures_queue.module";

@@ -208,7 +208,7 @@ function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_Q
 }
 
 /**
- * Check for signatures_processing database configuration.
+ * Set active database according to settings.php configuration.
  *
  * Don't forget to call db_set_active() to set back to default after using this.
  */
