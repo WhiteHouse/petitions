@@ -86,7 +86,7 @@ class SignaturesQueue extends DrupalQueue {
    * @param string $name
    *   Valid queue name.
    *
-   * @return array
+   * @return array $item
    *   Dummy data for specified queue.
    */
   public static function getDummyItem($name) {
