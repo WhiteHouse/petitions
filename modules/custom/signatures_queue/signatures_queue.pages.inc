@@ -91,7 +91,7 @@ function _signatures_queue_validated_page_callback($petition_id) {
   }
   // The petition has been removed, expired, or doesn't exist. Return error.
   else {
-    drupal_goto('petition-error', array(), 404);
+    drupal_goto('petition-error', array(), 301);
   }
 }
 
