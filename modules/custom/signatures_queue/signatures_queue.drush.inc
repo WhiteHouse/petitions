@@ -54,7 +54,7 @@ function drush_signatures_queue_invoke_workflow_validate() {
 
   // Make sure workflow argument is valid.
   $workflow = $args[1];
-  if (!in_array($workflow, signatures_queue_get_workflow_names())) {
+  if ($workflow == 'receive_signature_validation' || !in_array($workflow, signatures_queue_get_workflow_names())) {
     drush_set_error('SIGNATURES_QUEUE_INVALID_ARGUMENT', dt('"@workflow" is not a valid workflow choice.', array('@workflow' => $workflow)));
   }
 }
