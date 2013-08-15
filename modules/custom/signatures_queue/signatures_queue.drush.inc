@@ -24,6 +24,9 @@ function signatures_queue_drush_command() {
     'examples' => array(
       'drush signatures-queue-invoke-workflow initiate_signature_validation --server-name=M5 --worker-name=w42' => 'Invoke the "initiate_signature_validation" queue.',
     ),
+    'drupal dependencies' => array(
+      'signatures_queue',
+    ),
   );
   return $items;
 }
