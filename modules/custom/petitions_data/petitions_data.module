@@ -98,3 +98,19 @@ function petitions_data_petition_is_open($petition_id) {
   }
   return $is_open;
 }
+
+/**
+ * Makes a string XML-safe by removing unacceptable Unicode characters.
+ *
+ * @see http://www.phpwact.org/php/i18n/charsets#xml
+ *
+ * @param string $string
+ *   The raw input string.
+ *
+ * @return string
+ *   The XML-safe output string.
+ */
+function petitions_data_make_xml_safe($string) {
+  $string = preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', '', $string);
+  return $string;
+}
