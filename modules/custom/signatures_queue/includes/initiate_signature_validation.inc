@@ -12,6 +12,9 @@
 /**
  * Initiates signature validation.
  *
+ * This function should not be invoked directly. Use
+ * signatures_queue_invoke_workflow() instead.
+ *
  * @param string $server_name
  *   The name of the active server.
  * @param string $worker_name
@@ -19,6 +22,8 @@
  *
  * @return bool
  *   Returns TRUE if the workflow executes successfully or FALSE if not.
+ *
+ * @see signatures_queue_invoke_workflow()
  */
 function signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
