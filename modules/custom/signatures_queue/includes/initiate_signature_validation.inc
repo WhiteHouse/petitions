@@ -43,8 +43,8 @@ function signatures_queue_initiate_signature_validation($job_id, $server_name, $
   // Advance successfully-processed signatures to the next workflow.
   _signatures_queue_advance_successful_signatures($signatures['sent'], $watchdog_suffix);
 
-  // Return failed signatures to the queue for re-processing.
-  _signatures_queue_return_failed_signatures($signatures['not sent'], $watchdog_suffix);
+  // Leave failed signatures in the queue for re-processing.
+  _signatures_queue_leave_failed_signatures($signatures['not sent'], $watchdog_suffix);
 
   return TRUE;
 }
@@ -89,13 +89,7 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
       break;
     }
 
-    $signatures[] = $item->data;
-
-    // Remove item from signatures_submitted_queue. (AWS SQS only guarantees you
-    // can retrieve each message once.) If we don't successfully complete
-    // processing, we should re-queue, rather than just leave the item sitting
-    // in the queue).
-    $queue->deleteItem($item);
+    $signatures[] = $item;
   }
 
   if ($i) {
@@ -128,11 +122,11 @@ function _signatures_queue_assign_validation_keys(array $signatures) {
 
   // Generate secret validation keys.
   foreach ($signatures as $signature) {
-    $email = $signature['email'];
-    $timestamp = $signature['timestamp_submitted'];
-    $petition_id = $signature['petition_id'];
+    $email = $signature->data['email'];
+    $timestamp = $signature->data['timestamp_submitted'];
+    $petition_id = $signature->data['petition_id'];
     $salt = variable_get('signatures_queue_salt', '');
-    $signature['secret_validation_key'] = sha1($email . $timestamp . $petition_id . $salt);
+    $signature->data['secret_validation_key'] = sha1($email . $timestamp . $petition_id . $salt);
     $signatures_with_keys[] = $signature;
   }
 
@@ -153,7 +147,7 @@ function _signatures_queue_add_md5_evaluation_keys(array $signatures) {
 
   // Generate secret validation keys.
   foreach ($signatures as $signature) {
-    $signature['md5_encryption_key'] = md5($signature['secret_validation_key']);
+    $signature->data['md5_encryption_key'] = md5($signature->data['secret_validation_key']);
     $signatures_with_keys[] = $signature;
   }
 
@@ -178,13 +172,14 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
   // send?
   foreach ($signatures as $signature) {
     // Send validation email.
-    $to = $signature['email'];
+    $to = $signature->data['email'];
     global $language;
-    $params = array('signature info' => $signature);
+    $params = array('signature info' => $signature->data);
     $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
 
+
     // TODO Figure out how we determine success/failure here...
-    $text = 'This is where a message gets sent to ' . $signature['first_name'] . ' ' . $signature['last_name'];
+    $text = 'This is where a message gets sent to ' . $signature->data['first_name'] . ' ' . $signature->data['last_name'];
     drupal_set_message($text);
     // VERIFY SUCCESS HERE.
     if ($result) {
@@ -236,10 +231,15 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
  *   An array of signatures.
  */
 function _signatures_queue_advance_successful_signatures(array $signatures, $watchdog_suffix) {
-  $queue = SignaturesQueue::get('signatures_pending_validation_queue');
-  $queue->createQueue();
+  $pending_validation_queue = SignaturesQueue::get('signatures_pending_validation_queue');
+  $pending_validation_queue->createQueue();
+  $submitted_queue = SignaturesQueue::get('signatures_submitted_queue');
+  $submitted_queue->createQueue();
   foreach ($signatures as $signature) {
-    $queue->createItem($signature);
+    // Add the signature to "signatures_pending_validation_queue".
+    $pending_validation_queue->createItem($signature);
+    // Remove it from "signatures_submitted_queue".
+    $submitted_queue->deleteItem($signature);
   }
 
   watchdog('signatures_queue', '@number records added to signatures_pending_validation_queue. @suffix', array(
@@ -249,19 +249,13 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
 }
 
 /**
- * Returns signatures to "signatures_submitted_queue".
+ * Leaves failed signatures in "signatures_submitted_queue".
  *
  * @param array $signatures
  *   An array of signatures.
  */
-function _signatures_queue_return_failed_signatures(array $signatures, $watchdog_suffix) {
-  $queue = SignaturesQueue::get('signatures_submitted_queue');
-  $queue->createQueue();
-  foreach ($signatures as $signature) {
-    $queue->createItem($signature);
-  }
-
-  watchdog('signatures_queue', '@number records returned to signatures_submitted_queue. @suffix', array(
+function _signatures_queue_leave_failed_signatures(array $signatures, $watchdog_suffix) {
+  watchdog('signatures_queue', '@number records left in signatures_submitted_queue. @suffix', array(
     '@number' => number_format(count($signatures)),
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);
