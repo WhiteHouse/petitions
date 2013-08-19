@@ -145,7 +145,7 @@ class SignaturesQueue extends DrupalQueue {
    */
   protected static function generateRandomPetitionID() {
     $petitions = PetitionsIndexRawFactory::create()->setStatus('open')->load();
-    if (!empty($petitions['results'])) {
+    if (!empty($petitions['results'] && $petition['results'][0]['deadline'] > time()) {
       shuffle($petitions['results']);
       return $petitions['results'][0]['id'];
     }
