@@ -1,6 +1,20 @@
 UPDATE
 ======
 
+Verson 7.x-2.0-beta23 -> 7.x-2.0-beta25
+----------------------------------------------
+
+*** Please see notes in INSTALL.md about new signatures_processing database. ***
+
+Release notes:
+
+  - Install new signatures_queue module.
+
+Update steps:
+  1. Create a new signatures_processing database as per instructions in INSTALL.md.
+  2. Run update.php.
+
+
 Version 7.x-2.0-beta22 -> 7.x-2.0-beta23
 -----------------------------------------------
 

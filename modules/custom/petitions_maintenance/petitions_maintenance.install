@@ -183,3 +183,14 @@ function petitions_maintenance_update_7008() {
 
   module_disable($modules, TRUE);
 }
+
+/**
+ * Installs Signatures Queue module.
+ *
+ * NOTE: Production websites are strongly encouraged to create a new
+ * signatures_processing database as described in INSTALL.md before applying
+ * this update.
+ */
+function petitions_maintenance_update_7009() {
+  module_enable(array('signatures_queue'));
+}
