@@ -16,11 +16,6 @@
  */
 function signatures_queue_preprocess_signatures($server_name = 'Unavailable', $worker_name = 'Unavailable') {
 
-  // First check if shunt is tripped.
-  if (shunt_is_enabled('signatures_queue_preprocess_signatures')) {
-    return FALSE;
-  }
-
   // Processing is the same for the two queues so we loop through them.
   $queues = array(
     'signatures_pending_validation_queue' => 'signatures_pending_validation',
