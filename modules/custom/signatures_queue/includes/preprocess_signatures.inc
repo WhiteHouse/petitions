@@ -5,7 +5,7 @@
  *
  * Retrieve a batch of records from signatures_pending_validation_queue, store
  *   in mysql signatures_pending_validation table, delete from SQS.
- *   (If we fail to insert into mysql, re-insert into SQS)
+ *
  * Retrieve a batch of records from signatures_validated_queue, store in mysql
  *   signatures_validated table, delete from SQS.
  */
@@ -14,7 +14,7 @@
 /**
  * Run the preprocess signatures tasks.
  */
-function signatures_queue_preprocess_signatures($server_name, $worker_name) {
+function signatures_queue_preprocess_signatures($server_name = 'Server name not available', $worker_name = 'Worker name not available') {
 
   // First check if shunt is tripped.
   if (shunt_is_enabled('signatures_queue_preprocess_signatures')) {
@@ -35,7 +35,7 @@ function signatures_queue_preprocess_signatures($server_name, $worker_name) {
     );
     $log_suffix = 'Job: preprocess_signatures. Job ID: [id]. Worker: %worker. Server: %server.';
 
-    // Preprocess a batch of singatures in $queue queue.
+    // Preprocess a batch of signatures in $queue queue.
     watchdog('signatures_queue', 'Worker named %worker is starting a new job. ' . $log_suffix, $log_common);
     $result = signatures_queue_preprocess_signatures_batch($queue, $table);
     watchdog('signatures_queue', 'Worker named %worker completed job. ' . $log_suffix, $log_common);
