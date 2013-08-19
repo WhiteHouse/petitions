@@ -56,7 +56,12 @@ function _signatures_queue_validation_page_callback() {
     );
     // Invoke the workflow.
     $response = signatures_queue_invoke_workflow('receive_signature_validation', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
-    if ($response != FALSE) {
+    // Typically signatures_queue_invoke_workflow() returns boolean.
+    // If the workflow fails (shunt is tripped) drupal_goto() apology page.
+    if ($response == TRUE) {
+      drupal_goto('validation-error', array(), 503);
+    }
+    elseif ($response != FALSE) {
       // If the workflow succeeds (shunt isn't tripped) return output.
       if ($response != 'error') {
         drupal_goto($response, array(), 301);
@@ -65,10 +70,6 @@ function _signatures_queue_validation_page_callback() {
       else {
         drupal_not_found();
       }
-    }
-    // If the workflow fails (shunt is tripped) drupal_goto() apology page.
-    else {
-      drupal_goto('validation-error', array(), 503);
     }
   }
   // Parameters are missing. Return error.
