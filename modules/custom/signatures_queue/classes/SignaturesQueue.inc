@@ -24,9 +24,8 @@ class SignaturesQueue extends DrupalQueue {
       return;
     }
 
-    // @todo PT-960 - Insert logic here to check how many workers are running
-    // and create additional queues as-needed.
-
+    // @todo PT-960 - Insert logic before returning to check how many workers
+    // are running and create additional queues as-needed.
     return DrupalQueue::get($name, $reliable);
   }
 
@@ -87,7 +86,7 @@ class SignaturesQueue extends DrupalQueue {
    * @param string $name
    *   Valid queue name.
    *
-   * @return array $item
+   * @return array
    *   Dummy data for specified queue.
    */
   public static function getDummyItem($name) {
@@ -101,10 +100,13 @@ class SignaturesQueue extends DrupalQueue {
         $item['email'] = $item['first_name'] . '@example.com';
         $item['signup'] = (rand(0, 100) >= 50) ? TRUE : FALSE;
         $item['timestamp_submitted'] = time();
+        $item['signature_source_api_key'] = self::generateRandomString(20);
         break;
 
       case 'signatures_pending_validation_queue':
+        $salt = variable_get('signatures_queue_salt', 'some random string');
         $item['petition_id'] = self::generateRandomPetitionID();
+        $item['timestamp_petition_close'] = time() + 10 * 24 * 60 * 60;
         $item['first_name'] = self::generateRandomString(6);
         $item['last_name'] = self::generateRandomString(8);
         $item['zip'] = rand(10000, 99999);
@@ -112,16 +114,18 @@ class SignaturesQueue extends DrupalQueue {
         $item['signup'] = (rand(0, 100) >= 50) ? TRUE : FALSE;
         $item['timestamp_validation_email_sent'] = time();
         $item['timestamp_submitted'] = $item['timestamp_validation_email_sent'] - 60;
+        $item['secret_validation_key'] = sha1($item['email'] . $item['timestamp_submitted'] . $item['petition_id'] . $salt);
+        $item['signature_source_api_key'] = self::generateRandomString(20);
         break;
 
       case 'signatures_validated_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
         $email = 'jane.smith@example.com';
-        $time = time();
-        $item['secret_validation_key'] = sha1($email . $time . $salt);
+        $timestamp = time();
+        $item['petition_id'] = self::generateRandomPetitionID();
+        $item['secret_validation_key'] = sha1($email . $timestamp . $item['petition_id'] . $salt);
         $item['timestamp_validated'] = time();
         $item['client_ip'] = ip_address();
-        $item['petition_id'] = self::generateRandomPetitionID();
         break;
 
       default:
