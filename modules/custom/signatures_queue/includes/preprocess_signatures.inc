@@ -14,7 +14,7 @@
 /**
  * Run the preprocess signatures tasks.
  */
-function signatures_queue_preprocess_signatures($server_name = 'Server name not available', $worker_name = 'Worker name not available') {
+function signatures_queue_preprocess_signatures($server_name = 'Unavailable', $worker_name = 'Unavailable') {
 
   // First check if shunt is tripped.
   if (shunt_is_enabled('signatures_queue_preprocess_signatures')) {
@@ -54,10 +54,10 @@ function signatures_queue_preprocess_signatures($server_name = 'Server name not 
       );
     }
 
-    if ($result['re-inserted']) {
+    if ($result['failed']) {
       watchdog('signatures_queue',
-        'Error. %num records inserted back into %queue after failed attempt to store them in mysql. ' . $log_suffix,
-        array_merge($log_common, array('%num' => $result['re-inserted'])),
+        'Error. %num records left in %queue after failed attempt to store them in mysql. These will be preprocessed again when lock expires. ' . $log_suffix,
+        array_merge($log_common, array('%num' => $result['failed'])),
         WATCHDOG_ERROR
       );
     }
@@ -105,10 +105,14 @@ function signatures_queue_get_queue_batch_size() {
  *   Expecting either signatures_pending_validation or signatures_validated.
  *
  * @return array
- *   Array of number of records stored in table, and number re-inserted in SQS.
+ *   Array info about records moved into mysql and items remaining in queue
+ *   - retrieved, count of items retrieved from queue to be moved to mysql
+ *   - saved, count of records successfully inserted into mysql table
+ *   - failed, count of items not successfully moved from a queue into mysql
+ *   - queued, total number of items currently in the queue
  */
 function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) {
-  $return = array('saved', 're-inserted', 'queued', 'retrieved');
+  $return = array('saved', 'failed', 'queued', 'retrieved');
   $return = array_combine($return, array_fill(0, count($return), 0));
 
   $queue = SignaturesQueue::get($queue_name);
@@ -121,10 +125,10 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
   // The single '=' is intentional as claimItem returns an object or false.
   while (($i < $max) && ($item = $queue->claimItem())) {
 
-    // Set the active database to the signature processing config.
+    // Set the active database to the signatures_processing db.
     signatures_queue_set_db();
 
-    // Save the item in db.
+    // Save the item in signatures_processing db.
     // The $item->data array is conviniently the same as the field mapping we
     // need for the db_insert() call.
     if (array_key_exists('signup', $item->data)) {
@@ -139,6 +143,8 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
       $return['saved']++;
     }
     catch (Exception $e) {
+      // Set the active database back to default, in case db logging is enabled.
+      db_set_active();
       watchdog('signatures_queue',
         'Error while attempting db insert: %error',
         array('%error' => $e->errorInfo[2]),
@@ -146,7 +152,8 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
       $insert_success = FALSE;
     }
 
-    // Set the active database back to default.
+    // Set the active database back to default, in case queue backend is using
+    // Drupal's database.
     db_set_active();
 
     if ($insert_success) {
@@ -154,7 +161,7 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
       $queue->deleteItem($item);
     }
     else {
-      $return['re-inserted']++;
+      $return['failed']++;
     }
 
     $i++;
