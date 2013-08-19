@@ -46,7 +46,7 @@ function signatures_queue_configure() {
   );
 
   // Signature validation email settings.
-  $signature_validation_email_token_help = t('Available variables are: [site:name], [signature:first-name], [signature:last-name], [signature:zip], [signature:email], [signature:signup], [signature:timestamp-submitted], [signature:secret-validation-key], [signature:signature-md5-encryption-key], [signature:signature-source-application-key], [signature:validation-url], [petition:title], [petition:url].');
+  $signature_validation_email_token_help = t('Available variables are: [site:name], [signature:first-name], [signature:last-name], [signature:zip], [signature:email], [signature:signup], [signature:timestamp-submitted], [signature:secret-validation-key], [signature:signature-md5-encryption-key], [signature:signature-source-api-key], [signature:validation-url], [petition:title], [petition:url].');
 
   $form['signature_validation_email'] = array(
     '#type' => 'fieldset',
