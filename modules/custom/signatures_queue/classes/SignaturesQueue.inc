@@ -136,14 +136,22 @@ class SignaturesQueue extends DrupalQueue {
   }
 
   /**
-   * Generates a random petition ID.
+   * Returns a random petition ID associated to an open petition, or generates a
+   * random petition ID.
    *
    * @return string
-   *   A 25 character random alpha-numeric ID. This is like mongo-generated
-   *   petition IDs.
+   *   A random petition ID associated to an open petition, or a 25 character
+   *   random alpha-numeric ID. This is like mongo-generated petition IDs.
    */
   protected static function generateRandomPetitionID() {
-    return self::generateRandomString(25);
+    $petitions = PetitionsIndexRawFactory::create()->setStatus('open')->load();
+    if (!empty($petitions['results'])) {
+      shuffle($petitions['results']);
+      return $petitions['results'][0]['id'];
+    }
+    else {
+      return self::generateRandomString(25);
+    }
   }
 
   /**

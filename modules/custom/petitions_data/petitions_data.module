@@ -67,3 +67,23 @@ function petitions_data_form($form, &$form_state) {
 
   return system_settings_form($form);
 }
+
+function petitions_data_petition_is_open($petition_id){
+  $is_open = FALSE;
+  // Check cache before querying the API.
+  if (!$petition_close_date = cache_get($petition_id, 'petition_close_date')) {
+    // Load the petition via the API retrieve method.
+    $petition = PetitionsRetrieveRawFactory::create()->load($petition_id);
+    // Confirm that the query returns a petition.
+    if (!empty($petition['results'])) {
+      // Confirm that the petition has not been removed.
+      if ($petition['results'][0]['status'] == 'open') {
+        $petition_close_date = $petition['results'][0]['deadline'];
+      }
+    }
+  }
+  if ($petition_close_date > time()) {
+    $is_open = TRUE;
+  }
+  return $is_open;
+}

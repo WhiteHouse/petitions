@@ -176,22 +176,24 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
   // to submit these in bulk? Or do we need to make an API call to for every
   // send?
   foreach ($signatures as $signature) {
-    // Send validation email.
-    $to = $signature->data['email'];
-    global $language;
-    $params = array('signature info' => $signature->data);
-    $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
+    // Confirm that the petition is open.
+    if (petitions_data_petition_is_open($signature['petition_id'])) {
+      // Send validation email.
+      $to = $signature['email'];
+      global $language;
+      $params = array('signature info' => $signature);
+      $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
 
-
-    // TODO Figure out how we determine success/failure here...
-    $text = 'This is where a message gets sent to ' . $signature->data['first_name'] . ' ' . $signature->data['last_name'];
-    drupal_set_message($text);
-    // VERIFY SUCCESS HERE.
-    if ($result) {
-      $signatures_mailed['sent'][] = $signature;
-    }
-    else {
-      $signatures_mailed['not sent'][] = $signature;
+      // TODO Figure out how we determine success/failure here...
+      $text = 'This is where a message gets sent to ' . $signature['first_name'] . ' ' . $signature['last_name'];
+      drupal_set_message($text);
+      // VERIFY SUCCESS HERE.
+      if ($result) {
+        $signatures_mailed['sent'][] = $signature;
+      }
+      else {
+        $signatures_mailed['not sent'][] = $signature;
+      }
     }
   }
 
