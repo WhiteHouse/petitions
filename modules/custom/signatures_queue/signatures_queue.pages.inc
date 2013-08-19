@@ -44,7 +44,7 @@ function signatures_queue_overview() {
  */
 function _signatures_queue_validation_page_callback() {
   // Confirm that expected parameters were submitted via URL.
-  if (isset($_GET['k']) && isset($_GET['m']) && isset($_GET['p'])) {
+  if (!empty($_GET['k']) && !empty($_GET['m']) && !empty($_GET['p'])) {
     // check_plain() parameters and save to an $options array.
     $validation_key = check_plain($_GET['k']);
     $md5 = check_plain($_GET['m']);
