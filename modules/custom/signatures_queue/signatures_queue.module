@@ -295,12 +295,13 @@ function signatures_queue_get_workflow_names() {
  * @param string $worker_name
  *   An arbitrary identifier for the invoking process (e.g., cron job).
  * @param array $options
- *   An array of options
+ *   (optional) An array of arbitrary options data as required by particular
+ *   workflows. Defaults to an empty array.
  *
  * @return bool
  *   Returns TRUE if the workflow was successfully processed or FALSE if not.
  */
-function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options) {
+function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
   // Fail if given workflow is invalid.
   if (!in_array($workflow, signatures_queue_get_workflow_names())) {
     return FALSE;

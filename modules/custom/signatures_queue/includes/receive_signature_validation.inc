@@ -16,13 +16,14 @@
  * @param string $worker_name
  *   An arbitrary worker identifier.
  * @param array $options
- *   An array of options
+ *   (optional) An array of arbitrary options data as required by particular
+ *   workflows. Defaults to an empty array.
  *
  * @return string
  *   Returns thank-you/$petition_id if hashes match and error is they do not.
  */
-function signatures_queue_receive_signature_validation($server_name, $worker_name, $options) {
-  // Confirm that 'm' is the MD5 hash of 'k'
+function signatures_queue_receive_signature_validation($server_name, $worker_name, array $options = array()) {
+  // Confirm that 'm' is the MD5 hash of 'k'.
   if ($options['md5'] == md5($options['validation_key'])) {
     // Construct the validated signature data array.
     $signature_data = _signatures_queue_validated_signature_data($options['signature'], $options['petition_id']);
