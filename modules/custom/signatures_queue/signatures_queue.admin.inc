@@ -50,7 +50,7 @@ function signatures_queue_configure() {
   // Signature validation email settings.
   $signature_validation_email_token_help = t('Available variables are: [site:name], [signature:first-name], [signature:last-name], [signature:zip], [signature:email], [signature:signup], [signature:timestamp-submitted], [signature:secret-validation-key], [signature:signature-md5-encryption-key], [signature:signature-source-api-key], [signature:validation-url], [petition:title], [petition:url].');
 
-  $form['signature_validation_email'] = array(
+  $form['initiate_signature_validation']['signature_validation_email'] = array(
     '#type' => 'fieldset',
     '#title' => t('Edit the signature validation email'),
     '#description' => t('Edit the signature validation e-mail message.') . ' ' . $signature_validation_email_token_help,
@@ -58,13 +58,13 @@ function signatures_queue_configure() {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['signature_validation_email']['user_mail_initiate_signature_validation_subject'] = array(
+  $form['initiate_signature_validation']['signature_validation_email']['user_mail_initiate_signature_validation_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
     '#default_value' => _signatures_queue_validation_mail_text('initiate_signature_validation_subject', NULL, array(), FALSE),
     '#maxlength' => 180,
   );
-  $form['signature_validation_email']['user_mail_initiate_signature_validation_body'] = array(
+  $form['initiate_signature_validation']['signature_validation_email']['user_mail_initiate_signature_validation_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
     '#default_value' => _signatures_queue_validation_mail_text('initiate_signature_validation_body', NULL, array(), FALSE),
