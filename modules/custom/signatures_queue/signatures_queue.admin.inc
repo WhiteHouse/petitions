@@ -11,7 +11,7 @@
  */
 function signatures_queue_configure() {
   module_load_include('inc', 'signatures_queue');
-  
+
   $form = array();
 
   $form['all'] = array(

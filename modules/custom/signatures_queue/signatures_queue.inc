@@ -123,6 +123,7 @@ function _signatures_queue_validation_mail_text($key, $language = NULL, $variabl
       case 'initiate_signature_validation_subject':
         $text = t('Petition signature validation instructions for [petition:title] at [site:name]', array(), array('langcode' => $langcode));
         break;
+
       case 'initiate_signature_validation_body':
         $text = t("[signature:first-name],
 
