@@ -117,6 +117,8 @@ function signatures_queue_mail($key, &$message, $params) {
 function signatures_queue_validation_email_tokens(&$replacements, $data, $options) {
   if (isset($data['signature info'])) {
     global $base_url;
+    $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
+
     // Tokens for all values in the signature_info array.
     // Creating $petition_id because it will be used several times.
     $petition_id = $data['signature info']['petition_id'];
@@ -139,7 +141,7 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
     // Tokens for additional values.
     $replacements['[signature:validation-url]'] = $base_url . "/thank-you?k={$key}&m={$md5}&p={$petition_id}";
     // Load the petition via the API retrieve method.
-    $petition = PetitionsRetrieveRawFactory::create()->load($petition_id);
+    $petition = PetitionsRetrieveRawFactory::create()->setBaseURL($website_url)->load($petition_id);
     if (!empty($petition['results'])) {
       // Tokens for values associated to the petition.
       $replacements['[petition:title]'] = $petition['results'][0]['title'];
