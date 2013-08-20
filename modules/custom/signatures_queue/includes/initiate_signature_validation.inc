@@ -98,7 +98,7 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
   }
 
   if ($i) {
-    watchdog('signatures_queue', '@number records retrieved and deleted from signatures_submitted_queue. @suffix', array(
+    watchdog('signatures_queue', '@number records were retrieved from signatures_submitted_queue. @suffix', array(
       '@number' => number_format($i),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
@@ -210,7 +210,7 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
 
   // Log successes.
   if (!empty($signatures_mailed['sent'])) {
-    watchdog('signatures_queue', '@number signature validation emails sent via @mail_system. @suffix', array(
+    watchdog('signatures_queue', '@number signature validation emails were sent via @mail_system. @suffix', array(
       '@number' => number_format(count($signatures_mailed['sent'])),
       '@mail_system' => $active_mail_system,
       '@suffix' => $watchdog_suffix,
@@ -247,7 +247,7 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
     $submitted_queue->deleteItem($signature);
   }
 
-  watchdog('signatures_queue', '@number records added to signatures_pending_validation_queue. @suffix', array(
+  watchdog('signatures_queue', '@number records were added to signatures_pending_validation_queue. @suffix', array(
     '@number' => number_format(count($signatures)),
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);
@@ -260,7 +260,7 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
  *   An array of signatures.
  */
 function _signatures_queue_leave_failed_signatures(array $signatures, $watchdog_suffix) {
-  watchdog('signatures_queue', '@number records left in signatures_submitted_queue. @suffix', array(
+  watchdog('signatures_queue', '@number records could not be processed and were left in signatures_submitted_queue for reprocessing later. @suffix', array(
     '@number' => number_format(count($signatures)),
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);
