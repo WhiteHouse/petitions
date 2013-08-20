@@ -92,6 +92,7 @@ function signatures_queue_permission() {
  */
 function signatures_queue_mail($key, &$message, $params) {
   if ($key == 'initiate_signature_validation') {
+    module_load_include('inc', 'signatures_queue');
     $language = $message['language'];
     $message['subject'] = _signatures_queue_validation_mail_text($key . '_subject', $language, $params);
     $message['body'][] = _signatures_queue_validation_mail_text($key . '_body', $language, $params);
