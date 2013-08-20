@@ -104,3 +104,46 @@ function _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $wo
   $suffix = "Workflow: {$workflow}. Job: {$job_id}. Server name: {$server_name}. Worker name: {$worker_name}.";
   return $suffix;
 }
+
+/**
+ * Returns a mail string for a variable name.
+ *
+ * Used by the Signatures Queue settings form to retrieve strings.
+ */
+function _signatures_queue_validation_mail_text($key, $language = NULL, $variables = array(), $replace = TRUE) {
+  $langcode = isset($language) ? $language->language : NULL;
+
+  if ($admin_setting = variable_get('user_mail_' . $key, FALSE)) {
+    // An admin setting overrides the default string.
+    $text = $admin_setting;
+  }
+  else {
+    // No override, return default string.
+    switch ($key) {
+      case 'initiate_signature_validation_subject':
+        $text = t('Petition signature validation instructions for [petition:title] at [site:name]', array(), array('langcode' => $langcode));
+        break;
+      case 'initiate_signature_validation_body':
+        $text = t("[signature:first-name],
+
+A signature has been submitted to [petition:title] on your behalf by [signature:signature-source-api-key] and requires your confirmation. Please validate your signature by clicking this link or copying and pasting it to your browser:
+
+[signature:validation-url]
+
+You can view [petition:title] by clicking this link or copying and pasting it to your browser:
+
+[petition:url]
+
+--  [site:name] team", array(), array('langcode' => $langcode));
+        break;
+    }
+  }
+
+  if ($replace) {
+    // We do not sanitize the token replacement, since the output of this
+    // replacement is intended for an e-mail message, not a web browser.
+    return token_replace($text, $variables, array('language' => $language, 'callback' => 'signatures_queue_validation_email_tokens', 'sanitize' => FALSE, 'clear' => TRUE));
+  }
+
+  return $text;
+}
