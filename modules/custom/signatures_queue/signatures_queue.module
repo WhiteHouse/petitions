@@ -145,6 +145,11 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
     global $base_url;
     $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
 
+    // Sanitize petition data.
+    foreach($data['signature info'] as $key => $info) {
+      $data['signature info'][$key] = check_plain($info);
+    }
+
     // Tokens for all values in the signature_info array.
     // Creating $petition_id because it will be used several times.
     $petition_id = $data['signature info']['petition_id'];

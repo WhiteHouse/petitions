@@ -79,6 +79,7 @@ function petitions_data_form($form, &$form_state) {
  */
 function petitions_data_petition_is_open($petition_id) {
   $is_open = FALSE;
+  $petition_close_date = FALSE;
   // Check cache before querying the API.
   if (!$petition_close_date = cache_get("petition_close_date:{$petition_id}", 'cache_petitions')) {
     // Load the petition via the API retrieve method.
@@ -92,7 +93,7 @@ function petitions_data_petition_is_open($petition_id) {
       }
     }
   }
-  if ($petition_close_date > time()) {
+  if ($petition_close_date && $petition_close_date > time()) {
     $is_open = TRUE;
   }
   return $is_open;

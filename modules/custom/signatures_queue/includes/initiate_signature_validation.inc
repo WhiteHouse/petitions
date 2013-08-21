@@ -185,11 +185,11 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
   // send?
   foreach ($signatures as $signature) {
     // Confirm that the petition is open.
-    if (petitions_data_petition_is_open($signature['petition_id'])) {
+    if (petitions_data_petition_is_open($signature->data['petition_id'])) {
       // Send validation email.
-      $to = $signature['email'];
+      $to = $signature->data['email'];
       global $language;
-      $params = array('signature info' => $signature);
+      $params = array('signature info' => $signature->data);
       $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
 
       // TODO Figure out how we determine success/failure here...
