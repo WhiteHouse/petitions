@@ -86,9 +86,9 @@ function signatures_queue_configure() {
 
   $form['archive_signatures'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Step 5: Archive Signatures'),
+    '#title' => t('Step 6: Archive Signatures'),
     '#description' => t('Archive signatures whose petitions have closed and were never validated.'),
-    '#weight' => 5,
+    '#weight' => 6,
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
