@@ -108,6 +108,29 @@ function signatures_queue_configure() {
     '#required' => TRUE,
   );
 
+  $form['archive_signatures'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Step 5: Archive Signatures'),
+    '#description' => t('Archive signatures whose petitions have closed and were never validated.'),
+    '#weight' => 5,
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['archive_signatures']['signatures_queue_archive_unvalidated_signatures'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Archive Invalidated Signatures'),
+    '#default_value' => variable_get('signatures_queue_archive_unvalidated_signatures', 1),
+  );
+  $form['archive_signatures']['signatures_queue_grace_period'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Grace Period (in Days)'),
+    '#default_value' => variable_get('signatures_queue_grace_period', 7),
+    '#size' => 12,
+    '#maxlength' => 12,
+    '#description' => t('Number days post petition closing to allow a signature to be validated.'),
+    '#required' => TRUE,
+  );
+
   return system_settings_form($form);
 }
 
