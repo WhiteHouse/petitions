@@ -61,29 +61,6 @@ function signatures_queue_preprocess_signatures($server_name = 'Unavailable', $w
 }
 
 /**
- * Get batch size.
- *
- * Get admin-defined number of pending and validated records to be processed at
- *   a time (which can be adjusted during heavy load).
- */
-function signatures_queue_get_queue_batch_size() {
-  // Get the size from the configured variable.
-  $batch_size = variable_get('signatures_queue_preprocess_batch_size', 100);
-
-  // If there are other load handling adjustments, they can be added here.
-  $load = sys_getloadavg();
-  // 8 is chosen for a 6 to 8 core CPU server. Load is typically < 1.
-  if ($load[0] > 8) {
-    // Scale down the batch with higher load.
-    // Example: if $batch_size is 200 and load is 10, $batch_size will be 20.
-    $batch_size = $batch_size / $load[0];
-    // Log the $batch_size scaling? watchdog(...);
-  }
-
-  return (int) $batch_size;
-}
-
-/**
  * Retrieve a batch of pending signatures and store them in mysql.
  *
  * Retrieve a batch of records from queue_name,
@@ -114,7 +91,7 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
   $queue->createQueue();
   $return['queued'] = $queue->numberOfItems();
 
-  $max = signatures_queue_get_queue_batch_size();
+  $max = signatures_queue_get_queue_batch_size('preprocess_signatures');
   $i = 0;
 
   // The single '=' is intentional as claimItem returns an object or false.
