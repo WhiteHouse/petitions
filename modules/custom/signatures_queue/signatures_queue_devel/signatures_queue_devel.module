@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * @file
+ * Generate devel content for working on the signature queue system.
+ */
+
+
+/**
+ * Implements hook_menu().
+ */
+function signatures_queue_devel_menu() {
+  $items = array();
+
+  $items['admin/config/development/generate/signatures'] = array(
+    'title' => 'Generate signatures',
+    'description' => 'Generate signature records in signatures queues',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('signatures_queue_devel_generate_form'),
+    'access arguments' => array('administer queues'),
+    'weight' => 6,
+    'file' => 'signatures_queue_devel.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Generate dummy data in signature queues.
+ */
+function signatures_queue_devel_generate($queue_names, $number = 10, $delete_first = FALSE, $num_to_match = 0) {
+  // Remove all items first.
+  if ($delete_first) {
+    foreach ($queue_names as $queue_name) {
+      $queue = SignaturesQueueDevel::get($queue_name);
+      // There is no harm in trying to recreate existing.
+      $queue->createQueue();
+      $count = $queue->numberOfItems();
+      $queue->deleteQueue();
+      $text = t('@name: This queue was deleted with @count items remaining in it.',
+        array('@name' => $queue_name, '@count' => $count)
+      );
+      drupal_set_message($text);
+    }
+  }
+
+  $queue = array();
+  foreach ($queue_names as $name) {
+    $queue[$name] = SignaturesQueueDevel::get($name);
+    // There is no harm in trying to recreate existing.
+    $queue[$name]->createQueue();
+  }
+
+  // Some set up in case of matching.
+  if ($num_to_match) {
+    $match_items = array();
+    // Fields that will be matched across the queues if they exist in that item.
+    $match_fields = array(
+      'petition_id',
+      'email',
+      'timestamp_submitted',
+      'secret_validation_key',
+      'signature_source_api_key',
+    );
+    $matched_count = 0;
+  }
+
+  // Generate items.
+  for ($i = 0; $i < $number; $i++) {
+    foreach ($queue_names as $name) {
+      $item = SignaturesQueueDevel::getDummyItem($name);
+      if ($i < $num_to_match) {
+        empty($match_items[$i]) AND $match_items[$i] = array();
+        foreach ($match_fields as $f) {
+          if (empty($match_items[$i][$f])) {
+            // Save the item for matching next time.
+            $match_items[$i][$f] = $item[$f];
+          }
+          else {
+            // Overwrite item elements to match previous queue's item.
+            isset($item[$f]) AND $item[$f] = $match_items[$i][$f];
+          }
+        }
+        $matched_count = $i + 1;
+      }
+      $queue[$name]->createItem($item);
+    }
+  }
+
+  foreach ($queue_names as $queue_name) {
+    $text = t('@name: @number items have been created.',
+      array('@name' => $queue_name, '@number' => $number)
+    );
+    drupal_set_message($text);
+  }
+  $text = t('@matched of @number items were matched.',
+    array('@matched' => $matched_count, '@number' => $number)
+  );
+  drupal_set_message($text);
+
+}

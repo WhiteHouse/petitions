@@ -60,15 +60,6 @@ function signatures_queue_menu() {
     'weight' => 3,
     'file' => 'signatures_queue.admin.inc',
   );
-  $items['admin/config/development/generate/signatures'] = array(
-    'title' => 'Generate signatures',
-    'description' => 'Generate signature records in signatures queues',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('signatures_queue_generate_form'),
-    'access arguments' => array('administer queues'),
-    'weight' => 6,
-    'file' => 'signatures_queue.admin.inc',
-  );
 
   return $items;
 }
@@ -105,42 +96,6 @@ function signatures_queue_mail($key, &$message, $params) {
   }
 }
 
-/**
- * Generate dummy data in signature queues.
- */
-function signatures_queue_generate($queue_name, $number = 10, $delete_first = FALSE) {
-  // If Drupal didn't autoload SignaturesQueue, load it manually here.
-  if (!class_exists('SignaturesQueue')) {
-    module_load_include('inc', 'signatures_queue', 'classes/SignaturesQueue');
-  }
-
-  // Remove all items first.
-  if ($delete_first) {
-    $queue = SignaturesQueue::get($queue_name);
-    // There is no harm in trying to recreate existing.
-    $queue->createQueue();
-    $count = $queue->numberOfItems();
-    $queue->deleteQueue();
-    $text = t('@name: This queue was deleted with @count items remaining in it.',
-      array('@name' => $queue_name, '@count' => $count)
-    );
-    drupal_set_message($text);
-  }
-
-  // Generate items.
-  $queue = SignaturesQueue::get($queue_name);
-  // There is no harm in trying to recreate existing.
-  $queue->createQueue();
-  for ($i = 0; $i < $number; $i++) {
-    $item = SignaturesQueue::getDummyItem($queue_name);
-    $queue->createItem($item);
-  }
-  $text = t('@name: @number items have been created.',
-    array('@name' => $queue_name, '@number' => $number)
-  );
-  drupal_set_message($text);
-
-}
 
 /**
  * Implements hook_shunt().

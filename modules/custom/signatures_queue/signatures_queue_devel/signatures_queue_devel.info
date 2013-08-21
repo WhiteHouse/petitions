@@ -1,0 +1,7 @@
+name = Signatures Queue Devel
+description = Generate Dummy content in Signature Queues.
+core = 7.x
+package = Petitions
+dependencies[] = signatures_queue
+configure = admin/config/system/petitions/signatures-queue
+files[] = SignaturesQueueDevel.inc
