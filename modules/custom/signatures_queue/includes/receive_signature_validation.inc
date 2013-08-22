@@ -22,7 +22,7 @@
  * @return string
  *   Returns thank-you/$petition_id if hashes match and error is they do not.
  */
-function signatures_queue_receive_signature_validation($server_name, $worker_name, array $options = array()) {
+function signatures_queue_receive_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
   // Confirm that 'm' is the MD5 hash of 'k'.
   if ($options['md5'] == md5($options['validation_key'])) {
     // Construct the validated signature data array.
