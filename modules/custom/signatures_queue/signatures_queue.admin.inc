@@ -79,13 +79,31 @@ function signatures_queue_configure() {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['preprocess_signatures']['signatures_queue_preprocess_batch_size'] = array(
+  $form['preprocess_signatures']['signatures_queue_preprocess_signatures_batch_size'] = array(
     '#type' => 'textfield',
     '#title' => t('Batch size'),
     '#default_value' => variable_get('signatures_queue_preprocess_batch_size', SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT),
     '#size' => 12,
     '#maxlength' => 12,
     '#description' => t('Number of signatures to preprocess in a batch.'),
+    '#required' => TRUE,
+  );
+
+  $form['process_signatures'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Step 5: Process Signatures'),
+    '#description' => t('Save and count validated signatures.'),
+    '#weight' => 5,
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['process_signatures']['signatures_queue_process_signatures_batch_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Batch size'),
+    '#default_value' => variable_get('signatures_queue_process_signatures_batch_size', 10),
+    '#size' => 12,
+    '#maxlength' => 12,
+    '#description' => t('Number of signatures to process in a batch.'),
     '#required' => TRUE,
   );
 

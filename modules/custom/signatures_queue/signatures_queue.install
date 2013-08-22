@@ -138,7 +138,7 @@ function signatures_queue_schema_tables() {
       'petition_id' => array(
         'description' => 'Petition ID.',
         'type' => 'varchar',
-        'length' => 25,
+        'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),
@@ -193,7 +193,7 @@ function signatures_queue_schema_tables() {
       'petition_id' => array(
         'description' => 'Petition ID.',
         'type' => 'varchar',
-        'length' => 25,
+        'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),

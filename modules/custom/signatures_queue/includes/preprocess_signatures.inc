@@ -136,7 +136,7 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
   $queue->createQueue();
   $return['queued'] = $queue->numberOfItems();
 
-  $max = signatures_queue_get_queue_batch_size();
+  $max = signatures_queue_get_queue_batch_size('preprocess_signatures');
   $i = 0;
 
   // The single '=' is intentional as claimItem returns an object or false.
