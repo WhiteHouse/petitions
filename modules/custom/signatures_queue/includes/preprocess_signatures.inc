@@ -12,9 +12,30 @@
 
 
 /**
- * Run the preprocess signatures tasks.
+ * Preprocesses signatures.
+ *
+ * This function should not be invoked directly. Use
+ * signatures_queue_invoke_workflow() instead.
+ *
+ * @param string $job_id
+ *   A unique identifier for the job, as created by
+ *   _signatures_queue_create_job_id().
+ * @param string $server_name
+ *   (optional) The name of the server processing the workflow. Defaults to
+ *   SIGNATURES_QUEUE_SERVER_NAME_DEFAULT.
+ * @param string $worker_name
+ *   (optional) An arbitrary identifier for the invoking process (e.g., cron
+ *   job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
+ * @param array $options
+ *   (optional) An array of arbitrary options data as required by particular
+ *   workflows. Defaults to an empty array.
+ *
+ * @return bool
+ *   Returns TRUE if the workflow executes successfully or FALSE if not.
+ *
+ * @see signatures_queue_invoke_workflow()
  */
-function signatures_queue_preprocess_signatures($server_name = 'Unavailable', $worker_name = 'Unavailable') {
+function signatures_queue_preprocess_signatures($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
 
   // Processing is the same for the two queues so we loop through them.
   $queues = array(
@@ -58,6 +79,7 @@ function signatures_queue_preprocess_signatures($server_name = 'Unavailable', $w
     }
   }
 
+  return TRUE;
 }
 
 /**

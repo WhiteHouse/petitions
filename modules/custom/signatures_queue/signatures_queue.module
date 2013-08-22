@@ -287,13 +287,18 @@ function signatures_queue_get_workflow_names() {
 /**
  * Invokes a given workflow.
  *
+ * This function is normally invoked via Drush, i.e.
+ * `drush signatures-queue-invoke-workflow`.
+ *
  * @param string $workflow
  *   The name of the workflow to invoke, as defined in
  *   signatures_queue_get_workflow_names().
  * @param string $server_name
- *   The name of the server processing the workflow.
+ *   (optional) The name of the server processing the workflow. Defaults to
+ *   SIGNATURES_QUEUE_SERVER_NAME_DEFAULT.
  * @param string $worker_name
- *   An arbitrary identifier for the invoking process (e.g., cron job).
+ *   (optional) An arbitrary identifier for the invoking process (e.g., cron
+ *   job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
  * @param array $options
  *   (optional) An array of arbitrary options data as required by particular
  *   workflows. Defaults to an empty array.
