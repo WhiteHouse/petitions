@@ -30,72 +30,6 @@ function signatures_queue_install() {
 }
 
 /**
- * Implements hook_schema().
- *
- * @see signatures_queue_schema_tables()
- */
-function signatures_queue_schema() {
-  $schema['signatures_queue_log'] = array(
-    'description' => 'The event log for signature queue processing.',
-    'fields' => array(
-      'lid' => array(
-        'type' => 'serial',
-        'not null' => TRUE,
-        'description' => 'Primary Key: Unique {signatures_queue_log} row ID.',
-      ),
-      'job_id' => array(
-        'description' => 'A unique identifier for a job.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'workflow' => array(
-        'description' => 'The workflow the job is processing.',
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'server_name' => array(
-        'description' => 'The server name.',
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-        'default' => SIGNATURES_QUEUE_SERVER_NAME_DEFAULT,
-      ),
-      'worker_name' => array(
-        'description' => 'The worker name.',
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-        'default' => SIGNATURES_QUEUE_WORKER_NAME_DEFAULT,
-      ),
-      'timestamp' => array(
-        'description' => 'The timestamp when the status changed.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'status' => array(
-        'description' => 'The status of the job.',
-        'type' => 'varchar',
-        'length' => 16,
-        'not null' => TRUE,
-        'default' => 'started',
-      ),
-    ),
-    'primary key' => array('lid'),
-    'indexes' => array(
-      'job_id' => array('job_id'),
-    ),
-    'mysql_engine' => 'InnoDB',
-  );
-  return $schema;
-}
-
-/**
  * Signature processing schema for creation on any database.
  *
  * Typically tables are created using hook_schema() but we allow these tables to
@@ -259,6 +193,64 @@ function signatures_queue_schema_tables() {
   $schema['signatures_not_valid']['indexes'] = array(
     'signatures_not_valid_validation_key' => array('secret_validation_key'),
     'signatures_not_valid_petition_id' => array('petition_id'),
+  );
+
+  $schema['signatures_queue_log'] = array(
+    'description' => 'The event log for signature queue processing.',
+    'fields' => array(
+      'lid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {signatures_queue_log} row ID.',
+      ),
+      'job_id' => array(
+        'description' => 'A unique identifier for a job.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'workflow' => array(
+        'description' => 'The workflow the job is processing.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'server_name' => array(
+        'description' => 'The server name.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => SIGNATURES_QUEUE_SERVER_NAME_DEFAULT,
+      ),
+      'worker_name' => array(
+        'description' => 'The worker name.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => SIGNATURES_QUEUE_WORKER_NAME_DEFAULT,
+      ),
+      'timestamp' => array(
+        'description' => 'The timestamp when the status changed.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'The status of the job.',
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => 'started',
+      ),
+    ),
+    'primary key' => array('lid'),
+    'indexes' => array(
+      'job_id' => array('job_id'),
+    ),
+    'mysql_engine' => 'InnoDB',
   );
 
   return $schema;
