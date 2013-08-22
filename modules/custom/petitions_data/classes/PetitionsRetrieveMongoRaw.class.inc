@@ -44,7 +44,7 @@ class PetitionsRetrieveMongoRaw extends PetitionsRetrieveBase implements IPetiti
         'url' => $this->formatReturnUrl($doc['nice_url']),
         'deadline' => $this->calcDeadline($doc['created'], $doc['review_timeframe']),
         'status' => $this->formatReturnPetitionStatus($doc['petition_status']),
-        'response' => $doc['response_id'] ? $this->formatReturnResponse($doc['response_id']) : NULL,
+        'response' => (!empty($doc['response_id'])) ? $this->formatReturnResponse($doc['response_id']) : NULL,
         'created' => $doc['created'],
       );
 
