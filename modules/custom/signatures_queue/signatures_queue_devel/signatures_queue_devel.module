@@ -28,7 +28,7 @@ function signatures_queue_devel_menu() {
 /**
  * Generate dummy data in signature queues.
  */
-function signatures_queue_devel_generate($queue_names, $number = 10, $delete_first = FALSE, $num_to_match = 0) {
+function signatures_queue_devel_generate($queue_names, $number = 10, $delete_first = FALSE, $num_to_match = 0, $petition_id = NULL) {
   // Remove all items first.
   if ($delete_first) {
     foreach ($queue_names as $queue_name) {
@@ -68,7 +68,7 @@ function signatures_queue_devel_generate($queue_names, $number = 10, $delete_fir
   // Generate items.
   for ($i = 0; $i < $number; $i++) {
     foreach ($queue_names as $name) {
-      $item = SignaturesQueueDevel::getDummyItem($name);
+      $item = SignaturesQueueDevel::getDummyItem($name, $petition_id);
       if ($i < $num_to_match) {
         empty($match_items[$i]) AND $match_items[$i] = array();
         foreach ($match_fields as $f) {

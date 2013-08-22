@@ -15,14 +15,17 @@ class SignaturesQueueDevel extends SignaturesQueue {
    * @param string $name
    *   Valid queue name.
    *
+   * @param string $petition_id
+   *   Designate a petition to assign signatures to.
+   *
    * @return array
    *   Dummy data for specified queue.
    */
-  public static function getDummyItem($name) {
+  public static function getDummyItem($name, $petition_id = NULL) {
     $item = array();
     switch ($name) {
       case 'signatures_submitted_queue':
-        $item['petition_id'] = self::generateRandomPetitionID();
+        $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['first_name'] = self::generateRandomString(6);
         $item['last_name'] = self::generateRandomString(8);
         $item['zip'] = rand(10000, 99999);
@@ -34,7 +37,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
 
       case 'signatures_pending_validation_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
-        $item['petition_id'] = self::generateRandomPetitionID();
+        $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['timestamp_petition_close'] = time() + 10 * 24 * 60 * 60;
         $item['first_name'] = self::generateRandomString(6);
         $item['last_name'] = self::generateRandomString(8);
@@ -51,7 +54,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $salt = variable_get('signatures_queue_salt', 'some random string');
         $email = 'jane.smith@mailinator.com';
         $timestamp = time();
-        $item['petition_id'] = self::generateRandomPetitionID();
+        $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['secret_validation_key'] = sha1($email . $timestamp . $item['petition_id'] . $salt);
         $item['timestamp_validated'] = $timestamp;
         $item['client_ip'] = ip_address();

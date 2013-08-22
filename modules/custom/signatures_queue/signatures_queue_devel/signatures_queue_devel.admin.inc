@@ -41,6 +41,11 @@ function signatures_queue_devel_generate_form() {
     '#default_value' => 0,
     '#size' => 60,
   );
+  $form['petition_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('(Optional) Designate a petition_id to assign your signatures to.'),
+    '#size' => 60,
+  );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate'),
@@ -56,6 +61,7 @@ function signatures_queue_devel_generate_form_submit($form_id, &$form_state) {
   $number = $form_state['values']['number'];
   $delete_first = $form_state['values']['delete_first'];
   $num_match = $form_state['values']['number_match'];
+  $petition_id = $form_state['values']['petition_id'];
 
   $queue_names = array();
   foreach ($form_state['values']['queues'] as $queue_name => $generate_records) {
@@ -63,5 +69,5 @@ function signatures_queue_devel_generate_form_submit($form_id, &$form_state) {
       $queue_names[] = $queue_name;
     }
   }
-  signatures_queue_devel_generate($queue_names, $number, $delete_first, $num_match);
+  signatures_queue_devel_generate($queue_names, $number, $delete_first, $num_match, $petition_id);
 }
