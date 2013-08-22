@@ -36,6 +36,7 @@
  * @see signatures_queue_invoke_workflow()
  */
 function signatures_queue_preprocess_signatures($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
+  $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
 
   // Processing is the same for the two queues so we loop through them.
   $queues = array(
@@ -43,37 +44,38 @@ function signatures_queue_preprocess_signatures($job_id, $server_name = SIGNATUR
     'signatures_validated_queue' => 'signatures_validated',
   );
   foreach ($queues as $queue => $table) {
-    // Varables we use on every log message.
-    $log_common = array(
-      '%worker' => $worker_name,
-      '%server' => $server_name,
-      '%queue' => $queue,
-    );
-    $log_suffix = 'Job: preprocess_signatures. Job ID: [id]. Worker: %worker. Server: %server.';
-
     // Preprocess a batch of signatures in $queue queue.
     $result = signatures_queue_preprocess_signatures_batch($queue, $table);
 
     if ($result['saved']) {
-      watchdog('signatures_queue',
-        '%num records retrieved and deleted from %queue, and stored in mysql tables. ' . $log_suffix,
-        array_merge($log_common, array('%num' => $result['saved']))
-      );
+      watchdog('signatures_queue', '@number records were retrieved and deleted from @queue and stored in database tables. @suffix', array(
+        '@number' => $result['saved'],
+        '@queue' => $queue,
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_INFO);
     }
     else {
-      watchdog('signatures_queue',
-        'Error. %queued records are in %queue. 0 records were retrieved. ' . $log_suffix,
-        array_merge($log_common, array('%queued' => $result['queued'])),
-        ($result['queued'] ? WATCHDOG_ERROR : WATCHDOG_WARNING)
-      );
+      if ($result['queued']) {
+        watchdog('signatures_queue', '@queue contains @number record(s), but none were retrieved. @suffix', array(
+          '@queue' => $queue,
+          '@number' => number_format($number_of_items),
+          '@suffix' => $watchdog_suffix,
+        ), WATCHDOG_ERROR);
+      }
+      else {
+        watchdog('signatures_queue', '@queue is empty. No signatures will be preprocessed. @suffix', array(
+          '@queue' => $queue,
+          '@suffix' => $watchdog_suffix,
+        ), WATCHDOG_INFO);
+      }
     }
 
     if ($result['failed']) {
-      watchdog('signatures_queue',
-        'Error. %num records left in %queue after failed attempt to store them in mysql. These will be preprocessed again when lock expires. ' . $log_suffix,
-        array_merge($log_common, array('%num' => $result['failed'])),
-        WATCHDOG_ERROR
-      );
+      watchdog('signatures_queue', '@number record(s) were left in @queue after failure to move them into the database. (Will try again.) @suffix', array(
+        '@number' => $result['failed'],
+        '@queue' => $queue,
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_ERROR);
     }
   }
 
@@ -160,10 +162,9 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
     catch (Exception $e) {
       // Set the active database back to default, in case db logging is enabled.
       db_set_active();
-      watchdog('signatures_queue',
-        'Error while attempting db insert: %error',
-        array('%error' => $e->errorInfo[2]),
-        WATCHDOG_ERROR);
+      watchdog('signatures_queue', 'Error while attempting db insert: %error', array(
+        '%error' => $e->errorInfo[2]
+      ), WATCHDOG_ERROR);
       $insert_success = FALSE;
     }
 
