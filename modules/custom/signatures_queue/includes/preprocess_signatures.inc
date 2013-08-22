@@ -52,9 +52,7 @@ function signatures_queue_preprocess_signatures($job_id, $server_name = SIGNATUR
     $log_suffix = 'Job: preprocess_signatures. Job ID: [id]. Worker: %worker. Server: %server.';
 
     // Preprocess a batch of signatures in $queue queue.
-    watchdog('signatures_queue', 'Worker named %worker is starting a new job. ' . $log_suffix, $log_common);
     $result = signatures_queue_preprocess_signatures_batch($queue, $table);
-    watchdog('signatures_queue', 'Worker named %worker completed job. ' . $log_suffix, $log_common);
 
     if ($result['saved']) {
       watchdog('signatures_queue',
