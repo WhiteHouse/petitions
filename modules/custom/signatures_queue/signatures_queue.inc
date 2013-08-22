@@ -60,6 +60,7 @@ function _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_n
   }
 
   // Log to database.
+  signatures_queue_set_db();
   db_insert('signatures_queue_log')
     ->fields(array(
       'job_id' => $job_id,
@@ -70,6 +71,8 @@ function _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_n
       'status' => $status,
     ))
     ->execute();
+  // Switch back to default db (if signatures_processing is separate).
+  db_set_active();
 }
 
 /**
