@@ -90,7 +90,7 @@ function signatures_queue_preprocess_signatures($job_id, $server_name = SIGNATUR
  */
 function signatures_queue_get_queue_batch_size() {
   // Get the size from the configured variable.
-  $batch_size = variable_get('signatures_queue_preprocess_batch_size', 100);
+  $batch_size = variable_get('signatures_queue_preprocess_batch_size', SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT);
 
   // If there are other load handling adjustments, they can be added here.
   $load = sys_getloadavg();
