@@ -180,9 +180,11 @@ function _signatures_queue_add_md5_evaluation_keys(array $signatures) {
 function _signatures_queue_send_validation_emails(array $signatures, $watchdog_suffix) {
   $signatures_mailed = array('sent' => array(), 'not sent' => array());
 
-  // TODO Looks like we can only call drupal_mail() one-by-one. Is there any way
-  // to submit these in bulk? Or do we need to make an API call to for every
-  // send?
+  // NOTE: We're calling drupal_mail() one-by-one, but we're not sure if this is
+  // the best solution here. If the cost charged by our email provider is
+  // per-email-recipient (most likely), the real cost to us here is the expense
+  // of making so many API calls. TODO, Revisit implementation: If drupal_mail() allows us to send in batches
+  // that's probaby more efficient here.
   foreach ($signatures as $signature) {
     // Send validation email.
     $to = $signature->data['email'];
