@@ -131,7 +131,7 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
     }
     try {
       $id = db_insert($table_name)
-        ->fields($item->data)
+        ->fields( (array) $item->data )
         ->execute();
       $insert_success = TRUE;
       $return['saved']++;
