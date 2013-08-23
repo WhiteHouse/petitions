@@ -32,6 +32,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['email'] = $item['first_name'] . '@mailinator.com';
         $item['signup'] = (rand(0, 100) >= 50) ? TRUE : FALSE;
         $item['timestamp_submitted'] = time();
+        $item['timestamp_petition_close'] = $item['timestamp_submitted'] + 864000;  // This just adds 10 days to time submitted.
         $item['signature_source_api_key'] = self::generateRandomString(20);
         break;
 
