@@ -36,7 +36,7 @@
  * @see signatures_queue_invoke_workflow()
  */
 function signatures_queue_preprocess_signatures($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
-  $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
+  $watchdog_suffix = _signatures_queue_watchdog_suffix('preprocess_signatures', $job_id, $server_name, $worker_name);
 
   // Processing is the same for the two queues so we loop through them.
   $queues = array(
