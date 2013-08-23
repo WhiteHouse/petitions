@@ -53,7 +53,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
 
       case 'signatures_validated_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
-        $email = 'jane.smith@mailinator.com';
+        $email = self::generateRandomString(10) . '@mailinator.com';
         $timestamp = time();
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['secret_validation_key'] = sha1($email . $timestamp . $item['petition_id'] . $salt);
