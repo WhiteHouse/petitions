@@ -184,27 +184,24 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
   // to submit these in bulk? Or do we need to make an API call to for every
   // send?
   foreach ($signatures as $signature) {
-    // Confirm that the petition is open.
-    if (petitions_data_petition_is_open($signature->data['petition_id'])) {
-      // Send validation email.
-      $to = $signature->data['email'];
-      global $language;
-      $params = array('signature info' => $signature->data);
-      $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
+    // Send validation email.
+    $to = $signature->data['email'];
+    global $language;
+    $params = array('signature info' => $signature->data);
+    $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
 
-      $text = 'This is where a message gets sent to ' . $signature->data['first_name'] . ' ' . $signature->data['last_name'];
-      drupal_set_message($text);
-      // Verifying success of the sent email.
-      // When $send is set to TRUE on drupal_mail (set by default), check the result key for TRUE, which indicates
-      // Drupal passing the email handling to PHP (can't really check further than that at this particular point).
-      // OR, when $send is set to FALSE, fallback to simply check if our result is an array. This is a very loose
-      // check that should be revisited.
-      if (($result['send'] && $result['result']) || (!$result['send'] && is_array($result))) {
-        $signatures_mailed['sent'][] = $signature;
-      }
-      else {
-        $signatures_mailed['not sent'][] = $signature;
-      }
+    $text = 'This is where a message gets sent to ' . $signature->data['first_name'] . ' ' . $signature->data['last_name'];
+    drupal_set_message($text);
+    // Verifying success of the sent email.
+    // When $send is set to TRUE on drupal_mail (set by default), check the result key for TRUE, which indicates
+    // Drupal passing the email handling to PHP (can't really check further than that at this particular point).
+    // OR, when $send is set to FALSE, fallback to simply check if our result is an array. This is a very loose
+    // check that should be revisited.
+    if (($result['send'] && $result['result']) || (!$result['send'] && is_array($result))) {
+      $signatures_mailed['sent'][] = $signature;
+    }
+    else {
+      $signatures_mailed['not sent'][] = $signature;
     }
   }
 
