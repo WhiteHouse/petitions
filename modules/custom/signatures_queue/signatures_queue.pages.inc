@@ -39,43 +39,53 @@ function signatures_queue_overview() {
 /**
  * Callback for thank-you.
  *
- * Compares the second parameter in the request to the MD5 hash of the first
- * parameter (the unique signature validation key).
+ * Users hit this page when they click a validation link in an email to confirm
+ * their signature. The link will look like this:
+ *
+ *   example.com/thank-you?k=[secret-validation-key]&m=[md5-hash-of-key]&p=[petition-id]
+ *
+ * This page invokes the receive_signature_validation workflow which returns a
+ * URL for a drupal_goto(), which will say "thank you" or provide and error
+ * message to the user.
  */
 function _signatures_queue_validation_page_callback() {
-  // Confirm that expected parameters were submitted via URL.
-  if (!empty($_GET['k']) && !empty($_GET['m']) && !empty($_GET['p'])) {
-    // check_plain() parameters and save to an $options array.
-    $validation_key = check_plain($_GET['k']);
-    $md5 = check_plain($_GET['m']);
-    $petition_id = check_plain($_GET['p']);
-    $options = array(
-      'validation_key' => $validation_key,
-      'md5' => $md5,
-      'petition_id' => $petition_id,
-    );
-    // Invoke the workflow.
-    $response = signatures_queue_invoke_workflow('receive_signature_validation', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
-    // Typically signatures_queue_invoke_workflow() returns boolean.
-    // If the workflow fails (shunt is tripped) drupal_goto() apology page.
-    if ($response === TRUE) {
-      drupal_goto('validation-error', array(), 307);
-    }
-    elseif ($response != FALSE) {
-      // If the workflow succeeds (shunt isn't tripped) return output.
-      if ($response != 'error') {
-        drupal_goto($response, array(), 301);
-      }
-      // Hashes do not match. Return error.
-      else {
-        drupal_not_found();
-      }
-    }
-  }
-  // Parameters are missing. Return error.
-  else {
+  // Get parameters submitted via URL.
+  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p'])) {
+    // Parameters are missing. Return error.
     drupal_not_found();
   }
+
+  // Sanitize data coming in through URL. 
+  $validation_key = check_plain($_GET['k']);
+  $md5 = check_plain($_GET['m']);
+  $petition_id = check_plain($_GET['p']);
+
+  // Pass info from URL to signatures_queue_receive_signature_validation
+  // workflow via $options array.
+  $options = array(
+    'secret_validation_key' => $validation_key,
+    'md5' => $md5,
+    'petition_id' => $petition_id,
+  );
+
+  // Invoke the workflow signatures_queue_receive_signature_validation.
+  // If this is successful, this should return a URL for a thank you page that
+  // we will redirect the user to, to thank them and let them know their
+  // signature will be counted.
+  $response = signatures_queue_invoke_workflow('receive_signature_validation', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
+
+  // Typically signatures_queue_invoke_workflow() returns boolean.
+  // If the workflow fails (shunt is tripped), the response will be TRUE.
+  // In this case, drupal_goto() apology page.
+  if ($response === TRUE) {
+    drupal_goto('validation-error', array(), 307);
+  }
+  elseif ($response == 'error') {
+    drupal_not_found();
+  }
+  
+  // If we get here, $response is a URL for a thank you page.
+  drupal_goto($response, array(), 301);
 }
 
 /**

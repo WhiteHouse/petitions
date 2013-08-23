@@ -36,30 +36,40 @@
  * @see signatures_queue_invoke_workflow()
  */
 function signatures_queue_receive_signature_validation($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
-  // Confirm that 'm' is the MD5 hash of 'k'.
-  if ($options['md5'] == md5($options['validation_key'])) {
-    // Construct the validated signature data array.
-    $signature_data = _signatures_queue_validated_signature_data($options['signature'], $options['petition_id']);
+  $is_valid = FALSE;
+
+  // Confirm that the md5 passed to Drupal through the validation URL is the MD5
+  // hash of the secret_validation_key. (This is a simple check to try and keep
+  // spam out. NOTE: More complex checks can be added here if we need to harden the 
+  // application.
+  if ($options['md5'] == md5($options['secret_validation_key'])) {
+    $is_valid = TRUE;
+  }
+
+  // If request is valid, process it.
+  if ($is_valid) {
+    // Construct the validated signature data array  for signatures_validated_queue.
+    $signature_data = _signatures_queue_validated_signature_data($options['secret_validation_key'], $options['petition_id']);
 
     // Queue validated signatures for next step.
     $queue = SignaturesQueue::get('signatures_validated_queue');
     $queue->createQueue();
     $queue->createItem($signature_data);
 
-    $path_redirect = 'thank-you/' . $options['petition_id'];
-
-    return $path_redirect;
+    // Build redirect path where thank you message will be displayed.
+    $return = 'thank-you/' . $options['petition_id'];
   }
-  // Hashes do not match. Return error.
   else {
-    return 'error';
+    $return = 'error';
   }
+
+  return $return;
 }
 
 /**
  * Constructs the validated signature data array.
  *
- * @param string $signature
+ * @param string $secret_validation_key
  *   The validated secret validation key.
  *
  * @param string $petition_id
@@ -68,10 +78,10 @@ function signatures_queue_receive_signature_validation($job_id, $server_name = S
  * @return array
  *   Data associated to the validated signature as an array.
  */
-function _signatures_queue_validated_signature_data($signature, $petition_id) {
+function _signatures_queue_validated_signature_data($secret_validation_key, $petition_id) {
   $signature_data = array();
 
-  $signature_data['secret_validation_key'] = $signature;
+  $signature_data['secret_validation_key'] = $secret_validation_key;
   $signature_data['timestamp_validated'] = time();
   $signature_data['client_ip'] = ip_address();
   $signature_data['petition_id'] = $petition_id;
