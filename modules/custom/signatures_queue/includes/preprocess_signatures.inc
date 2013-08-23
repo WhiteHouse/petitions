@@ -130,8 +130,10 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
       $item->data['signup'] = (int) $item->data['signup'];
     }
     try {
+      // Preprocess data to be inserted.
+      $record = (array) $item->data;
       $id = db_insert($table_name)
-        ->fields( (array) $item->data )
+        ->fields($record)
         ->execute();
       $insert_success = TRUE;
       $return['saved']++;
