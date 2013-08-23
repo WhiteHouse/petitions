@@ -264,7 +264,7 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
     $record['timestamp_validation_email_sent'] = $time;
     unset($record['md5_encryption_key']);
     // Add the signature to "signatures_pending_validation_queue".
-    $pending_validation_queue->createItem($signature->data);
+    $pending_validation_queue->createItem($record);
     // Remove it from "signatures_submitted_queue".
     $submitted_queue->deleteItem($signature);
   }
