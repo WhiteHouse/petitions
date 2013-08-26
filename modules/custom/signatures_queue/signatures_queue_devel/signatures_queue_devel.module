@@ -72,7 +72,7 @@ function signatures_queue_devel_generate($queue_names, $number = 10, $delete_fir
       if ($i < $num_to_match) {
         empty($match_items[$i]) AND $match_items[$i] = array();
         foreach ($match_fields as $f) {
-          if (empty($match_items[$i][$f])) {
+          if (empty($match_items[$i][$f]) && !empty($item[$f])) {
             // Save the item for matching next time.
             $match_items[$i][$f] = $item[$f];
           }
