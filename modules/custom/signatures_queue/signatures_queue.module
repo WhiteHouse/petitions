@@ -159,7 +159,12 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
     $replacements['[signature:signature-md5-encryption-key]'] = $md5;
     // @todo Retrieve the application/organization name associated with
     // $data['signature_info']['signature_source_api_key'] for use in the email.
-    $replacements['[signature:signature-source-api-key]'] = $data['signature info']['signature_source_api_key'];
+    $signature_source_api_key = $data['signature_info']['signature_source_api_key'];
+    $replacements['[signature:signature-source-api-key]'] = $signature_source_api_key;
+    if (module_exists('api_key_manager')) {
+      $replacements['[signature:signature-source-name]'] = api_key_manager_get_name($signature_source_api_key);
+      $replacements['[signature:signature-source-url]'] = api_key_manager_get_url($signature_source_api_key);
+    }
     // Tokens for additional values.
     $replacements['[signature:validation-url]'] = $base_url . "/thank-you?k={$key}&m={$md5}&p={$petition_id}";
     // Load the petition via the API retrieve method.
@@ -337,7 +342,7 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
     module_load_include('inc', 'signatures_queue');
 
     // Signature validation email settings.
-    $signature_validation_email_token_help = t('Available variables are: [site:name], [signature:first-name], [signature:last-name], [signature:zip], [signature:email], [signature:signup], [signature:timestamp-submitted], [signature:secret-validation-key], [signature:signature-md5-encryption-key], [signature:signature-source-api-key], [signature:validation-url], [petition:title], [petition:url].');
+    $signature_validation_email_token_help = t('Available variables are: [site:name], [signature:first-name], [signature:last-name], [signature:zip], [signature:email], [signature:signup], [signature:timestamp-submitted], [signature:secret-validation-key], [signature:signature-md5-encryption-key], [signature:signature-source-name], [signature:signature-source-url], [signature:signature-source-api-key], [signature:validation-url], [petition:title], [petition:url].');
 
     $form['signature_validation_email'] = array(
       '#type' => 'fieldset',

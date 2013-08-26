@@ -1,0 +1,34 @@
+<?php
+/**
+ * @file
+ * This is the main module file for API Key Manager.
+ */
+
+/**
+ *
+ * Define a hook that other modules can implement.
+ *
+ * @param string $key
+ *   API key
+ *
+ * @return string
+ *   Name of the person or organization who registered the API key.
+ */
+function api_key_manager_get_name($key) {
+  $names = module_invoke('api_key_manager_name_for_key', $key);
+  return $names[0];
+}
+
+/**
+ * Define a hook that other modules can implement.
+ *
+ * @param string $key
+ *   API key
+ *
+ * @return string
+ *   URL associated to the API key.
+ */
+function api_key_manager_get_url($key) {
+  $urls = module_invoke('api_key_manager_url_for_key', $key);
+  return $urls[0];
+}

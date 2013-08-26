@@ -130,7 +130,7 @@ function _signatures_queue_validation_mail_text($key, $language = NULL, $variabl
       case 'initiate_signature_validation_body':
         $text = t("[signature:first-name],
 
-A signature has been submitted to [petition:title] on your behalf by [signature:signature-source-api-key] and requires your confirmation. Please validate your signature by clicking this link or copying and pasting it to your browser:
+A signature has been submitted to [petition:title] on your behalf by [signature:signature-source-name] and requires your confirmation. Please validate your signature by clicking this link or copying and pasting it to your browser:
 
 [signature:validation-url]
 

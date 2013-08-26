@@ -1,0 +1,4 @@
+name = GSA Authentication
+description = GSA Authentication
+core = 7.x
+package = Petitions
