@@ -116,8 +116,12 @@ projects[rules][subdir] = contrib
 projects[services_documentation][version] = 1.0-beta6
 projects[services_documentation][subdir] = contrib
 
-projects[shunt][version] = 1.1
+; projects[shunt][version] = 1.1
 projects[shunt][subdir] = contrib
+projects[shunt][download][url] = "https://git.drupal.org:project/shunt.git"
+projects[shunt][download][type] = git
+projects[shunt][download][branch] = 7.x-1.x
+projects[shunt][download][tag] = 7.x-1.1
 
 projects[simplehtmldom][version] = 1.12
 projects[simplehtmldom][subdir] = contrib
