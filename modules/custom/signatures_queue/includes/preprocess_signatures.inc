@@ -1,15 +1,15 @@
 <?php
+
 /**
  * @file
- * The "preprocess signatures" step.
+ * The "preprocess signatures" workflow.
  *
  * Retrieve a batch of records from signatures_pending_validation_queue, store
- *   in mysql signatures_pending_validation table, delete from SQS.
+ * in signatures_pending_validation table, delete from queue.
  *
  * Retrieve a batch of records from signatures_validated_queue, store in mysql
- *   signatures_validated table, delete from SQS.
+ * signatures_validated table, delete from queue.
  */
-
 
 /**
  * Preprocesses signatures.
@@ -86,8 +86,8 @@ function signatures_queue_preprocess_signatures($job_id, $server_name = SIGNATUR
  * Retrieve a batch of pending signatures and store them in mysql.
  *
  * Retrieve a batch of records from queue_name,
- *   store in mysql $table_name table, delete from SQS.
- *   (If we fail to insert into mysql, re-insert into SQS)
+ *   store in mysql $table_name table, delete from queue.
+ *   (If we fail to insert into mysql, re-insert into queue)
  *
  * @param string $queue_name
  *   The name of the queue to process.
