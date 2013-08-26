@@ -25,6 +25,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
     $item = array();
     switch ($name) {
       case 'signatures_submitted_queue':
+        $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['first_name'] = self::generateRandomString(6);
         $item['last_name'] = self::generateRandomString(8);
@@ -33,6 +34,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['signup'] = (rand(0, 100) >= 50) ? TRUE : FALSE;
         $item['timestamp_submitted'] = time();
         $item['timestamp_petition_close'] = $item['timestamp_submitted'] + 864000;  // This just adds 10 days to time submitted.
+        $item['timestamp_validation_close'] = time() + $grace_period * 24 * 60 * 60;
         $item['signature_source_api_key'] = self::generateRandomString(20);
         break;
 
@@ -41,7 +43,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['timestamp_petition_close'] = time() + 10 * 24 * 60 * 60;
-        // $item['timestamp_validation_close'] = time() + $grace_period * 24 * 60 * 60;
+        $item['timestamp_validation_close'] = time() + $grace_period * 24 * 60 * 60;
         $item['first_name'] = self::generateRandomString(6);
         $item['last_name'] = self::generateRandomString(8);
         $item['zip'] = rand(10000, 99999);
@@ -61,7 +63,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['secret_validation_key'] = sha1($email . $timestamp . $item['petition_id'] . $salt);
         $item['timestamp_validated'] = $timestamp;
-        // $item['timestamp_validation_close'] = time() + $grace_period * 24 * 60 * 60;
+        $item['timestamp_validation_close'] = time() + $grace_period * 24 * 60 * 60;
         $item['client_ip'] = ip_address();
         break;
 
