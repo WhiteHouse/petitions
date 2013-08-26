@@ -324,7 +324,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
   catch (Exception $e) {
     $error_code = 599;
     $developer_message = t("Class could not be instatiated.");
-    $user_message = t("The resource that you requested in temporarily unavailable.");
+    $user_message = t("The resource that you requested is temporarily unavailable.");
     api_errors_throw_error($error_code, $developer_message, $user_message);
   }
 
@@ -387,7 +387,7 @@ function _api_petitions_resource_index($created_before, $created_after, $created
   catch (Exception $e) {
     $error_code = 599;
     $developer_message = t("500: Class could not be instatiated.");
-    $user_message = t("The resource that you requested in temporarily unavailable.");
+    $user_message = t("The resource that you requested is temporarily unavailable.");
     api_errors_throw_error($error_code, $developer_message, $user_message);
   }
 }
@@ -438,7 +438,7 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
   catch (Exception $e) {
     $error_code = 599;
     $developer_message = t("Class could not be instantiated.");
-    $user_message = t("The resource that you requested in temporarily unavailable.");
+    $user_message = t("The resource that you requested is temporarily unavailable.");
     api_errors_throw_error($error_code, $developer_message, $user_message);
   }
 }

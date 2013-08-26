@@ -142,7 +142,7 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
     $status = 500;
     $error_code = 598;
     $developer_message = t("Could not perform resource query.");
-    $user_message = t("The resource that you requested in temporarily unavailable.");
+    $user_message = t("The resource that you requested is temporarily unavailable.");
     api_errors_throw_error($status, $developer_message, $error_code, $user_message);
   }
 
@@ -166,7 +166,7 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
     $status = 500;
     $error_code = 598;
     $developer_message = t("Could not perform resource query.");
-    $user_message = t("The resource that you requested in temporarily unavailable.");
+    $user_message = t("The resource that you requested is temporarily unavailable.");
     api_errors_throw_error($status, $developer_message, $error_code, $user_message);
   }
 
