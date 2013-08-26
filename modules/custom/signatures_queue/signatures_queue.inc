@@ -47,9 +47,10 @@ function _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_n
 
   // Log to watchdog regardless of whether event logging is enabled or not.
   $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
-  watchdog('signatures_queue', '@status job. @suffix', array(
+  watchdog('signatures_queue', '@status job. Memory usage: @memory. @suffix', array(
     '@status' => ucfirst($status),
     '@job_id' => $job_id,
+    '@memory' => memory_get_usage(),
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);
 
@@ -150,4 +151,56 @@ You can view [petition:title] by clicking this link or copying and pasting it to
   }
 
   return $text;
+}
+
+/**
+ * Send an notification to a configured admin email address.
+ *
+ * Ideally this will be refactored to sending a digest of alerts and a dashboard
+ * of recent notifications.
+ */
+function _signatures_queue_notify_admin($params) {
+  global $language;
+
+  $to = variable_get('signatures_queue_notify_email');
+  if (empty($to)) {
+    // Fall back to address of user 1.
+    $user = user_load(1);
+    $to = $user->mail;
+  }
+  drupal_mail('signatures_queue', 'notify_admin', $to, $language, $params);
+}
+
+/**
+ * Provide the text for sending admin alerts.
+ */
+function _signatures_queue_notify_admin_text($part, $language, $params) {
+  switch ($part) {
+    case 'subject':
+      return t('ALERT: Signature Queue !subject', array('!subject' => $params['subject']));
+      break;
+    case 'body':
+      $required = array('first_name', 'last_name', 'email', 'secret_validation_key', 'petition_id', 'timestamp_petition_close');
+      foreach ($required as $r) {
+        if (empty($params[$r])) {
+          $params[$r] = t('missing !r', array('!r' => $r));
+        }
+      }
+      $body = array(
+        t('The Signature Queue found an item which suggests tampering. Please review the following signature:'),
+        t('!fn !ln !email', array(
+          '!fn' => $params['first_name'],
+          '!ln' => $params['last_name'],
+          '!email' => $params['email'])),
+        t('secret_validation_key: !s', array('!s' => $params['secret_validation_key'])),
+        t('petition_id: !p', array('!p' => $params['petition_id'])),
+        t('timestamp_petition_close: !t', array('!t' => $params['timestamp_petition_close'])),
+        '',
+      );
+      if (!empty($params['notice'])) {
+        $body[] = t('Notice:') . ' ' . $params['notice'];
+      }
+      return $body;
+      break;
+  }
 }

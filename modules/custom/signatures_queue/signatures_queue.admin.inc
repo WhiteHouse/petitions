@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Provides admin settings for signatures_queue module.
@@ -26,6 +25,12 @@ function signatures_queue_configure() {
     '#title' => 'Log events to database',
     '#description' => t('Maintain a log of workflow events, including start and completion times of each job, for reporting. Turn this off to reduce load on the database. Turn it on for debugging.'),
     '#default_value' => variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT),
+  );
+  $form['all']['signatures_queue_notify_email'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Admin email to notify',
+    '#description' => t('If the system detects an issue a notification message will be sent to this address. Defaults to address of user 1.'),
+    '#default_value' => variable_get('signatures_queue_notify_email'),
   );
 
   $form['initiate_signature_validation'] = array(
@@ -59,11 +64,8 @@ function signatures_queue_configure() {
   $form['preprocess_signatures']['signatures_queue_preprocess_signatures_batch_size'] = array(
     '#type' => 'textfield',
     '#title' => t('Batch size'),
-    '#default_value' => variable_get('signatures_queue_preprocess_batch_size', SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT),
-    '#size' => 12,
-    '#maxlength' => 12,
+    '#default_value' => variable_get('signatures_queue_preprocess_signatures_batch_size', SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT),
     '#description' => t('Number of signatures to preprocess in a batch.'),
-    '#required' => TRUE,
   );
 
   $form['process_signatures'] = array(
@@ -77,11 +79,8 @@ function signatures_queue_configure() {
   $form['process_signatures']['signatures_queue_process_signatures_batch_size'] = array(
     '#type' => 'textfield',
     '#title' => t('Batch size'),
-    '#default_value' => variable_get('signatures_queue_process_signatures_batch_size', 10),
-    '#size' => 12,
-    '#maxlength' => 12,
+    '#default_value' => variable_get('signatures_queue_process_signatures_batch_size', SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT),
     '#description' => t('Number of signatures to process in a batch.'),
-    '#required' => TRUE,
   );
 
   $form['archive_signatures'] = array(

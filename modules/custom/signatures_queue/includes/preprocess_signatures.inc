@@ -142,7 +142,7 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
       // Set the active database back to default, in case db logging is enabled.
       db_set_active();
       watchdog('signatures_queue', 'Error while attempting db insert: %error', array(
-        '%error' => $e->errorInfo[2]
+        '%error' => $e->errorInfo[2],
       ), WATCHDOG_ERROR);
       $insert_success = FALSE;
     }

@@ -1232,7 +1232,7 @@ function wh_petitions_save_signature($signature, $collection = '') {
   }
   if (!empty($signature) && !empty($collection)) {
     $collection->save($signature);
-    module_invoke_all('wh_petitions_signature_save', $signature);
+    module_invoke_all('wh_petitions_signature_save', $signature, $collection);
     return $signature['_id']->__toString();
   }
 }
@@ -1733,6 +1733,13 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
   // Load the profile for this user
   // @todo: refactor this to not bomb if profile2 isn't installed.
   $profile = profile2_load_by_user($user);
+  $fields = array('first_name', 'last_name', 'city', 'state', 'zip', 'country');
+  $user_fields = array();
+  foreach ($fields as $f) {
+    if (!empty($profile['main']->{'field' . $f}['und'][0]['value'])) {
+      $user_fields[$f] = $profile['main']->{'field' . $f}['und'][0]['value'];
+    }
+  }
 
   // Sign the petition without a comment.
   $signature_count = $petition['signature_count'] + 1;
@@ -1746,15 +1753,7 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
     'abuse_flags' => array(),
     'status'      => 1,
     'number'      => $signature_count,
-    'user'        => array(
-      'first_name'  => $profile['main']->field_first_name['und'][0]['value'],
-      'last_name'   => $profile['main']->field_last_name['und'][0]['value'],
-      'city'        => $profile['main']->field_city['und'][0]['value'],
-      'state'       => $profile['main']->field_state['und'][0]['value'],
-      'zip'         => $profile['main']->field_zip['und'][0]['value'],
-      'username'    => $user->name,
-      'country'     => $profile['main']->field_country['und'][0]['value'],
-    ),
+    'user'        => array_merge($user_fields, array('username' => $user->name)),
   );
 
   return wh_petitions_save_signature($signature);

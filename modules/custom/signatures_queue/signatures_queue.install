@@ -46,7 +46,7 @@ function signatures_queue_schema_tables() {
   $schema['validations'] = array(
     'description' => 'Validated signatures.',
     'fields' => array(
-      'id' => array(
+      'vid' => array(
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -91,7 +91,7 @@ function signatures_queue_schema_tables() {
     'unique keys' => array(
       'secret_validation_key' => array('secret_validation_key'),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('vid'),
   );
 
   // The validations_orphaned table has the same fields as validations.
@@ -102,11 +102,15 @@ function signatures_queue_schema_tables() {
     'validations_orphaned_petition_signed' => array('petition_id'),
   );
 
+  // The validations_processed table has the same fields as signatures_validated.
+  $schema['validations_processed'] = $schema['signatures_validated'];
+  $schema['validations_processed']['description'] = 'Processed signatures.';
+
   // Schema for signatures_pending_validation table.
   $schema['signatures_pending_validation'] = array(
     'description' => 'Validated signatures.',
     'fields' => array(
-      'id' => array(
+      'sid' => array(
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -195,7 +199,7 @@ function signatures_queue_schema_tables() {
     'unique keys' => array(
       'secret_validation_key' => array('secret_validation_key'),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('sid'),
   );
 
   // The signatures_not_validated table has the same fields as
@@ -206,6 +210,11 @@ function signatures_queue_schema_tables() {
     'signatures_not_validated_validation_key' => array('secret_validation_key'),
     'signatures_not_validated_petition_id' => array('petition_id'),
   );
+
+  // The signatures_processed table has the same fields as
+  // signatures_pending_validation.
+  $schema['signatures_processed'] = $schema['signatures_pending_validation'];
+  $schema['signatures_processed']['description'] = 'Not valid signatures.';
 
   $schema['signatures_queue_log'] = array(
     'description' => 'The event log for signature queue processing.',
@@ -265,6 +274,65 @@ function signatures_queue_schema_tables() {
     'mysql_engine' => 'InnoDB',
   );
 
+  return $schema;
+}
+
+/**
+ * Implements hook_schema().
+ *
+ * @see signatures_queue_schema_tables()
+ */
+function signatures_queue_schema() {
+  $schema['signature_validations'] = array(
+    'description' => 'Signature Validations.',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Validation ID.',
+      ),
+      'secret_validation_key' => array(
+        'description' => 'The unique, hashed secret validation key.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'signature_id' => array( // @@ Or should this be secret_validation_key?
+        'description' => 'The Signature ID.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'signature_source_api_key' => array(
+        'description' => 'The source api key.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'email' => array(
+        'description' => 'Email address.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'petition_id' => array(
+        'description' => 'Petition ID.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('vid'),
+    'indexes' => array(
+      'source_key' => array('signature_source_api_key'),
+    ),
+    'mysql_engine' => 'InnoDB',
+  );
   return $schema;
 }
 
