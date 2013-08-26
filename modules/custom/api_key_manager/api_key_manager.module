@@ -15,7 +15,7 @@
  *   Name of the person or organization who registered the API key.
  */
 function api_key_manager_get_name($key) {
-  $names = module_invoke('api_key_manager_name_for_key', $key);
+  $names = module_invoke_all('api_key_manager_name_for_key', $key);
   return $names[0];
 }
 
@@ -29,6 +29,6 @@ function api_key_manager_get_name($key) {
  *   URL associated to the API key.
  */
 function api_key_manager_get_url($key) {
-  $urls = module_invoke('api_key_manager_url_for_key', $key);
+  $urls = module_invoke_all('api_key_manager_url_for_key', $key);
   return $urls[0];
 }
