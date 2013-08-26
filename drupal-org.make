@@ -118,7 +118,7 @@ projects[services_documentation][subdir] = contrib
 
 ; projects[shunt][version] = 1.1
 projects[shunt][subdir] = contrib
-projects[shunt][download][url] = "https://git.drupal.org:project/shunt.git"
+projects[shunt][download][url] = "http://git.drupal.org:project/shunt.git"
 projects[shunt][download][type] = git
 projects[shunt][download][branch] = 7.x-1.x
 projects[shunt][download][tag] = 7.x-1.1
