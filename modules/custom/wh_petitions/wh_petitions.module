@@ -196,6 +196,25 @@ function wh_petitions_menu() {
     'access arguments' => array('administer petition settings'),
     'weight' => -10,
     'file' => 'wh_petitions.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  // Admin - Petition Tool Main Settings.
+  $items['admin/config/system/petitions/main'] = array(
+    'title' => 'Petition Tool Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  // Admin - Petition Tool Email Settings.
+  $items['admin/config/system/petitions/email'] = array(
+    'title' => 'Petition Tool Email Settings',
+    'description' => 'Manage petition emails .',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wh_petitions_admin_petition_email_settings'),
+    'access arguments' => array('administer petition settings'),
+    'weight' => 10,
+    'file' => 'wh_petitions.admin.inc',
+    'type' => MENU_LOCAL_TASK,
   );
 
   // Admin - Petition Dashboard.

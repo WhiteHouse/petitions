@@ -98,72 +98,6 @@ function wh_petitions_admin_petition_settings() {
     '#required' => TRUE,
   );
 
-  // Emails.
-  $form['emails'] = array(
-    '#type' => 'fieldset',
-    '#title' => 'Email Texts',
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  $form['emails']['wh_petitions_email_published_subject'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Subject for the email sent when a petition is published'),
-    '#description' => '',
-    '#default_value' => variable_get('wh_petitions_email_published_subject', ''),
-    '#required' => TRUE,
-  );
-  $form['emails']['wh_petitions_email_published_text'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Text for the email sent when a petition is published'),
-    '#description' => '',
-    '#default_value' => variable_get('wh_petitions_email_published_text', ''),
-    '#required' => TRUE,
-  );
-  $form['emails']['wh_petitions_published_email_address'] = array(
-    '#type' => 'textfield',
-    '#title' => t('New Petition Email Address'),
-    '#description' => t('Email Address to send new petitions notifications to.'),
-    '#default_value' => variable_get('wh_petitions_published_email_address', variable_get('site_mail', '')),
-    '#required' => FALSE,
-  );
-  $form['emails']['wh_petitions_email_ready_response_subject'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Subject for the email sent when a petition gets enough signatures to receive a response.'),
-    '#description' => '',
-    '#default_value' => variable_get('wh_petitions_email_ready_response_subject', ''),
-    '#required' => TRUE,
-  );
-  $form['emails']['wh_petitions_email_ready_response_text'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Text for the email sent when a petition gets enough signatures to receive a response.'),
-    '#description' => '',
-    '#default_value' => variable_get('wh_petitions_email_ready_response_text', ''),
-    '#required' => TRUE,
-  );
-  $form['emails']['wh_petitions_email_forward_text'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Text for the email sent when someone chooses to email a friend ( subject = petition title ).'),
-    '#description' => '',
-    '#default_value' => variable_get('wh_petitions_email_forward_text', 'Dear Friends,
-
-I wanted to let you know about an official petition I have signed at WhiteHouse.gov. Will you add your name to mine?  If this petition gets !signatures_needed signatures by !date_needed, the White House will review it and respond!
-
-You can view and sign the petition here: !shorturl
-
-Here\'s some more information about this petition:
-!petition_description'),
-    '#required' => TRUE,
-  );
-  $form['emails']['wh_petitions_email_forward_response_text'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Text for the email sent when someone chooses to email a friend - response ( subject = response title ).'),
-    '#description' => '',
-    '#default_value' => variable_get('wh_petitions_email_forward_response_text', 'Dear Friends,
-
-You can read the response here: !shorturl'),
-    '#required' => TRUE,
-  );
-
   // Homepage Blocks.
   $form['homepage'] = array(
     '#type' => 'fieldset',
@@ -476,6 +410,93 @@ You can review and, if necessary, remove this petition at the following URL: !pe
   );
 
   $form['#validate'][] = 'wh_petitions_admin_petition_settings_validate';
+
+  return system_settings_form($form, FALSE);
+}
+
+/**
+ * System settings form to manage petition variables.
+ */
+function wh_petitions_admin_petition_email_settings() {
+  // Published petition email settings.
+  $form['wh_petitions_email_published'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Published petition email settings',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['wh_petitions_email_published']['wh_petitions_email_published_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject for the email sent when a petition is published'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_published_subject', ''),
+    '#required' => TRUE,
+  );
+  $form['wh_petitions_email_published']['wh_petitions_email_published_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Text for the email sent when a petition is published'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_published_text', ''),
+    '#required' => TRUE,
+  );
+  $form['wh_petitions_email_published']['wh_petitions_published_email_address'] = array(
+    '#type' => 'textfield',
+    '#title' => t('New Petition Email Address'),
+    '#description' => t('Email Address to send new petitions notifications to.'),
+    '#default_value' => variable_get('wh_petitions_published_email_address', variable_get('site_mail', '')),
+    '#required' => FALSE,
+  );
+  // Threshold passed email settings.
+  $form['wh_petitions_email_ready_response'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Threshold passed email settings',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['wh_petitions_email_ready_response']['wh_petitions_email_ready_response_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject for the email sent when a petition gets enough signatures to receive a response.'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_ready_response_subject', ''),
+    '#required' => TRUE,
+  );
+  $form['wh_petitions_email_ready_response']['wh_petitions_email_ready_response_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Text for the email sent when a petition gets enough signatures to receive a response.'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_ready_response_text', ''),
+    '#required' => TRUE,
+  );
+  // Forward petition email settings.
+  $form['wh_petitions_email_forward'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Forward petition email settings',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['wh_petitions_email_forward']['wh_petitions_email_forward_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Text for the email sent when someone chooses to email a friend ( subject = petition title ).'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_forward_text', 'Dear Friends,
+
+I wanted to let you know about an official petition I have signed at WhiteHouse.gov. Will you add your name to mine?  If this petition gets !signatures_needed signatures by !date_needed, the White House will review it and respond!
+
+You can view and sign the petition here: !shorturl
+
+Here\'s some more information about this petition:
+!petition_description'),
+    '#required' => TRUE,
+  );
+  $form['wh_petitions_email_forward']['wh_petitions_email_forward_response_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Text for the email sent when someone chooses to email a friend - response ( subject = response title ).'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_forward_response_text', 'Dear Friends,
+
+You can read the response here: !shorturl'),
+    '#required' => TRUE,
+  );
 
   return system_settings_form($form, FALSE);
 }
