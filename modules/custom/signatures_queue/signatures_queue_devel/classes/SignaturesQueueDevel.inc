@@ -22,6 +22,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
    *   Dummy data for specified queue.
    */
   public static function getDummyItem($name, $petition_id = NULL) {
+    $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
     $item = array();
     switch ($name) {
       case 'signatures_submitted_queue':

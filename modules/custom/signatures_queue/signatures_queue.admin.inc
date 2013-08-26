@@ -97,13 +97,13 @@ function signatures_queue_configure() {
     '#title' => t('Archive Invalidated Signatures'),
     '#default_value' => variable_get('signatures_queue_archive_unvalidated_signatures', 1),
   );
-  $form['archive_signatures']['signatures_queue_grace_period'] = array(
+  $form['archive_signatures']['signatures_queue_validation_grace_period'] = array(
     '#type' => 'textfield',
-    '#title' => t('Grace Period (in Days)'),
-    '#default_value' => variable_get('signatures_queue_grace_period', 7),
+    '#title' => t('Validation Grace Period (in Days)'),
+    '#default_value' => variable_get('signatures_queue_validation_grace_period', 0),
     '#size' => 12,
     '#maxlength' => 12,
-    '#description' => t('Number days post petition closing to allow a signature to be validated.'),
+    '#description' => t('Number of days after we stop accepting new signature submissions that a signature can still be validated.'),
     '#required' => TRUE,
   );
 

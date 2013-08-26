@@ -93,9 +93,11 @@ function signatures_queue_devel_generate($queue_names, $number = 10, $delete_fir
     );
     drupal_set_message($text);
   }
-  $text = t('@matched of @number items were matched.',
-    array('@matched' => $matched_count, '@number' => $number)
-  );
-  drupal_set_message($text);
+  if (!empty($matched_count) && $matched_count > 0) {
+    $text = t('@matched of @number items were matched.',
+      array('@matched' => $matched_count, '@number' => $number)
+    );
+    drupal_set_message($text);
+  }
 
 }
