@@ -116,6 +116,9 @@ projects[rules][subdir] = contrib
 projects[services_documentation][version] = 1.0-beta6
 projects[services_documentation][subdir] = contrib
 
+projects[shunt][version] = 1.1
+projects[shunt][subdir] = contrib
+
 projects[simplehtmldom][version] = 1.12
 projects[simplehtmldom][subdir] = contrib
 
@@ -147,15 +150,6 @@ projects[logintoboggan][version] = 1.3
 projects[logintoboggan][subdir] = contrib
 projects[logintoboggan][patch][] = http://drupal.org/files/1747878-2-remove-lower.patch
 projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
-
-; drush-cancel-option-2063515-1.patch
-;   - Drush wasn't respecting the "[0] : Cancel" option for shunt-enable and shunt-disable
-;   - @see https://drupal.org/node/2063515
-;
-;------------------------------------
-projects[shunt][version] = 1.0
-projects[shunt][subdir] = contrib
-projects[shunt][patch][] = https://drupal.org/files/drush-cancel-option-2063515-1.patch
 
 ; use-local-db-2013859-6-13.patch
 ;  - Make textcaptcha serve challenge questions from local db (more reliable
