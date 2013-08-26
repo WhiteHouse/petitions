@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * The "receive signature validation" step.
+ * The "receive signature validation" workflow.
  *
  * Compares the second parameter in the request to the MD5 hash of the first
  * parameter (the unique signature validation key) and stores timestamp, client

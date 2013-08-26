@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Provides admin settings for signatures_queue module.
