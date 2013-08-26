@@ -51,7 +51,7 @@ function signatures_queue_overview() {
  */
 function _signatures_queue_validation_page_callback() {
   // Get parameters submitted via URL.
-  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p'])) {
+  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p']) || empty($_GET['d'])) {
     // Parameters are missing. Return error.
     drupal_not_found();
   }
@@ -60,6 +60,7 @@ function _signatures_queue_validation_page_callback() {
   $validation_key = check_plain($_GET['k']);
   $md5 = check_plain($_GET['m']);
   $petition_id = check_plain($_GET['p']);
+  $validation_expiration = check_plain($_GET['d']);
 
   // Pass info from URL to signatures_queue_receive_signature_validation
   // workflow via $options array.
@@ -67,6 +68,7 @@ function _signatures_queue_validation_page_callback() {
     'secret_validation_key' => $validation_key,
     'md5' => $md5,
     'petition_id' => $petition_id,
+    'validation_expiration' => $validation_expiration,
   );
 
   // Invoke the workflow signatures_queue_receive_signature_validation.
@@ -95,16 +97,9 @@ function _signatures_queue_validation_page_callback() {
 function _signatures_queue_validated_page_callback($petition_id) {
   // Load the petition via the API retrieve method.
   $petition = PetitionsRetrieveRawFactory::create()->load($petition_id);
-  // Confirm that the petition is open.
-  if ($petition['results'][0]['status'] == 'open') {
-    $title = $petition['results'][0]['title'];
-    $output = "Thank you for signing '{$title}' Your signature has been counted.";
-    return $output;
-  }
-  // The petition has been removed, expired, or doesn't exist. Return error.
-  else {
-    drupal_goto('petition-error', array(), 301);
-  }
+  $title = $petition['results'][0]['title'];
+  $output = "Thank you for signing '{$title}' Your signature has been counted.";
+  return $output;
 }
 
 /**

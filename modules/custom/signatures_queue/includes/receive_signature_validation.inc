@@ -38,6 +38,7 @@
  */
 function signatures_queue_receive_signature_validation($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
   $is_valid = FALSE;
+  $return = '';
 
   // Confirm that the md5 passed to Drupal through the validation URL is the MD5
   // hash of the secret_validation_key. (This is a simple check to try and keep
@@ -47,8 +48,14 @@ function signatures_queue_receive_signature_validation($job_id, $server_name = S
     $is_valid = TRUE;
   }
 
+  // Confirm the petition is still open for signature confirmations. If not,
+  // send user to the petition-error page.
+  if ($options['validation_expiration'] < time()) {
+    $return = 'petition-error';
+  }
+
   // If request is valid, process it.
-  if ($is_valid) {
+  if ($is_valid && empty($return)) {
     // Construct the validated signature data array  for signatures_validated_queue.
     $signature_data = _signatures_queue_validated_signature_data($options['secret_validation_key'], $options['petition_id']);
 
@@ -60,7 +67,7 @@ function signatures_queue_receive_signature_validation($job_id, $server_name = S
     // Build redirect path where thank you message will be displayed.
     $return = 'thank-you/' . $options['petition_id'];
   }
-  else {
+  elseif (empty($return)) {
     $return = 'error';
   }
 
