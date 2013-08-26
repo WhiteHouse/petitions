@@ -92,7 +92,7 @@ class PetitionsIndexBase extends PetitionsBase {
    *
    * @return SignaturesMongoRaw
    *   Returns current instance of object.
-nah, nah   */
+   */
   public function setLimit($limit) {
     if (is_numeric($limit)) {
       if ($limit > $this->maxReturnLimit) {
@@ -106,7 +106,7 @@ nah, nah   */
   /**
    * Set accessor for $this->maxReturnLimit.
    */
-  public function setMaxReturnLimit($maxReturnLimit) {
+  public function setMaxReturnLimit($maxReturnLimit = 100) {
     if (is_numeric($maxReturnLimit)) {
       $this->maxReturnLimit = $maxReturnLimit;
     }
