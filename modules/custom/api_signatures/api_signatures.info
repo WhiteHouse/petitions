@@ -5,3 +5,4 @@ package = Petitions API
 dependencies[] = services
 dependencies[] = petitions_data
 dependencies[] = api_errors
+dependencies[] = signatures_queue
