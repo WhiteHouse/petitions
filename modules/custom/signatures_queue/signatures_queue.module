@@ -345,7 +345,7 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
     module_load_include('inc', 'signatures_queue');
 
     // Signature validation email settings.
-    $signature_validation_email_token_help = t('Available variables are: [site:name], [signature:first-name], [signature:last-name], [signature:zip], [signature:email], [signature:signup], [signature:timestamp-submitted], [signature:secret-validation-key], [signature:signature-md5-encryption-key], [signature:timestamp_validation_close], [signature:signature-source-name], [signature:signature-source-url], [signature:signature-source-api-key], [signature:validation-url], [petition:title], [petition:url].');
+    $signature_validation_email_token_help = t('Available variables are: [site:name], [signature:first-name], [signature:last-name], [signature:zip], [signature:email], [signature:signup], [signature:timestamp-submitted], [signature:secret-validation-key], [signature:signature-md5-encryption-key], [signature:timestamp_validation_close], [signature:signature-source-name], [signature:signature-source-url], [signature:signature-source-api-key], [signature:validation-url], [petition:title], [petition:url], [petition:deadline].');
 
     $form['signature_validation_email'] = array(
       '#type' => 'fieldset',
