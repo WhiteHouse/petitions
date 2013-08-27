@@ -27,6 +27,8 @@ function signatures_queue_install() {
     drupal_set_message($t('IMPORTANT! Signature processing tables created in default database. This is not recommended for production installations. See INSTALL.md for more information.'), 'warning');
   }
 
+  // Warn users about two week limit on archiving.
+  drupal_set_message($t('IMPORTANT! The archiving workflow assumes you are processing signatures regularly. The default assumption is that all queues will be cleared within any given two week period.  If you intend to NOT process signatures regularly, make the necessary adjustments to $queues_last_emptied in includes/archive_signatures.inc.'), 'warning');
 }
 
 /**

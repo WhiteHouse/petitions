@@ -20,9 +20,34 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function signatures_queue_archive_signatures() {
-  // Define a variable for signatures_queue_archive_unvalidated_signatures.
-  $archive_signatures = variable_get('signatures_queue_archive_unvalidated_signatures', 1);
+function signatures_queue_archive_signatures($job_id, $server_name, $worker_name) {
+  // Define watchdog_suffix for logging.
+  $watchdog_suffix = _signatures_queue_watchdog_suffix('arhive_signatures', $job_id, $server_name, $worker_name);
+
+  // Find out the oldest timestamp after which ALL queues have been emptied.
+  $queues_last_emptied = _signatures_queue_queues_last_emptied();
+
+  // Archive invalid signatures.
+  _signatures_queue_archive_invalid_signatures($queues_last_emptied, $watchdog_suffix);
+
+  // Archive orphaned signatures.
+  _signatures_queue_archive_orphan_signatures($queues_last_emptied, $watchdog_suffix);
+
+  return TRUE;
+}
+
+/**
+ * Archives and deletes signatures that have become invalid.
+ *
+ * @param int $queues_last_emptied
+ *   The oldest date that all queues were last emptied.
+ *
+ * @param string $watchdog_suffix
+ *   Defined suffix for watchdog statements.
+ */
+function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $watchdog_suffix) {
+  // Define needed variables.
+  $archive_signatures = variable_get('signatures_queue_archive_invalid_signatures', 1);
 
   // Set the active database to the signatures_processing db.
   signatures_queue_set_db();
@@ -76,9 +101,6 @@ function signatures_queue_archive_signatures() {
  *
  * @param string $watchdog_suffix
  *   Defined suffix for watchdog statements.
- *
- * @return bool
- *   TRUE, success. FALSE, failure.
  */
 function _signatures_queue_archive_orphan_signatures($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
