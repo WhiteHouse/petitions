@@ -190,19 +190,12 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
     $to = $signature->data['email'];
     global $language;
     $params = array('signature info' => $signature->data);
-    $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
-
-    $text = 'This is where a message gets sent to ' . $signature->data['first_name'] . ' ' . $signature->data['last_name'];
-    drupal_set_message($text);
-    // Verifying success of the sent email.
-    // When $send is set to TRUE on drupal_mail (set by default), check the result key for TRUE, which indicates
-    // Drupal passing the email handling to PHP (can't really check further than that at this particular point).
-    // OR, when $send is set to FALSE, fallback to simply check if our result is an array. This is a very loose
-    // check that should be revisited.
-    if (($result['send'] && $result['result']) || (!$result['send'] && is_array($result))) {
+    try {
+      $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
       $signatures_mailed['sent'][] = $signature;
+      drush_log('Message sent to ' . $signature->data['first_name'] . ' ' . $signature->data['last_name'], 'success');
     }
-    else {
+    catch (Exception $e) {
       $signatures_mailed['not sent'][] = $signature;
     }
   }
