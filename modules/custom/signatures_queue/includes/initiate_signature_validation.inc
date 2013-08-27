@@ -193,7 +193,6 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
     try {
       $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
       $signatures_mailed['sent'][] = $signature;
-      drush_log('Message sent to ' . $signature->data['first_name'] . ' ' . $signature->data['last_name'], 'success');
     }
     catch (Exception $e) {
       $signatures_mailed['not sent'][] = $signature;
