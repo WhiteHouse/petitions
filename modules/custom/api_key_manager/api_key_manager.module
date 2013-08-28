@@ -5,7 +5,6 @@
  */
 
 /**
- *
  * Define a hook that other modules can implement.
  *
  * @param string $key

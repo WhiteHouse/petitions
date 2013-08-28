@@ -5,8 +5,8 @@
  */
 
 /**
-* Implements hook_api_key_manager_name_for_key().
-*/
+ * Implements hook_api_key_manager_name_for_key().
+ */
 function gsa_auth_api_key_manager_name_for_key($key) {
   // @todo implement this hook.
   // Returning dummy data for now.
