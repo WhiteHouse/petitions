@@ -6,6 +6,7 @@ dependencies[] = ctools
 dependencies[] = services
 dependencies[] = rest_server
 dependencies[] = api_petitions
+dependencies[] = api_signatures
 features[ctools][] = services:services:3
 features[features_api][] = api:1
 features[services_endpoint][] = api_v1
