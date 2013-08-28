@@ -29,6 +29,21 @@ define('SIGNATURES_QUEUE_SERVER_NAME_DEFAULT', 'default');
 define('SIGNATURES_QUEUE_WORKER_NAME_DEFAULT', 'default');
 
 /**
+ * The status code for success.
+ */
+define('SIGNATURES_QUEUE_STATUS_SUCCESS', 200);
+
+/**
+ * The status code for an error on the client side.
+ */
+define('SIGNATURES_QUEUE_STATUS_CLIENT_ERROR', 400);
+
+/**
+ * The status code for an error on the server side.
+ */
+define('SIGNATURES_QUEUE_STATUS_SERVER_ERROR', 500);
+
+/**
  * Implements hook_menu().
  */
 function signatures_queue_menu() {
@@ -265,24 +280,25 @@ function signatures_queue_get_workflow_names() {
  *   (optional) An array of arbitrary options data as required by particular
  *   workflows. Defaults to an empty array.
  *
- * @return bool
- *   Returns TRUE if the workflow was successfully processed or FALSE if not.
+ * @return int
+ *   Returns one of the following status codes indicating the workflow outcome:
+ *     - SIGNATURES_QUEUE_STATUS_SUCCESS
+ *     - SIGNATURES_QUEUE_STATUS_CLIENT_ERROR
+ *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  */
 function signatures_queue_invoke_workflow($workflow,
                                           $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT,
                                           $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT,
                                           array $options = array()) {
-  // Fail if given workflow is invalid.
+  // Make sure given workflow is valid.
   if (!in_array($workflow, signatures_queue_get_workflow_names())) {
-    return FALSE;
+    throw new Exception("No such workflow '{$workflow}'.");
   }
 
   // Detect a shunt trip.
   $shunt_name = "shunt_signatures_queue_{$workflow}";
   if (shunt_is_enabled($shunt_name)) {
-    // Return TRUE because the workflow didn't fail--it was deliberately
-    // deferred, which isn't properly an error condition.
-    return TRUE;
+    return SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
   }
 
   $logging_enabled = variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT);
@@ -290,7 +306,6 @@ function signatures_queue_invoke_workflow($workflow,
   // Invoke the workflow.
   module_load_include('inc', 'signatures_queue', "includes/{$workflow}");
   $function_name = "_signatures_queue_{$workflow}";
-  $success = FALSE;
   if (function_exists($function_name)) {
     module_load_include('inc', 'signatures_queue');
 
@@ -303,6 +318,9 @@ function signatures_queue_invoke_workflow($workflow,
 
     // Log job completion.
     _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'completed');
+  }
+  else {
+    throw new Exception("Could not find {$function_name}(). The codebase may be corrupt.");
   }
   return $success;
 }
