@@ -7,13 +7,22 @@
 
 /**
  * Wrapper for services_error(), using WH API Standards parameters.
- * @param  int $status               [description]
- * @param  string $developer_message [description]
- * @param  string $error_code        [description]
- * @param  string $user_message      [description]
- * @param  string $more_info         [description]
+ *
+ * @param int $status_code
+ *   The HTTP status code to be returned to the client, e.g. 200, 400, 500.
+ * @param string $developer_message
+ *   A verbose, plain language description of the problem. Provide developers
+ *   suggestions about how to solve their problems here.
+ * @param string $user_message
+ *   A message that can be passed along to end-users, if needed.
+ * @param string $more_info
+ *   A URL to visit for more information about the error.
+ * @param int $error_code
+ *   An internally determined error number.
+ *
+ * @see https://github.com/WhiteHouse/api-standards#error-handling
  */
-function api_errors_throw_error($error_code, $developer_message, $user_message = NULL, $more_info = NULL) {
+function api_errors_throw_error($status_code, $developer_message, $user_message = NULL, $more_info = NULL, $error_code = NULL) {
 
   // Load services.runtime.inc from the Services module.
   module_load_include('inc', 'services', 'services.runtime');
@@ -22,28 +31,29 @@ function api_errors_throw_error($error_code, $developer_message, $user_message =
   // to be passed with other errors.
   $data = array(
     'userMessage' => $user_message,
+    'errorCode' => $error_code,
     'moreInfo' => $more_info,
   );
 
   // Throw the error. This will be formatted via
   // api_errors_rest_server_execute_errors_alter().
-  services_error($developer_message, $error_code, $data);
+  services_error($developer_message, $status_code, $data);
 }
 
 
 /**
  * Implements hook_rest_server_execute_errors_alter().
  *
- * @param array $errors
- *  Array of following properties:
- *   'code' -- error code
- *   'header_message' -- message that will be returned in Status header
- *   'body_data' -- data returned in the body of the response
- *  You can alter 'header_message' and 'body_data' in your hook implementations.
+ * @param array $error
+ *   An array with the following properties:
+ *     - code: error code
+ *     - header_message: message that will be returned in Status header
+ *     - body_data: data returned in the body of the response
+ *   You can alter 'header_message' and 'body_data' in your hook implementations.
  * @param type $controller
- *  Executed controller.
+ *   The executed controller.
  * @param type $arguments
- *  Arguments of the controller.
+ *   The arguments passed to the controller.
  */
 function api_errors_rest_server_execute_errors_alter(&$error, $controller, $arguments) {
 
@@ -51,14 +61,14 @@ function api_errors_rest_server_execute_errors_alter(&$error, $controller, $argu
   $error['body_data'] = array(
     'metadata' => array(
       'responseInfo' => array(
-        // Simplify error code. 200, 400, 500. Fancier stuff can go in
-        // errorCode.
-        'status' => substr($error['code'], 0, 1) . '00',
+        // Round status down to the nearest hundred (e.g. 200, 400, 500).
+        // Fancier stuff can go in errorCode.
+        'status' => floor($error['code'] / 100) * 100,
         'developerMessage' => $error['header_message'],
         // errorCode here can be 404 or 4444444 (where 4444444 might correspond
         // with a drupal.org issue like drupal.org/node/4444444), or some number
         // corresponding with a GitHub issue in the issue queue.
-        'errorCode' => $error['code'],
+        'errorCode' => (int) $error['code'],
         'userMessage' => $error['body_data']['userMessage'],
         // Provide links to relevant issues on drupal.org, GitHub, etc. and any
         // other relevant documentation or helpful links.
