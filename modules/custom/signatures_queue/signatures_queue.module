@@ -248,8 +248,9 @@ function signatures_queue_get_workflow_names() {
 /**
  * Invokes a given workflow.
  *
- * This function is normally invoked via Drush, i.e.
- * `drush signatures-queue-invoke-workflow`.
+ * This function is normally invoked via Drush (i.e.
+ * `drush signatures-queue-invoke-workflow`), except for user-initiated
+ * workflows.
  *
  * @param string $workflow
  *   The name of the workflow to invoke, as defined in

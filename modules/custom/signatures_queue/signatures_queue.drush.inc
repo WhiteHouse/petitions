@@ -14,7 +14,7 @@ function signatures_queue_drush_command() {
     'callback' => 'drush_signatures_queue_invoke_workflow',
     'description' => 'Invoke a signatures queue processing workflow.',
     'arguments' => array(
-      'workflow' => 'The name of the workflow to invoke: one of "receive_new_signatures", "initiate_signature_validation", "receive_signature_validation", "preprocess_signatures", "process_signatures", or "archive_signatures".',
+      'workflow' => 'The name of the workflow to invoke: one of "initiate_signature_validation", "preprocess_signatures", "process_signatures", or "archive_signatures".',
     ),
     'required-arguments' => TRUE,
     'options' => array(
@@ -54,8 +54,15 @@ function drush_signatures_queue_invoke_workflow_validate() {
 
   // Make sure workflow argument is valid.
   $workflow = $args[1];
-  if ($workflow == 'receive_signature_validation' || !in_array($workflow, signatures_queue_get_workflow_names())) {
-    drush_set_error('SIGNATURES_QUEUE_INVALID_ARGUMENT', dt('"@workflow" is not a valid workflow choice.', array('@workflow' => $workflow)));
+  $user_initiated_workflows = array(
+    'receive_new_signatures',
+    'receive_signature_validation',
+  );
+  if (!in_array($workflow, signatures_queue_get_workflow_names())) {
+    drush_set_error('SIGNATURES_QUEUE_INVALID_ARGUMENT', dt('"@workflow" is not a valid workflow.', array('@workflow' => $workflow)));
+  }
+  elseif (in_array($workflow, $user_initiated_workflows)) {
+    drush_set_error('SIGNATURES_QUEUE_INVALID_ARGUMENT', dt('The "@workflow" workflow is not meant to be invoked from Drush.', array('@workflow' => $workflow)));
   }
 }
 
