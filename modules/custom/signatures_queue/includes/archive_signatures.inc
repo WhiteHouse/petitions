@@ -22,7 +22,7 @@
  */
 function signatures_queue_archive_signatures($job_id, $server_name, $worker_name) {
   // Define watchdog_suffix for logging.
-  $watchdog_suffix = _signatures_queue_watchdog_suffix('arhive_signatures', $job_id, $server_name, $worker_name);
+  $watchdog_suffix = _signatures_queue_watchdog_suffix('archive_signatures', $job_id, $server_name, $worker_name);
 
   // Find out the oldest timestamp after which ALL queues have been emptied.
   $queues_last_emptied = _signatures_queue_queues_last_emptied();
