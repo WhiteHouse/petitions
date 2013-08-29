@@ -12,7 +12,55 @@
  *   The signature argument received from the service request.
  */
 function _api_signatures_resource_create(array $signature) {
+  // Submit the signature.
   $options = array('signature' => $signature);
-  // @todo Test for success and add error handling here.
-  signatures_queue_invoke_workflow('receive_new_signatures', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
+  $status = signatures_queue_invoke_workflow('receive_new_signatures', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
+
+  // Round the status down to the nearest hundred (e.g. 200, 400, 500).
+  $rounded_status = floor($status / 100) * 100;
+
+  // Deliver response.
+  switch ($status) {
+    case SIGNATURES_QUEUE_STATUS_OK:
+      return array('status' => 200);
+
+    case SIGNATURES_QUEUE_STATUS_BAD_REQUEST:
+      $developer_message = $user_message = t('Missing required fields. These fields are required: signature_source_api_key, petition_id, email, first_name, last_name.');
+      $more_info = 'https://github.com/WhiteHouse/petitions/issues/75';
+      $error_code = 75;
+      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+
+    case SIGNATURES_QUEUE_STATUS_FORBIDDEN:
+      $petition = petitions_data_get_petition($signature['petition_id']);
+
+      // By now petitions_data_petition_is_open() has been invoked and cached
+      // the petition close date.
+      $petition_close_date = (int) cache_get("petition_close_date:{$signature['petition_id']}", 'cache_petitions');
+
+      $developer_message = t("Petition @petition_id has closed. You cannot sign it. (If you believe this petition was not open for 30 days, it's possible that it was flagged and removed for violation of terms of service.)", array(
+        '@petition_id' => $signature['petition_id'],
+      ));
+      $user_message = t('This petition was closed on @date and cannot accept more signatures. You can open a new petition on this issue here: http://petitions.whitehouse.gov/.', array(
+        '@date' => format_date($petition_close_date),
+      ));
+      $more_info = 'https://github.com/WhiteHouse/petitions/issues/74';
+      $error_code = 74;
+      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+
+    case SIGNATURES_QUEUE_STATUS_NOT_FOUND:
+      $developer_message = t("No such petition @petition_id", array(
+        '@petition_id' => $signature['petition_id'],
+      ));
+      $user_message = t("The petition you are trying to sign doesn't exist.");
+      $more_info = 'https://github.com/WhiteHouse/petitions/issues/76';
+      $error_code = 76;
+      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+
+    case SIGNATURES_QUEUE_STATUS_SERVER_ERROR:
+      $developer_message = t('Sorry. Service is not available right now.');
+      $user_message = t('Sorry. We are unable to process your signature right now.');
+      $more_info = 'https://github.com/WhiteHouse/petitions/issues/73';
+      $error_code = 73;
+      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+  }
 }

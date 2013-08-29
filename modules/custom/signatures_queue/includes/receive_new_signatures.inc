@@ -25,8 +25,13 @@
  * @param array $options
  *   - $options['signature'], signature submitted via POST request to API.
  *
- * @return bool
- *   Returns TRUE if the workflow executes successfully or FALSE if not.
+ * @return int
+ *   Returns one of the following status codes indicating the workflow outcome:
+ *     - SIGNATURES_QUEUE_STATUS_OK
+ *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
+ *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
+ *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
+ *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
@@ -36,12 +41,24 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
   // Make sure the signature argument is valid. This is done first because it's
   // cheapest.
   if (!_signatures_queue_validate_signature($signature)) {
-    return FALSE;
+    return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
   }
 
-  // Make sure the petition is open and not expired.
-  if (!petitions_data_petition_is_open($signature['petition_id'])) {
-    return FALSE;
+  $petition = petitions_data_get_petition($signature['petition_id']);
+
+  // Make sure the petition exists.
+  if (empty($petition)) {
+    return SIGNATURES_QUEUE_STATUS_NOT_FOUND;
+  }
+
+  // Make sure the petition is "signable".
+  $signable_statuses = array(
+    WH_PETITION_STATUS_PRIVATE,
+    WH_PETITION_STATUS_PUBLIC,
+    WH_PETITION_STATUS_UNDER_REVIEW,
+  );
+  if (!in_array($petition['status'], $signable_statuses)) {
+    return SIGNATURES_QUEUE_STATUS_FORBIDDEN;
   }
 
   // Input is all valid. Build the queue item.
@@ -50,7 +67,7 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
   // And enqueue it.
   _signatures_queue_enqueue_item($item);
 
-  return TRUE;
+  return SIGNATURES_QUEUE_STATUS_OK;
 }
 
 /**

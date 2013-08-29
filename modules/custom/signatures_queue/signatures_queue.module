@@ -29,14 +29,24 @@ define('SIGNATURES_QUEUE_SERVER_NAME_DEFAULT', 'default');
 define('SIGNATURES_QUEUE_WORKER_NAME_DEFAULT', 'default');
 
 /**
- * The status code for success.
+ * Standard response for successful HTTP requests.
  */
-define('SIGNATURES_QUEUE_STATUS_SUCCESS', 200);
+define('SIGNATURES_QUEUE_STATUS_OK', 200);
 
 /**
- * The status code for an error on the client side.
+ * The request cannot be fulfilled due to bad syntax.
  */
-define('SIGNATURES_QUEUE_STATUS_CLIENT_ERROR', 400);
+define('SIGNATURES_QUEUE_STATUS_BAD_REQUEST', 400);
+
+/**
+ * The request was a valid request, but the server is refusing to respond to it.
+ */
+define('SIGNATURES_QUEUE_STATUS_FORBIDDEN', 403);
+
+/**
+ * The requested resource could not be found.
+ */
+define('SIGNATURES_QUEUE_STATUS_NOT_FOUND', 404);
 
 /**
  * The status code for an error on the server side.
@@ -282,8 +292,10 @@ function signatures_queue_get_workflow_names() {
  *
  * @return int
  *   Returns one of the following status codes indicating the workflow outcome:
- *     - SIGNATURES_QUEUE_STATUS_SUCCESS
- *     - SIGNATURES_QUEUE_STATUS_CLIENT_ERROR
+ *     - SIGNATURES_QUEUE_STATUS_OK
+ *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
+ *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
+ *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
  *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  */
 function signatures_queue_invoke_workflow($workflow,
