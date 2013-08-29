@@ -15,7 +15,7 @@
 /**
  * Run the process signatures tasks.
  */
-function signatures_queue_process_signatures($server_name, $worker_name) {
+function _signatures_queue_process_signatures($server_name, $worker_name) {
 
   $limit = signatures_queue_get_queue_batch_size('process_signatures');
 

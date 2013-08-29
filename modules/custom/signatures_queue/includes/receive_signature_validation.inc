@@ -36,7 +36,7 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function signatures_queue_receive_signature_validation($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
+function _signatures_queue_receive_signature_validation($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
   $is_valid = FALSE;
   $return = '';
 

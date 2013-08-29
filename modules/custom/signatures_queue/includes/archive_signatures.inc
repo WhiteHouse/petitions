@@ -20,7 +20,7 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function signatures_queue_archive_signatures($job_id, $server_name, $worker_name) {
+function _signatures_queue_archive_signatures($job_id, $server_name, $worker_name) {
   // Define watchdog_suffix for logging.
   $watchdog_suffix = _signatures_queue_watchdog_suffix('archive_signatures', $job_id, $server_name, $worker_name);
 

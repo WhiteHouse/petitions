@@ -277,7 +277,7 @@ function signatures_queue_invoke_workflow($workflow, $server_name = SIGNATURES_Q
 
   // Invoke the workflow.
   module_load_include('inc', 'signatures_queue', "includes/{$workflow}");
-  $function_name = "signatures_queue_{$workflow}";
+  $function_name = "_signatures_queue_{$workflow}";
   $success = FALSE;
   if (function_exists($function_name)) {
     module_load_include('inc', 'signatures_queue');
