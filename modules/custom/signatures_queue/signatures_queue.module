@@ -301,28 +301,39 @@ function signatures_queue_invoke_workflow($workflow,
     return SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
   }
 
-  $logging_enabled = variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT);
-
   // Invoke the workflow.
-  module_load_include('inc', 'signatures_queue', "includes/{$workflow}");
-  $function_name = "_signatures_queue_{$workflow}";
-  if (function_exists($function_name)) {
-    module_load_include('inc', 'signatures_queue');
+  module_load_include('inc', 'signatures_queue');
+  $job_id = _signatures_queue_create_job_id($workflow, $server_name, $worker_name);
+  try {
+    // Get the workflow function.
+    module_load_include('inc', 'signatures_queue', "includes/{$workflow}");
+    $function_name = "_signatures_queue_{$workflow}";
+    if (!function_exists($function_name)) {
+      $message = t('Workflow function @function_name is undefined. The codebase may be corrupt.', array(
+        '@function_name' => $function_name,
+      ));
+      throw new Exception($message);
+    }
 
     // Log job start.
-    $job_id = _signatures_queue_create_job_id($workflow, $server_name, $worker_name);
     _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'started');
 
     // Dispatch the worker.
-    $success = call_user_func($function_name, $job_id, $server_name, $worker_name, $options);
+    $status = call_user_func($function_name, $job_id, $server_name, $worker_name, $options);
 
     // Log job completion.
     _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'completed');
   }
-  else {
-    throw new Exception("Could not find {$function_name}(). The codebase may be corrupt.");
+  catch (Exception $e) {
+    $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
+    watchdog('signatures_queue', "Fatal error in workflow. @suffix\n\n@exception", array(
+      '@suffix' => $watchdog_suffix,
+      '@exception' => print_r($e, TRUE),
+    ), WATCHDOG_ERROR);
+    return SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
   }
-  return $success;
+
+  return $status;
 }
 
 /**
