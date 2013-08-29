@@ -27,17 +27,30 @@ function signatures_queue_archive_signatures($job_id, $server_name, $worker_name
   // Find out the oldest timestamp after which ALL queues have been emptied.
   $queues_last_emptied = _signatures_queue_queues_last_emptied();
 
-  // Archive invalid signatures.
-  _signatures_queue_archive_invalid_signatures($queues_last_emptied, $watchdog_suffix);
+  // Determine if archiving is enabled.
+  $archiving_is_enabled = variable_get('signatures_queue_archive_invalid_signatures', 1);
 
-  // Archive orphaned signatures.
-  _signatures_queue_archive_orphan_signatures($queues_last_emptied, $watchdog_suffix);
+  // Archive pending signatures not validated in time to be counted toward a petition.
+  if ($archiving_is_enabled) {
+    _signatures_queue_archive_invalid_signatures($queues_last_emptied, $watchdog_suffix);
+  }
+
+  // Delete pending signatures not validated in time to be counted toward a petition.
+  _signatures_queue_delete_invalid_signatures($queues_last_emptied, $watchdog_suffix);
+
+  // Archive orphaned validations.
+  if ($archiving_is_enabled) {
+    _signatures_queue_archive_orphaned_validations($queues_last_emptied, $watchdog_suffix);
+  }
+
+  // Delete orphaned validations.
+  _signatures_queue_delete_orphaned_validations($queues_last_emptied, $watchdog_suffix);
 
   return TRUE;
 }
 
 /**
- * Archives and deletes signatures that have become invalid.
+ * Archive pending signatures that were not validated before petition closed.
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
@@ -46,41 +59,63 @@ function signatures_queue_archive_signatures($job_id, $server_name, $worker_name
  *   Defined suffix for watchdog statements.
  */
 function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $watchdog_suffix) {
-  // Define needed variables.
-  $archive_signatures = variable_get('signatures_queue_archive_invalid_signatures', 1);
-
   // Set the active database to the signatures_processing db.
   signatures_queue_set_db();
 
-  if ($archive_signatures == 1) {
-    // Select signatures from the pending validation table whose
-    // timestamp_validation_close is older then (before) the last time queues
-    // were emptied.
-    //
-    // These will be moved from the pending validation table to the not valid
-    // table.
-    $query = db_select('signatures_pending_validation', 's');
-    $query
-      ->fields('s', array(
-        'id',
-        'secret_validation_key',
-        'signature_source_api_key',
-        'timestamp_petition_close',
-        'timestamp_validation_close',
-        'petition_id',
-        'first_name',
-        'last_name',
-        'zip',
-        'email',
-        'signup',
-        'timestamp_validation_email_sent',
-        'timestamp_submitted'))
-      ->condition('timestamp_validation_close', $time, '<');
+  // Select signatures from the pending validation table whose
+  // timestamp_validation_close is older than (before) the last time queues
+  // were emptied. These will be moved from the pending validation table to the
+  // not validated table.
+  $query = db_select('signatures_pending_validation', 's');
+  $query
+    ->fields('s', array(
+      'id',
+      'secret_validation_key',
+      'signature_source_api_key',
+      'timestamp_petition_close',
+      'timestamp_validation_close',
+      'petition_id',
+      'first_name',
+      'last_name',
+      'zip',
+      'email',
+      'signup',
+      'timestamp_validation_email_sent',
+      'timestamp_submitted'))
+    ->condition('timestamp_validation_close', $queues_last_emptied, '<');
 
-    db_insert('signatures_not_valid')
-      ->from($query)
-      ->execute();
-  }
+  // Count the results to determine how many rows will be moved.
+  $results = $query->execute()->fetchAll();
+  $archived_count = count($results);
+
+  // Insert the invalid signatures into the signatures_not_valid table.
+  db_insert('signatures_not_valid')
+    ->from($query)
+    ->execute();
+
+  // Log the number of successfully archived signatures.
+  watchdog('signatures_queue', '@number records archived in signatures_not_valid. These signature submissions were not validated before their corresponding petitions closed. @suffix', array(
+    '@number' => $archived_count,
+    '@suffix' => $watchdog_suffix,
+  ), WATCHDOG_INFO);
+
+  // Set the active database back to default.
+  db_set_active();
+}
+
+/**
+ * Delete pending signatures that were not validated before petition closed.
+ *
+ * @param int $queues_last_emptied
+ *   The oldest date that all queues were last emptied.
+ *
+ * @param string $watchdog_suffix
+ *   Defined suffix for watchdog statements.
+ */
+function _signatures_queue_delete_invalid_signatures($queues_last_emptied, $watchdog_suffix) {
+  // Set the active database to the signatures_processing db.
+  signatures_queue_set_db();
+
   // Delete signatures that are no longer valid from the pending table.
   db_delete('signatures_pending_validation')
     ->condition('timestamp_validation_close', $time, '<')
@@ -94,7 +129,17 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
 }
 
 /**
- * Archives orphaned signatures.
+ * Archives orphaned validations.
+ *
+ * Orphaned validations are validation records that have no corresponding
+ * pending signatures. We only archive these after the petition is closed
+ * because it's possible for legitimate pairs of signatures and validations to
+ * come through with validations arriving in mysql before the corresponding
+ * pending validation arrives. If signatures_pending_validation_queue an
+ * validations_queue are processed at different rates or if they are not stored
+ * in FIFO--first in first out-- queues, legit validations can actually arrive
+ * first. As a result, this is the only time we're 100% sure we're not
+ * erroneously determining a good validation to be an orphan.
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
@@ -102,7 +147,7 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
  * @param string $watchdog_suffix
  *   Defined suffix for watchdog statements.
  */
-function _signatures_queue_archive_orphan_signatures($queues_last_emptied, $watchdog_suffix) {
+function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
   signatures_queue_set_db();
 
@@ -138,6 +183,26 @@ function _signatures_queue_archive_orphan_signatures($queues_last_emptied, $watc
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
 
+  // Set the active database back to default.
+  db_set_active();
+}
+
+/**
+ * Deletes orphaned validations.
+ *
+ * (See _signatures_queue_archive_orphaned_validations() for clarification on
+ * what an "orphaned validation" is.)
+ *
+ * @param int $queues_last_emptied
+ *   The oldest date that all queues were last emptied.
+ *
+ * @param string $watchdog_suffix
+ *   Defined suffix for watchdog statements.
+ */
+function _signatures_queue_delete_orphaned_validations($queues_last_emptied, $watchdog_suffix) {
+  // Set the active database to the signatures_processing db.
+  signatures_queue_set_db();
+
   // Delete signatures that are no longer valid from the pending table.
   if ($columns) {
     $deleted_signatures = db_delete('signatures_validated')
@@ -150,6 +215,7 @@ function _signatures_queue_archive_orphan_signatures($queues_last_emptied, $watc
       '@number' => number_format($deleted_signatures),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
+
 
   // Set the active database back to default.
   db_set_active();
