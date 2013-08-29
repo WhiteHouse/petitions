@@ -203,10 +203,10 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
   // @todo There should be a nicer way to do this once the broader question of
   //   mail handling has been addressed per PT-1003.
   $mail_systems = variable_get('mail_system', array(
-    'default-system' => 'DefaultMailSystem',
+    'signatures_queue_initiate_signature_validation' => 'DefaultMailSystem',
   ));
-  if (!empty($mail_systems['default-system']) && is_string($mail_systems['default-system'])) {
-    $active_mail_system = $mail_systems['default-system'];
+  if (!empty($mail_systems['signatures_queue_initiate_signature_validation']) && is_string($mail_systems['signatures_queue_initiate_signature_validation'])) {
+    $active_mail_system = $mail_systems['signatures_queue_initiate_signature_validation'];
   }
   else {
     $active_mail_system = 'DefaultMailSystem';
