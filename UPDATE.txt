@@ -1,7 +1,7 @@
 UPDATE
 ======
 
-Verson 7.x-2.0-beta23 -> 7.x-2.0-beta25
+Verson 7.x-2.0-beta24 -> 7.x-2.0-rc1
 ----------------------------------------------
 
 *** Please see notes in INSTALL.md about new signatures_processing database. ***
