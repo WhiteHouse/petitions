@@ -69,6 +69,49 @@ function petitions_data_form($form, &$form_state) {
 }
 
 /**
+ * Gets a petition.
+ *
+ * The petition array is cached indefinitely to prevent return trips to the
+ * database for the same information.
+ *
+ * @todo To prevent stale data, cache entries need to be invalidated by petition
+ *   ID whenever:
+ *     - A petition is modified.
+ *     - A new petition is created.
+ *
+ * @param string $petition_id
+ *   A hexidecimal petition ID.
+ *
+ * @return array
+ *   Returns an array of petition data if a petition is found or an empty array
+ *   if not.
+ */
+function petitions_data_get_petition($petition_id) {
+  $petition = &drupal_static(__FUNCTION__ . $petition_id);
+  if (!isset($petition)) {
+    if ($cache = cache_get("petition:{$petition_id}", 'cache_petitions')) {
+      $petition = $cache->data;
+    }
+    else {
+      $result = PetitionsRetrieveRawFactory::create()->load($petition_id);
+
+      // If the petition exists, return it.
+      if (!empty($result['results'][0])) {
+        $petition = $result['results'][0];
+      }
+      // If no such petition exists, return an empty array.
+      else {
+        $petition = array();
+      }
+
+      // Cache the result.
+      cache_set("petition:{$petition_id}", $petition, 'cache_petitions', CACHE_PERMANENT);
+    }
+  }
+  return $petition;
+}
+
+/**
  * Checks to see if a petition is open and not expired.
  *
  * @param string $petition_id
@@ -78,25 +121,19 @@ function petitions_data_form($form, &$form_state) {
  *   Returns TRUE if the petition is open and not expired.
  */
 function petitions_data_petition_is_open($petition_id) {
-  $is_open = FALSE;
-  $petition_close_date = FALSE;
-  // Check cache before querying the API.
-  if (!$petition_close_date = cache_get("petition_close_date:{$petition_id}", 'cache_petitions')) {
-    // Load the petition via the API retrieve method.
-    $petition = PetitionsRetrieveRawFactory::create()->load($petition_id);
-    // Confirm that the query returns a petition.
-    if (!empty($petition['results'])) {
-      // Confirm that the petition has not been removed.
-      if ($petition['results'][0]['status'] == 'open') {
-        $petition_close_date = $petition['results'][0]['deadline'];
-        cache_set("petition_close_date:{$petition_id}", 'cache_petitions');
-      }
-    }
+  $petition = petitions_data_get_petition($petition_id);
+
+  // Confirm that the petition exists.
+  if (empty($petition)) {
+    return FALSE;
   }
-  if ($petition_close_date && $petition_close_date > time()) {
-    $is_open = TRUE;
+
+  // Confirm that the petition has not been removed.
+  if ($petition['status'] !== 'open') {
+    return FALSE;
   }
-  return $is_open;
+
+  return TRUE;
 }
 
 /**
