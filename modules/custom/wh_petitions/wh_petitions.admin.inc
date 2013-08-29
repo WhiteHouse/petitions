@@ -415,7 +415,7 @@ You can review and, if necessary, remove this petition at the following URL: !pe
 }
 
 /**
- * System settings form to manage petition variables.
+ * System settings form to manage petitions email settings.
  */
 function wh_petitions_admin_petition_email_settings() {
   // Published petition email settings.
