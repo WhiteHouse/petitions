@@ -80,8 +80,8 @@ function signatures_queue_schema_tables() {
       ),
     ),
     'indexes' => array(
-      'signatures_validated_key' => array('secret_validation_key'),
-      'signatures_validated_petition_id' => array('petition_id'),
+      'validation_key' => array('secret_validation_key'),
+      'petition_signed' => array('petition_id'),
     ),
     'unique keys' => array(
       'secret_validation_key' => array('secret_validation_key'),
