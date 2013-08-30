@@ -4,9 +4,9 @@
  * @file
  * The "archive signatures" workflow.
  *
- * Retrieve and delete batches of signatures from signatures_submitted_queue,
- * send a validation email, then store signature info in
- * signatures_pending_validation_queue.
+ * Archives pending signatures once they are no longer valid.  If archiving is
+ * enabled, it will move rows from the signatures_pending_validation table to
+ * the signatures_not_validated table.
  */
 
 /**
@@ -88,13 +88,13 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
   $results = $query->execute()->fetchAll();
   $archived_count = count($results);
 
-  // Insert the invalid signatures into the signatures_not_valid table.
-  db_insert('signatures_not_valid')
+  // Insert the invalid signatures into the signatures_not_validated table.
+  db_insert('signatures_not_validated')
     ->from($query)
     ->execute();
 
   // Log the number of successfully archived signatures.
-  watchdog('signatures_queue', '@number records archived in signatures_not_valid. These signature submissions were not validated before their corresponding petitions closed. @suffix', array(
+  watchdog('signatures_queue', '@number records archived in signatures_not_validated. These signature submissions were not validated before their corresponding petitions closed. @suffix', array(
     '@number' => $archived_count,
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);

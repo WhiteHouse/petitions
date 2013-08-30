@@ -193,13 +193,13 @@ function signatures_queue_schema_tables() {
     'primary key' => array('id'),
   );
 
-  // The signatures_not_valid table has the same fields as
+  // The signatures_not_validated table has the same fields as
   // signatures_pending_validation.
-  $schema['signatures_not_valid'] = $schema['signatures_pending_validation'];
-  $schema['signatures_not_valid']['description'] = 'Not valid signatures.';
-  $schema['signatures_not_valid']['indexes'] = array(
-    'signatures_not_valid_validation_key' => array('secret_validation_key'),
-    'signatures_not_valid_petition_id' => array('petition_id'),
+  $schema['signatures_not_validated'] = $schema['signatures_pending_validation'];
+  $schema['signatures_not_validated']['description'] = 'Not valid signatures.';
+  $schema['signatures_not_validated']['indexes'] = array(
+    'signatures_not_validated_validation_key' => array('secret_validation_key'),
+    'signatures_not_validated_petition_id' => array('petition_id'),
   );
 
   $schema['signatures_queue_log'] = array(
