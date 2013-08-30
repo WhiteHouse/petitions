@@ -31,7 +31,7 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function signatures_queue_receive_new_signatures($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
+function _signatures_queue_receive_new_signatures($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
   $signature = (array) $options['signature'];
 
   // Make sure the signature argument is valid. This is done first because it's
