@@ -55,7 +55,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['signature_source_api_key'] = self::generateRandomString(20);
         break;
 
-      case 'signatures_validated_queue':
+      case 'validations_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
         $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
         $email = self::generateRandomString(10) . '@mailinator.com';

@@ -213,10 +213,10 @@ function signatures_queue_get_queue_names() {
   return array(
     'signatures_submitted_queue' => t('Queue submissions received via API POST requests or form submissions by unauthenticated users.'),
     'signatures_pending_validation_queue' => t('Retrieve petitions from signatures_submitted_queue, send a validation email, then move the pending signature here.'),
-    'signatures_validated_queue' => t('When a user clicks a validation link received via email, store the secret validation key here.'),
-    'signatures_validated' => t('Move records from signatures_validated_queue to here for processing.'),
+    'validations_queue' => t('When a user clicks a validation link received via email, store the secret validation key here.'),
+    'validations' => t('Move records from validations_queue to here for processing.'),
     'signatures_pending_validation' => t('Move records from signatures_pending_validation_queue to here for processing.'),
-    'signatures_orphans' => t('When processing validated signatures, records in signatures_validated that do not have matching records in signatures_pending_validation are orphans.'),
+    'signatures_orphans' => t('When processing validated signatures, records in validations that do not have matching records in signatures_pending_validation are orphans.'),
   );
 }
 

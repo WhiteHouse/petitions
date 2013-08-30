@@ -151,9 +151,9 @@ function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $w
   // Set the active database to the signatures_processing db.
   signatures_queue_set_db();
 
-  // Query to select records from signatures_validated that do not have matching
+  // Query to select records from validations that do not have matching
   // secret_validation_key records in signatures_pending_validation.
-  $query = db_select('signatures_validated', 'a');
+  $query = db_select('validations', 'a');
   $query->leftJoin('signatures_pending_validation', 'b', 'a.secret_validation_key = b.secret_validation_key');
   $query
     ->fields('a', array(
@@ -205,13 +205,13 @@ function _signatures_queue_delete_orphaned_validations($queues_last_emptied, $wa
 
   // Delete signatures that are no longer valid from the pending table.
   if ($columns) {
-    $deleted_signatures = db_delete('signatures_validated')
+    $deleted_signatures = db_delete('validations')
       ->condition('secret_validation_key', array($columns), 'IN')
       ->execute();
   }
 
-  // Log the number of signatures deleted from signatures_validated.
-  watchdog('signatures_queue', '@number records retrieved and deleted from signatures_validated. These signature submissions did not have matching secret validation keys. @suffix', array(
+  // Log the number of signatures deleted from validations.
+  watchdog('signatures_queue', '@number records retrieved and deleted from validations. These signature submissions did not have matching secret validation keys. @suffix', array(
       '@number' => number_format($deleted_signatures),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
@@ -227,7 +227,7 @@ function _signatures_queue_delete_orphaned_validations($queues_last_emptied, $wa
  * For example, assume these are the days when the following queues were emptied
  * last:
  *   - signatures_submitted_queue, yesterday
- *   - signatures_validated_queue, 4 days ago
+ *   - validations_queue, 4 days ago
  *   - signautres_pending_validation_queue, 2 days ago
  *
  * In this case, the timestamp we want to find and return would be the unix
@@ -243,7 +243,7 @@ function _signatures_queue_queues_last_emptied() {
   // By default, assume queues are emptied at least every two weeks.
   $queues = array(
     'signatures_submitted_queue' => $two_weeks_ago,
-    'signatures_validated_queue' => $two_weeks_ago,
+    'validations_queue' => $two_weeks_ago,
     'signautres_pending_validation_queue' => $two_weeks_ago,
   );
 

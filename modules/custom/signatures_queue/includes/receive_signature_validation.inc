@@ -56,11 +56,11 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name = 
 
   // If request is valid, process it.
   if ($is_valid && empty($return)) {
-    // Construct the validated signature data array  for signatures_validated_queue.
+    // Construct the validated signature data array  for validations_queue.
     $signature_data = _signatures_queue_validated_signature_data($options['secret_validation_key'], $options['petition_id']);
 
     // Queue validated signatures for next step.
-    $queue = SignaturesQueue::get('signatures_validated_queue');
+    $queue = SignaturesQueue::get('validations_queue');
     $queue->createQueue();
     $queue->createItem($signature_data);
 

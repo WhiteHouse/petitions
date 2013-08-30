@@ -42,8 +42,8 @@ function signatures_queue_install() {
 function signatures_queue_schema_tables() {
   $schema = array();
 
-  // Schema for signatures_validated table.
-  $schema['signatures_validated'] = array(
+  // Schema for validations table.
+  $schema['validations'] = array(
     'description' => 'Validated signatures.',
     'fields' => array(
       'id' => array(
@@ -89,8 +89,8 @@ function signatures_queue_schema_tables() {
     'primary key' => array('id'),
   );
 
-  // The signatures_orphans table has the same fields as signatures_validated.
-  $schema['signatures_orphans'] = $schema['signatures_validated'];
+  // The signatures_orphans table has the same fields as validations.
+  $schema['signatures_orphans'] = $schema['validations'];
   $schema['signatures_orphans']['description'] = 'Unvalidated signatures.';
   $schema['signatures_orphans']['indexes'] = array(
     'signatures_orphans_key' => array('secret_validation_key'),

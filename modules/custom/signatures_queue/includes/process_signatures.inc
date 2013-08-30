@@ -3,11 +3,11 @@
  * @file
  * The "process signatures" step.
  *
- * Match records from signatures_validated to signatures_pending_validation
+ * Match records from validations to signatures_pending_validation
  * tables. If a signature does not have a user, then create one.
  * If a signature record with this email does not exist in petition_signatures
  * create one, and get the signature id.
- * Check for records in signatures_validated that do not have matches in
+ * Check for records in validations that do not have matches in
  * signatures_pending_validation. Move these to signatures_orphans table.
  */
 
@@ -23,7 +23,7 @@ function _signatures_queue_process_signatures($server_name, $worker_name) {
   signatures_queue_set_db();
 
   $query = db_select('signatures_pending_validation', 'p')->fields('p');
-  $query->join('signatures_validated', 'v', 'p.secret_validation_key=v.secret_validation_key');
+  $query->join('validations', 'v', 'p.secret_validation_key=v.secret_validation_key');
   $query->range(0, $limit);
 
   $result = $query->execute();
