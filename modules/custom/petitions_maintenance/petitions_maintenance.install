@@ -185,12 +185,18 @@ function petitions_maintenance_update_7008() {
 }
 
 /**
- * Installs Signatures Queue module.
+ * Installs new modules: Signatures Queue, API Signatures, API Key Manager.
  *
  * NOTE: Production websites are strongly encouraged to create a new
  * signatures_processing database as described in INSTALL.md before applying
  * this update.
  */
 function petitions_maintenance_update_7009() {
-  module_enable(array('signatures_queue'));
+  $modules = array(
+    'signatures_queue',
+    'api_signatures',
+    'api_key_manager',
+  );
+
+  module_enable($modules);
 }
