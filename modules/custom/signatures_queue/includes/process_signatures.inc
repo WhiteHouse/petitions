@@ -3,12 +3,11 @@
  * @file
  * The "process signatures" step.
  *
- * Match records from validations to signatures_pending_validation
- * tables. If a signature does not have a user, then create one.
- * If a signature record with this email does not exist in petition_signatures
- * create one, and get the signature id.
- * Check for records in validations that do not have matches in
- * signatures_pending_validation. Move these to signatures_orphans table.
+ * Signature processing includes these steps: 
+ *  - Match records from validations to signatures_pending_validation tables.
+ *  - If signature (email address) does not have a corresponding user, create one.
+ *  - If a signature record with this email does not exist in petition_signatures
+ *    create one, and get the signature id.
  */
 
 
@@ -33,8 +32,5 @@ echo "\n\n" . $result->rowCount() . "\n\n";
   // Set the active database back to default, in case queue backend wasn't using
   // Drupal's database.
   db_set_active();
-
-
-
 }
 

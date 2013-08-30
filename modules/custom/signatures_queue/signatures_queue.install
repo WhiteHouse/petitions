@@ -89,12 +89,12 @@ function signatures_queue_schema_tables() {
     'primary key' => array('id'),
   );
 
-  // The signatures_orphans table has the same fields as validations.
-  $schema['signatures_orphans'] = $schema['validations'];
-  $schema['signatures_orphans']['description'] = 'Unvalidated signatures.';
-  $schema['signatures_orphans']['indexes'] = array(
-    'signatures_orphans_key' => array('secret_validation_key'),
-    'signatures_orphans_petition_id' => array('petition_id'),
+  // The validations_orphaned table has the same fields as validations.
+  $schema['validations_orphaned'] = $schema['validations'];
+  $schema['validations_orphaned']['description'] = 'Unvalidated signatures.';
+  $schema['validations_orphaned']['indexes'] = array(
+    'validations_orphaned_key' => array('secret_validation_key'),
+    'validations_orphaned_petition_id' => array('petition_id'),
   );
 
   // Schema for signatures_pending_validation table.

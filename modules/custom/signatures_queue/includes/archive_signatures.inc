@@ -172,13 +172,13 @@ function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $w
   $results = $query->execute()->fetchAll();
   $orphaned_count = count($results);
 
-  // Insert the orphaned signatures into signatures_orphans table.
-  db_insert('signatures_orphans')
+  // Insert the orphaned validations into validations_orphaned table.
+  db_insert('validations_orphaned')
     ->from($query)
     ->execute();
 
   // Log the number of successfully archived orphaned signatures.
-  watchdog('signatures_queue', '@number records archived in signatures_orphans. These signature submissions did not have matching secret validation keys. @suffix', array(
+  watchdog('signatures_queue', '@number records archived in validations_orphaned. These signature submissions did not have matching secret validation keys. @suffix', array(
       '@number' => $orphaned_count,
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);

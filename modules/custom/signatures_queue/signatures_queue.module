@@ -216,7 +216,7 @@ function signatures_queue_get_queue_names() {
     'validations_queue' => t('When a user clicks a validation link received via email, store the secret validation key here.'),
     'validations' => t('Move records from validations_queue to here for processing.'),
     'signatures_pending_validation' => t('Move records from signatures_pending_validation_queue to here for processing.'),
-    'signatures_orphans' => t('When processing validated signatures, records in validations that do not have matching records in signatures_pending_validation are orphans.'),
+    'validations_orphaned' => t('When processing validated signatures, records in validations that do not have matching records in signatures_pending_validation are orphans.'),
   );
 }
 
