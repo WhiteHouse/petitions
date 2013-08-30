@@ -174,7 +174,7 @@ class PetitionsBase {
       $term = taxonomy_term_load($issue_id);
       $row = array(
         'id' => $term->tid,
-        'name' => $this->filterUTF16($term->name),
+        'name' => petitions_data_sanitize_output($term->name),
       );
       $terms[] = $row;
     }

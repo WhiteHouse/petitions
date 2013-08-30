@@ -94,8 +94,8 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
       $petition = array(
         'id' => $this->formatReturnId($doc['_id']),
         'type' => 'petition',
-        'title' => $this->filterUTF16($doc['title']),
-        'body' => $this->filterUTF16($doc['body']),
+        'title' => petitions_data_sanitize_output($doc['title']),
+        'body' => petitions_data_sanitize_output($doc['body']),
         'issues' => $this->formatReturnIssues($doc['issues']),
         'signatureThreshold' => $doc['response_signatures'],
         'signatureCount' => $doc['signature_count'],

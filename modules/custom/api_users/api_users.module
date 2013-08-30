@@ -193,9 +193,9 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
       'id' => $user->id,
       'created' => $user->created,
       'location' => array(
-        'city' => _api_users_filterUTF16($user->field_city_value),
-        'state' => _api_users_filterUTF16($user->field_state_value),
-        'zip' => _api_users_filterUTF16($user->field_zip_value),
+        'city' => petitions_data_sanitize_output($user->field_city_value),
+        'state' => petitions_data_sanitize_output($user->field_state_value),
+        'zip' => petitions_data_sanitize_output($user->field_zip_value),
       ),
     );
   }

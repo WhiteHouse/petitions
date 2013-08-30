@@ -578,14 +578,12 @@ class SignaturesBase {
    */
   protected function formatReturnName($username, $first_name, $last_name) {
     if ($this->getNameFormat()) {
-      // Format name and replace non-english characters with x's.
       $function = $this->getNameFormat();
-      $name = $this->filterUTF16($function($username, $first_name, $last_name));
+      $name = petitions_data_sanitize_output($function($username, $first_name, $last_name));
     }
     else {
-      // Replace non-english characters with x's.
-      $first_name = $this->filterUTF16($first_name);
-      $last_name = $this->filterUTF16($last_name);
+      $first_name = petitions_data_sanitize_output($first_name);
+      $last_name = petitions_data_sanitize_output($last_name);
 
       // Grab first letter of first and last name.
       $name = substr($first_name, 0, 1) . substr($last_name, 0, 1);
