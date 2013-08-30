@@ -64,6 +64,11 @@ function signatures_queue_schema_tables() {
         'type' => 'int',
         'not null' => FALSE,
       ),
+      'timestamp_validation_close' => array(
+        'description' => 'Time petition is no longer valid to sign.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
       'client_ip' => array(
         'description' => 'Client IP address',
         'type' => 'varchar',

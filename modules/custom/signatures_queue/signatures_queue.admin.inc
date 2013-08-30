@@ -92,10 +92,10 @@ function signatures_queue_configure() {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['archive_signatures']['signatures_queue_archive_unvalidated_signatures'] = array(
+  $form['archive_signatures']['signatures_queue_archive_invalid_signatures'] = array(
     '#type' => 'checkbox',
     '#title' => t('Archive Invalidated Signatures'),
-    '#default_value' => variable_get('signatures_queue_archive_unvalidated_signatures', 1),
+    '#default_value' => variable_get('signatures_queue_archive_invalid_signatures', 1),
   );
   $form['archive_signatures']['signatures_queue_validation_grace_period'] = array(
     '#type' => 'textfield',

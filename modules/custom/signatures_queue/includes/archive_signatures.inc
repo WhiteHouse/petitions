@@ -15,6 +15,16 @@
  * This function should not be invoked directly. Use
  * signatures_queue_invoke_workflow() instead.
  *
+ * @param string $job_id
+ *   A unique identifier for the job, as created by
+ *   _signatures_queue_create_job_id().
+ *
+ * @param string $server_name
+ *   The name of the active server.
+ *
+ * @param string $worker_name
+ *   An arbitrary worker identifier.
+ *
  * @return bool
  *   Returns TRUE if the workflow executes successfully or FALSE if not.
  *
@@ -117,15 +127,18 @@ function _signatures_queue_delete_invalid_signatures($queues_last_emptied, $watc
   signatures_queue_set_db();
 
   // Delete signatures that are no longer valid from the pending table.
-  db_delete('signatures_pending_validation')
-    ->condition('timestamp_validation_close', $time, '<')
+  $deleted_signatures = db_delete('signatures_pending_validation')
+    ->condition('timestamp_validation_close', $queues_last_emptied, '<')
     ->execute();
 
-  // Set the active database back to default, in case queue backend is using
-  // Drupal's database.
-  db_set_active();
+  // Log the number of signatures deleted from signatures_pending_validation.
+  watchdog('signatures_queue', '@number records retrieved and deleted from signatures_pending_validation. These signature submissions were not validated before their corresponding petitions closed. @suffix', array(
+      '@number' => number_format($deleted_signatures),
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_INFO);
 
-  return TRUE;
+  // Set the active database back to default.
+  db_set_active();
 }
 
 /**

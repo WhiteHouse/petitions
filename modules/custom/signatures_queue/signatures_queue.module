@@ -180,6 +180,7 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
   }
 }
 
+
 /**
  * Implements hook_shunt().
  */
