@@ -63,7 +63,7 @@ function _signatures_queue_process_signatures(
 
   $count = 0;
 
-  // Proccess the batch.
+  // Process the batch.
   while ($item = $result->fetchAssoc()) {
     // Make sure timestamps are valid and petition IDs match.
     if (!_signatures_queue_process_signatures_assert_legitimate($item)) {
@@ -166,12 +166,47 @@ function _signatures_queue_process_signatures_create_user($item) {
     return $user;
   }
 
+  // Create users in the same format as wh_core_user_register_validate().
   $user = (object) array(
     'is_new' => TRUE,
-    'mail' => $item['email'],
-    'name' => $item['first_name'] . ' ' . $item['last_name'],
+    'mail' => trim($item['email']),
+    'name' => preg_replace("/[^\x80-\xF7 [:alnum:]@]/", '_', trim($item['email'])),
+    'status' => 1,
   );
   $new_user = user_save($user);
+
+  // Confirm that Profile2 is enabled.
+  if (module_exists('profile2')) {
+    // Invoke profile2_get_types() to retrieve an array of all profiles.
+    foreach (profile2_get_types() as $type_name => $profile_type) {
+      // Confirm that the profile is available on user registration forms.
+      if (empty($profile_type->data['registration'])) {
+        continue;
+      }
+      // Save profile data.
+      $profile = profile2_create(array('type' => $type_name, 'user' => $new_user));
+      $profile->field_first_name[LANGUAGE_NONE][0]['value'] = $item['first_name'];
+      $profile->field_last_name[LANGUAGE_NONE][0]['value'] = $item['last_name'];
+      $profile->field_zip[LANGUAGE_NONE][0]['value'] = $item['zip'];
+      // Invoke petitions_signatures_display_location() for format location.
+      if (module_exists('petitions_signatures_display')) {
+        $location = petitions_signatures_display_location($item['zip']);
+        if (is_array($location)) {
+          $loc = reset($location);
+          $profile->field_city[LANGUAGE_NONE][0]['value'] = $loc['city'];
+          $profile->field_state[LANGUAGE_NONE][0]['value'] = $loc['state'];
+          ($loc['country'] == 'us') AND $loc['country'] = 'United States';
+          $profile->field_country[LANGUAGE_NONE][0]['value'] = $loc['country'];
+        }
+        else {
+          $profile->field_city[LANGUAGE_NONE][0]['value'] = $item['city'];
+          $profile->field_state[LANGUAGE_NONE][0]['value'] = $item['state'];
+          $profile->field_country[LANGUAGE_NONE][0]['value'] = $item['country'];
+        }
+      }
+      profile2_save($profile);
+    }
+  }
 
   return $new_user;
 >>>>>>> PT-994 - completed process signatures workflow, adding admin notification

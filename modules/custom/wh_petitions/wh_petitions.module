@@ -1736,8 +1736,8 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
   $fields = array('first_name', 'last_name', 'city', 'state', 'zip', 'country');
   $user_fields = array();
   foreach ($fields as $f) {
-    if (!empty($profile['main']->{'field' . $f}['und'][0]['value'])) {
-      $user_fields[$f] = $profile['main']->{'field' . $f}['und'][0]['value'];
+    if (!empty($profile['main']->{'field_' . $f}[LANGUAGE_NONE][0]['value'])) {
+      $user_fields[$f] = $profile['main']->{'field_' . $f}[LANGUAGE_NONE][0]['value'];
     }
   }
 
