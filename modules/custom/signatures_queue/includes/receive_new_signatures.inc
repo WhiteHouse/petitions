@@ -135,6 +135,7 @@ function _signatures_queue_build_new_queue_item(array $signature) {
   $item['timestamp_petition_close'] = $petition_close_date;
   $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 0);
   $item['timestamp_validation_close'] = $petition_close_date + $validation_grace_period;
+  $item['secret_validation_key'] = '';
 
   return $item;
 }
