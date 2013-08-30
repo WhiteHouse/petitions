@@ -289,19 +289,4 @@ class PetitionsBase {
         return "closed";
     }
   }
-
-  /**
-   * Helper function to format characters in a string.
-   *
-   * @param string $string
-   *   The raw input string.
-   *
-   * @return string
-   *   Formatted output string.
-   */
-  protected function filterUTF16($string) {
-    // Replace non-english characters with x's.
-    $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
-    return $string;
-  }
 }

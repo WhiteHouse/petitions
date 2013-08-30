@@ -251,23 +251,6 @@ function _api_users_mock_response() {
   return $response;
 }
 
-
-/**
- * Helper function to format characters in a string.
- *
- * @param string $string
- *   The raw input string from mongo.
- *
- * @return string
- *   Formatted output string.
- */
-function _api_users_filterUTF16($string) {
-  // Replace non-english characters with x's.
-  $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
-
-  return $string;
-}
-
 /**
  * Queries the database for total number of users in the database with some
  * specific conditions.
