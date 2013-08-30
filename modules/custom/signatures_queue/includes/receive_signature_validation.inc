@@ -19,14 +19,17 @@
  *   A unique identifier for the job, as created by
  *   _signatures_queue_create_job_id().
  * @param string $server_name
- *   (optional) The name of the server processing the workflow. Defaults to
- *   SIGNATURES_QUEUE_SERVER_NAME_DEFAULT.
+ *   An arbitrary identifier for the server processing the workflow.
  * @param string $worker_name
- *   (optional) An arbitrary identifier for the invoking process (e.g., cron
- *   job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
+ *   An arbitrary identifier for the invoking process (e.g., cron job).
  * @param array $options
- *   (optional) An array of arbitrary options data as required by particular
- *   workflows. Defaults to an empty array.
+ *   (optional) An array of options. Defaults to an empty array. These (key,
+ *   value) pairs are expected:
+ *   - petition_id: The petition ID associated with the signature.
+ *   - validation_expiration: A Unix timestamp of the date the validation
+ *     expires.
+ *   - secret_validation_key: A secret key for validating a signature via email.
+ *   - md5: An MD5 hash of the secret validation key.
  *
  * @return string
  *   Returns "thank-you/{$petition_id}" if hashes match or "error" if they
@@ -36,7 +39,7 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function _signatures_queue_receive_signature_validation($job_id, $server_name, $worker_name, $options) {
+function _signatures_queue_receive_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
   $is_valid = FALSE;
   $return = '';
 

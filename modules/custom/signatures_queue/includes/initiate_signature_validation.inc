@@ -19,21 +19,19 @@
  *   A unique identifier for the job, as created by
  *   _signatures_queue_create_job_id().
  * @param string $server_name
- *   (optional) The name of the server processing the workflow. Defaults to
- *   SIGNATURES_QUEUE_SERVER_NAME_DEFAULT.
+ *   An arbitrary identifier for the server processing the workflow.
  * @param string $worker_name
- *   (optional) An arbitrary identifier for the invoking process (e.g., cron
- *   job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
+ *   An arbitrary identifier for the invoking process (e.g., cron job).
  * @param array $options
- *   (optional) An array of arbitrary options data as required by particular
- *   workflows. Defaults to an empty array.
+ *   (optional) An array of options. Defaults to an empty array. It is currently
+ *   unused by this workflow.
  *
  * @return bool
  *   Returns TRUE if the workflow executes successfully or FALSE if not.
  *
  * @see signatures_queue_invoke_workflow()
  */
-function _signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name, $options) {
+function _signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
 
   // Retrieve and delete signatures from the signatures_submitted_queue.

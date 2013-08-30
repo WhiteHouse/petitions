@@ -76,8 +76,10 @@ function drush_signatures_queue_invoke_workflow_validate() {
 function drush_signatures_queue_invoke_workflow() {
   $args = drush_get_arguments();
   $workflow = $args[1];
-  $server_name = drush_get_option('server-name', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT);
-  $worker_name = drush_get_option('worker-name', SIGNATURES_QUEUE_WORKER_NAME_DEFAULT);
-  $success = signatures_queue_invoke_workflow($workflow, $server_name, $worker_name);
+  $options = array(
+    'server_name' => drush_get_option('server-name', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT),
+    'worker_name' => drush_get_option('worker-name', SIGNATURES_QUEUE_WORKER_NAME_DEFAULT),
+  );
+  $success = signatures_queue_invoke_workflow($workflow, $options);
   return $success;
 }

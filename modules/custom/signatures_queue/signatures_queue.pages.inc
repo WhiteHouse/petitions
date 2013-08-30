@@ -75,7 +75,7 @@ function _signatures_queue_validation_page_callback() {
   // If this is successful, this should return a URL for a thank you page that
   // we will redirect the user to, to thank them and let them know their
   // signature will be counted.
-  $response = signatures_queue_invoke_workflow('receive_signature_validation', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
+  $response = signatures_queue_invoke_workflow('receive_signature_validation', $options);
 
   // Typically signatures_queue_invoke_workflow() returns boolean.
   // If the workflow fails (shunt is tripped), the response will be TRUE.

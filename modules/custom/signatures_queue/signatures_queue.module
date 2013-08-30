@@ -281,15 +281,14 @@ function signatures_queue_get_workflow_names() {
  * @param string $workflow
  *   The name of the workflow to invoke, as defined in
  *   signatures_queue_get_workflow_names().
- * @param string $server_name
- *   (optional) The name of the server processing the workflow. Defaults to
- *   SIGNATURES_QUEUE_SERVER_NAME_DEFAULT.
- * @param string $worker_name
- *   (optional) An arbitrary identifier for the invoking process (e.g., cron
- *   job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
  * @param array $options
  *   (optional) An array of arbitrary options data as required by particular
- *   workflows. Defaults to an empty array.
+ *   workflows. Defaults to an empty array. In addition to workflow-specific
+ *   options, the invoker expects these (key, value) pairs:
+ *   - server_name: (optional) An arbitrary identifier for the server processing
+ *     the workflow. Defaults to SIGNATURES_QUEUE_SERVER_NAME_DEFAULT.
+ *   - worker_name: (optional) An arbitrary identifier for the invoking process
+ *     (e.g., cron job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
  *
  * @return int
  *   Returns one of the following status codes indicating the workflow outcome:
@@ -299,10 +298,11 @@ function signatures_queue_get_workflow_names() {
  *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
  *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  */
-function signatures_queue_invoke_workflow($workflow,
-                                          $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT,
-                                          $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT,
-                                          array $options = array()) {
+function signatures_queue_invoke_workflow($workflow, array $options = array()) {
+  // Initialize default options.
+  $server_name = (!empty($options['server_name'])) ? $options['server_name'] : SIGNATURES_QUEUE_SERVER_NAME_DEFAULT;
+  $worker_name = (!empty($options['worker_name'])) ? $options['worker_name'] : SIGNATURES_QUEUE_WORKER_NAME_DEFAULT;
+
   // Make sure given workflow is valid.
   if (!in_array($workflow, signatures_queue_get_workflow_names())) {
     throw new Exception("No such workflow '{$workflow}'.");

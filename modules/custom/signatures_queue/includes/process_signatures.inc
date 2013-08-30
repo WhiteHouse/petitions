@@ -20,14 +20,12 @@
  *   A unique identifier for the job, as created by
  *   _signatures_queue_create_job_id().
  * @param string $server_name
- *   (optional) The name of the server processing the workflow. Defaults to
- *   SIGNATURES_QUEUE_SERVER_NAME_DEFAULT.
+ *   An arbitrary identifier for the server processing the workflow.
  * @param string $worker_name
- *   (optional) An arbitrary identifier for the invoking process (e.g., cron
- *   job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
+ *   An arbitrary identifier for the invoking process (e.g., cron job).
  * @param array $options
- *   (optional) An array of arbitrary options data as required by particular
- *   workflows. Defaults to an empty array.
+ *   (optional) An array of options. Defaults to an empty array. It is currently
+ *   unused by this workflow.
  *
  * @return bool
  *   Returns TRUE if the workflow executes successfully or FALSE if not.

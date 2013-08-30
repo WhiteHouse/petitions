@@ -17,13 +17,13 @@
  *   A unique identifier for the job, as created by
  *   _signatures_queue_create_job_id().
  * @param string $server_name
- *   (optional) The name of the server processing the workflow. Defaults to
- *   SIGNATURES_QUEUE_SERVER_NAME_DEFAULT.
+ *   An arbitrary identifier for the server processing the workflow.
  * @param string $worker_name
- *   (optional) An arbitrary identifier for the invoking process (e.g., cron
- *   job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
+ *   An arbitrary identifier for the invoking process (e.g., cron job).
  * @param array $options
- *   - $options['signature'], signature submitted via POST request to API.
+ *   (optional) An array of options. Defaults to an empty array. These (key,
+ *   value) pairs are expected:
+ *   - signature: The signature argument received from the service request.
  *
  * @return int
  *   Returns one of the following status codes indicating the workflow outcome:
@@ -35,7 +35,7 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker_name, $options) {
+function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker_name, array $options = array()) {
   $signature = (array) $options['signature'];
 
   // Make sure the signature argument is valid. This is done first because it's

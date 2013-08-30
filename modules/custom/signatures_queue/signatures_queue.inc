@@ -12,7 +12,7 @@
  *   The name of the workflow being invoked, as defined in
  *   signatures_queue_get_workflow_names().
  * @param string $server_name
- *   The name of the server processing the workflow.
+ *   An arbitrary identifier for the server processing the workflow.
  * @param string $worker_name
  *   An arbitrary identifier for the invoking process (e.g., cron job).
  *
@@ -33,7 +33,7 @@ function _signatures_queue_create_job_id($workflow, $server_name, $worker_name) 
  *   The name of the workflow to invoke, as defined in
  *   signatures_queue_get_workflow_names().
  * @param string $server_name
- *   The name of the server processing the workflow.
+ *   An arbitrary identifier for the server processing the workflow.
  * @param string $worker_name
  *   An arbitrary identifier for the invoking process (e.g., cron job).
  * @param string $status
@@ -97,7 +97,7 @@ function _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_n
  *   A unique identifier for the job, as created by
  *   _signatures_queue_create_job_id().
  * @param string $server_name
- *   The name of the server processing the workflow.
+ *   An arbitrary identifier for the server processing the workflow.
  * @param string $worker_name
  *   An arbitrary identifier for the invoking process (e.g., cron job).
  *
