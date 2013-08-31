@@ -124,7 +124,7 @@ function _signatures_queue_process_signatures_assert_legitimate($item) {
   $legitimate = TRUE;
 
   // Check timestamps.
-  if ($item['timestamp_validated'] > $item['timestamp_petition_close']) {
+  if ($item['timestamp_validated'] > $item['timestamp_validation_close']) {
     // This suggests suspicious activity, notify admin.
     $params = array_merge($item, array(
       'subject' => t('Timestamp discrepancy'),
