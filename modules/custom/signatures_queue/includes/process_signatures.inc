@@ -128,8 +128,8 @@ function _signatures_queue_process_signatures_assert_legitimate($item) {
     // This suggests suspicious activity, notify admin.
     $params = array_merge($item, array(
       'subject' => t('Timestamp discrepancy'),
-      'notice' => t('Timestamp validated is greater than timestamp petition close.'),
-      ));
+      'notice' => t("There's something funny about this signature validation. Signatures cannot be validated (see timestamp_validated) after a petition is closed (see timestamp_validation_close, this is when we stop allowing people to sign this particular petition). Either the logic in our code has changed, or someone is tampering with validation URLs to trick us into counting validations after a petition is closed."),
+    ));
     _signatures_queue_notify_admin($params);
     $legitimate = FALSE;
   }
@@ -139,8 +139,8 @@ function _signatures_queue_process_signatures_assert_legitimate($item) {
     // This suggests suspicious activity, notify admin.
     $params = array_merge($item, array(
       'subject' => t('Petition ID discrepancy'),
-      'notice' => t('Validated signature has mismatched petition ID.'),
-      ));
+      'notice' => t("There's something funny about this signature validation. When the signature was first submitted, it was submitted with one petition ID. When the signature was validated, the URL included a different petition ID. Either the logic in our code has changed, or someone is tampering with validation URLs (for example, to trick people into signing one petition when they think they signed a different one)."),
+    ));
     _signatures_queue_notify_admin($params);
     $legitimate = FALSE;
   }
