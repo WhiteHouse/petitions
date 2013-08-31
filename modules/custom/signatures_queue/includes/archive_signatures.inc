@@ -25,12 +25,16 @@
  * @param string $worker_name
  *   An arbitrary worker identifier.
  *
+ * @param array $options
+ *   (optional) An array of arbitrary options data as required by particular
+ *   workflows. Defaults to an empty array.
+ *
  * @return bool
  *   Returns TRUE if the workflow executes successfully or FALSE if not.
  *
  * @see signatures_queue_invoke_workflow()
  */
-function _signatures_queue_archive_signatures($job_id, $server_name, $worker_name) {
+function _signatures_queue_archive_signatures($job_id, $server_name, $worker_name, $options) {
   // Define watchdog_suffix for logging.
   $watchdog_suffix = _signatures_queue_watchdog_suffix('archive_signatures', $job_id, $server_name, $worker_name);
 

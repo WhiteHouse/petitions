@@ -33,7 +33,7 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function _signatures_queue_initiate_signature_validation($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
+function _signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name, $options) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
 
   // Retrieve and delete signatures from the signatures_submitted_queue.

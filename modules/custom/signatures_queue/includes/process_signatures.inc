@@ -34,12 +34,7 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function _signatures_queue_process_signatures(
-  $job_id,
-  $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT,
-  $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT,
-  array $options = array()) {
-
+function _signatures_queue_process_signatures($job_id, $server_name, $worker_name, $options) {
   $limit = signatures_queue_get_queue_batch_size('process_signatures');
 
   // Set the active database to the signatures_processing db.

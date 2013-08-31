@@ -23,15 +23,14 @@
  *   (optional) An arbitrary identifier for the invoking process (e.g., cron
  *   job). Defaults to SIGNATURES_QUEUE_WORKER_NAME_DEFAULT.
  * @param array $options
- *   (optional) An array of arbitrary options data as required by particular
- *   workflows. Defaults to an empty array.
+ *   - $options['signature'], signature submitted via POST request to API.
  *
  * @return bool
  *   Returns TRUE if the workflow executes successfully or FALSE if not.
  *
  * @see signatures_queue_invoke_workflow()
  */
-function _signatures_queue_receive_new_signatures($job_id, $server_name = SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, $worker_name = SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, array $options = array()) {
+function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker_name, $options) {
   $signature = (array) $options['signature'];
 
   // Make sure the signature argument is valid. This is done first because it's
