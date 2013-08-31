@@ -209,7 +209,6 @@ function _signatures_queue_process_signatures_create_user($item) {
   }
 
   return $new_user;
->>>>>>> PT-994 - completed process signatures workflow, adding admin notification
 }
 
 /**
