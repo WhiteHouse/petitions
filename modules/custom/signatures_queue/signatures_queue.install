@@ -326,6 +326,11 @@ function signatures_queue_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'timestamp_processed' => array(
+        'description' => 'Time signature validation was processed.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
     ),
     'primary key' => array('vid'),
     'indexes' => array(
