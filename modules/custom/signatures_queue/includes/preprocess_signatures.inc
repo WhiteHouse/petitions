@@ -7,8 +7,8 @@
  * Retrieve a batch of records from signatures_pending_validation_queue, store
  * in signatures_pending_validation table, delete from queue.
  *
- * Retrieve a batch of records from signatures_validated_queue, store in mysql
- * signatures_validated table, delete from queue.
+ * Retrieve a batch of records from validations_queue, store in mysql
+ * validations table, delete from queue.
  */
 
 /**
@@ -41,7 +41,7 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
   // Processing is the same for the two queues so we loop through them.
   $queues = array(
     'signatures_pending_validation_queue' => 'signatures_pending_validation',
-    'signatures_validated_queue' => 'signatures_validated',
+    'validations_queue' => 'validations',
   );
   foreach ($queues as $queue => $table) {
     // Preprocess a batch of signatures in $queue queue.
@@ -92,11 +92,11 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
  * @param string $queue_name
  *   The name of the queue to process.
  *   Expecting either signatures_pending_validation_queue or
- *   signatures_validated_queue.
+ *   validations_queue.
  *
  * @param string $table_name
  *   The name of the table for storing records.
- *   Expecting either signatures_pending_validation or signatures_validated.
+ *   Expecting either signatures_pending_validation or validations.
  *
  * @return array
  *   Array info about records moved into mysql and items remaining in queue
