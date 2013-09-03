@@ -44,7 +44,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   $query = db_select('signatures_pending_validation', 'p');
   $query->join('validations', 'v', 'p.secret_validation_key=v.secret_validation_key');
   $query->fields('p')->range(0, $limit);
-  // Add fields from the signatures_validated table.
+  // Add fields from the validations table.
   $query->addField('v', 'vid');
   $query->addField('v', 'client_ip');
   $query->addField('v', 'petition_id', 'validated_petition_id');
@@ -298,7 +298,7 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
 /**
  * Move items to processed tables.
  *
- * Delete the items from signatures_pending_validation and signatures_validated
+ * Delete the items from signatures_pending_validation and validations
  * and add them to signatures_processed and validations_processed.
  *
  * @param string $item
@@ -337,7 +337,7 @@ function _signatures_queue_process_signatures_move_to_processed($item) {
   $deleted = db_delete('signatures_pending_validation')
     ->condition('sid', $item['sid'])
     ->execute();
-  $deleted = db_delete('signatures_validated')
+  $deleted = db_delete('validations')
     ->condition('vid', $item['vid'])
     ->execute();
 
