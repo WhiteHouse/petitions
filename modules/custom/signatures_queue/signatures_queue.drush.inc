@@ -62,7 +62,7 @@ function drush_signatures_queue_invoke_workflow_validate() {
     drush_set_error('SIGNATURES_QUEUE_INVALID_ARGUMENT', dt('"@workflow" is not a valid workflow.', array('@workflow' => $workflow)));
   }
   elseif (in_array($workflow, $user_initiated_workflows)) {
-    drush_set_error('SIGNATURES_QUEUE_INVALID_ARGUMENT', dt('The "@workflow" workflow is not meant to be invoked from Drush.', array('@workflow' => $workflow)));
+    drush_set_error('SIGNATURES_QUEUE_INVALID_ARGUMENT', dt('The "@workflow" workflow is not meant to be invoked from Drush. This is a "user initiated workflow". You can simulate receiving signatures or validating signatures by generating dummy data with the signatures_queue_devel module (admin/config/development/generate/signatures).', array('@workflow' => $workflow)));
   }
 }
 
