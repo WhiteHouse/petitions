@@ -102,8 +102,8 @@ function signatures_queue_schema_tables() {
     'validations_orphaned_petition_signed' => array('petition_id'),
   );
 
-  // The validations_processed table has the same fields as signatures_validated.
-  $schema['validations_processed'] = $schema['signatures_validated'];
+  // The validations_processed table has the same fields as validations.
+  $schema['validations_processed'] = $schema['validations'];
   $schema['validations_processed']['description'] = 'Processed signatures.';
 
   // Schema for signatures_pending_validation table.
