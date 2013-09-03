@@ -64,23 +64,28 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       continue;
     }
 
-    // Create user if doesn't exist.
+    // Create user if a user with this email does not exist yet.
     $user = _signatures_queue_process_signatures_create_user($item);
 
-    // Create record in petition_signatures if doesn't exist.
-    $item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user);
+    // Get signature_id, if this user has already signed.
+    $item['signature_id'] = wh_petitions_get_signature_id($item['petition_id'], $user->uid);
+
+    // If this is a new signature...
+    if (!$item['signature_id']) {
+      // Create new record in petition_signatures.
+      $item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user);
+      // Increment signature count if this is a new signature.
+      wh_petitions_increment_count($item['petition_id']);
+    }
+
+    // Invoke hook_save_signature. @@?
+    // module_invoke_all('save_signature', $item);
 
     // Add signature ID and API key to signatures_validations table.
     _signatures_queue_process_signatures_add_to_signatures_validations($item);
 
-    // Set the active database to the signatures_processing db.
-    signatures_queue_set_db();
-
-    // Move item to processed tables.
+    // Move item to processed tables and delete from pre-process tables.
     _signatures_queue_process_signatures_move_to_processed($item);
-
-    // Set the active database back to default.
-    db_set_active();
 
     // Subscribe to list if requested.
     // Turned off until further review...
@@ -88,9 +93,6 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
 
     $count++;
   }
-
-  // Add signature_source_api_key to signature_sources table.
-  _signatures_queue_process_signatures_add_signatures_sources();
 
   // Log successes.
   $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
@@ -217,58 +219,22 @@ function _signatures_queue_process_signatures_create_user($item) {
  * @param object $user
  *   Drupal user object for checking petition_signatures.
  *
- * @return bool
- *   Returns TRUE on success.
+ * @return string $signature_id
  */
 function _signatures_queue_process_signatures_create_record($item, $user) {
-  /*
-   * Much of the following pieces are copied from wh_petitions_sign_petition().
-   */
-
-  // Setup connections for signatures and petitions.
-  $connection = wh_petitions_mongo_petition_connection();
-  $connection->setSlaveOkay(FALSE);
-  $sig_connection = wh_petitions_mongo_petition_signatures_connection();
-  $sig_connection->setSlaveOkay(FALSE);
-
-  $slim_petition_elements = array(
-    'petition_status',
-    'signature_count',
-    'response_signatures',
-    'public_signatures',
-  );
-
-  // Load the petition.
-  $petition = wh_petitions_load_slim_petition($connection, $item['petition_id'], $slim_petition_elements);
-
-  // If it wasn't a valid petition id, exit.
-  if (empty($petition)) {
-    return FALSE;
-  }
-
-  // The wh_petitions_create_signature function determines if this user has
-  // already signed the petition.
-  $signature_id = wh_petitions_create_signature($petition, $user, $sig_connection, $item['client_ip']);
-  if (!$signature_id) {
-    watchdog('wh_petitions', 'Failed to create signature for @user on @petition', array('@user' => $user->uid, '@petition' => $petition['_id']));
-    return FALSE;
-  };
-
-  // Up the signature_count on the petition.
-  wh_petitions_increment_signature_count($petition, $connection);
-
-  // Invoke hook_save_signature. @@?
-  // module_invoke_all('save_signature', $item);
+  // The wh_petitions_create_signature function called by
+  // wh_petitions_create_new_signature determines if this user has already signed the petition.
+  $signature_id = wh_petitions_create_new_signature($item['petition_id'], $user, $item['client_ip']);
 
   return $signature_id;
 }
 
 /**
- * Add to signatures_validations.
+ * Add record to signature_validations table.
  *
- * Add signature ID and API key to signatures_validations table. (note: possible
+ * Add signature ID and API key to signature_validations table. (Note: Possible
  * many-to-one relationship with signature records in petition_signatures and
- * signatures_sources)
+ * validations in signatures_validations.)
  *
  * @param string $item
  *   The item from the database query.
@@ -306,6 +272,9 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
  *   Returns TRUE on success.
  */
 function _signatures_queue_process_signatures_move_to_processed($item) {
+  // Set the active database to the signatures_processing db.
+  signatures_queue_set_db();
+
   // Add to processed tables.
   $id = db_insert('signatures_processed')
     ->fields(array(
@@ -331,7 +300,7 @@ function _signatures_queue_process_signatures_move_to_processed($item) {
     ))
     ->execute();
 
-  // Delete from tables.
+  // Delete from pre-process tables.
   $deleted = db_delete('signatures_pending_validation')
     ->condition('sid', $item['sid'])
     ->execute();
@@ -339,6 +308,8 @@ function _signatures_queue_process_signatures_move_to_processed($item) {
     ->condition('vid', $item['vid'])
     ->execute();
 
+  // Set the active database back to default.
+  db_set_active();
 }
 
 /**
@@ -370,23 +341,3 @@ function _signatures_queue_process_signatures_list_subscribe($item) {
   }
 }
 
-/**
- * Add signature sources from the signature_validations table.
- *
- * @@ Placeholder function for now. The signatures_sources table doesn't exist
- * yet.
- *
- * @param string $item
- *   The item from the database query.
- *
- * @return bool
- *   Returns TRUE on success.
- */
-function _signatures_queue_process_signatures_add_signatures_sources() {
-  // db_select  DISTINCT signature_validations LEFT JOIN signatures_sources
-  // WHERE signatures_sources NULL
-
-  // while () {
-    // add to signatures_sources...
-  // }
-}

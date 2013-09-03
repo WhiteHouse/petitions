@@ -1696,6 +1696,80 @@ function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $u
 }
 
 /**
+ * Create signature record.
+ *
+ * Wrapper around wh_petitions_create_signature(). This can be called by modules
+ * who don't know anything about mongo.
+ *
+ * @param string $petition_id
+ *
+ * @param obj $user
+ *   Druapl user object.
+ *
+ * @return string $signature_id
+ */
+function wh_petitions_create_new_signature($petition_id, $user, $client_ip) {
+  // Setup connections for signatures and petitions.
+  $connection = wh_petitions_mongo_petition_connection();
+  $connection->setSlaveOkay(FALSE);
+  $sig_connection = wh_petitions_mongo_petition_signatures_connection();
+  $sig_connection->setSlaveOkay(FALSE);
+
+  $slim_petition_elements = array(
+    'petition_status',
+    'signature_count',
+    'response_signatures',
+    'public_signatures',
+  );
+
+  // Load the petition.
+  $petition = wh_petitions_load_slim_petition($connection, $petition_id, $slim_petition_elements);
+
+  // If it wasn't a valid petition id, exit.
+  if (empty($petition)) {
+    return FALSE;
+  }
+
+  $signature_id = wh_petitions_create_signature($petition, $user, $sig_connection, $client_ip);
+  if (!$signature_id) {
+    watchdog('wh_petitions', 'Failed to create signature for @user on @petition', array('@user' => $user->uid, '@petition' => $petition['_id']));
+    return FALSE;
+  };
+
+  return $signature_id;
+}
+
+/**
+ * Check to see if signature exists already.
+ *
+ * @param obj $user
+ *  User object.
+ *
+ * @return string
+ *  Signature ID or FALSE if it doesn't exist yet.
+ */
+function wh_petitions_get_signature_id($petition_id, $uid) {
+  $signature_id = FALSE;
+
+  // Create connection.
+  $sig_connection = wh_petitions_mongo_petition_signatures_connection();
+  $sig_connection->setSlaveOkay(FALSE);
+
+  // Determine if this user has already signed the petition.
+  $query = array(
+    'uid' => (int) $uid,
+    'petition_id' => (string) $petition_id,
+  );
+  $result = $sig_connection->findOne($query);
+  if (!empty($result)) {
+    $signature_id = $result['_id']->__toString();
+    // TODO make sure this ^^ works.  
+  }
+
+  return $signature_id;
+}
+
+/**
  * Create and save a signature object for the given user and petition.
  *
  * @param Object $petition
@@ -1719,13 +1793,8 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
     return FALSE;
   }
 
-  // Determine if this user has already signed the petition.
-  $query = array(
-    'uid' => (int) $user->uid,
-    'petition_id' => (string) $petition['_id'],
-  );
-  $result = $signature_collection_connection->findOne($query);
-  if (!empty($result)) {
+  // Check if signature_id exists.
+  if ($signature_id = wh_petitions_get_signature_id()) {
     watchdog('wh_petitions', 'unable to create signature, user @user has already signed @petition', array('@petition' => $petition['_id'], '@user' => $user->uid));
     return FALSE;
   }
@@ -1760,6 +1829,26 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
 }
 
 /**
+ * Wrapper around wh_petitions_increment_signature_count().
+ *
+ * This function takes care of creating a mongo connection and looking up the
+ * properly formatted $petition object.
+ *
+ * @param string $petition_id
+ */
+function wh_petitions_increment_count($petition_id) {
+  // Create connection.  
+  $connection = wh_petitions_mongo_petition_connection();
+  $connection->setSlaveOkay(FALSE);
+
+  // Load the petition.
+  $petition = wh_petitions_load_slim_petition($connection, $petition_id, $slim_petition_elements);
+
+  // Increment signature count.
+  wh_petitions_increment_signature_count($petition, $connection);
+}
+
+/**
  * Increment signature_count of a petition.
  *
  * Increment the signature_count of a petition and check to see
@@ -1770,7 +1859,7 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
  * @param MongoClient $connection
  *   A connection to the petition dataset
  */
-function wh_petitions_increment_signature_count(&$petition, $connection) {
+function wh_petitions_increment_signature_count(&$petition, $connection = FALSE) {
   $connection->update(
     array('_id' => $petition['_id']),
     array('$inc' => array('signature_count' => 1))
