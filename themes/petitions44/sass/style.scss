@@ -4603,6 +4603,11 @@ text-transform:uppercase;
 
               .resource-method {
                 .method-name {}
+                .method-auth {
+                  float: right;
+                  display: inline-block;
+                  background: url(../img/auth-req.png) no-repeat top left;
+                }
                 .method-description {}
                 .method-arguments {
                   ul {
