@@ -31,16 +31,10 @@ function _api_signatures_resource_create(array $signature) {
       return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
 
     case SIGNATURES_QUEUE_STATUS_FORBIDDEN:
-      $petition = petitions_data_get_petition($signature['petition_id']);
-
-      // By now petitions_data_petition_is_open() has been invoked and cached
-      // the petition close date.
-      $petition_close_date = (int) cache_get("petition_close_date:{$signature['petition_id']}", 'cache_petitions');
-
-      $developer_message = t("Petition @petition_id has closed. You cannot sign it. (If you believe this petition was not open for 30 days, it's possible that it was flagged and removed for violation of terms of service.)", array(
+      $developer_message = t("Petition @petition_id cannot accept more signatures. (If you believe this petition was not open for a full 30 days, it's possible that it was flagged and removed for violation of terms of service.)", array(
         '@petition_id' => $signature['petition_id'],
       ));
-      $user_message = t('This petition was closed on @date and cannot accept more signatures. You can open a new petition on this issue here: http://petitions.whitehouse.gov/.', array(
+      $user_message = t('This petition cannot accept more signatures. You can open a new petition on this issue here: http://petitions.whitehouse.gov/.', array(
         '@date' => format_date($petition_close_date),
       ));
       $more_info = 'https://github.com/WhiteHouse/petitions/issues/74';
@@ -61,6 +55,15 @@ function _api_signatures_resource_create(array $signature) {
       $user_message = t('Sorry. We are unable to process your signature right now.');
       $more_info = 'https://github.com/WhiteHouse/petitions/issues/73';
       $error_code = 73;
-      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+      // @todo We have to do this manually because Services module completely
+      //   borks on a 5xx error code. Since others will need this too, factor it
+      //   out into a helper function somewhere.
+      return array(
+        'status' => $rounded_status,
+        'developerMessage' => "{$rounded_status}:{$developer_message}",
+        'errorCode' => $rounded_status,
+        'userMessage' => $user_message,
+        'moreInfo' => $more_info,
+      );
   }
 }
