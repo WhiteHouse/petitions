@@ -14,7 +14,7 @@
 function _api_signatures_resource_create(array $signature) {
   // Submit the signature.
   $options = array('signature' => $signature);
-  $status = signatures_queue_invoke_workflow('receive_new_signatures', SIGNATURES_QUEUE_SERVER_NAME_DEFAULT, SIGNATURES_QUEUE_WORKER_NAME_DEFAULT, $options);
+  $status = signatures_queue_invoke_workflow('receive_new_signatures', $options);
 
   // Round the status down to the nearest hundred (e.g. 200, 400, 500).
   $rounded_status = floor($status / 100) * 100;
