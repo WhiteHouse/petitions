@@ -52,12 +52,7 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
   }
 
   // Make sure the petition is "signable".
-  $signable_statuses = array(
-    WH_PETITION_STATUS_PRIVATE,
-    WH_PETITION_STATUS_PUBLIC,
-    WH_PETITION_STATUS_UNDER_REVIEW,
-  );
-  if (!in_array($petition['status'], $signable_statuses)) {
+  if ($petition['status'] == 'closed') {
     return SIGNATURES_QUEUE_STATUS_FORBIDDEN;
   }
 
@@ -128,13 +123,11 @@ function _signatures_queue_build_new_queue_item(array $signature) {
   $item = array_merge($expected_fields, $signature_trimmed);
 
   // Add application data to the item.
-  $item['timestamp_submitted'] = time();
-  // At this point, petitions_data_petition_is_open() has been invoked and
-  // cached the petition close date.
-  $petition_close_date = (int) cache_get("petition_close_date:{$signature['petition_id']}", 'cache_petitions');
-  $item['timestamp_petition_close'] = $petition_close_date;
+  $petition = petitions_data_get_petition($signature['petition_id']);
   $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 0);
-  $item['timestamp_validation_close'] = $petition_close_date + $validation_grace_period;
+  $item['timestamp_submitted'] = time();
+  $item['timestamp_petition_close'] = $petition['deadline'];
+  $item['timestamp_validation_close'] = $petition['deadline'] + $validation_grace_period;
   $item['secret_validation_key'] = '';
 
   return $item;

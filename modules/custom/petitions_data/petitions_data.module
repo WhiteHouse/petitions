@@ -83,8 +83,35 @@ function petitions_data_form($form, &$form_state) {
  *   A hexidecimal petition ID.
  *
  * @return array
- *   Returns an array of petition data if a petition is found or an empty array
- *   if not.
+ *   Returns an array of petition data if a petition is found (or an empty array
+ *   if not) containing the following (key, value) pairs:
+ *   - id: A unique identifier as a hexidecimal string.
+ *   - type: The string "petition".
+ *   - title: The title string.
+ *   - body: The body string.
+ *   - issues: An indexed array of terms from the "Issues" vocabulary that the
+ *     petition is tagged with, where each value is another array with the
+ *     following (key, value) pairs:
+ *     - id: The term id (tid).
+ *     - name: The term name string.
+ *   - signatureThreshold: The number of signatures required to receive an
+ *     official response.
+ *   - signatureCount: The number of signatures the petition has received to
+ *     date.
+ *   - signaturesNeeded: The number of signatures still needed in order to reach
+ *     the threshold.
+ *   - url: The absolute path to the petition, e.g. "/petition/petition-title".
+ *   - deadline: The deadline for signing the petition, in as a Unix timestamp.
+ *   - status: The string "open" or "closed".
+ *   - response: An array of response data if a response has been associated
+ *     the petition (or NULL if not) containing the following (key, value)
+ *     pairs:
+ *     - id: The response node ID (nid).
+ *     - url: The absolute path to the response node, e.g.
+ *       "/response/response-title".
+ *     - associationTime: The date the response was associated with the
+ *       petition, in the form of a Unix timestamp.
+ *   - created: The date the petition was created, as a Unix timestamp.
  */
 function petitions_data_get_petition($petition_id) {
   $petition = &drupal_static(__FUNCTION__ . $petition_id);
