@@ -68,6 +68,13 @@ function petitions_api_default_services_endpoint() {
         ),
       ),
     ),
+    'validations' => array(
+      'operations' => array(
+        'index' => array(
+          'enabled' => '1',
+        ),
+      ),
+    ),
   );
   $endpoint->debug = 0;
   $export['api_v1'] = $endpoint;

@@ -1,0 +1,117 @@
+<?php
+
+/**
+ * @file
+ * api_validations.module
+ *
+ * Provides validations for Services according to Whitehouse API Standards.
+ */
+
+/**
+ * Implements hook_services_resources().
+ */
+function api_validations_services_resources() {
+  $resources = array();
+
+  $resources['validations'] = array(
+    'operations' => array(
+      'index' => array(
+        'callback' => '_api_validations_resource_index',
+        'args' => array(
+          array(
+            'name' => 'key',
+            'optional' => TRUE,
+            'type' => 'string',
+            'description' => t('The source API key.'),
+            'source' => array('param' => 'key'),
+          ),
+          array(
+            'name' => 'petition_id',
+            'optional' => TRUE,
+            'type' => 'string',
+            'description' => t('Optionally filter by Petition ID.'),
+            'source' => array('param' => 'petition_id'),
+          ),
+        ),
+        'access callback' => 'services_access_menu',
+        'documentation callback' => '_api_validations_index_doc',
+        'documentation versions' => array(1000),
+      ),
+    ),
+  );
+
+  return $resources;
+}
+
+/**
+ * Callback for Services validations index method.
+ */
+function _api_validations_resource_index($key, $petition_id) {
+  global $base_url;
+
+  // Return mock response.
+  if ($mock) {
+    $response = json_decode(_api_validations_mock_response('index'));
+    return $response;
+  }
+
+  // Check for the required key.
+  if (empty($key)) {
+    return t('You must provide your API key.');
+  }
+
+  $query = db_select('signature_validations', 'v')
+    ->fields('v', array('vid', 'email', 'signature_id', 'petition_id'))
+    // Only get records for the provided key.
+    ->condition('signature_source_api_key', $key);
+
+  // Filter by optional parameters.
+  !empty($petition_id) AND $query = $query->condition('petition_id', $petition_id);
+
+  // Limit the query to some maximum.
+  $query->range(0, 10000);
+
+  // Get all results in an array.
+  $results = $query->execute()->fetchAllAssoc('vid', PDO::FETCH_ASSOC);
+
+  $response = array(
+    'metadata' => array(
+      'count' => count($results),
+      // The query can be useful during development.
+      // 'query' => $query->execute()->getQueryString(),
+    ),
+    'results' => $results,
+  );
+
+  return $response;
+}
+
+/**
+ * Documentation callback for index method.
+ */
+function _api_validations_index_doc() {
+  $element = array(
+    '#name' => t('Index'),
+    '#path' => '/validations',
+    '#weight' => 1,
+    '#description' => t('Returns a list of validations matching passed parameters.'),
+    '#request' => '/v1/validations.json?key=asY1k9uCQY7Hg8MCBaa',
+    '#response' => _api_validations_mock_response('index'),
+  );
+
+  return $element;
+}
+
+/**
+ * Returns a mock response for validations methods.
+ */
+function _api_validations_mock_response($method) {
+  switch ($method) {
+    case 'index':
+      $file = 'api_validations_index.response.json';
+      break;
+
+  }
+  $response = file_get_contents(__DIR__ . '/example_validations/' . $file);
+  return $response;
+}
