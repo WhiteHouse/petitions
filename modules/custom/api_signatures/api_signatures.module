@@ -49,9 +49,9 @@ function _api_signatures_create_doc() {
     '#path' => '/signatures',
     '#weight' => 2,
     '#description' => t('Send a batch of independently gathered signatures for one or more petitions.'),
-    '#request' => '/v1/signatures',
-    '#response' => file_get_contents(__DIR__ . '/example_responses/' . 'api_signatures_create.response.json'),
-    // '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
+    '#request_url' => '/v1/signatures',
+    '#request_data' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.request.json'),
+    '#response' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.response.json'),
     '#auth' => TRUE,
   );
 

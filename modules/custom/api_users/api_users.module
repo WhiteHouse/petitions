@@ -236,7 +236,7 @@ function _api_users_index_doc() {
     '#path' => '/users',
     '#weight' => 1,
     '#description' => t('Returns a list of users matching passed parameters.'),
-    '#request' => '/v1/users.json?limit=100&offset=0',
+    '#request_url' => '/v1/users.json?limit=100&offset=0',
     '#response' => _api_users_mock_response(),
   );
 

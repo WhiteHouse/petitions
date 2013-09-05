@@ -141,7 +141,7 @@ function _api_responses_retrieve_doc() {
     '#path' => '/responses/{response_id}',
     '#weight' => 2,
     '#description' => t('Returns a response matching the response id.'),
-    '#request' => '/v1/responses/50cb6d2ba9a0b1c52e000017.json',
+    '#request_url' => '/v1/responses/50cb6d2ba9a0b1c52e000017.json',
     '#response' => _api_responses_mock_response('retrieve'),
     // '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
   );
@@ -158,7 +158,7 @@ function _api_responses_index_doc() {
     '#path' => '/responses',
     '#weight' => 1,
     '#description' => t('Returns a list of responses matching passed parameters.'),
-    '#request' => '/v1/responses.json?limit=3&offset=0',
+    '#request_url' => '/v1/responses.json?limit=3&offset=0',
     '#response' => _api_responses_mock_response('index'),
   );
 
