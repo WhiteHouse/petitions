@@ -4538,11 +4538,11 @@ text-transform:uppercase;
       .services-documentation-version {
         pre {
           color: black;
-          border: 1px dotted grey;
           font-family: courier;
           font-size: .9em;
+          border: none;
           padding: 10px;
-          margin-left: 20px;
+          margin: 0;
         }
 
         h1 {
@@ -4558,23 +4558,23 @@ text-transform:uppercase;
         }
 
         h3 {
-          font-size: 1.5em;
+          font-size: 1.8em;
           margin: 1em 0;
           text-decoration: underline;
         }
 
         h4 {
-          font-size: 1.4em;
+          font-size: 1.6em;
           margin: 1em 0;
         }
 
         h5 {
-          font-size: 1.2em;
-          margin: .5em 0;
+          font-size: 1.3em;
+          margin: .5em 0 0 0;
         }
 
         h6 {
-          font-size: 1.1em;
+          font-size: 1.2em;
           margin: .25em 0;
         }
 
@@ -4602,35 +4602,79 @@ text-transform:uppercase;
               }
 
               .resource-method {
-                .method-name {}
-                .method-auth {
-                  float: right;
-                  display: inline-block;
-                  background: url(../img/auth-req.png) no-repeat top left;
+                .method-title {
+                  padding: 2px 0;
+                  border-bottom: 1px solid #f2f3f5;
+
+                  .method-name {}
+                  .method-verb {
+                    color: #669900;
+                  }
+                  .method-path {
+                    color: #333;
+                    text-transform: none;
+                  }
+                  .method-auth {
+                    color: #333;
+                    float: right;
+                    display: block;
+                    background: url(../img/auth-req.png) no-repeat top left;
+                    font-size: .6em;
+                    padding: 3px 0 0 13px;
+                    text-transform: none;
+                    height: 12px;
+                    margin: 0;
+                    line-height: 1em;
+                  }
                 }
                 .method-description {}
                 .method-arguments {
                   ul {
                     li.method-argument {
-                      margin: 0 0 1em 1.5em;
+                      display: table;
 
                       .argument-title {
+                        width: 20%;
+                        display: table-cell;
+
                         .argument-type {}
                         .argument-key {}
                         .argument-source {}
+                        .argument-optional {
+                          display: block;
+                        }
                       }
-                      .argument-description {}
+                      .argument-description {
+                        display: table-cell;
+                        width: 80%;
+                      }
                     }
                   }
                 }
-                .method-request {
-                  .request-title {}
-                  .request-body {}
+
+                .method-arguments .title,
+                .method-request .request-title,
+                .method-response .response-title {
+                  background: #0F3E72;
+                  padding: 5px 5px;
+                  color: white;
+                  font-weight: bold;
+                  border: 1px solid #f2f3f5;
                 }
-                .method-response {
-                  .response-title {}
-                  .response-body {}
+
+                .method-argument ul li,
+                .method-request .request-url,
+                .method-request .request-body,
+                .method-response .response-body {
+                  border: 1px solid #f2f3f5;
+                  padding: 5px 5px;
                 }
+
+                .method-response .request-body,
+                .method-response .response-body {
+                  background: #F2F3F5;
+                }
+
                 .implementations {
                   .implementations-title {}
                   .implementation-bundle {
