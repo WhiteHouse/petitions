@@ -452,7 +452,7 @@ function _api_petitions_retrieve_doc() {
     '#path' => '/petitions/{petition_id}',
     '#weight' => 2,
     '#description' => t('Returns a petition matching the petition id.'),
-    '#request_url' => variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50cb6d2ba9a0b1c52e000017.json',
+    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50cb6d2ba9a0b1c52e000017.json', array('absolute' => TRUE)),
     '#response' => _api_petitions_mock_response('retrieve'),
     '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
   );

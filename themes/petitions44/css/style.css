@@ -5480,11 +5480,11 @@ body.full-white #right-rail {
 /* line 4539, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version pre {
   color: black;
-  border: 1px dotted grey;
   font-family: courier;
   font-size: .9em;
+  border: none;
   padding: 10px;
-  margin-left: 20px;
+  margin: 0;
 }
 /* line 4548, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version h1 {
@@ -5500,23 +5500,23 @@ body.full-white #right-rail {
 }
 /* line 4560, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version h3 {
-  font-size: 1.5em;
+  font-size: 1.8em;
   margin: 1em 0;
   text-decoration: underline;
 }
 /* line 4566, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version h4 {
-  font-size: 1.4em;
+  font-size: 1.6em;
   margin: 1em 0;
 }
 /* line 4571, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version h5 {
-  font-size: 1.2em;
-  margin: 0.5em 0;
+  font-size: 1.3em;
+  margin: 0.5em 0 0 0;
 }
 /* line 4576, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version h6 {
-  font-size: 1.1em;
+  font-size: 1.2em;
   margin: 0.25em 0;
 }
 /* line 4581, ../sass/style.scss */
@@ -5538,16 +5538,80 @@ body.full-white #right-rail {
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .bundle-title {
   text-transform: capitalize;
 }
-/* line 4609, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument {
-  margin: 0 0 1em 1.5em;
+/* line 4605, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title {
+  padding: 2px 0;
+  border-bottom: 1px solid #f2f3f5;
 }
-/* line 4634, ../sass/style.scss */
+/* line 4610, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-verb {
+  color: #669900;
+}
+/* line 4613, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-path {
+  color: #333;
+  text-transform: none;
+}
+/* line 4617, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-auth {
+  color: #333;
+  float: right;
+  display: block;
+  background: url(../img/auth-req.png) no-repeat top left;
+  font-size: .6em;
+  padding: 3px 0 0 13px;
+  text-transform: none;
+  height: 12px;
+  margin: 0;
+  line-height: 1em;
+}
+/* line 4633, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument {
+  display: table;
+}
+/* line 4636, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-title {
+  width: 20%;
+  display: table-cell;
+}
+/* line 4643, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-title .argument-optional {
+  display: block;
+}
+/* line 4647, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-description {
+  display: table-cell;
+  width: 80%;
+}
+/* line 4657, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments .title,
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-title,
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-title {
+  background: #0F3E72;
+  padding: 5px 5px;
+  color: white;
+  font-weight: bold;
+  border: 1px solid #f2f3f5;
+}
+/* line 4668, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-argument ul li,
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-url,
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-body,
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body {
+  border: 1px solid #f2f3f5;
+  padding: 5px 5px;
+}
+/* line 4674, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .request-body,
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body {
+  background: #F2F3F5;
+}
+/* line 4683, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-name {
   font-weight: bold;
   margin: 0 0 0.25em 0;
 }
-/* line 4641, ../sass/style.scss */
+/* line 4690, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-download {
   font-weight: bold;
   text-transform: uppercase;
