@@ -60,7 +60,7 @@ function shunt_api_services_resources_alter(&$resources, $endpoint) {
           // Loop through defined endpoints.
           foreach ($endpoints as $endpoint) {
             // Only affect enabled resources, as defined by endpoints.
-            if ($endpoint->resources[$resource_key][$operation_key][$method_key]['enabled']) {
+            if (!empty($endpoint->resources[$resource_key][$operation_key][$method_key]['enabled']) && $endpoint->resources[$resource_key][$operation_key][$method_key]['enabled']) {
               // Only affect elements with an existing 'args' key.
               if (!empty($resources[$resource_key][$operation_key][$method_key]['args'])) {
                 // Preserve the existing callback as a parameter.
