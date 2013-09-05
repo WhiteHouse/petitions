@@ -31,10 +31,13 @@ function _api_signatures_resource_create(array $signature) {
       return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
 
     case SIGNATURES_QUEUE_STATUS_FORBIDDEN:
+      global $base_url;
       $developer_message = t("Petition @petition_id cannot accept more signatures. (If you believe this petition was not open for a full 30 days, it's possible that it was flagged and removed for violation of terms of service.)", array(
         '@petition_id' => $signature['petition_id'],
       ));
-      $user_message = t('This petition cannot accept more signatures. You can open a new petition on this issue here: http://petitions.whitehouse.gov/.', array());
+      $user_message = t('This petition cannot accept more signatures. You can open a new petition on this issue here: @url.', array(
+        '@url' => "{$base_url}/",
+      ));
       $more_info = 'https://github.com/WhiteHouse/petitions/issues/74';
       $error_code = 74;
       return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
