@@ -58,7 +58,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : $item['timestamp_petition_close'] + 864000;  // This just adds 10 days to petition close.
         $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : '';
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
-        $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($item['email'] . $item['timestamp_submitted'] . $item['petition_id'] . $salt);
+        $item['secret_validation_key'] = '';
         $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
         break;
 
@@ -76,7 +76,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : time();
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
         $item['timestamp_submitted'] = ($timestamp_submitted) ? $timestamp_submitted : $item['timestamp_validation_email_sent'] - 60;
-        $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($item['email'] . $item['timestamp_submitted'] . $item['petition_id'] . $salt);
+        $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1(self::generateRandomString(25));
         $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
         break;
 
@@ -85,7 +85,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
         $email = self::generateRandomString(10) . '@mailinator.com';
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
-        $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($email . $timestamp . $item['petition_id'] . $salt);
+        $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1(self::generateRandomString(25));
         $item['timestamp_validated'] = ($timestamp_validated) ? $timestamp_validated : time();
         // Make sure this defaults to greater than timestamp_validated, otherwise nothing gets counted.
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + 1 + $grace_period * 24 * 60 * 60;
