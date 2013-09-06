@@ -101,10 +101,10 @@ function petitions_data_form($form, &$form_state) {
  *   - signaturesNeeded: The number of signatures still needed in order to reach
  *     the threshold.
  *   - url: The absolute path to the petition, e.g. "/petition/petition-title".
- *   - deadline: The deadline for signing the petition, in as a Unix timestamp.
- *   - status: The string "open" or "closed".
+ *   - deadline: The deadline for signing the petition, as a Unix timestamp.
+ *   - status: The string "open", "pending response", "responded", or "closed".
  *   - response: An array of response data if a response has been associated
- *     the petition (or NULL if not) containing the following (key, value)
+ *     with the petition (or NULL if not) containing the following (key, value)
  *     pairs:
  *     - id: The response node ID (nid).
  *     - url: The absolute path to the response node, e.g.

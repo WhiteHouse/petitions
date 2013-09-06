@@ -266,24 +266,21 @@ class PetitionsBase {
    */
   protected function formatReturnPetitionStatus($status_code) {
     switch ($status_code) {
+      // Published, but does not have the required number of signatures to
+      // become public, only visible by direct URL.
+      case WH_PETITION_STATUS_PRIVATE:
       // Has the required number of signatures to become public,
       // visible everywhere on site.
       case WH_PETITION_STATUS_PUBLIC:
         return "open";
 
-      break;
-
       // Has received the required number of signatures, visible on site.
       case WH_PETITION_STATUS_UNDER_REVIEW:
         return "pending response";
 
-      break;
-
       // Has received a response.
       case WH_PETITION_STATUS_REVIEWED:
         return "responded";
-
-      break;
 
       default:
         return "closed";

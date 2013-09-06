@@ -52,7 +52,7 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
   }
 
   // Make sure the petition is "signable".
-  if ($petition['status'] == 'closed') {
+  if (in_array($petition['status'], array('responded', 'closed'))) {
     return SIGNATURES_QUEUE_STATUS_FORBIDDEN;
   }
 
