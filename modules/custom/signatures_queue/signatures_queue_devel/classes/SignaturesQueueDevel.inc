@@ -15,44 +15,66 @@ class SignaturesQueueDevel extends SignaturesQueue {
    * @param string $name
    *   Valid queue name.
    *
-   * @param string $petition_id
-   *   Designate a petition to assign signatures to.
+   * @param array $overrides
+   *   Designate values to override whatever would normally be generated as
+   *   dummy data by default.
    *
    * @return array
    *   Dummy data for specified queue.
    */
-  public static function getDummyItem($name, $petition_id = NULL) {
+  public static function getDummyItem($name, $overrides = array()) {
+    // Signatures overrides.
+    $email                           = (!empty($overrides['email'])) ? $overrides['email'] : '';
+    $first_name                      = (!empty($overrides['first_name'])) ? $overrides['first_name'] : '';
+    $last_name                       = (!empty($overrides['last_name'])) ? $overrides['last_name'] : '';
+    $petition_id                     = (!empty($overrides['petition_id'])) ? $overrides['petition_id'] : '';
+    $signature_source_api_key        = (!empty($overrides['signature_source_api_key'])) ? $overrides['signature_source_api_key'] : '';
+    $signup                          = (!empty($overrides['signup'])) ? $overrides['signup'] : 0;
+    $timestamp_petition_close        = (!empty($overrides['timestamp_petition_close'])) ? $overrides['timestamp_petition_close'] : 0;
+    $timestamp_submitted             = (!empty($overrides['timestamp_submitted'])) ? $overrides['timestamp_submitted'] : 0;
+    $timestamp_validation_close      = (!empty($overrides['timestamp_validation_close'])) ? $overrides['timestamp_validation_close'] : 0;
+    $timestamp_validation_email_sent = (!empty($overrides['timestamp_validation_email_sent'])) ? $overrides['timestamp_validation_email_sent'] : 0;
+    $zip                             = (!empty($overrides['zip'])) ? $overrides['zip'] : '';
+    $secret_validation_key           = (!empty($overrides['secret_validation_key'])) ? $overrides['secret_validation_key'] : '';
+
+    // Validations overrides.
+    $timestamp_validated             = (!empty($overrides['timestamp_validated'])) ? $overrides['timestamp_validated'] : 0;
+    $timestamp_validation_close      = (!empty($overrides['timestamp_validation_close'])) ? $overrides['timestamp_validation_close'] : 0;
+    $client_ip                       = (!empty($overrides['client_ip'])) ? $overrides['client_ip'] : '';
+
     $item = array();
     switch ($name) {
       case 'signatures_submitted_queue':
         $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
+        $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
+        $item['first_name'] = ($first_name) ? $first_name : self::generateRandomString(6);
+        $item['last_name'] = ($last_name) ? $last_name : self::generateRandomString(8);
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
-        $item['first_name'] = self::generateRandomString(6);
-        $item['last_name'] = self::generateRandomString(8);
-        $item['zip'] = rand(10000, 99999);
-        $item['email'] = $item['first_name'] . '@mailinator.com';
-        $item['signup'] = (rand(0, 100) >= 50) ? TRUE : FALSE;
-        $item['timestamp_submitted'] = time();
-        $item['timestamp_petition_close'] = $item['timestamp_submitted'] + 864000;  // This just adds 10 days to time submitted.
-        $item['timestamp_validation_close'] = $item['timestamp_petition_close'] + 864000;  // This just adds 10 days to petition close.
-        $item['signature_source_api_key'] = self::generateRandomString(20);
+        $item['signature_source_api_key'] = ($signature_source_api_key) ? $signature_source_api_key : self::generateRandomString(20);
+        $item['signup'] = ($signup) ? $signup : (rand(0, 100) >= 50) ? TRUE : FALSE;
+        $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : $item['timestamp_submitted'] + 864000;  // This just adds 10 days to time submitted.
+        $item['timestamp_submitted'] = ($timestamp_submitted) ? $timestamp_submitted : time();
+        $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : $item['timestamp_petition_close'] + 864000;  // This just adds 10 days to petition close.
+        $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : '';
+        $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
+        $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($item['email'] . $item['timestamp_submitted'] . $item['petition_id'] . $salt);
         break;
 
       case 'signatures_pending_validation_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
         $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
+        $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
+        $item['first_name'] = ($first_name) ? $first_name : self::generateRandomString(6);
+        $item['last_name'] = ($last_name) ? $last_name : self::generateRandomString(8);
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
-        $item['timestamp_petition_close'] = time() + 10 * 24 * 60 * 60;
-        $item['timestamp_validation_close'] = time() + $grace_period * 24 * 60 * 60;
-        $item['first_name'] = self::generateRandomString(6);
-        $item['last_name'] = self::generateRandomString(8);
-        $item['zip'] = rand(10000, 99999);
-        $item['email'] = $item['first_name'] . '@mailinator.com';
-        $item['signup'] = (rand(0, 100) >= 50) ? TRUE : FALSE;
-        $item['timestamp_validation_email_sent'] = time();
-        $item['timestamp_submitted'] = $item['timestamp_validation_email_sent'] - 60;
-        $item['secret_validation_key'] = sha1($item['email'] . $item['timestamp_submitted'] . $item['petition_id'] . $salt);
-        $item['signature_source_api_key'] = self::generateRandomString(20);
+        $item['signature_source_api_key'] = ($signature_source_api_key) ? $signature_source_api_key : self::generateRandomString(20);
+        $item['signup'] = ($signup) ? $signup : (rand(0, 100) >= 50) ? TRUE : FALSE;
+        $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : time() + 10 * 24 * 60 * 60;
+        $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + $grace_period * 24 * 60 * 60;
+        $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : time();
+        $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
+        $item['timestamp_submitted'] = ($timestamp_submitted) ? $timestamp_submitted : $item['timestamp_validation_email_sent'] - 60;
+        $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($item['email'] . $item['timestamp_submitted'] . $item['petition_id'] . $salt);
         break;
 
       case 'validations_queue':
@@ -61,10 +83,10 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $email = self::generateRandomString(10) . '@mailinator.com';
         $timestamp = time();
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
-        $item['secret_validation_key'] = sha1($email . $timestamp . $item['petition_id'] . $salt);
-        $item['timestamp_validated'] = $timestamp;
-        $item['timestamp_validation_close'] = time() + $grace_period * 24 * 60 * 60;
-        $item['client_ip'] = ip_address();
+        $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($email . $timestamp . $item['petition_id'] . $salt);
+        $item['timestamp_validated'] = ($timestamp_validated) ? $timestamp_validated : $timestamp;
+        $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + $grace_period * 24 * 60 * 60;
+        $item['client_ip'] = ($client_ip) ? $client_ip : ip_address();
         break;
 
       default:

@@ -27,6 +27,16 @@ function signatures_queue_devel_menu() {
 
 /**
  * Generate dummy data in signature queues.
+ *
+ * @param array $queue_names
+ *
+ * @param int $number
+ *
+ * @param bool $delete_first
+ *
+ * @param int num_to_match
+ *
+ * @param string petition_id
  */
 function signatures_queue_devel_generate($queue_names, $number = 10, $delete_first = FALSE, $num_to_match = 0, $petition_id = NULL) {
   // Remove all items first.

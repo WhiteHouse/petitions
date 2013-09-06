@@ -41,11 +41,18 @@ function signatures_queue_devel_generate_form() {
     '#default_value' => 0,
     '#size' => 60,
   );
-  $form['petition_id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('(Optional) Designate a petition_id to assign your signatures to.'),
-    '#size' => 60,
+
+  $form['overrides'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Override dummy data defaults with your own designated values here'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
+  $overrides = _signatures_queue_devel_overrides();
+  foreach ($overrides as $override) {
+    $form['overrides'][$override] = array('#type' => 'textfield', '#title' => $override);
+  }
+    
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate'),
@@ -61,7 +68,12 @@ function signatures_queue_devel_generate_form_submit($form_id, &$form_state) {
   $number = $form_state['values']['number'];
   $delete_first = $form_state['values']['delete_first'];
   $num_match = $form_state['values']['number_match'];
-  $petition_id = $form_state['values']['petition_id'];
+
+  $_overrides = _signatures_queue_devel_overrides();
+  $overrides = array();
+  foreach ($_overrides as $override) {
+    $overrides[$override] = (!empty($form_state['values'][$override])) ? $form_state['values'][$override] : '';
+  }
 
   $queue_names = array();
   foreach ($form_state['values']['queues'] as $queue_name => $generate_records) {
@@ -69,5 +81,32 @@ function signatures_queue_devel_generate_form_submit($form_id, &$form_state) {
       $queue_names[] = $queue_name;
     }
   }
-  signatures_queue_devel_generate($queue_names, $number, $delete_first, $num_match, $petition_id);
+  signatures_queue_devel_generate($queue_names, $number, $delete_first, $num_match, $overrides);
+}
+
+/**
+ * @return array
+ *   List of fields for which dummy data will be generated. This is a little
+ *   helper function to make it easy to make all these overridable.
+ */
+function _signatures_queue_devel_overrides() {
+  return array(
+    // Signatures overrides.
+    'email',
+    'first_name',
+    'last_name',
+    'petition_id',
+    'signature_source_api_key',
+    'signup',
+    'timestamp_petition_close',
+    'timestamp_submitted',
+    'timestamp_validation_close',
+    'timestamp_validation_email_sent',
+    'zip',
+    'secret_validation_key',
+    // Validations overrides.
+    'timestamp_validated',
+    'timestamp_validation_close',
+    'client_ip',
+  );
 }
