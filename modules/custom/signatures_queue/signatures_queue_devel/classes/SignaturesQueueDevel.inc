@@ -46,14 +46,14 @@ class SignaturesQueueDevel extends SignaturesQueue {
     switch ($name) {
       case 'signatures_submitted_queue':
         $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
-        $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
         $item['first_name'] = ($first_name) ? $first_name : self::generateRandomString(6);
         $item['last_name'] = ($last_name) ? $last_name : self::generateRandomString(8);
+        $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['signature_source_api_key'] = ($signature_source_api_key) ? $signature_source_api_key : self::generateRandomString(20);
         $item['signup'] = ($signup) ? $signup : (rand(0, 100) >= 50) ? TRUE : FALSE;
-        $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : $item['timestamp_submitted'] + 864000;  // This just adds 10 days to time submitted.
         $item['timestamp_submitted'] = ($timestamp_submitted) ? $timestamp_submitted : time();
+        $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : $item['timestamp_submitted'] + 864000;  // This just adds 10 days to time submitted.
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : $item['timestamp_petition_close'] + 864000;  // This just adds 10 days to petition close.
         $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : '';
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
@@ -63,9 +63,9 @@ class SignaturesQueueDevel extends SignaturesQueue {
       case 'signatures_pending_validation_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
         $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
-        $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
         $item['first_name'] = ($first_name) ? $first_name : self::generateRandomString(6);
         $item['last_name'] = ($last_name) ? $last_name : self::generateRandomString(8);
+        $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['signature_source_api_key'] = ($signature_source_api_key) ? $signature_source_api_key : self::generateRandomString(20);
         $item['signup'] = ($signup) ? $signup : (rand(0, 100) >= 50) ? TRUE : FALSE;
