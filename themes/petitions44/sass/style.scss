@@ -4574,8 +4574,8 @@ text-transform:uppercase;
         }
 
         h6 {
-          font-size: 1.2em;
-          margin: .25em 0;
+          font-size: 1em;
+          font-weight: bold;
         }
 
         .services-version-description {
@@ -4602,6 +4602,7 @@ text-transform:uppercase;
               }
 
               .resource-method {
+
                 .method-title {
                   padding: 2px 0;
                   border-bottom: 1px solid #f2f3f5;
@@ -4627,14 +4628,49 @@ text-transform:uppercase;
                     line-height: 1em;
                   }
                 }
+
+                // Define titles as a group. Consider replacing with @mixin.
+                .method-arguments .title,
+                .method-request .request-title,
+                .method-response .response-title,
+                .implementations .implementations-title {
+                  background: #0F3E72;
+                  padding: 5px 5px;
+                  color: white;
+                  font-weight: bold;
+                  border: 1px solid #f2f3f5;
+                  font-size: 1.1em;
+                }
+
+                // Define body areas as a group.
+                .method-arguments ul li,
+                .method-request .request-url,
+                .method-request .request-body,
+                .method-response .response-body,
+                .implementations .implementation-bundle .implementation {
+                  border: 1px solid #f2f3f5;
+                  padding: 5px 5px;
+                }
+
                 .method-description {}
+
+                // Method arguments.
                 .method-arguments {
                   ul {
+                    padding-left: 0px;
+                    padding-right: 13px;
+                    display: block;
+
                     li.method-argument {
+                      padding-left: 5px;
+                      padding-right: 5px;
                       display: table;
+                      list-style: none;
+                      list-style-image: none;
+                      width: 100%;
 
                       .argument-title {
-                        width: 20%;
+                        width: 42%;
                         display: table-cell;
 
                         .argument-type {}
@@ -4642,43 +4678,33 @@ text-transform:uppercase;
                         .argument-source {}
                         .argument-optional {
                           display: block;
+                          color: #999;
+                          font-style: italic;
                         }
                       }
                       .argument-description {
                         display: table-cell;
-                        width: 80%;
+                        width: 58%;
                       }
                     }
                   }
                 }
 
-                .method-arguments .title,
-                .method-request .request-title,
-                .method-response .response-title {
-                  background: #0F3E72;
-                  padding: 5px 5px;
-                  color: white;
-                  font-weight: bold;
-                  border: 1px solid #f2f3f5;
-                }
-
-                .method-argument ul li,
-                .method-request .request-url,
-                .method-request .request-body,
-                .method-response .response-body {
-                  border: 1px solid #f2f3f5;
-                  padding: 5px 5px;
-                }
-
+                // Areas expected to contain <pre> tags.
                 .method-response .request-body,
                 .method-response .response-body {
                   background: #F2F3F5;
                 }
 
+                // Implementations.
                 .implementations {
                   .implementations-title {}
                   .implementation-bundle {
-                    .implementation-bundle-language {}
+                    .implementation-bundle-language {
+                      background: #F2F3F5;
+                      padding: 5px;
+                      margin: 0;
+                    }
                     .implementation {
                       .implementation-name {
                         font-weight: bold;
