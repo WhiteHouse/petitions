@@ -84,11 +84,11 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $salt = variable_get('signatures_queue_salt', 'some random string');
         $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
         $email = self::generateRandomString(10) . '@mailinator.com';
-        $timestamp = time();
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($email . $timestamp . $item['petition_id'] . $salt);
-        $item['timestamp_validated'] = ($timestamp_validated) ? $timestamp_validated : $timestamp;
-        $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + $grace_period * 24 * 60 * 60;
+        $item['timestamp_validated'] = ($timestamp_validated) ? $timestamp_validated : time();
+        // Make sure this defaults to greater than timestamp_validated, otherwise nothing gets counted.
+        $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + 1 + $grace_period * 24 * 60 * 60;
         $item['client_ip'] = ($client_ip) ? $client_ip : ip_address();
         $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
         break;
