@@ -104,6 +104,7 @@ function _signatures_queue_devel_overrides() {
     'timestamp_validation_email_sent',
     'zip',
     'secret_validation_key',
+    'timestamp_processed',
     // Validations overrides.
     'timestamp_validated',
     'timestamp_validation_close',

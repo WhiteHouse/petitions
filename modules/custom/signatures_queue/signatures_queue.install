@@ -83,6 +83,11 @@ function signatures_queue_schema_tables() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'timestamp_processed' => array(
+        'description' => 'Time signature validation was processed.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
     ),
     'indexes' => array(
       'validation_key' => array('secret_validation_key'),
@@ -191,6 +196,11 @@ function signatures_queue_schema_tables() {
         'type' => 'int',
         'not null' => FALSE,
       ),
+      'timestamp_processed' => array(
+        'description' => 'Time signature validation was processed.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
     ),
     'indexes' => array(
       'signatures_pending_validation_key' => array('secret_validation_key'),
@@ -214,7 +224,7 @@ function signatures_queue_schema_tables() {
   // The signatures_processed table has the same fields as
   // signatures_pending_validation.
   $schema['signatures_processed'] = $schema['signatures_pending_validation'];
-  $schema['signatures_processed']['description'] = 'Not valid signatures.';
+  $schema['signatures_processed']['description'] = 'Valid signatures.';
 
   $schema['signatures_queue_log'] = array(
     'description' => 'The event log for signature queue processing.',

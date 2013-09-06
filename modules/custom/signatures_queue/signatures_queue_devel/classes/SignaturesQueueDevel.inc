@@ -36,6 +36,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
     $timestamp_validation_email_sent = (!empty($overrides['timestamp_validation_email_sent'])) ? $overrides['timestamp_validation_email_sent'] : 0;
     $zip                             = (!empty($overrides['zip'])) ? $overrides['zip'] : '';
     $secret_validation_key           = (!empty($overrides['secret_validation_key'])) ? $overrides['secret_validation_key'] : '';
+    $timestamp_processed             = (!empty($overrides['timestamp_processed'])) ? $overrides['timestamp_processed'] : 0;
 
     // Validations overrides.
     $timestamp_validated             = (!empty($overrides['timestamp_validated'])) ? $overrides['timestamp_validated'] : 0;
@@ -58,6 +59,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : '';
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
         $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($item['email'] . $item['timestamp_submitted'] . $item['petition_id'] . $salt);
+        $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
         break;
 
       case 'signatures_pending_validation_queue':
@@ -75,6 +77,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
         $item['timestamp_submitted'] = ($timestamp_submitted) ? $timestamp_submitted : $item['timestamp_validation_email_sent'] - 60;
         $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1($item['email'] . $item['timestamp_submitted'] . $item['petition_id'] . $salt);
+        $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
         break;
 
       case 'validations_queue':
@@ -87,6 +90,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['timestamp_validated'] = ($timestamp_validated) ? $timestamp_validated : $timestamp;
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + $grace_period * 24 * 60 * 60;
         $item['client_ip'] = ($client_ip) ? $client_ip : ip_address();
+        $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
         break;
 
       default:
