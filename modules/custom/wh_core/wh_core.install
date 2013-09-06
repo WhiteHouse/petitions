@@ -205,3 +205,16 @@ function wh_core_update_7007() {
     variable_set($key, $value);
   }
 }
+
+/**
+ * Update API documentation path.
+ */
+function wh_core_update_7008() {
+  $path = array(
+    'source' => 'developers/api_v1',
+    'alias' => 'developers',
+  );
+  path_save($path);
+
+  variable_set('petitions_data_petitions_api_url', 'https://api.whitehouse.gov');
+}
