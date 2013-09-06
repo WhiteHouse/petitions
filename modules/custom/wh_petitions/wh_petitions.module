@@ -1794,7 +1794,7 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
   }
 
   // Check if signature_id exists.
-  if ($signature_id = wh_petitions_get_signature_id($petition['_id'), $user->uid) {
+  if ($signature_id = wh_petitions_get_signature_id($petition['_id'], $user->uid)) {
     watchdog('wh_petitions', 'unable to create signature, user @user has already signed @petition', array('@petition' => $petition['_id'], '@user' => $user->uid));
     return FALSE;
   }
