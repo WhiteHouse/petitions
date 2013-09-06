@@ -403,7 +403,7 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
 
     $form['signature_validation_email'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Edit the signature validation email'),
+      '#title' => t('Notification: You must validate your signature for it to be counted'),
       '#description' => t('Edit the signature validation e-mail message.') . ' ' . $signature_validation_email_token_help,
       '#weight' => 1,
       '#collapsible' => TRUE,

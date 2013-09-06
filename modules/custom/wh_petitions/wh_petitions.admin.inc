@@ -421,9 +421,9 @@ function wh_petitions_admin_petition_email_settings() {
   // Published petition email settings.
   $form['wh_petitions_email_published'] = array(
     '#type' => 'fieldset',
-    '#title' => 'Published petition email settings',
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
+    '#title' => 'Notification: Your petition has been published',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
   $form['wh_petitions_email_published']['wh_petitions_email_published_subject'] = array(
     '#type' => 'textfield',
@@ -449,9 +449,9 @@ function wh_petitions_admin_petition_email_settings() {
   // Threshold passed email settings.
   $form['wh_petitions_email_ready_response'] = array(
     '#type' => 'fieldset',
-    '#title' => 'Threshold passed email settings',
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
+    '#title' => 'Notification: Your petition has passed the threshold for receiving a response',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
   $form['wh_petitions_email_ready_response']['wh_petitions_email_ready_response_subject'] = array(
     '#type' => 'textfield',
@@ -470,9 +470,9 @@ function wh_petitions_admin_petition_email_settings() {
   // Forward petition email settings.
   $form['wh_petitions_email_forward'] = array(
     '#type' => 'fieldset',
-    '#title' => 'Forward petition email settings',
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
+    '#title' => 'Forward this petition to your friends',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
   $form['wh_petitions_email_forward']['wh_petitions_email_forward_text'] = array(
     '#type' => 'textarea',
