@@ -407,7 +407,7 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
       '#description' => t('Edit the signature validation e-mail message.') . ' ' . $signature_validation_email_token_help,
       '#weight' => 1,
       '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
+      '#collapsed' => TRUE,
     );
     $form['signature_validation_email']['user_mail_initiate_signature_validation_subject'] = array(
       '#type' => 'textfield',
