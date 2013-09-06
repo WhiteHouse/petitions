@@ -338,7 +338,7 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
     _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'completed');
   }
   catch (Exception $e) {
-    $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
+    $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
     watchdog('signatures_queue', "Fatal error in workflow. @suffix\n\n@exception", array(
       '@suffix' => $watchdog_suffix,
       '@exception' => print_r($e, TRUE),
