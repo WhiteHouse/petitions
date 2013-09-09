@@ -1,8 +1,8 @@
 {
-    "signature_source_api_key":"abc",
-    "petition_id":"PetitionIdGoesHere",
-    "email":"john.doe@example.com",
-    "first_name":"John",
-    "last_name":"Doe",
-    "zip":55555
+  "signature_source_api_key":"abc",
+  "petition_id":"PetitionIdGoesHere",
+  "email":"john.doe@example.com",
+  "first_name":"John",
+  "last_name":"Doe",
+  "zip":55555
 }
