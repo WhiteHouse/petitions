@@ -73,9 +73,25 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     // If this is a new signature...
     if (!$item['signature_id']) {
       // Create new record in petition_signatures.
-      $item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user);
-      // Increment signature count if this is a new signature.
-      wh_petitions_increment_count($item['petition_id']);
+      if ($item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user)) {
+        // New signature was created successfully. Increment signature count.
+        wh_petitions_increment_count($item['petition_id']);
+      }
+      else {
+        // Log failure.
+        watchdog();
+        $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
+        watchdog('signatures_queue', 'Error. New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_validated: @timestamp_validated. @suffix', array(
+          '@secret_validation_key' => $item['secret_validation_key'],
+          '@vid' => $item['vid'],
+          '@petition_id' => $item['petition_id'],
+          '@timestamp_validated' => $item['timestamp_validated'],
+          '@suffix' => $watchdog_suffix,
+        ), WATCHDOG_CRITICAL);
+        // Do NOT move items to processed table or remove from pre-process
+        // table.
+        continue;
+      }
     }
 
     // Invoke hook_save_signature. @@?
@@ -220,6 +236,7 @@ function _signatures_queue_process_signatures_create_user($item) {
  *   Drupal user object for checking petition_signatures.
  *
  * @return string $signature_id
+ *   FALSE if signature was not saved successfully.
  */
 function _signatures_queue_process_signatures_create_record($item, $user) {
   // The wh_petitions_create_signature function called by
