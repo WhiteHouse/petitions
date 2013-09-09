@@ -116,12 +116,11 @@ projects[rules][subdir] = contrib
 projects[services_documentation][version] = 1.0-beta6
 projects[services_documentation][subdir] = contrib
 
-; projects[shunt][version] = 1.1
+projects[shunt][version] = 1.1
 projects[shunt][subdir] = contrib
-projects[shunt][download][url] = "http://git.drupal.org/project/shunt.git"
-projects[shunt][download][type] = git
-projects[shunt][download][branch] = 7.x-1.x
-projects[shunt][download][tag] = 7.x-1.1
+
+projects[textcaptcha][version] = 1.3
+projects[textcaptcha][subdir] = contrib
 
 projects[simplehtmldom][version] = 1.12
 projects[simplehtmldom][subdir] = contrib
@@ -154,26 +153,6 @@ projects[logintoboggan][version] = 1.3
 projects[logintoboggan][subdir] = contrib
 projects[logintoboggan][patch][] = http://drupal.org/files/1747878-2-remove-lower.patch
 projects[logintoboggan][patch][] = http://drupal.org/files/password_token-1165126-6.patch
-
-; use-local-db-2013859-6-13.patch
-;  - Make textcaptcha serve challenge questions from local db (more reliable
-;    than web service)
-;  - @see http://drupal.org/node/2013859
-;
-; improve-accessibility-2014753-5.patch
-;  - Prepend challenge question with Challenge Description for accessibility
-;  - @see https://drupal.org/node/2014753
-;
-; ----------------------------------------
-;projects[textcaptcha][version] = 1.3
-projects[textcaptcha][type] = module
-projects[textcaptcha][subdir] = contrib
-projects[textcaptcha][download][type] = git
-projects[textcaptcha][download][branch] = 7.x-1.x
-projects[textcaptcha][download][tag] = dp1
-projects[textcaptcha][download][url] = "https://github.com/bryanhirsch/textcaptcha"
-;projects[textcaptcha][patch][] = https://drupal.org/files/use-local-db-2013859-13.patch
-;projects[textcaptcha][patch][] = https://drupal.org/files/improve-accessibility-2014753-5.patch
 
 ; check_type.patch
 ;  - Data types were not checked before getting 'status' key from them
