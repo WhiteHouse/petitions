@@ -79,7 +79,6 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       }
       else {
         // Log failure.
-        watchdog();
         $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
         watchdog('signatures_queue', 'Error. New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_validated: @timestamp_validated. @suffix', array(
           '@secret_validation_key' => $item['secret_validation_key'],
