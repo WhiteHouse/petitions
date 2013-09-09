@@ -4694,6 +4694,9 @@ text-transform:uppercase;
                 .method-request .request-body,
                 .method-response .response-body {
                   background: #F2F3F5;
+                  word-wrap: none;
+                  white-space: pre;
+                  overflow: auto;
                 }
 
                 // Implementations.
