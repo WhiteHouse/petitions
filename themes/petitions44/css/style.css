@@ -5621,19 +5621,22 @@ body.full-white #right-rail {
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-body,
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body {
   background: #F2F3F5;
+  word-wrap: none;
+  white-space: pre;
+  overflow: auto;
 }
-/* line 4703, ../sass/style.scss */
+/* line 4706, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation-bundle-language {
   background: #F2F3F5;
   padding: 5px;
   margin: 0;
 }
-/* line 4709, ../sass/style.scss */
+/* line 4712, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-name {
   font-weight: bold;
   margin: 0 0 0.25em 0;
 }
-/* line 4716, ../sass/style.scss */
+/* line 4719, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-download {
   font-weight: bold;
   text-transform: uppercase;
