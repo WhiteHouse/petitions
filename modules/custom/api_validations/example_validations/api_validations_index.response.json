@@ -1,67 +1,67 @@
 {
-  "metadata":{
-    "count":10
+  "metadata": {
+    "count": 10
   },
-  "results":{
-    "18":{
-      "vid":"18",
-      "email":"Suzhon@example.com",
-      "signature_id":"521ec4d6ff0a76773e000000",
-      "petition_id":"5214c19bff0a76242d000000"
+  "results": {
+    "18": {
+      "vid": "18",
+      "email": "Suzhon@example.com",
+      "signature_id": "521ec4d6ff0a76773e000000",
+      "petition_id": "5214c19bff0a76242d000000"
     },
-    "20":{
-      "vid":"20",
-      "email":"ztoU72@example.com",
-      "signature_id":"521ec4e4ff0a76b13e000000",
-      "petition_id":"521ec34bff0a76f862000000"
+    "20": {
+      "vid": "20",
+      "email": "ztoU72@example.com",
+      "signature_id": "521ec4e4ff0a76b13e000000",
+      "petition_id": "521ec34bff0a76f862000000"
     },
-    "21":{
-      "vid":"21",
-      "email":"qKFM6b@example.com",
-      "signature_id":"521ec4e4ff0a76b13e000001",
-      "petition_id":"5214c19bff0a76242d000000"
+    "21": {
+      "vid": "21",
+      "email": "qKFM6b@example.com",
+      "signature_id": "521ec4e4ff0a76b13e000001",
+      "petition_id": "5214c19bff0a76242d000000"
     },
-    "22":{
-      "vid":"22",
-      "email":"FxDvih@example.com",
-      "signature_id":"521ec4ebff0a76e63e000000",
-      "petition_id":"521ec34bff0a76f862000000"
+    "22": {
+      "vid": "22",
+      "email": "FxDvih@example.com",
+      "signature_id": "521ec4ebff0a76e63e000000",
+      "petition_id": "521ec34bff0a76f862000000"
     },
-    "23":{
-      "vid":"23",
-      "email":"8VkjJi@example.com",
-      "signature_id":"521ec4ebff0a76e63e000001",
-      "petition_id":"521ec34bff0a76f862000000"
+    "23": {
+      "vid": "23",
+      "email": "8VkjJi@example.com",
+      "signature_id": "521ec4ebff0a76e63e000001",
+      "petition_id": "521ec34bff0a76f862000000"
     },
-    "24":{
-      "vid":"24",
-      "email":"I3WTYa@example.com",
-      "signature_id":"521ec502ff0a76243f000000",
-      "petition_id":"5214c19bff0a76242d000000"
+    "24": {
+      "vid": "24",
+      "email": "I3WTYa@example.com",
+      "signature_id": "521ec502ff0a76243f000000",
+      "petition_id": "5214c19bff0a76242d000000"
     },
-    "25":{
-      "vid":"25",
-      "email":"oCwjQE@example.com",
-      "signature_id":"521ec503ff0a76243f000001",
-      "petition_id":"5214c19bff0a76242d000000"
+    "25": {
+      "vid": "25",
+      "email": "oCwjQE@example.com",
+      "signature_id": "521ec503ff0a76243f000001",
+      "petition_id": "5214c19bff0a76242d000000"
     },
-    "26":{
-      "vid":"26",
-      "email":"BkDFvV@example.com",
-      "signature_id":"521ec7b7ff0a761441000000",
-      "petition_id":"5214c19bff0a76242d000000"
+    "26": {
+      "vid": "26",
+      "email": "BkDFvV@example.com",
+      "signature_id": "521ec7b7ff0a761441000000",
+      "petition_id": "5214c19bff0a76242d000000"
     },
-    "27":{
-      "vid":"27",
-      "email":"M3i8o0@example.com",
-      "signature_id":"521ec7b8ff0a761441000001",
-      "petition_id":"521ec34bff0a76f862000000"
+    "27": {
+      "vid": "27",
+      "email": "M3i8o0@example.com",
+      "signature_id": "521ec7b8ff0a761441000001",
+      "petition_id": "521ec34bff0a76f862000000"
     },
-    "28":{
-      "vid":"28",
-      "email":"6MWCnH@example.com",
-      "signature_id":"521ec80cff0a76d241000000",
-      "petition_id":"521ec34bff0a76f862000000"
+    "28": {
+      "vid": "28",
+      "email": "6MWCnH@example.com",
+      "signature_id": "521ec80cff0a76d241000000",
+      "petition_id": "521ec34bff0a76f862000000"
     }
   }
 }
