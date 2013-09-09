@@ -4586,6 +4586,31 @@ text-transform:uppercase;
         .services-documentation-toc {
           border-bottom: double black;
           margin: 0 0 2em 0;
+
+          ul {
+            margin: 1.5em 0 2em 0;
+            padding: 0;
+
+            li {
+              margin: .5em 0;
+              font-size: 1.2em;
+              list-style: none;
+
+              a {
+                .verb {
+                  color: #669900;
+                  text-transform: uppercase;
+                  min-width: 40px;
+                  display: inline-block;
+                  text-align: right;
+                  margin-right: 7px;
+                }
+                .path {
+
+                }
+              }
+            }
+          }
         }
         .services-documentation-resources {
 
