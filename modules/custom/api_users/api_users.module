@@ -233,7 +233,6 @@ function api_users_services_account_object_alter($account) {
 function _api_users_index_doc() {
   $element = array(
     '#name' => t('Index'),
-    '#path' => '/users',
     '#weight' => 1,
     '#description' => t('Returns a list of users matching passed parameters.'),
     '#request_url' => url('/v1/users.json?limit=100&offset=0', array('absolute' => TRUE)),
