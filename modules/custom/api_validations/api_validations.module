@@ -61,7 +61,7 @@ function _api_validations_resource_index($key, $petition_id) {
   }
 
   $query = db_select('signature_validations', 'v')
-    ->fields('v', array('vid', 'email', 'signature_id', 'petition_id'))
+    ->fields('v', array('vid', 'email', 'signature_id', 'petition_id', 'timestamp_processed'))
     // Only get records for the provided key.
     ->condition('signature_source_api_key', $key);
 
