@@ -8,7 +8,11 @@ Verson 7.x-2.0-beta24 -> 7.x-2.0-rc1
 
 Release notes:
 
-  - Install new signatures_queue module.
+  - Install new modules:
+    - Signatures Queue
+    - API Signatures
+    - API Validations
+    - API Key Manager
 
 Update steps:
   1. Create a new signatures_processing database as per instructions in INSTALL.md.
