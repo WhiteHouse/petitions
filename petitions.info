@@ -51,8 +51,11 @@ dependencies[] = textcaptcha
 dependencies[] = wysiwyg
 
 ; custom
+dependencies[] = api_key_manager
 dependencies[] = api_petitions
+dependencies[] = api_signatures
 dependencies[] = api_users
+dependencies[] = api_validations
 dependencies[] = front_class
 dependencies[] = is_not_cached
 dependencies[] = is_profane
@@ -60,8 +63,9 @@ dependencies[] = petitions_api
 dependencies[] = petitions_homepage
 dependencies[] = petitions_maintenance
 dependencies[] = petitions_profanity 
-dependencies[] = petitions_usermenu
 dependencies[] = petitions_signatures_display
+dependencies[] = petitions_usermenu
+dependencies[] = signatures_queue
 
 ; files
 files[] =  petitions.profile
