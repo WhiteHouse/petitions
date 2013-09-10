@@ -20,6 +20,7 @@ function api_validations_services_resources() {
         'args' => array(
           array(
             'name' => 'key',
+            'optional' => FALSE,
             'type' => 'string',
             'description' => t('The source API key.'),
             'source' => array('param' => 'key'),
@@ -31,9 +32,18 @@ function api_validations_services_resources() {
             'description' => t('Optionally filter by Petition ID.'),
             'source' => array('param' => 'petition_id'),
           ),
+          array(
+            'name' => 'mock',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => 'When set to 1, this will cause the service to return a mock response.',
+            'default value' => 0,
+            'source' => array('param' => 'mock'),
+          ),
         ),
         'access callback' => 'services_access_menu',
         'documentation callback' => '_api_validations_index_doc',
+        'documentation versions' => array(1000),
         'file' => 'api_validation.inc',
       ),
     ),
@@ -42,21 +52,3 @@ function api_validations_services_resources() {
   return $resources;
 }
 
-/**
- * Documentation callback for index method.
- */
-function _api_validations_index_doc() {
-  module_load_include('inc', 'api_validations');
-
-  $element = array(
-    '#name' => t('Index'),
-    '#path' => '/validations',
-    '#weight' => 1,
-    '#description' => t('Returns a list of validations matching passed parameters.'),
-    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/validations.json?key=asY1k9uCQY7Hg8MCBaa', array('absolute' => TRUE)),
-    '#response' => _api_validations_mock_response('index'),
-    '#auth' => TRUE,
-  );
-
-  return $element;
-}
