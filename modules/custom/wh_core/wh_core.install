@@ -30,7 +30,7 @@ function wh_core_install() {
 }
 
 /**
- * Implementation of hook_update().
+ * Implements hook_update().
  */
 function wh_core_update_7000() {
   // This function contained legacy HTML that was manually added to the database
@@ -40,21 +40,23 @@ function wh_core_update_7000() {
 
 /**
  * Sets site variables related to registration and emails which are sent.
- *
  */
 function _set_email_variables() {
-  variable_set('user_register', 1);            // visitors can register without approval
-  variable_set('user_email_verification', 1);  // users must verify their email when registering
+  // Visitors can register without approval.
+  variable_set('user_register', 1);
+  // Users must verify their email when registering.
+  variable_set('user_email_verification', 1);
 
-  // email settings
+  // Email settings.
   variable_set('user_mail_register_no_approval_required_body', _no_approval_required_email_body());
   variable_set('user_mail_register_no_approval_required_subject', _no_approval_required_email_subject());
 }
 
 /**
- * Returns text which should be set as the body of the no approval required user registration email.
+ * Returns body text for the "no approval required" user registration email.
  *
  * @return string
+ *   The body text to be used for the email.
  */
 function _no_approval_required_email_body() {
   return '<div style="font-family:arial,sans-serif;font-size:12px;">
@@ -82,9 +84,10 @@ This email was automatically sent by Petitions.WhiteHouse.gov because someone at
 }
 
 /**
- * Returns text which should be set as the subject of the no approval required user registration email.
+ * Returns subject text for the "no approval required" user registration email.
  *
  * @return string
+ *   The subject text to be used for the email.
  */
 function _no_approval_required_email_subject() {
   return "Almost done! Verify your Petitions.WhiteHouse.gov account";
@@ -102,7 +105,7 @@ function _enable_recaptcha_user_reg() {
 
   module_load_include('inc', 'captcha', 'captcha');
 
-  // set the recaptcha theme style to 'clean'
+  // Set the recaptcha theme style to 'clean'.
   variable_set('recaptcha_theme', 'clean');
 
   captcha_set_form_id_setting($form_id, $captcha_type);
@@ -110,6 +113,7 @@ function _enable_recaptcha_user_reg() {
 
 /**
  * Implements hook_update_n().
+ *
  * This update fixes internal links on all the pages on petition site.
  */
 function wh_core_update_7001() {
@@ -120,6 +124,7 @@ function wh_core_update_7001() {
 
 /**
  * Implements hook_update_N().
+ *
  * Fixes a hardcoded links in a content variable.
  */
 function wh_core_update_7002() {
@@ -148,7 +153,7 @@ function wh_core_update_7002() {
  *
  * Create the blank_users_roles table for role blackholing.
  */
-function wh_core_update_7003 () {
+function wh_core_update_7003() {
   db_create_table('blank_users_roles', drupal_get_schema_unprocessed('wh_core', 'blank_users_roles'));
 }
 
@@ -158,22 +163,25 @@ function wh_core_update_7003 () {
  * Delete crufty wh_petitions_homepage_content variable.
  */
 function wh_core_update_7005() {
- variable_del('wh_petitions_homepage_content');
+  variable_del('wh_petitions_homepage_content');
 }
 
 /**
  * Implements hook_update_N().
  *
- * Enable petitions_maintenance module and run petitions_maintenance_update_7001().
- * (petitions_maintenance won't run this update on it's own. Update hooks don't fire
- * until modules are enabled, at which point the schema_version starts incrementing
- * above the number of the highest existing update hook.)
+ * Enable petitions_maintenance module and run
+ * petitions_maintenance_update_7001(). (petitions_maintenance won't run this
+ * update on it's own. Update hooks don't fire until modules are enabled, at
+ * which point the schema_version starts incrementing above the number of the
+ * highest existing update hook.)
  *
  * petitions_maintenance_7001 does this:
  *
  * Enable these:
- *  - Petitions User Menu module, creates petitions-user-menu and makes it the secondary menu
- *  - Front Class module, adds a "front" class to the <front> page main menu list item
+ *  - Petitions User Menu module, creates petitions-user-menu and makes it the
+ *    secondary menu
+ *  - Front Class module, adds a "front" class to the <front> page main menu
+ *    list item
  *  - Petitions 44 (a subtheme of Zen 5 and Fortyfour)
  *  - Rubik, make admin theme
  *  - Is Not Cached module
@@ -183,7 +191,8 @@ function wh_core_update_7005() {
  *  - Petitions theme
  *
  * Database updates:
- *  - Set the fortyfour_page_wrapper variable to petition (see fortyfour documentation on how this is used by the theme
+ *  - Set the fortyfour_page_wrapper variable to petition (see fortyfour
+ *    documentation on how this is used by the theme
  *  - Disable Recent Petitions (wh_petitions_recent_petitions) block
  */
 function wh_core_update_7006() {
@@ -200,7 +209,7 @@ function wh_core_update_7007() {
   $variables = array(
     'petitions_data_signatures_display_names' => 1,
     'petitions_data_signatures_display_locations' => 1,
-   );
+  );
   foreach ($variables as $key => $value) {
     variable_set($key, $value);
   }
