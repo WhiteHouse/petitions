@@ -45,7 +45,7 @@ function _api_validations_resource_index($key, $petition_id, $mock) {
   if(empty($results)) {
     $status_code = 400;
     $developer_message = t("Not found.");
-    $user_message = t("There were no results for this reqquest.");
+    $user_message = t("There were no results for this request.");
     $more_info = "http://github.com/whitehouse/petitions/issue/[PLACEHOLDER]";
     $error_code = "[GitHub issue number]";
     api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
