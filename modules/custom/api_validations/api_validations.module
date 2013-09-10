@@ -2,8 +2,6 @@
 
 /**
  * @file
- * api_validations.module
- *
  * Provides validations for Services according to Whitehouse API Standards.
  */
 
@@ -51,4 +49,3 @@ function api_validations_services_resources() {
 
   return $resources;
 }
-
