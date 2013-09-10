@@ -42,7 +42,7 @@ function _api_validations_resource_index($key, $petition_id, $mock) {
   $results = $query->execute()->fetchAllAssoc('vid', PDO::FETCH_ASSOC);
 
   // Error out if there aren't any results.
-  if(empty($results)) {
+  if (empty($results)) {
     $status_code = 400;
     $developer_message = t("Not found.");
     $user_message = t("There were no results for this request.");
@@ -75,7 +75,7 @@ function _api_validations_index_doc() {
     '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/validations.json?key=asY1k9uCQY7Hg8MCBaa', array('absolute' => TRUE)),
     '#response' => _api_validations_mock_response('index'),
     '#auth' => TRUE,
-    );
+  );
 
   return $element;
 }
@@ -93,4 +93,3 @@ function _api_validations_mock_response($method) {
   $response = file_get_contents(__DIR__ . '/example_validations/' . $file);
   return $response;
 }
-
