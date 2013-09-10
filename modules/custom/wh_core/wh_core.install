@@ -207,14 +207,17 @@ function wh_core_update_7007() {
 }
 
 /**
- * Update API documentation path.
+ * Update API documentation.
  */
 function wh_core_update_7008() {
+  // Update documentation path.
   $path = array(
     'source' => 'developers/api_v1',
     'alias' => 'developers',
   );
   path_save($path);
-
   variable_set('petitions_data_petitions_api_url', 'https://api.whitehouse.gov');
+
+  // Enable table of contents (TOC).
+  variable_set('services_documentation_toc', 1);
 }
