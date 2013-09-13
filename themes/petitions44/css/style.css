@@ -5549,6 +5549,10 @@ body.full-white #right-rail {
   text-align: right;
   margin-right: 7px;
 }
+/* line 4608, ../sass/style.scss */
+.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul li a .path {
+  color: #0F3E72;
+}
 /* line 4617, ../sass/style.scss */
 .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource {
   padding: 0;
