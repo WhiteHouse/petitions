@@ -175,11 +175,15 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 ;   - Fix has been applied to the dev branch of the Services module. This patch can be removed when the next release is made available.
 ;   - @see http://drupal.org/node/1917432
 ;
+; services-1937312-format-arguments-errors.patch
+;   - Fixes Services module WSOD on requests missing required arguments.
+;
 ;------------------------------------
 projects[services][version] = 3.3
 projects[services][subdir] = contrib
 projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
 projects[services][patch][] = http://drupal.org/files/exception-data-1935472-D7-9.patch
+projects[services][patch][] = https://drupal.org/files/services-1937312-format-arguments-errors.patch
 
 ; Contrib themes
 ; -----------------
