@@ -66,10 +66,13 @@ function _signatures_queue_initiate_signature_validation($job_id, $server_name, 
  * @param int $batch_size
  *   The number of signatures to process in this batch.
  *
+ * @param bool $debug
+ *   Enable verbose logging for debugging.
+ *
  * @return array
  *   Array of signature submissions.
  */
-function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batch_size = 0) {
+function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batch_size = 0, $debug = FALSE) {
   // If this function is called directly, the calling function can determine
   // batch size by passing it as a parameter. Otherwise use admin-defined batch
   // size, or default to 1.
@@ -83,11 +86,14 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
   $queue->createQueue();
   $number_of_items = $queue->numberOfItems();
 
-  // Return if the queue is empty.
-  if (!$number_of_items) {
+  // If queue is empty and debugging is on, log message.
+  if ($debug && !$number_of_items) {
     watchdog('signatures_queue', 'signatures_submitted_queue is empty. No validation emails will be sent. @suffix', array(
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
+  }
+  // Return if the queue is empty. Our work here is done.
+  if (!$number_of_items) {
     return $signatures;
   }
 
