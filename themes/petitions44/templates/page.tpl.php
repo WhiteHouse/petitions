@@ -123,7 +123,7 @@
   <div id="main">
 <?php endif; ?>
 
-    <?php if ($is_not_cached): ?>
+    <?php if (!empty($is_not_cached)): ?>
       <?php print $messages; ?>
     <?php endif;?>
 
