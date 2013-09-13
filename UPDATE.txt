@@ -16,7 +16,8 @@ Release notes:
 
 Update steps:
   1. Create a new signatures_processing database as per instructions in INSTALL.md.
-  2. Run update.php.
+  2. Create a new signatures_archive database as per instructions in INSTALL.md.
+  3. Run update.php.
 
 Version 7.x-2.0-beta23 -> 7.x-2.0-beta24
 -----------------------------------------------
