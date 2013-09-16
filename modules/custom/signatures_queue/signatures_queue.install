@@ -13,10 +13,10 @@ require_once "signatures_queue.module";
 function signatures_queue_install() {
   $t = get_t();
 
-  // Set database so that we create the tables there.
-  signatures_queue_set_db();
+  // Set database to signatures_processing so that we create the tables there.
+  signatures_queue_set_db('signatures_processing');
 
-  $schema = signatures_queue_schema_tables();
+  $schema = _signatures_queue_schema_tables();
   foreach ($schema as $name => $table) {
     db_create_table($name, $table);
   }
@@ -27,23 +27,30 @@ function signatures_queue_install() {
     drupal_set_message($t('IMPORTANT! Signature processing tables created in default database. This is not recommended for production installations. See INSTALL.md for more information.'), 'warning');
   }
 
+  // Set database to signatures_archive so that we create the archive tables there.
+  signatures_queue_set_db('signatures_archive');
+
+  $schema = _signatures_queue_archive_schema_tables();
+  foreach ($schema as $name => $table) {
+    db_create_table($name, $table);
+  }
+
+  // Set back to default and get the previously active db.
+  $previous = db_set_active();
+  if ($previous != 'signatures_archive') {
+    drupal_set_message($t('IMPORTANT! Signature archive tables created in default database. This is not recommended for production installations. See INSTALL.md for more information.'), 'warning');
+  }
+
   // Warn users about two week limit on archiving.
   drupal_set_message($t('IMPORTANT! The archiving workflow assumes you are processing signatures regularly. The default assumption is that all queues will be cleared within any given two week period.  If you intend to NOT process signatures regularly, make the necessary adjustments to $queues_last_emptied in includes/archive_signatures.inc.'), 'warning');
 }
 
 /**
- * Signature processing schema for creation on any database.
- *
- * Typically tables are created using hook_schema() but we allow these tables to
- * be added to a secondary database.
- *
- * @see signatures_queue_install()
+ * Define schema for validation tables.
  */
-function signatures_queue_schema_tables() {
-  $schema = array();
-
-  // Schema for validations table.
-  $schema['validations'] = array(
+function _signatures_queue_get_validations_schema() {
+  // Schema for validations tables.
+  $schema = array(
     'description' => 'Validated signatures.',
     'fields' => array(
       'vid' => array(
@@ -98,21 +105,15 @@ function signatures_queue_schema_tables() {
     ),
     'primary key' => array('vid'),
   );
+  return $schema;
+}
 
-  // The validations_orphaned table has the same fields as validations.
-  $schema['validations_orphaned'] = $schema['validations'];
-  $schema['validations_orphaned']['description'] = 'Unvalidated signatures.';
-  $schema['validations_orphaned']['indexes'] = array(
-    'validations_orphaned_key' => array('secret_validation_key'),
-    'validations_orphaned_petition_signed' => array('petition_id'),
-  );
-
-  // The validations_processed table has the same fields as validations.
-  $schema['validations_processed'] = $schema['validations'];
-  $schema['validations_processed']['description'] = 'Processed signatures.';
-
-  // Schema for signatures_pending_validation table.
-  $schema['signatures_pending_validation'] = array(
+/**
+ * Define schema for signature tables.
+ */
+function _signatures_queue_get_signatures_schema() {
+  // Schema for signatures table.
+  $schema = array(
     'description' => 'Validated signatures.',
     'fields' => array(
       'sid' => array(
@@ -211,21 +212,36 @@ function signatures_queue_schema_tables() {
     ),
     'primary key' => array('sid'),
   );
+  return $schema;
+}
 
-  // The signatures_not_validated table has the same fields as
-  // signatures_pending_validation.
-  $schema['signatures_not_validated'] = $schema['signatures_pending_validation'];
-  $schema['signatures_not_validated']['description'] = 'Not valid signatures.';
-  $schema['signatures_not_validated']['indexes'] = array(
-    'signatures_not_validated_validation_key' => array('secret_validation_key'),
-    'signatures_not_validated_petition_id' => array('petition_id'),
-  );
 
-  // The signatures_processed table has the same fields as
-  // signatures_pending_validation.
-  $schema['signatures_processed'] = $schema['signatures_pending_validation'];
-  $schema['signatures_processed']['description'] = 'Valid signatures.';
+/**
+ * Signature processing schema for creation on any database.
+ *
+ * Typically tables are created using hook_schema() but we allow these tables to
+ * be added to a secondary database.
+ *
+ * @see signatures_queue_install()
+ */
+function _signatures_queue_schema_tables() {
+  $schema = array();
 
+  // Validation schema tables.
+  $schema['validations'] = _signatures_queue_get_validations_schema();
+  $schema['validations']['description'] = 'Signature validations, received when a user validates his/her signature by email.';
+
+  $schema['validations_processed'] = _signatures_queue_get_validations_schema();
+  $schema['validations_processed']['description'] = 'Processed validations are validation records matched to corresponding pending signatures and counted.';
+
+  // Signature schema tables.
+  $schema['signatures_pending_validation'] = _signatures_queue_get_signatures_schema();
+  $schema['signatures_pending_validation']['description'] = 'Pending signatures awaiting validation.';
+
+  $schema['signatures_processed'] = _signatures_queue_get_signatures_schema();
+  $schema['signatures_processed']['description'] = 'Processed signatures are pending signature records matched to corresponding validation records and counted.';
+
+  // Workflow log schema.
   $schema['signatures_queue_log'] = array(
     'description' => 'The event log for signature queue processing.',
     'fields' => array(
@@ -288,9 +304,38 @@ function signatures_queue_schema_tables() {
 }
 
 /**
+ * Signature archive schema for creation on any database.
+ *
+ * Typically tables are created using hook_schema() but we allow these tables to
+ * be added to a secondary (or tertiary) database.
+ *
+ * @see _signatures_queue_schema_tables()
+ * @see signatures_queue_install()
+ */
+function _signatures_queue_archive_schema_tables() {
+  $schema = array();
+
+  // Validation schema tables.
+  $schema['validations_orphaned_archive'] = _signatures_queue_get_validations_schema();
+  $schema['validations_orphaned_archive']['description'] = 'Legitimate validations have corresponding pending signatures. Orphaned validations are records with no corresponding signature.';
+
+  $schema['validations_processed_archive'] = _signatures_queue_get_validations_schema();
+  $schema['validations_processed_archive']['description'] = 'Processed and archived validations.';
+
+  // Signature schema tables.
+  $schema['signatures_not_validated_archive'] = _signatures_queue_get_signatures_schema();
+  $schema['signatures_not_validated_archive']['description'] = 'Pending signatures that are not validated in time are archived here.';
+
+  $schema['signatures_processed_archive'] = _signatures_queue_get_signatures_schema();
+  $schema['signatures_processed_archive']['description'] = 'Archived valid signatures.';
+
+  return $schema;
+}
+
+/**
  * Implements hook_schema().
  *
- * @see signatures_queue_schema_tables()
+ * @see _signatures_queue_schema_tables()
  */
 function signatures_queue_schema() {
   $schema['signature_validations'] = array(
@@ -308,7 +353,7 @@ function signatures_queue_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'signature_id' => array( // @@ Or should this be secret_validation_key?
+      'signature_id' => array(
         'description' => 'The Signature ID.',
         'type' => 'varchar',
         'length' => 64,
@@ -358,8 +403,17 @@ function signatures_queue_uninstall() {
   // Set database so that we drop the tables there.
   signatures_queue_set_db();
 
-  // Remove the tables defined in signatures_queue_schema_tables().
-  $schema = signatures_queue_schema_tables();
+  // Remove the tables defined in _signatures_queue_schema_tables().
+  $schema = _signatures_queue_schema_tables();
+  foreach (array_keys($schema) as $name) {
+    db_drop_table($name);
+  }
+
+  // Set database to the archive db so that we drop the tables there.
+  signatures_queue_set_db('signatures_archive');
+
+  // Remove the tables defined in _signatures_queue_archive_schema_tables().
+  $schema = _signatures_queue_archive_schema_tables();
   foreach (array_keys($schema) as $name) {
     db_drop_table($name);
   }

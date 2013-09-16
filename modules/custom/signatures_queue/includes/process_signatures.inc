@@ -3,7 +3,7 @@
  * @file
  * The "process signatures" workflow.
  *
- * Signature processing includes these steps: 
+ * Signature processing includes these steps:
  *  - Match records from validations to signatures_pending_validation tables.
  *  - If signature (email address) does not have a corresponding user, create one.
  *  - If a signature record with this email does not exist in petition_signatures
@@ -55,12 +55,18 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   db_set_active();
 
   $count = 0;
+  $count_illegitimate = 0;
 
   // Process the batch.
   while ($item = $result->fetchAssoc()) {
     // Make sure timestamps are valid and petition IDs match.
     if (!_signatures_queue_process_signatures_assert_legitimate($item)) {
       // Skip processing illegitimate item.
+      $item['signature_id'] = 'illegitimate';
+      _signatures_queue_process_signatures_move_to_processed($item);
+      // Keep track of how many invalid matches are skipped and considered
+      // "processed".
+      $count_illegitimate++;
       continue;
     }
 
@@ -73,24 +79,9 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     // If this is a new signature...
     if (!$item['signature_id']) {
       // Create new record in petition_signatures.
-      if ($item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user)) {
-        // New signature was created successfully. Increment signature count.
-        wh_petitions_increment_count($item['petition_id']);
-      }
-      else {
-        // Log failure.
-        $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
-        watchdog('signatures_queue', 'Error. New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_validated: @timestamp_validated. @suffix', array(
-          '@secret_validation_key' => $item['secret_validation_key'],
-          '@vid' => $item['vid'],
-          '@petition_id' => $item['petition_id'],
-          '@timestamp_validated' => $item['timestamp_validated'],
-          '@suffix' => $watchdog_suffix,
-        ), WATCHDOG_CRITICAL);
-        // Do NOT move items to processed table or remove from pre-process
-        // table.
-        continue;
-      }
+      $item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user);
+      // Increment signature count if this is a new signature.
+      wh_petitions_increment_count($item['petition_id']);
     }
 
     // Invoke hook_save_signature. @@?
@@ -111,10 +102,19 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
 
   // Log successes.
   $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
-  watchdog('signatures_queue', '@number records from validations were matched to signatures_pending_validation and counted. @suffix', array(
+  watchdog('signatures_queue', '@number valid signatures have been counted. (Records from validations table were matched to signatures_pending_validation table, processed, and counted.) @suffix', array(
     '@number' => $count,
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);
+
+  // Log failures.
+  if ($count_illegitimate) {
+    $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
+    watchdog('signatures_queue', 'Warning: @number records from the validations table were matched to corresponding records in signatures_pending_validation, but were NOT counted because the records are not valid. This may indicate that someone has tampered with a validation link (changing the petition_id or validation_close_timestamp) or logic in the codes base has changed somewhere.  @suffix', array(
+      '@number' => $count_illegitimate,
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_WARNING);
+  }
 
   return TRUE;
 }
@@ -235,7 +235,6 @@ function _signatures_queue_process_signatures_create_user($item) {
  *   Drupal user object for checking petition_signatures.
  *
  * @return string $signature_id
- *   FALSE if signature was not saved successfully.
  */
 function _signatures_queue_process_signatures_create_record($item, $user) {
   // The wh_petitions_create_signature function called by
@@ -296,6 +295,7 @@ function _signatures_queue_process_signatures_move_to_processed($item) {
     ->fields(array(
       'signature_source_api_key' => $item['signature_source_api_key'],
       'timestamp_petition_close' => $item['timestamp_petition_close'],
+      'timestamp_validation_close' => $item['timestamp_validation_close'],
       'petition_id' => $item['petition_id'],
       'first_name' => $item['first_name'],
       'last_name' => $item['last_name'],
@@ -311,6 +311,7 @@ function _signatures_queue_process_signatures_move_to_processed($item) {
     ->fields(array(
       'secret_validation_key' => $item['secret_validation_key'],
       'timestamp_validated' => $item['timestamp_validated'],
+      'timestamp_validation_close' => $item['timestamp_validation_close'],
       'client_ip' => $item['client_ip'],
       'petition_id' => $item['petition_id'],
     ))
