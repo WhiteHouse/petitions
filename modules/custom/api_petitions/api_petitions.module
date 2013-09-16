@@ -37,7 +37,6 @@ function api_petitions_services_resources() {
         ),
         'access callback' => 'services_access_menu',
         'documentation callback' => '_api_petitions_retrieve_doc',
-        'documentation versions' => array(1000),
       ),
       'index' => array(
         'callback' => '_api_petitions_resource_index',
@@ -193,7 +192,6 @@ function api_petitions_services_resources() {
         ),
         'access callback' => 'services_access_menu',
         'documentation callback' => '_api_petitions_index_doc',
-        'documentation versions' => array(1000),
       ),
     ),
     'relationships' => array(
@@ -291,7 +289,6 @@ function api_petitions_services_resources() {
         ),
         'access callback' => 'services_access_menu',
         'documentation callback' => '_api_petitions_load_signatures_doc',
-        'documentation versions' => array(1000),
       ),
     ),
   );
