@@ -44,7 +44,7 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
   );
   foreach ($queues as $queue => $table) {
     // Preprocess a batch of signatures in $queue queue.
-    $result = signatures_queue_preprocess_signatures_batch($queue, $table);
+    $result = _signatures_queue_preprocess_signatures_batch($queue, $table);
 
     if ($result['saved']) {
       watchdog('signatures_queue', '@number records were retrieved and deleted from @queue and stored in database tables. @suffix', array(
@@ -57,7 +57,7 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
       if ($result['queued']) {
         watchdog('signatures_queue', '@queue contains @number record(s), but none were retrieved. @suffix', array(
           '@queue' => $queue,
-          '@number' => number_format($number_of_items),
+          '@number' => number_format($result['queued']),
           '@suffix' => $watchdog_suffix,
         ), WATCHDOG_ERROR);
       }
@@ -104,7 +104,7 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
  *   - failed, count of items not successfully moved from a queue into mysql
  *   - queued, total number of items currently in the queue
  */
-function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) {
+function _signatures_queue_preprocess_signatures_batch($queue_name, $table_name) {
   $return = array('saved', 'failed', 'queued', 'retrieved');
   $return = array_combine($return, array_fill(0, count($return), 0));
 
@@ -117,7 +117,6 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
 
   // The single '=' is intentional as claimItem returns an object or false.
   while (($i < $max) && ($item = $queue->claimItem())) {
-
     // Set the active database to the signatures_processing db.
     signatures_queue_set_db();
 
@@ -129,13 +128,26 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
       $item->data['signup'] = (int) $item->data['signup'];
     }
     try {
-      // Preprocess data to be inserted.
-      $record = (array) $item->data;
-      $id = db_insert($table_name)
-        ->fields($record)
-        ->execute();
-      $insert_success = TRUE;
-      $return['saved']++;
+      // Check for secret_validation_key in validations_processed table.
+      if ($table_name == 'validations' && _signatures_queue_item_in_validations_processed($item)) {
+        // Skip inserting because this validation link has already been clicked
+        // and processed. Remove garbage from queue.
+        db_set_active();
+        $queue->deleteItem($item);
+        watchdog('signatures_queue', 'Skipping record because this validation has already been processed (secret_validation_key %key exists in validations_processed table). This record has been deleted from the validations_queue queue.', array(
+          '%key' => $item->data['secret_validation_key'],
+        ), WATCHDOG_NOTICE);
+        $preprocess_sucess = TRUE;
+      }
+      else {
+        // Preprocess data to be inserted.
+        $record = (array) $item->data;
+        $id = db_insert($table_name)
+          ->fields($record)
+          ->execute();
+        $preprocess_sucess = TRUE;
+        $return['saved']++;
+      }
     }
     catch (Exception $e) {
       // Set the active database back to default, in case db logging is enabled.
@@ -143,24 +155,34 @@ function signatures_queue_preprocess_signatures_batch($queue_name, $table_name) 
       watchdog('signatures_queue', 'Error while attempting db insert: %error', array(
         '%error' => $e->errorInfo[2],
       ), WATCHDOG_ERROR);
-      $insert_success = FALSE;
+      $preprocess_sucess = FALSE;
     }
 
     // Set the active database back to default, in case queue backend is using
     // Drupal's database.
     db_set_active();
 
-    if ($insert_success) {
+    if ($preprocess_sucess) {
       // Delete from queue, after resetting active db.
       $queue->deleteItem($item);
     }
     else {
       $return['failed']++;
     }
-
     $i++;
   }
   $return['retrieved'] = $i;
 
   return $return;
+}
+
+/**
+ * Check if the item's secret_validation_key is in validations_processed table.
+ */
+function _signatures_queue_item_in_validations_processed($item) {
+  $result = db_select('validations_processed', 'vp')
+    ->fields('vp', array('vid'))
+    ->condition('secret_validation_key', $item->data['secret_validation_key'])
+    ->execute();
+  return (bool) $result->rowCount();
 }
