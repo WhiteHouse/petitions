@@ -35,9 +35,22 @@ function api_errors_throw_error($status_code, $developer_message, $user_message 
     'moreInfo' => $more_info,
   );
 
-  // Throw the error. This will be formatted via
-  // api_errors_rest_server_execute_errors_alter().
-  services_error($developer_message, $status_code, $data);
+  try {
+    // Throw the error. This will be formatted via
+    // api_errors_rest_server_execute_errors_alter().
+    services_error($developer_message, $status_code, $data);
+  }
+  // Services module throws an uncaught exception in the case of a 5xx
+  // $status_code. :(
+  catch (Exception $e) {
+    return array(
+      'status' => floor($status_code / 100) * 100,
+      'developerMessage' => "{$status_code}:{$developer_message}",
+      'errorCode' => $status_code,
+      'userMessage' => $user_message,
+      'moreInfo' => $more_info,
+    );
+  }
 }
 
 

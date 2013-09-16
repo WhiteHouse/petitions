@@ -56,15 +56,6 @@ function _api_signatures_resource_create(array $signature) {
       $user_message = t('Sorry. We are unable to process your signature right now.');
       $more_info = 'https://github.com/WhiteHouse/petitions/issues/73';
       $error_code = 73;
-      // @todo We have to do this manually because Services module completely
-      //   borks on a 5xx error code. Since others will need this too, factor it
-      //   out into a helper function somewhere.
-      return array(
-        'status' => $rounded_status,
-        'developerMessage' => "{$rounded_status}:{$developer_message}",
-        'errorCode' => $rounded_status,
-        'userMessage' => $user_message,
-        'moreInfo' => $more_info,
-      );
+      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
   }
 }
