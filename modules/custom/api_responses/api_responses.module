@@ -36,7 +36,6 @@ function api_responses_services_resources() {
         ),
         'access callback' => 'services_access_menu',
         'documentation callback' => '_api_responses_retrieve_doc',
-        'documentation versions' => array(1000),
       ),
       'index' => array(
         'callback' => '_api_responses_resource_index',
@@ -95,7 +94,6 @@ function api_responses_services_resources() {
         ),
         'access callback' => 'services_access_menu',
         'documentation callback' => '_api_responses_index_doc',
-        'documentation versions' => array(1000),
       ),
     ),
   );
