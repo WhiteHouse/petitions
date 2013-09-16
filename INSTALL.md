@@ -88,10 +88,10 @@ drush -y make --no-core --contrib-destination=. drupal-org.make
 
 6) **IMPORTANT!** Configure second database for signature processing:
 
-For production sites, add a database for processing the signature queue in your
-settings.php file. Use 'signatures_processing' as the key for the configuration.
-For example, the database configuration in your settings.php should look similar
-to this:
+For production sites, add databases for processing and archiving the signature
+queue in your settings.php file. Use 'signatures_processing' and
+'signatures_archive' as the keys for the configuration. For example, the
+database configuration in your settings.php should look similar to this:
 
 ```php
     $databases = array (
@@ -113,6 +113,19 @@ to this:
           'default' =>
           array (
             'database' => 'signatures_processing',
+            'username' => 'dbuser',
+            'password' => '******',
+            'host' => 'localhost',
+            'port' => '',
+            'driver' => 'mysql',
+            'prefix' => '',
+        ),
+      ),
+      'signatures_archive' =>
+        array (
+          'default' =>
+          array (
+            'database' => 'signatures_archive',
             'username' => 'dbuser',
             'password' => '******',
             'host' => 'localhost',
