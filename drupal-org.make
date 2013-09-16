@@ -113,7 +113,8 @@ projects[recaptcha][subdir] = contrib
 projects[rules][version] = 2.2
 projects[rules][subdir] = contrib
 
-projects[services_documentation][version] = 1.2
+projects[services_documentation][download][type] = git
+projects[services_documentation][download][tag] = 7.x-1.2
 projects[services_documentation][subdir] = contrib
 
 projects[shunt][version] = 1.1
