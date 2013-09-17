@@ -186,7 +186,7 @@ function petitions_maintenance_update_7008() {
 
 /**
  * Installs new modules: Signatures Queue, API Signatures, API Key Manager, API
- * Validations.
+ * Validations, AWS SQS, Composer Manager.
  *
  * NOTE: Production websites are strongly encouraged to create a new
  * signatures_processing database as described in INSTALL.md before applying
@@ -198,7 +198,16 @@ function petitions_maintenance_update_7009() {
     'api_signatures',
     'api_key_manager',
     'api_validations',
+    'aws_sqs',
+    'composer_manager',
   );
 
   module_enable($modules);
+
+  // Set AWS vars.
+  variable_set('aws_sqs_claimtimeout', '300');
+  variable_set('aws_sqs_region', 'us-east-1');
+  variable_set('aws_sqs_waittimeseconds', '20');
+  variable_set('queue_default_class', 'AwsSqsQueue');
 }
+
