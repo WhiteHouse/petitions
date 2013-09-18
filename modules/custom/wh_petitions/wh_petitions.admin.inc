@@ -1333,10 +1333,8 @@ function wh_petitions_remove_lists($petition_id) {
       // Set the status on the object to match what we're about
       // to set in the database record.
       $petition['petition_status'] = WH_PETITION_STATUS_FLAGGED;
-      $conn->update(
-        array('_id' => $petition['_id']),
-        array('$set' => array('petition_status' => WH_PETITION_STATUS_FLAGGED))
-      );
+
+      wh_petitions_save_petition($conn, $petition);
       $text = t('Enable on Site');
     }
     // Log the activity to the admin_log collection.
