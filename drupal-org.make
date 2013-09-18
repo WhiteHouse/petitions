@@ -17,9 +17,9 @@ defaults[projects][subdir] = contrib
 ; -----------------
 projects[advanced_help][version] = 1.0
 
-projects[captcha][version] = 1.0-beta2
+projects[captcha][version] = 1.0
 
-projects[colorbox][version] = 2.2
+projects[colorbox][version] = 2.4
 
 projects[conditional_styles][version] = 2.1
 
@@ -29,9 +29,9 @@ projects[ctools][version] = 1.3
 
 projects[date][version] = 2.6
 
-projects[diff][version] = 2.0-beta2
+projects[diff][version] = 3.2
 
-projects[email_confirm][version] = 1.0
+projects[email_confirm][version] = 1.1
 
 projects[entity][version] = 1.2
 
@@ -39,9 +39,9 @@ projects[entitycache][version] = 1.1
 
 projects[features][version] = 1.0
 
-projects[feeds][version] = 2.0-alpha5
+projects[feeds][version] = 2.0-alpha8
 
-projects[forward][version] = 1.3
+projects[forward][version] = 1.4
 
 projects[globalredirect][version] = 1.5
 
@@ -49,21 +49,21 @@ projects[google_analytics][version] = 1.2
 
 projects[govdelivery][version] = 1.0-alpha1
 
-projects[imce][version] = 1.5
+projects[imce][version] = 1.7
 
 projects[job_scheduler][version] = 2.0-alpha3
 
-projects[libraries][version] = 2.0
+projects[libraries][version] = 2.1
 
 projects[maintenance200][version] = 1.0
 
 projects[memcache][version] = 1.0
 
-projects[metatag][version] = 1.0-alpha8
+projects[metatag][version] = 1.0-beta7
 
-projects[migrate][version] = 2.4
+projects[migrate][version] = 2.5
 
-projects[migrate_extras][version] = 2.4
+projects[migrate_extras][version] = 2.5
 
 projects[mongodb][version] = 1.0-rc2
 
@@ -71,9 +71,9 @@ projects[openidadmin][version] = 1.0
 
 projects[pathauto][version] = 1.2
 
-projects[profile2][version] = 1.2
+projects[profile2][version] = 1.3
 
-projects[recaptcha][version] = 1.7
+projects[recaptcha][version] = 1.10
 
 ; Latest stable release of Rules module is 2.4 however there is a fatal error
 ; when attempting to upgrade: https://drupal.org/node/2090511
@@ -97,7 +97,7 @@ projects[views][version] = 3.7
 
 projects[views_bulk_operations][version] = 3.1
 
-projects[wysiwyg][version] = 2.1
+projects[wysiwyg][version] = 2.2
 
 ; Patched contrib
 ;-----------------
@@ -135,15 +135,15 @@ projects[services][version] = 3.5
 ; -----------------
 projects[tao][type] = theme
 projects[tao][subdir] = ""
-projects[tao][version] = 3.0-beta3
+projects[tao][version] = 3.0-beta4
 
 projects[rubik][type] = theme
 projects[rubik][subdir] = ""
-projects[rubik][version] = 4.0-beta5
+projects[rubik][version] = 4.0-beta9
 
 projects[zen][type] = theme
 projects[zen][subdir] = ""
-projects[zen][version] = 5.1
+projects[zen][version] = 5.4
 
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
