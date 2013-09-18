@@ -1232,6 +1232,7 @@ function wh_petitions_save_petition(&$collection, $petition) {
       $petition['created'] = (int) time();
     }
     $collection->save($petition);
+    petitions_data_freshen_cached_petition($petition['_id']);
     return $petition['_id']->__toString();
   }
 }
@@ -1274,6 +1275,7 @@ function wh_petitions_delete_petition(&$collection, $petition_id) {
       }
     }
   }
+  petitions_data_freshen_cached_petition($petition_id);
 
   return FALSE;
 }
@@ -1778,7 +1780,7 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
   $result = $sig_connection->findOne($query);
   if (!empty($result)) {
     $signature_id = $result['_id']->__toString();
-    // TODO make sure this ^^ works.  
+    // TODO make sure this ^^ works.
   }
 
   return $signature_id;
@@ -1852,7 +1854,7 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
  * @param string $petition_id
  */
 function wh_petitions_increment_count($petition_id) {
-  // Create connection.  
+  // Create connection.
   $connection = wh_petitions_mongo_petition_connection();
   $connection->setSlaveOkay(FALSE);
 

@@ -12,3 +12,12 @@ function petitions_data_uninstall() {
   variable_del('petitions_data_signatures_display_names');
   variable_del('petitions_data_signatures_display_locations');
 }
+
+/**
+ * Implements hook_schema().
+ */
+function petitions_data_schema() {
+  $schema = array();
+  $schema['cache_petitions'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}

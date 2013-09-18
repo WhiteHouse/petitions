@@ -96,10 +96,6 @@ function petitions_data_form($form, &$form_state) {
  *     - name: The term name string.
  *   - signatureThreshold: The number of signatures required to receive an
  *     official response.
- *   - signatureCount: The number of signatures the petition has received to
- *     date.
- *   - signaturesNeeded: The number of signatures still needed in order to reach
- *     the threshold.
  *   - url: The absolute path to the petition, e.g. "/petition/petition-title".
  *   - deadline: The deadline for signing the petition, as a Unix timestamp.
  *   - status: The string "open", "pending response", "responded", or "closed".
@@ -112,6 +108,13 @@ function petitions_data_form($form, &$form_state) {
  *     - associationTime: The date the response was associated with the
  *       petition, in the form of a Unix timestamp.
  *   - created: The date the petition was created, as a Unix timestamp.
+ *
+ *  The following are *not* included in the returned array because they would
+ *  change too often to be reliable in the cached petition data.
+ *   - signatureCount: The number of signatures the petition has received to
+ *     date.
+ *   - signaturesNeeded: The number of signatures still needed in order to reach
+ *     the threshold.
  */
 function petitions_data_get_petition($petition_id) {
   $petition = &drupal_static(__FUNCTION__ . $petition_id);
@@ -125,6 +128,9 @@ function petitions_data_get_petition($petition_id) {
       // If the petition exists, return it.
       if (!empty($result['results'][0])) {
         $petition = $result['results'][0];
+        // Unset signatureCount and signaturesNeeded because they would become
+        // quickly stale and show unreliable values if included.
+        unset($petition['signatureCount'], $petition['signaturesNeeded']);
       }
       // If no such petition exists, return an empty array.
       else {
@@ -136,6 +142,34 @@ function petitions_data_get_petition($petition_id) {
     }
   }
   return $petition;
+}
+
+/**
+ * Clear cache of specified petition_id.
+ *
+ * @param string $petition_id
+ *   A hexidecimal petition ID.
+ */
+function petitions_data_clear_cached_petition($petition_id) {
+  // Assuming a cache clear is more expensive than a get, we check
+  // if it is cached before clearing.
+  if (cache_get("petition:{$petition_id}", 'cache_petitions')) {
+    cache_clear_all("petition:{$petition_id}", 'cache_petitions');
+  }
+}
+
+/**
+ * Freshen cache of specified petition_id.
+ *
+ * @param string $petition_id
+ *   A hexidecimal petition ID.
+ */
+function petitions_data_freshen_cached_petition($petition_id) {
+  // Clear the petition from cache.
+  petitions_data_clear_cached_petition($petition_id);
+
+  // Reload the petition into cache.
+  petitions_data_get_petition($petition_id);
 }
 
 /**
