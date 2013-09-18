@@ -4,6 +4,7 @@ package = "Custom"
 core = "7.x"
 version = "7.x-1.2"
 
+dependencies[] = "menu"
 dependencies[] = "mongodb"
 dependencies[] = "pathauto"
 dependencies[] = "taxonomy"

@@ -1062,6 +1062,22 @@ function wh_petitions_admin_petitions() {
 }
 
 /**
+ * Page callback: Displays links to various petitions settings pages.
+ */
+function wh_petitions_admin_petitions_settings_links() {
+  $links = array(
+    'items' => array(
+      l('Petitions Data', 'admin/config/services/petitions_data'),
+      l('Petition Signatures Queue', 'admin/config/system/signatures-queue'),
+      l('Petition Tool', 'admin/config/system/petitions'),
+      l('Petition Tool Hub', 'admin/config/system/petition-tool-hub'),
+      l('Petitions Users Statistics', 'admin/config/services/stats/users'),
+    ),
+  );
+  return theme('item_list', $links);
+}
+
+/**
  * Adds new filter selections to the session.
  *
  * Adds new filter selections to the session. Note: This needs to be the
