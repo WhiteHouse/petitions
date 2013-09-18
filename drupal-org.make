@@ -23,9 +23,9 @@ projects[colorbox][version] = 2.2
 
 projects[conditional_styles][version] = 2.1
 
-projects[context][version] = 3.0-beta4
+projects[context][version] = 3.0-beta7
 
-projects[ctools][version] = 1.2
+projects[ctools][version] = 1.3
 
 projects[date][version] = 2.6
 
@@ -33,7 +33,7 @@ projects[diff][version] = 2.0-beta2
 
 projects[email_confirm][version] = 1.0
 
-projects[entity][version] = 1.0-rc3
+projects[entity][version] = 1.2
 
 projects[entitycache][version] = 1.1
 
@@ -75,7 +75,11 @@ projects[profile2][version] = 1.2
 
 projects[recaptcha][version] = 1.7
 
-projects[rules][version] = 2.2
+; Latest stable release of Rules module is 2.4 however there is a fatal error
+; when attempting to upgrade: https://drupal.org/node/2090511
+; The latest security release is 2.3 so we can update to that for now:
+; https://drupal.org/node/1954592
+projects[rules][version] = 2.3
 
 projects[services_documentation][version] = 1.2
 
@@ -87,9 +91,9 @@ projects[simplehtmldom][version] = 1.12
 
 projects[strongarm][version] = 2.0
 
-projects[token][version] = 1.2
+projects[token][version] = 1.5
 
-projects[views][version] = 3.4
+projects[views][version] = 3.7
 
 projects[views_bulk_operations][version] = 3.1
 
@@ -125,19 +129,7 @@ projects[nagios][version] = 1.1
 projects[nagios][patch][] = http://drupal.org/files/check_type.patch
 projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 
-; 1917432-3.patch
-;   - Fixes issue where a relationship's source argument (path) only accepts numeric values.
-;   - Fix has been applied to the dev branch of the Services module. This patch can be removed when the next release is made available.
-;   - @see http://drupal.org/node/1917432
-;
-; services-1937312-format-arguments-errors.patch
-;   - Fixes Services module WSOD on requests missing required arguments.
-;
-;------------------------------------
-projects[services][version] = 3.3
-projects[services][patch][] = http://drupal.org/files/services-relationship-source-arg-path-1917432-3.patch
-projects[services][patch][] = http://drupal.org/files/exception-data-1935472-D7-9.patch
-projects[services][patch][] = https://drupal.org/files/services-1937312-format-arguments-errors.patch
+projects[services][version] = 3.5
 
 ; Contrib themes
 ; -----------------
