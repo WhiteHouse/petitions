@@ -226,6 +226,11 @@ function wh_petitions_menu() {
     'access arguments' => array('administer petitions'),
     'weight' => -10,
     'file' => 'wh_petitions.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/petitions/petitions'] = array(
+    'title' => 'Petitions',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
   // Admin - Petition Dashboard.
@@ -261,6 +266,16 @@ function wh_petitions_menu() {
     'file' => 'wh_petitions.admin.inc',
   );
 
+  // Admin - Petition Dashboard.
+  $items['admin/petitions/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Administer petitions.',
+    'page callback' => 'wh_petitions_admin_petitions_settings_links',
+    'access arguments' => array('administer petitions'),
+    'weight' => 10,
+    'file' => 'wh_petitions.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
 
   // Admin - AJAX callbacks.
   $items['admin/bookmark/%'] = array(

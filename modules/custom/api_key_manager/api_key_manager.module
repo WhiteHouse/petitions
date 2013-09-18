@@ -1,8 +1,36 @@
 <?php
+
 /**
  * @file
  * This is the main module file for API Key Manager.
  */
+define('SHUNT_API_KEY_MANAGER', 'shunt_api_key_manager');
+
+/**
+ * Implements hook_views_api().
+ */
+function api_key_manager_views_api($module, $api) {
+  if ($module == 'views' && $api == 'views_default') {
+    return array('version' => 2);
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function api_key_manager_menu() {
+  $items = array();
+  $items['user/%user/api_keys'] = array(
+    'title' => 'API Keys',
+    'page callback' => '_api_key_manager_user_page',
+    'page arguments' => array(1),
+    'access callback' => 'user_view_access',
+    'access arguments' => array(1),
+    'weight' => 10,
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
 
 /**
  * Define a hook that other modules can implement.
@@ -30,4 +58,304 @@ function api_key_manager_get_name($key) {
 function api_key_manager_get_url($key) {
   $urls = module_invoke_all('api_key_manager_url_for_key', $key);
   return $urls[0];
+}
+
+/**
+ * Implements hook_shunt().
+ */
+function api_key_manager_shunt() {
+  return array(
+    SHUNT_API_KEY_MANAGER => 'Shunt for creating API keys nodes.',
+  );
+}
+
+/**
+ * Implements hook_shunt_enable().
+ */
+function api_key_manager_shunt_enable($name) {
+  if ($name == SHUNT_API_KEY_MANAGER) {
+    // @todo: Message necessary?
+  }
+}
+
+/**
+ * Implements hook_node_access().
+ *
+ * Sets default permissions for authenticated user and administrator roles.
+ */
+function api_key_manager_node_access($node, $op, $account) {
+  $type = is_string($node) ? $node : $node->type;
+
+  // Check to see if the content type is API Key.
+  if ($type == 'key' && $op == 'view') {
+    // Define roles that can view API Keys.
+    global $user;
+    $allowed_roles = array_intersect(
+      array(
+        'administrator',
+      ),
+      array_values($user->roles)
+    );
+
+    // Define the current node author UID and current user UID.
+    $node_author = $node->uid;
+    $current_user = $user->uid;
+
+    // If the user has one of these roles, allow them node access.
+    if ($allowed_roles || $current_user == $node_author) {
+      return NODE_ACCESS_ALLOW;
+    }
+    else {
+      return NODE_ACCESS_DENY;
+    }
+  }
+  if ($type == 'key' && $op == 'create') {
+    // Define roles that can create API Keys.
+    global $user;
+    $allowed_roles = array_intersect(
+      array(
+        'authenticated user',
+        'administrator',
+      ),
+      array_values($user->roles)
+    );
+    // If the user has one of these roles, allow them node access.
+    if ($allowed_roles) {
+      return NODE_ACCESS_ALLOW;
+    }
+    else {
+      return NODE_ACCESS_DENY;
+    }
+  }
+  if ($type == 'key' && ($op == 'delete' || $op == 'update')) {
+    // Define roles that can delete and update API Keys.
+    global $user;
+    $allowed_roles = array_intersect(
+      array(
+        'administrator',
+      ),
+      array_values($user->roles)
+    );
+    // If the user has one of these roles, allow them node access.
+    if ($allowed_roles) {
+      return NODE_ACCESS_ALLOW;
+    }
+    else {
+      return NODE_ACCESS_DENY;
+    }
+  }
+  return NODE_ACCESS_IGNORE;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function api_key_manager_permission() {
+  return array(
+    'administer api keys' => array(
+      'title' => t('Administer API Keys'),
+      'description' => t('Allow users to administer API keys'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'key_node_form' && shunt_is_enabled(SHUNT_API_KEY_MANAGER)) {
+    global $user;
+    if (!in_array('administrator', $user->roles)) {
+      drupal_access_denied();
+    }
+  }
+
+  switch ($form_id) {
+    case 'key_node_form':
+      // Provides a form description at the top of the form.
+      $form['form_description'] = array(
+        '#markup' => '<p>Submit the form below to request an API key for your application.</p>',
+        '#weight' => -6,
+      );
+
+      $form['title'] = array(
+        '#disabled' => TRUE,
+        '#required' => FALSE,
+      );
+
+      // Hides key and status fields from users without the administer_api_keys
+      // role.
+      if (!user_access('administer api keys')) {
+        $form['field_api_key_manager_key']['#type'] = 'hidden';
+        $form['field_api_key_manager_status']['#type'] = 'hidden';
+      }
+
+      // Add submit handler for DSM message.
+      $form['#submit'][] = 'api_key_manager_key_node_form_submit';
+      break;
+
+    case 'user_admin_permissions':
+      // Define description to be used be fields.
+      $description = 'This permission does not need to be set because it is managed by the api_key_manager module.';
+
+      // Added descriptions to the api_key_manager module related fields letting
+      // the user know that they do not need to be set.
+      $form['permission']['create key content']['#description'] = $description;
+      $form['permission']['edit own key content']['#description'] = $description;
+      $form['permission']['edit any key content']['#description'] = $description;
+      $form['permission']['delete own key content']['#description'] = $description;
+      $form['permission']['delete any key content']['#description'] = $description;
+      break;
+  }
+}
+
+/**
+ * Implements hook_submit().
+ *
+ * Provides a message upon submit notifying the user that they have successfully
+ * submitted their application and will be notified once it has been reviewed.
+ */
+function api_key_manager_key_node_form_submit($form, &$form_state) {
+  drupal_get_messages('status', TRUE);
+  drupal_set_message('Thank you for submitting your request for an API Key. You will be notified via email once your request has been reviewed.');
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function api_key_manager_node_presave($node) {
+  // Make shunt available to programmatic methods of saving keys.
+  if ($node->type == 'key' && shunt_is_enabled(SHUNT_API_KEY_MANAGER)) {
+    global $user;
+    if (!in_array('administrator', $user->roles)) {
+      drupal_access_denied();
+    }
+  }
+
+  if ($node->type == 'key') {
+    // Set the title if the node is new.
+    if ($node->is_new) {
+      $node->title = $node->uid . ' - ' . $node->field_api_key_manager_name[$node->language][0]['value'];
+    }
+
+    // Send email on key node status change.
+    global $language;
+    $user_mail = user_load($node->uid)->mail;
+    $module = 'api_key_manager';
+    $action = $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'];
+    $key = !empty($node->field_api_key_manager_key[LANGUAGE_NONE][0]['value']) ? $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'] : t('Key has not been set yet');
+    $result = drupal_mail($module, $action, $user_mail, $language, array('api_key' => $key));
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function api_key_manager_node_insert($node) {
+  if ($node->type == 'key') {
+    if ($node->is_new) {
+      $node->path['pathauto'] = FALSE;
+      $path = array(
+        'source' => 'node/' . $node->nid,
+        'alias' => 'user/key/' . $node->uid . '-' . str_replace(' ', '-', $node->field_api_key_manager_name[$node->language][0]['value']),
+      );
+      path_save($path);
+    }
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function api_key_manager_mail($key, &$message, $params) {
+  $language = $message['language'];
+  switch ($key) {
+    case 'blocked':
+    $message['subject'] = t('Your Application has been blocked');
+    $message['body'][] = t('Your Application has been blocked.');
+    break;
+    case 'rejected':
+    $message['subject'] = t('Your Application has been rejected');
+    $message['body'][] = t('Your Application has been rejected.');
+    break;
+    case 'approved':
+    $message['subject'] = t('Your Application has been approved');
+    $message['body'][] = t('Your Application has been approved. This is your new key @key', array('@key' => check_plain($params['api_key'])));
+    break;
+    default:
+    break;
+  }
+}
+
+/**
+ * Callback to display current API keys in users pages.
+ *
+ * @param object $user
+ *   The $user object.
+ *
+ * @return array
+ *   Renderable array for the display table.
+ */
+function _api_key_manager_user_page($user) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+  ->entityCondition('bundle', 'key')
+  ->propertyCondition('uid', $user->uid)
+  ->propertyCondition('status', 1);
+  $result = $query->execute();
+
+  if (empty($result['node'])) {
+    return t('No keys have been created yet.');
+  }
+
+  $display_rows = array();
+  $nodes = entity_load('node', array_keys($result['node']));
+  foreach ($nodes as $node) {
+    $display_rows[] = array(
+      $node->field_api_key_manager_name[LANGUAGE_NONE][0]['value'],
+      $node->field_api_key_manager_url[LANGUAGE_NONE][0]['value'],
+      !empty($node->field_api_key_manager_key[LANGUAGE_NONE][0]['value']) ? $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'] : t('No key has been created yet'),
+      $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'],
+    );
+  }
+
+  // Sanitize output.
+  foreach ($display_rows as $row => $row_values) {
+    foreach ($row_values as $field => $field_value) {
+      $display_rows[$row][$field] = check_plain($field_value);
+    }
+  }
+
+  $table = array(
+    '#theme' => 'table',
+    '#header' => array(t('Application Name'), t('Application URL'), t('API Key'), t('Status')),
+    '#rows' => $display_rows,
+  );
+
+  return $table;
+}
+
+/**
+ * Provides is_not_cached rule by akm_is_not_cached_api_key_pages().
+ *
+ * @return array
+ * @see is_not_cached.api.php
+ */
+function api_key_manager_is_not_cached_rules() {
+  return array(
+    'akm_is_not_cached_api_key_pages' => t("API Key pages")
+  );
+}
+
+/**
+ * Callback for is_not_cached module. Do not cache api key pages.
+ */
+function akm_is_not_cached_api_key_pages() {
+  if (arg(0) == 'node' && is_numeric(arg(1))) {
+    $nid = arg(1);
+    $node = node_load($nid);
+    if ($node->type == 'key') {
+      return TRUE;
+    }
+  }
 }

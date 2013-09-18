@@ -51,7 +51,7 @@ function signatures_queue_overview() {
  */
 function _signatures_queue_validation_page_callback() {
   // Get parameters submitted via URL.
-  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p']) || empty($_GET['d'])) {
+  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p']) || empty($_GET['d']) || !is_numeric($_GET['d'])) {
     // Parameters are missing. Return error.
     drupal_not_found();
   }
@@ -80,7 +80,7 @@ function _signatures_queue_validation_page_callback() {
   // Typically signatures_queue_invoke_workflow() returns boolean.
   // If the workflow fails (shunt is tripped), the response will be TRUE.
   // In this case, drupal_goto() apology page.
-  if ($response === TRUE) {
+  if ($response == 500) {
     drupal_goto('validation-error', array(), 307);
   }
   elseif ($response == 'error') {
@@ -95,11 +95,16 @@ function _signatures_queue_validation_page_callback() {
  * Callback for thank-you/%.
  */
 function _signatures_queue_validated_page_callback($petition_id) {
-  // Load the petition via the API retrieve method.
-  $petition = PetitionsRetrieveRawFactory::create()->load($petition_id);
-  $title = $petition['results'][0]['title'];
-  $output = "Thank you for signing '{$title}' Your signature has been counted.";
-  return $output;
+  $petition = petitions_data_get_petition($petition_id);
+  if (!empty($petition)) {
+    // Load the petition via the API retrieve method.
+    $title = $petition['title'];
+    $output = "Thank you for signing '{$title}' Your signature has been counted.";
+    return $output;
+  }
+  else {
+    drupal_goto('petition-error', array(), 301);
+  }
 }
 
 /**

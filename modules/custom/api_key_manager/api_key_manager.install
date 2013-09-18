@@ -1,0 +1,550 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the API Key Manager module.
+ */
+
+/**
+ * Ensure dependencies.
+ */
+function api_key_manager_update_7000() {
+  module_enable(array('views', 'views_bulk_operations'));
+}
+
+/**
+ * Implements hook_install().
+ */
+function api_key_manager_install() {
+  $t = get_t();
+
+  // Define the machine name for the API Key node type
+  $name = 'key';
+
+  // Define the API Key node type.
+  $key = array(
+    'type' => $name,
+    'name' => $t('API Key'),
+    'base' => 'node_content',
+    'title_label' => $t('Title'),
+    'description' => $t('API Key nodes are created by users to request access to the API.'),
+    'custom' => TRUE,
+  );
+
+  // Set other node defaults not declared above.
+  $content_type = node_type_set_defaults($key);
+
+  // Save the content type
+  node_type_save($content_type);
+
+  // Add peristant variables that control settings
+  variable_set('additional_settings__active_tab_' . $name, 'edit-menu');
+  variable_set('node_preview_' . $name, 0);
+  variable_set('node_options_' . $name, array(0 => 'status'));
+  variable_set('node_submitted_' . $name, 0);
+  variable_set('menu_options_' . $name, array());
+  variable_set('menu_parent_' . $name, 'main-menu:0');
+
+  // Create fields for API Key node type
+  foreach (_api_key_manager_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+  // Create instances for API Key node type
+  foreach (_api_key_manager_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = $key['type'];
+    field_create_instance($instance);
+  }
+
+  // Grant default permissions to administrator role.
+  $admin_rid = variable_get('user_admin_role', $admin_role->rid);
+  user_role_grant_permissions($admin_rid, array('administer api keys'));
+}
+
+/**
+ * Returns a structured array defining the fields created by the API Key node
+ * type.
+ *
+ * @return array
+ *   An associative array specifying the fields we wish to add to the API Key
+ *   node type.
+ */
+function _api_key_manager_installed_fields() {
+  $t = get_t();
+
+  return array(
+    'field_api_key_manager_name' => array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'max_length' => '255',
+        'profile2_private' => FALSE,
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_field_api_key_manager_name' => array(
+                'value' => 'field_api_key_manager_name_value',
+                'format' => 'field_api_key_manager_name_format',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_field_api_key_manager_name' => array(
+                'value' => 'field_name_api_key_manager_value',
+                'format' => 'field_api_key_manager_name_format',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(
+        'format' => array(
+          'table' => 'filter_format',
+          'columns' => array(
+            'format' => 'format',
+          ),
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          'format',
+        ),
+      ),
+      'field_name' => 'field_api_key_manager_name',
+      'type' => 'text',
+      'module' => 'text',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'not null' => FALSE,
+        ),
+        'format' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'key',
+        ),
+      ),
+    ),
+    'field_api_key_manager_url' => array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'max_length' => '255',
+        'profile2_private' => FALSE,
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_field_api_key_manager_url' => array(
+                'value' => 'field_api_key_manager_url_value',
+                'format' => 'field_api_key_manager_url_format',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_field_api_key_manager_url' => array(
+                'value' => 'field_api_key_manager_url_value',
+                'format' => 'field_api_key_manager_url_format',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(
+        'format' => array(
+          'table' => 'filter_format',
+          'columns' => array(
+            'format' => 'format',
+          ),
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          'format',
+        ),
+      ),
+      'field_name' => 'field_api_key_manager_url',
+      'type' => 'text',
+      'module' => 'text',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'not null' => FALSE,
+        ),
+        'format' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'key',
+        ),
+      ),
+    ),
+    'field_api_key_manager_key' => array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'max_length' => '255',
+        'profile2_private' => FALSE,
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_field_api_key_manager_key' => array(
+                'value' => 'field_api_key_manager_key_value',
+                'format' => 'field_api_key_manager_key_format',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_field_api_key_manager_key' => array(
+                'value' => 'field_api_key_manager_key_value',
+                'format' => 'field_api_key_manager_key_format',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(
+        'format' => array(
+          'table' => 'filter_format',
+          'columns' => array(
+            'format' => 'format',
+          ),
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          'format',
+        ),
+      ),
+      'field_name' => 'field_api_key_manager_key',
+      'type' => 'text',
+      'module' => 'text',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'not null' => FALSE,
+        ),
+        'format' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'key',
+        ),
+      ),
+    ),
+    'field_api_key_manager_status' => array(
+      'translatable' => '0',
+      'entity_types' => array(),
+      'settings' => array(
+        'allowed_values' => array(
+          'approved' => 'approved',
+          'rejected' => 'rejected',
+          'blocked' => 'blocked',
+          'pending' => 'pending',
+        ),
+        'allowed_values_function' => '',
+        'profile2_private' => FALSE,
+      ),
+      'storage' => array(
+        'type' => 'field_sql_storage',
+        'settings' => array(),
+        'module' => 'field_sql_storage',
+        'active' => '1',
+        'details' => array(
+          'sql' => array(
+            'FIELD_LOAD_CURRENT' => array(
+              'field_data_field_api_key_manager_status' => array(
+                'value' => 'field_api_key_manager_status_value',
+              ),
+            ),
+            'FIELD_LOAD_REVISION' => array(
+              'field_revision_field_api_key_manager_status' => array(
+                'value' => 'field_api_key_manager_status_value',
+              ),
+            ),
+          ),
+        ),
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          'value',
+        ),
+      ),
+      'field_name' => 'field_api_key_manager_status',
+      'type' => 'list_text',
+      'module' => 'list',
+      'active' => '1',
+      'locked' => '0',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'columns' => array(
+        'value' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+      ),
+      'bundles' => array(
+        'node' => array(
+          'key',
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Returns a structured array defining the instances for the API Key node type.
+ *
+ * @return array
+ *   An associative array specifying the instances we wish to add to the API Key
+ *   node type.
+ */
+function _api_key_manager_installed_instances() {
+  $t = get_t();
+
+  return array(
+    'field_api_key_manager_name' => array(
+      'label' => 'Application Name',
+      'widget' => array(
+        'weight' => '31',
+        'type' => 'text_textfield',
+        'module' => 'text',
+        'active' => 1,
+        'settings' => array(
+          'size' => '60',
+        ),
+      ),
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'inline',
+          'type' => 'text_default',
+          'weight' => '1',
+          'settings' => array(),
+          'module' => 'text',
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 1,
+      'description' => 'Enter the full name of your application.',
+      'default_value' => NULL,
+      'field_name' => 'field_api_key_manager_name',
+      'entity_type' => 'node',
+      'bundle' => 'key',
+      'deleted' => '0',
+    ),
+    'field_api_key_manager_url' => array(
+      'label' => 'Application URL',
+      'widget' => array(
+        'weight' => '32',
+        'type' => 'text_textfield',
+        'module' => 'text',
+        'active' => 1,
+        'settings' => array(
+          'size' => '60',
+        ),
+      ),
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'inline',
+          'type' => 'text_plain',
+          'weight' => '1',
+          'settings' => array(),
+          'module' => 'text',
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 1,
+      'description' => 'Enter the URL to your application.',
+      'default_value' => NULL,
+      'field_name' => 'field_api_key_manager_url',
+      'entity_type' => 'node',
+      'bundle' => 'key',
+      'deleted' => '0',
+    ),
+    'field_api_key_manager_key' => array(
+      'label' => 'Application Key',
+      'widget' => array(
+        'weight' => '33',
+        'type' => 'text_textfield',
+        'module' => 'text',
+        'active' => 1,
+        'settings' => array(
+          'size' => '60',
+        ),
+      ),
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'inline',
+          'type' => 'text_plain',
+          'weight' => '2',
+          'settings' => array(),
+          'module' => 'text',
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => NULL,
+      'field_name' => 'field_api_key_manager_key',
+      'entity_type' => 'node',
+      'bundle' => 'key',
+      'deleted' => '0',
+    ),
+    'field_api_key_manager_status' => array(
+      'label' => 'Status',
+      'widget' => array(
+        'weight' => '34',
+        'type' => 'options_select',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(),
+      ),
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'inline',
+          'type' => 'list_default',
+          'weight' => '3',
+          'settings' => array(),
+          'module' => 'list',
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => 0,
+      'description' => '',
+      'default_value' => array(
+        array(
+          'value' => 'pending',
+        ),
+      ),
+      'field_name' => 'field_api_key_manager_status',
+      'entity_type' => 'node',
+      'bundle' => 'key',
+      'deleted' => '0',
+    ),
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function api_key_manager_uninstall() {
+  // Define the machine name of the API Key node type.
+  $name = 'key';
+
+  // Gather all API Key nodes created.
+  $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+  $result = db_query($sql, array(':type' => $name));
+  $nids = array();
+  foreach ($result as $row) {
+    $nids[] = $row->nid;
+  }
+
+  // Delete all of the API Key nodes at noce.
+  node_delete_multiple($nids);
+
+  // Remove peristant variables that control settings.
+  variable_del('additional_settings__active_tab_' . $name);
+  variable_del('node_preview_' . $name);
+  variable_del('node_options_' . $name);
+  variable_del('node_submitted_' . $name);
+  variable_del('menu_options_' . $name);
+  variable_del('menu_parent_' . $name);
+
+
+  // Find all fields and delete them.
+  foreach (array_keys(_api_key_manager_installed_fields()) as $field) {
+    field_delete_field($field);
+  }
+
+  // Find all fields and delete instance.
+  $instances = field_info_instances('node', $name);
+  foreach ($instances as $instance_name => $instance) {
+    field_delete_instance($instance);
+  }
+
+  // Delete the API Key node type
+  node_type_delete($name);
+
+  // Purge all field infromation
+  field_purge_batch(1000);
+}
