@@ -54,6 +54,10 @@ h3 {
   font-size: 1.167em;
 }
 
+table {
+  width: 100%;
+}
+
 /***** Cutup List ******/
 /* line 39, ../sass/style.scss */
 ul.cutuplist li {

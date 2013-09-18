@@ -2,6 +2,8 @@ name = Petitions
 description = Install Petitions (built by the White House to power petitions.whitehouse.gov)
 
 core = 7.x
+distribution_name = Petitions
+exclusive = 1
 version = VERSION
 
 ; core
@@ -75,4 +77,11 @@ files[] =  petitions.profile
 version = ""
 project = "petitions"
 datestamp = "1368679058"
+
+
+
+; Information added by drush on 2013-08-08
+version = ""
+project = "petitions"
+datestamp = "1375992615"
 
