@@ -17,14 +17,9 @@ defaults[projects][subdir] = contrib
 ; -----------------
 projects[advanced_help][version] = 1.0
 
-projects[aws_sqs][download][type] = "file"
-projects[aws_sqs][download][url] = "https://github.com/bryanhirsch/aws_sqs/archive/bh.zip"
-
 projects[captcha][version] = 1.0-beta2
 
 projects[colorbox][version] = 2.2
-
-projects[composer_manager][version] = 1.0-beta7
 
 projects[conditional_styles][version] = 2.1
 
