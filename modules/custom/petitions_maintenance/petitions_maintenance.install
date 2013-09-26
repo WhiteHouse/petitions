@@ -210,4 +210,3 @@ function petitions_maintenance_update_7009() {
   variable_set('aws_sqs_waittimeseconds', '20');
   variable_set('queue_default_class', 'AwsSqsQueue');
 }
-
