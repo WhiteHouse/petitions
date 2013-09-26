@@ -44,7 +44,7 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
   );
   foreach ($queues as $queue => $table) {
     // Preprocess a batch of signatures in $queue queue.
-    $result = _signatures_queue_preprocess_signatures_batch($queue, $table);
+    $result = _signatures_queue_preprocess_signatures_batch($queue, $table, $watchdog_suffix);
 
     if ($result['saved']) {
       watchdog('signatures_queue', '@number records were retrieved and deleted from @queue and stored in database tables. @suffix', array(
@@ -92,20 +92,22 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
  *   The name of the queue to process.
  *   Expecting either signatures_pending_validation_queue or
  *   validations_queue.
- *
  * @param string $table_name
  *   The name of the table for storing records.
  *   Expecting either signatures_pending_validation or validations.
+ * @param string $watchdog_suffix
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  *
  * @return array
  *   Array info about records moved into mysql and items remaining in queue
  *   - retrieved, count of items retrieved from queue to be moved to mysql
  *   - saved, count of records successfully inserted into mysql table
+ *   - skipped, count of duplicated records that were already fetched from queue
  *   - failed, count of items not successfully moved from a queue into mysql
  *   - queued, total number of items currently in the queue
  */
-function _signatures_queue_preprocess_signatures_batch($queue_name, $table_name) {
-  $return = array('saved', 'failed', 'queued', 'retrieved');
+function _signatures_queue_preprocess_signatures_batch($queue_name, $table_name, $watchdog_suffix) {
+  $return = array('saved', 'skipped', 'failed', 'queued', 'retrieved');
   $return = array_combine($return, array_fill(0, count($return), 0));
 
   $queue = SignaturesQueue::get($queue_name);
@@ -113,12 +115,16 @@ function _signatures_queue_preprocess_signatures_batch($queue_name, $table_name)
   $return['queued'] = $queue->numberOfItems();
 
   $max = signatures_queue_get_queue_batch_size('preprocess_signatures');
-  $i = 0;
 
-  // The single '=' is intentional as claimItem returns an object or false.
-  while (($i < $max) && ($item = $queue->claimItem())) {
-    // Set the active database to the signatures_processing db.
-    signatures_queue_set_db();
+  for ($i = 0; ($i < $max && $i < $queue->numberOfItems()); $i++) {
+
+    // It's possible for Amazon SQS to return empty objects, skip them.
+    if (!$item = $queue->claimItem()) {
+      watchdog('signatures_queue', 'Skipping record because it is empty. @suffix', array(
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_ERROR);
+      continue;
+    }
 
     // Save the item in signatures_processing db.
     // The $item->data array is conviniently the same as the field mapping we
@@ -130,47 +136,43 @@ function _signatures_queue_preprocess_signatures_batch($queue_name, $table_name)
     try {
       // Check for secret_validation_key in validations_processed table.
       if ($table_name == 'validations' && _signatures_queue_item_in_validations_processed($item)) {
-        // Skip inserting because this validation link has already been clicked
-        // and processed. Remove garbage from queue.
-        db_set_active();
+        // Skip inserting, validation link has already been processed.
         $queue->deleteItem($item);
-        watchdog('signatures_queue', 'Skipping record because this validation has already been processed (secret_validation_key %key exists in validations_processed table). This record has been deleted from the validations_queue queue.', array(
+        $return['skipped'] ++;
+
+        // Reset db for db logging.
+        watchdog('signatures_queue', 'Skipping record because this validation has already been processed (secret_validation_key %key exists in validations_processed table). This record has been deleted from the validations_queue queue. @suffix', array(
           '%key' => $item->data['secret_validation_key'],
+          '@suffix' => $watchdog_suffix,
         ), WATCHDOG_NOTICE);
-        $preprocess_sucess = TRUE;
       }
       else {
         // Preprocess data to be inserted.
+        signatures_queue_set_db();
         $record = (array) $item->data;
         $id = db_insert($table_name)
           ->fields($record)
           ->execute();
-        $preprocess_sucess = TRUE;
+        db_set_active();
+
+        $queue->deleteItem($item);
         $return['saved']++;
       }
     }
     catch (Exception $e) {
-      // Set the active database back to default, in case db logging is enabled.
-      db_set_active();
-      watchdog('signatures_queue', 'Error while attempting db insert: %error', array(
-        '%error' => $e->errorInfo[2],
-      ), WATCHDOG_ERROR);
-      $preprocess_sucess = FALSE;
-    }
-
-    // Set the active database back to default, in case queue backend is using
-    // Drupal's database.
-    db_set_active();
-
-    if ($preprocess_sucess) {
-      // Delete from queue, after resetting active db.
-      $queue->deleteItem($item);
-    }
-    else {
       $return['failed']++;
+
+      // Reset db for db logging.
+      watchdog('signatures_queue', "Error while attempting db insert. @suffix.\n%error", array(
+        '%error' => $e->getMessage(),
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_ERROR);
     }
-    $i++;
   }
+
+  // Set the active database back to default.
+  db_set_active();
+
   $return['retrieved'] = $i;
 
   return $return;
@@ -180,9 +182,11 @@ function _signatures_queue_preprocess_signatures_batch($queue_name, $table_name)
  * Check if the item's secret_validation_key is in validations_processed table.
  */
 function _signatures_queue_item_in_validations_processed($item) {
+  signatures_queue_set_db();
   $result = db_select('validations_processed', 'vp')
     ->fields('vp', array('vid'))
     ->condition('secret_validation_key', $item->data['secret_validation_key'])
     ->execute();
+  db_set_active();
   return (bool) $result->rowCount();
 }

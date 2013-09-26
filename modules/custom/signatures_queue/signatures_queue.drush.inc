@@ -126,44 +126,11 @@ function drush_signatures_queue_check_empty_validate() {
  *   The machine name of a signatures queue.
  */
 function drush_signatures_queue_check_empty($name = NULL) {
-
-  // If a queue name was specified, check only that queue.
-  if ($name) {
-    $queue_names = array($name);
-  }
-  // Otherwise, check all queues.
-  else {
-    $queue_names = array_keys(signatures_queue_get_queue_names());
-  }
-
-  $last_emptied = array();
-  foreach ($queue_names as $queue_name) {
-    // Make sure every queue exists. There is no harm in trying to recreate an
-    // existing queue.
-    $queue = DrupalQueue::get($queue_name);
-    $queue->createQueue();
-
-    $now = time();
-    $num_items = $queue->numberOfItems();
-
-    // For any empty queue, updated corresponding last_emptied variable.
-    if ($num_items == 0) {
-      $last_emptied[$queue_name] = $now;
-      variable_set('signatures_queue_' . $queue_name . '_last_emptied', $now);
-    }
-    // Otherwise, get existing last_emptied variable for later comparison.
-    else {
-      $last_emptied[$queue_name] = variable_get('signatures_queue_' . $queue_name . '_last_emptied', 0);
-    }
-  }
-
-  // If all queues were checked, update signatures_queue_oldest_emptied.
-  if (!$name) {
-    $oldest_emptied = min($last_emptied);
-    variable_set('signatures_queue_oldest_emptied', $oldest_emptied);
-    watchdog('signatures_queue', 'Empty check was performed on all signature queues and logged. Oldest emptied queue was logged as @oldest_emptied.', array('@oldest_emptied' => $oldest_emptied));
-  }
-  else {
-    watchdog('signatures_queue', 'Empty check was performed on @queue_name queue and logged.', array('@queue_name' => $name));
+  $last_emptied_timestamps = signatures_queue_check_empty($name);
+  foreach ($last_emptied_timestamps as $queue_name => $timestamp) {
+    drush_print(dt('@queue_name last emptied: @timestamp', array(
+      '@queue_name' => $queue_name,
+      '@timestamp' => $timestamp ? date('Y-m-d', $timestamp): 'never',
+    )));
   }
 }

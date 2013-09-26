@@ -96,6 +96,12 @@ function signatures_queue_configure() {
     '#title' => t('Archive Invalidated Signatures'),
     '#default_value' => variable_get('signatures_queue_archive_invalid_signatures', 1),
   );
+  $form['archive_signatures']['signatures_queue_minimum_signature_lifetime'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minimum signature lifetime'),
+    '#description' => t('A signature must live for at least this long before being archived, regardless of other expiration criteria. Use @date_format, e.g., "2 weeks".', array('@date_format' => l('relative date format', 'http://www.php.net/manual/en/datetime.formats.relative.php'))),
+    '#default_value' => variable_get('signatures_queue_minimum_signature_lifetime', '2 weeks'),
+  );
   $form['archive_signatures']['signatures_queue_validation_grace_period'] = array(
     '#type' => 'textfield',
     '#title' => t('Validation Grace Period (in Days)'),
