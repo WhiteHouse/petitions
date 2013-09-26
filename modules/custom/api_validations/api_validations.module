@@ -66,7 +66,7 @@ function _api_validations_resource_index($key, $petition_id, $mock) {
   // @todo: include a check for valid API key after PT-1044 is implemented,
   // and there is a content type to validate against.
   if (empty($key)) {
-    $status_code = 400;
+    $status_code = 401;
     $developer_message = t("Invalid key.");
     $user_message = t("The key provided is not valid.");
     api_errors_throw_error($status_code, $developer_message, $user_message);
