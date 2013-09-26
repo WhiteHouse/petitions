@@ -86,7 +86,7 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
   $queue->createQueue();
   $number_of_items = $queue->numberOfItems();
 
-  // If queue is empty and debugging is on, log message.
+  // If queue is empty and signatures_queue_send_validation_emaiging is on, log message.
   if ($debug && !$number_of_items) {
     watchdog('signatures_queue', 'signatures_submitted_queue is empty. No validation emails will be sent. @suffix', array(
       '@suffix' => $watchdog_suffix,
@@ -98,19 +98,18 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
   }
 
   // Process the queue.
-  for ($i = 0; $i < $batch_size; $i++) {
-    $item = $queue->claimItem();
+  for ($i = 0; $i < $batch_size && $i < $number_of_items; $i++) {
 
-    // claimItem() returns FALSE when there are no more items in the queue.
-    if (!$item) {
-      break;
+    // It's possible for Amazon SQS to return empty objects, skip them.
+    if (!$item = $queue->claimItem()) {
+      continue;
     }
 
     $signatures[] = $item;
   }
 
   if ($i) {
-    watchdog('signatures_queue', '@number records were retrieved from signatures_submitted_queue. @suffix', array(
+    watchdog('signatures_queue', '@number records were retrieved from signatures_submitted_queue. @suffix.', array(
       '@number' => number_format($i),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
@@ -183,6 +182,7 @@ function _signatures_queue_add_md5_evaluation_keys(array $signatures) {
  */
 function _signatures_queue_send_validation_emails(array $signatures, $watchdog_suffix) {
   $signatures_mailed = array('sent' => array(), 'not sent' => array());
+  $errors = array();
 
   // NOTE: We're calling drupal_mail() one-by-one, but we're not sure if this is
   // the best solution here. If the cost charged by our email provider is
@@ -195,10 +195,17 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
     global $language;
     $params = array('signature info' => $signature->data);
     try {
-      $result = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
-      $signatures_mailed['sent'][] = $signature;
+      $message = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
+      if ($message['result']) {
+        $signatures_mailed['sent'][] = $signature;
+      }
+      else {
+        // Mailing errors should be logged by active mail system.
+        $signatures_mailed['not sent'][] = $signature;
+      }
     }
     catch (Exception $e) {
+      // Mailing errors should be logged by active mail system.
       $signatures_mailed['not sent'][] = $signature;
     }
   }

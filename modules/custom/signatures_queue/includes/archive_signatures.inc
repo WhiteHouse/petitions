@@ -84,9 +84,8 @@ function _signatures_queue_archive_signatures($job_id, $server_name, $worker_nam
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
- *
  * @param string $watchdog_suffix
- *   Defined suffix for watchdog statements.
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
@@ -145,9 +144,8 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
- *
  * @param string $watchdog_suffix
- *   Defined suffix for watchdog statements.
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_delete_invalid_signatures($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
@@ -183,9 +181,8 @@ function _signatures_queue_delete_invalid_signatures($queues_last_emptied, $watc
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
- *
  * @param string $watchdog_suffix
- *   Defined suffix for watchdog statements.
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
@@ -246,9 +243,8 @@ function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $w
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
- *
  * @param string $watchdog_suffix
- *   Defined suffix for watchdog statements.
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_delete_orphaned_validations($queues_last_emptied, $watchdog_suffix, $columns = FALSE) {
   // Set the active database to the signatures_processing db.
@@ -307,29 +303,16 @@ function _signatures_queue_delete_orphaned_validations($queues_last_emptied, $wa
  *   The oldest date that all queues were last emptied.
  */
 function _signatures_queue_queues_last_emptied() {
-  $queues_last_emptied = time();
-  $two_weeks_ago = time() - 14 * 24 * 60 * 60;
+  $last_emptied_timestamps = signatures_queue_check_empty();
 
-  // By default, assume queues are emptied at least every two weeks.
-  $queues = array(
-    'signatures_submitted_queue' => $two_weeks_ago,
-    'validations_queue' => $two_weeks_ago,
-    'signautres_pending_validation_queue' => $two_weeks_ago,
-  );
+  // When using the AWS SQS, $queue->numberOfItems() returns only an approximate
+  // number, and could return a false 'empty' response. To add an extra layer of
+  // protection, we're also adding a minimum lifetime to signatures. I.E.
+  // they cannot be archived until they are at least x days old.
+  $minimum_lifetime = strtotime(variable_get('signatures_queue_minimum_signature_lifetime', '2 weeks')) - time();
+  $last_emptied_timestamps['signatures_queue_minimum_signature_lifetime'] = time() - $minimum_lifetime;
 
-  // Invoke a hook to let implementers of queue backends determine when queue
-  // was last emptied.
-  /*
-  // TODO Placeholder. Implement under PT-960.
-  foreach ($queues as $queue_name => $value) {
-  $result = module_invoke(‘signatures_queue_last_emptied’, $queue_name);
-  // TODO Use this value in place of $two_weeks_ago, wherever available.
-  }
-  // */
-
-  // Get the oldest (lowest) timemestamp. Because we don't want to accidentally
-  // archive data that may not be done being processed.
-  $queues_last_emptied = min($queues);
+  $queues_last_emptied = min($last_emptied_timestamps);
 
   return $queues_last_emptied;
 }
@@ -339,9 +322,8 @@ function _signatures_queue_queues_last_emptied() {
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
- *
  * @param string $watchdog_suffix
- *   Defined suffix for watchdog statements.
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_archive_processed_signatures($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
@@ -400,9 +382,8 @@ function _signatures_queue_archive_processed_signatures($queues_last_emptied, $w
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
- *
  * @param string $watchdog_suffix
- *   Defined suffix for watchdog statements.
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_delete_processed_signatures($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
@@ -428,9 +409,8 @@ function _signatures_queue_delete_processed_signatures($queues_last_emptied, $wa
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
- *
  * @param string $watchdog_suffix
- *   Defined suffix for watchdog statements.
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_archive_processed_validations($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
@@ -474,9 +454,8 @@ function _signatures_queue_archive_processed_validations($queues_last_emptied, $
  *
  * @param int $queues_last_emptied
  *   The oldest date that all queues were last emptied.
- *
  * @param string $watchdog_suffix
- *   Defined suffix for watchdog statements.
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_delete_processed_validations($queues_last_emptied, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.

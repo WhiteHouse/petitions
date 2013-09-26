@@ -170,7 +170,7 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
 
     // Sanitize petition data.
     foreach ($data['signature info'] as $key => $info) {
-      $data['signature info'][$key] = check_plain($info);
+      $data['signature info'][$key] = check_plain((string) $info);
     }
 
     // Tokens for all values in the signature_info array.
@@ -391,7 +391,7 @@ function signatures_queue_get_queue_batch_size($workflow) {
 }
 
 /**
- * Implements hook_mail().
+ * Implements hook_form_alter().
  */
 function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
   // Add signature validation email fields to the wh_petitions form.
@@ -422,4 +422,19 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
       '#rows' => 15,
     );
   }
+}
+
+/**
+ * Find out when queue(s) were last emptied.
+ *
+ * @param string $name
+ *   (Optional) The machine name of a signatures queue.
+ *
+ * @return array $last_emptied
+ *   Returns array keyed by queue name(s). Value is a timestamp of when queue
+ *   was last emptied.
+ */
+function signatures_queue_check_empty($name = NULL) {
+  module_load_include('inc', 'signatures_queue');
+  return _signatures_queue_check_empty($name);  
 }
