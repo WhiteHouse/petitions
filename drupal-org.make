@@ -37,8 +37,6 @@ projects[entity][version] = 1.0-rc3
 
 projects[entitycache][version] = 1.1
 
-projects[examples][version] = 1.x-dev
-
 projects[features][version] = 1.0
 
 projects[feeds][version] = 2.0-alpha5
