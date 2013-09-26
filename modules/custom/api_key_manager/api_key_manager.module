@@ -187,7 +187,9 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
       // role.
       if (!user_access('administer api keys')) {
         $form['field_api_key_manager_key']['#type'] = 'hidden';
+        $form['field_api_key_manager_key']['#disabled'] = TRUE;
         $form['field_api_key_manager_status']['#type'] = 'hidden';
+        $form['field_api_key_manager_status']['#disabled'] = TRUE;
       }
 
       // Add submit handler for DSM message.
