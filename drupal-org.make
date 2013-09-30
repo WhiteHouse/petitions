@@ -53,8 +53,6 @@ projects[imce][version] = 1.7
 
 projects[job_scheduler][version] = 2.0-alpha3
 
-projects[libraries][version] = 2.1
-
 projects[maintenance200][version] = 1.0
 
 projects[memcache][version] = 1.0
@@ -101,6 +99,12 @@ projects[wysiwyg][version] = 2.2
 
 ; Patched contrib
 ;-----------------
+
+; libraries-undefined-index-foo.patch
+;   - Fixes PHP warning on cache clear.
+;   - @see https://drupal.org/node/1938638
+projects[libraries][version] = 2.1
+projects[libraries][patch][] = https://drupal.org/files/libraries-undefined-index-foo.patch
 
 ; 1747878-2-remove-lower.patch
 ;   - Performance improvement, get rid of mysql LOWER(), it creates a temp table for the whole table
