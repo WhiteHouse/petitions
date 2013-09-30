@@ -218,5 +218,8 @@ function petitions_data_sanitize_output($string) {
   // @see http://stackoverflow.com/questions/3654879/remove-non-english-characters-php
   $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
 
+  // Remove potential XSS attempts.
+  $string = filter_xss($string);
+
   return $string;
 }
