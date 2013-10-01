@@ -1,6 +1,16 @@
 UPDATE
 ======
 
+Verson 7.x-2.0-rc1 -> 7.x-2.0-rc4
+----------------------------------------------
+
+Release notes:
+  - Updated various contrib modules.
+
+Update steps:
+  1. Deploy code changes.
+  2. Run update.php.
+
 Verson 7.x-2.0-beta24 -> 7.x-2.0-rc1
 ----------------------------------------------
 
