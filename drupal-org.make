@@ -133,6 +133,9 @@ projects[nagios][version] = 1.1
 projects[nagios][patch][] = http://drupal.org/files/check_type.patch
 projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 
+; services-1937312-format-arguments-errors-reroll-8.patch
+;  - Fixes WSOD when missing required arguments.
+;  - @see https://drupal.org/node/1937312
 projects[services][version] = 3.5
 projects[services][patch][] = http://drupal.org/files/services-1937312-format-arguments-errors-reroll-8.patch
 
