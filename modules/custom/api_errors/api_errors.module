@@ -44,11 +44,15 @@ function api_errors_throw_error($status_code, $developer_message, $user_message 
   // $status_code. :(
   catch (Exception $e) {
     return array(
-      'status' => floor($status_code / 100) * 100,
-      'developerMessage' => "{$status_code}:{$developer_message}",
-      'errorCode' => $status_code,
-      'userMessage' => $user_message,
-      'moreInfo' => $more_info,
+      'metadata' => array(
+        'responseInfo' => array(
+          'status' => floor($status_code / 100) * 100,
+          'developerMessage' => "{$status_code}:{$developer_message}",
+          'errorCode' => (int) $error_code,
+          'userMessage' => $user_message,
+          'moreInfo' => $more_info,
+        ),
+      ),
     );
   }
 }
@@ -82,10 +86,10 @@ function api_errors_rest_server_execute_errors_alter(&$error, $controller, $argu
         // with a drupal.org issue like drupal.org/node/4444444), or some number
         // corresponding with a GitHub issue in the issue queue.
         'errorCode' => (int) $error['code'],
-        'userMessage' => !empty($error['body_data']['userMessage']) ? $error['body_data']['userMessage'] : '',
+        'userMessage' => is_array($error['body_data']) && array_key_exists('userMessage', $error['body_data']) ? $error['body_data']['userMessage'] : '',
         // Provide links to relevant issues on drupal.org, GitHub, etc. and any
         // other relevant documentation or helpful links.
-        'moreInfo' => !empty($error['body_data']['moreInfo']) ? $error['body_data']['moreInfo'] : '',
+        'moreInfo' => is_array($error['body_data']) && array_key_exists('moreInfo', $error['body_data']) ? $error['body_data']['moreInfo'] : '',
       ),
     ),
   );

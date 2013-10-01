@@ -8,8 +8,8 @@
 /**
  * How to throw an API error.
  */
-function something_involved_in_creating_a_reasponse() {
-  // Do somethings here.
+function something_involved_in_creating_a_response() {
+  // Do something here.
 
   if ($things_go_as_expected) {
     $result = get_data($things_go_as_expected);
@@ -26,5 +26,5 @@ function something_involved_in_creating_a_reasponse() {
     api_errors_throw_error($status, $developer_message, $error_code, $user_message, $more_info);
   }
 
-  return $result
+  return $result;
 }

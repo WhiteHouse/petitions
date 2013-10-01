@@ -94,8 +94,8 @@ function shunt_api_callback() {
   // If shunt_api has been tripped, throw a 500 error.
   if (shunt_is_enabled('shunt_api')){
     $status = 500;
-    $developer_message = t('Sorry. Service is not available right now.');
-    $user_message = t('Sorry. We are unable to process your signature right now.');
+    $developer_message =  t("We're sorry, this service is currently unavailable.");
+    $user_message = t("We're sorry, this service is currently unavailable.");
     $more_info = 'https://github.com/WhiteHouse/petitions/issues/73';
     $error_code = 73;
     return api_errors_throw_error($status, $developer_message, $user_message, $more_info, $error_code);
