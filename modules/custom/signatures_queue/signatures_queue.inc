@@ -260,3 +260,18 @@ function _signatures_queue_check_empty($name = NULL) {
 
   return $last_emptied;
 }
+
+/**
+ * Generates a validation link.
+ *
+ * @param $data the signatures data
+ * @param $url the website url
+ * @return string the validation link
+ */
+function _signatures_queue_validation_link($url, $data) {
+  $key = $data['secret_validation_key'];
+  $md5 = $data['md5_encryption_key'];
+  $petition_id = $data['petition_id'];
+  $validation_expiration = $data['timestamp_validation_close'];
+  return $url . "/thank-you?k={$key}&m={$md5}&p={$petition_id}&d={$validation_expiration}";
+}

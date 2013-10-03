@@ -192,6 +192,7 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
   // of making so many API calls. TODO, Revisit implementation: If drupal_mail() allows us to send in batches
   // that's probaby more efficient here.
   foreach ($signatures as $signature) {
+    $signature->data['validation_link'] = _signatures_queue_validation_link(variable_get('petitions_data_petitions_website_url', $base_url), $signature->data);
     // Send validation email.
     $to = $signature->data['email'];
     global $language;

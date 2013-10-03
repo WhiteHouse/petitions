@@ -200,7 +200,7 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
       $replacements['[signature:signature-source-url]'] = api_key_manager_get_url($signature_source_api_key);
     }
     // Tokens for additional values.
-    $replacements['[signature:validation-url]'] = $website_url . "/thank-you?k={$key}&m={$md5}&p={$petition_id}&d={$validation_expiration}";
+    $replacements['[signature:validation-url]'] = _signatures_queue_validation_link($website_url, $data['signature info']);
     // Load the petition via the API retrieve method.
     $petition = PetitionsRetrieveRawFactory::create()->setBaseURL($website_url)->load($petition_id);
     if (!empty($petition['results'])) {
