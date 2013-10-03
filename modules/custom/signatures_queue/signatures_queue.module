@@ -138,6 +138,7 @@ function signatures_queue_mail($key, &$message, $params) {
       module_load_include('inc', 'signatures_queue');
       $message['subject'] = _signatures_queue_validation_mail_text($key . '_subject', $language, $params);
       $message['body'][] = _signatures_queue_validation_mail_text($key . '_body', $language, $params);
+      $message['metadata'] = array('validation_link' => $params['signature info']['validation_link']);
       break;
 
     case 'notify_admin':
