@@ -435,7 +435,7 @@ class SignaturesBase {
     if ($this->getCity()) {
       $query = $this->getQuery();
       $query += array(
-        'user.city' => new MongoRegex("/" . $this->getCity() . "/i"),
+        'user.city' => new MongoRegex("/^" . trim($this->getCity()) . "$/i"),
       );
       $this->setQuery($query);
     }
