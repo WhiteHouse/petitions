@@ -269,7 +269,6 @@ function _signatures_queue_check_empty($name = NULL) {
  * @return string the validation link
  */
 function _signatures_queue_validation_link($url, $data, $absolute = TRUE) {
-function _signatures_queue_validation_link($url, $data) {
   $key = $data['secret_validation_key'];
   $md5 = $data['md5_encryption_key'];
   $petition_id = $data['petition_id'];
