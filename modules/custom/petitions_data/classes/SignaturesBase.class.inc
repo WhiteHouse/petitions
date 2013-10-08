@@ -154,9 +154,9 @@ class SignaturesBase {
   /**
    * Set accessor for $this->maxReturnLimit.
    */
-  public function setMaxReturnLimit($maxReturnLimit) {
-    if (is_numeric($maxReturnLimit)) {
-      $this->maxReturnLimit = $maxReturnLimit;
+  public function setMaxReturnLimit($max_return_limit) {
+    if (is_numeric($max_return_limit)) {
+      $this->maxReturnLimit = $max_return_limit;
     }
     return $this;
   }
