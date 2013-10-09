@@ -70,6 +70,7 @@ function shunt_api_services_resources_alter(&$resources, $endpoint) {
                   'type' => 'string',
                   'description' => 'The resource callback function.',
                   'default value' => $resources[$resource_key][$operation_key][$method_key]['callback'],
+                  'hidden' => TRUE,
                 );
                 // Overwrite the existing callack.
                 $resources[$resource_key][$operation_key][$method_key]['callback'] = 'shunt_api_callback';
