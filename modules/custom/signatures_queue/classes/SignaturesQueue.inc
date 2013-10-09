@@ -25,6 +25,13 @@ class SignaturesQueue extends DrupalQueue {
       return;
     }
 
+    // Prefix queue names so that a single queue system (e.g., AWS) can support
+    // multiple environments without comingling queues.
+    $prefix = (string) variable_get('signatures_queue_queue_prefix', FALSE);
+    if ($prefix) {
+      $name = "{$prefix}_{$name}";
+    }
+
     // @todo PT-960 - Insert logic before returning to check how many workers
     // are running and create additional queues as-needed.
     return DrupalQueue::get($name, $reliable);

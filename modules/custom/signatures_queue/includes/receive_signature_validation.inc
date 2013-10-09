@@ -33,7 +33,7 @@
  *
  * @return string
  *   Returns "thank-you/{$petition_id}" if hashes match or "error" if they
- *   don't. @todo Since signatures_queue_invoke_workflow() expects a boolean
+ *   don't. @todo Since signatures_queue_invoke_workflow() expects an integer
  *   return, this is actually a violation of its interface and suggests that
  *   something somewhere needs to be refactored.
  *

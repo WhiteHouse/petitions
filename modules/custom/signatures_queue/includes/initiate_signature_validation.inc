@@ -34,8 +34,10 @@
 function _signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
 
+  $debug = variable_get('signatures_queue_debug', FALSE);
+
   // Retrieve and delete signatures from the signatures_submitted_queue.
-  $signatures = _signatures_queue_retrieve_submitted_signatures($watchdog_suffix);
+  $signatures = _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, 0, $debug);
 
   // Return if there's nothing to do.
   if (empty($signatures)) {

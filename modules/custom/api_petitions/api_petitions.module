@@ -421,11 +421,11 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
       ->setStartDate($created_after)
       ->setEndDate($created_before)
       ->setCreatedAt($created_at)
+      ->setMaxReturnLimit($signatures_default_limit)
       ->setLimit($limit)
       ->setOffset($offset)
       ->setNameFormat($name_format)
-      ->setLocationFormat($location_format)
-      ->setMaxReturnLimit($signatures_default_limit);
+      ->setLocationFormat($location_format);
 
     $response = $resource->load($petition_id);
 

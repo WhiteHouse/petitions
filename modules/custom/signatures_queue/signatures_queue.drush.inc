@@ -25,6 +25,7 @@ function signatures_queue_drush_command() {
     'examples' => array(
       'drush signatures-queue-invoke-workflow initiate_signature_validation --server-name=M5 --worker-name=w42' => 'Invoke the "initiate_signature_validation" queue.',
     ),
+    'aliases' => array('sqiw'),
     'drupal dependencies' => array(
       'signatures_queue',
     ),
@@ -40,9 +41,7 @@ function signatures_queue_drush_command() {
       'drush signatures-queue-check-empty' => 'Check all queues.',
       'drush signatures-queue-check-empty signatures_submitted_queue' => 'Check signatures_submitted_queue queue.',
     ),
-    'aliases' => array(
-      'sqce',
-    ),
+    'aliases' => array('sqce'),
     'drupal dependencies' => array(
       'signatures_queue',
     ),

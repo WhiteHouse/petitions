@@ -78,9 +78,10 @@ function _signatures_queue_validation_page_callback() {
   $response = signatures_queue_invoke_workflow('receive_signature_validation', $options);
 
   // Typically signatures_queue_invoke_workflow() returns boolean.
-  // If the workflow fails (shunt is tripped), the response will be TRUE.
-  // In this case, drupal_goto() apology page.
-  if ($response == 500) {
+  // If the workflow fails (shunt is tripped), the response will be
+  // SIGNATURES_QUEUE_STATUS_SERVER_ERROR. In this case, drupal_goto() apology
+  // page.
+  if ($response == SIGNATURES_QUEUE_STATUS_SERVER_ERROR) {
     drupal_goto('validation-error', array(), 307);
   }
   elseif ($response == 'error') {
