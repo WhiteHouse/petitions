@@ -26,7 +26,7 @@ function api_signatures_services_resources() {
           array(
             'name' => 'signature',
             'type' => 'array',
-            'description' => "The signature array. The following array keys are required: signature_source_api_key, petition_id, email, first_name, last_name.",
+            'description' => t('The signature array. The following array keys are required: signature_source_api_key, petition_id, email, first_name, last_name. Accepted request content types: application/json, application/xml, text/xml, application/x-www-form-urlencoded, application/vnd.php.serialized'),
             'source' => 'data',
             'optional' => FALSE,
           ),
