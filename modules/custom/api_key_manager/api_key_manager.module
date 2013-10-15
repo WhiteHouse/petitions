@@ -33,6 +33,75 @@ function api_key_manager_menu() {
 }
 
 /**
+ * Gets an API Key.
+ *
+ * The API Key node object is cached indefinitely to prevent return trips to the
+ * database for the same information.
+ *
+ * @todo To prevent stale data, cache entries need to be invalidated when the
+ *  node is updated
+ *
+ * @param string $api_key
+ *   A hexadecimal API Key.
+ *
+ * @return array
+ *   A fully-populated node object, or FALSE if the node is not found.
+ */
+function api_key_manager_get_key($api_key) {
+  $key = &drupal_static(__FUNCTION__ . $api_key);
+  if (!isset($key)) {
+    if ($cache = cache_get("api_key:{$api_key}", 'cache_api_keys')) {
+      $key = $cache->data;
+    }
+    else {
+      $query = new EntityFieldQuery();
+
+      $query->entityCondition('entity_type', 'node')
+        ->entityCondition('bundle', 'key')
+        ->fieldCondition('field_api_key_manager_key', 'value', $api_key, '=')
+        ->fieldCondition('field_api_key_manager_status', 'value', 'approved', '=')
+        ->addMetaData('account', user_load(1)); // Run the query as user 1.
+
+      $result = $query->execute();
+
+      // If the API Key exists, return it.
+      if (isset($result['node'])) {
+        $key = node_load(current(array_keys($result['node'])));
+      }
+      // If no such API Key exists, return an empty array.
+      else {
+        $key = array();
+      }
+
+      // Cache the result.
+      cache_set("api_key:{$api_key}", $key, 'cache_api_keys', CACHE_PERMANENT);
+    }
+  }
+  return $key;
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function api_key_manager_flush_caches() {
+  return array('cache_api_keys');
+}
+
+/**
+ * Clear cache of specified api_key.
+ *
+ * @param string $api_key
+ *   A hexadecimal petition ID.
+ */
+function api_key_manager_clear_cached_petition($api_key) {
+  // Assuming a cache clear is more expensive than a get, we check
+  // if it is cached before clearing.
+  if (cache_get("api_key:{$api_key}", 'cache_api_keys')) {
+    cache_clear_all("api_key:{$api_key}", 'cache_api_keys');
+  }
+}
+
+/**
  * Define a hook that other modules can implement.
  *
  * @param string $key
