@@ -15,7 +15,7 @@
  */
 function _api_signatures_resource_create($api_key, array $signature) {
   // Add the API Key to the signature.
-  $signature['signature_source_api_key'] = $api_key;
+  $signature = array_merge(array("signature_source_api_key" => $api_key), $signature);
 
   // Submit the signature.
   $options = array('signature' => $signature);
