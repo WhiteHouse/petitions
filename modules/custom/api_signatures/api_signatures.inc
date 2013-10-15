@@ -11,7 +11,10 @@
  * @param array $signature
  *   The signature argument received from the service request.
  */
-function _api_signatures_resource_create(array $signature) {
+function _api_signatures_resource_create($api_key, array $signature) {
+  // Add the API Key to the signature.
+  $signature = array_merge(array("signature_source_api_key" => $api_key), $signature);
+
   // Submit the signature.
   $options = array('signature' => $signature);
   $status = signatures_queue_invoke_workflow('receive_new_signatures', $options);

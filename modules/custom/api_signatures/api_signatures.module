@@ -24,9 +24,16 @@ function api_signatures_services_resources() {
         'access callback' => 'services_access_menu',
         'args' => array(
           array(
+            'name' => 'api_key',
+            'optional' => FALSE,
+            'type' => 'string',
+            'description' => "The API Key provided by We the People.",
+            'source' => array('param' => 'api_key'),
+          ),
+          array(
             'name' => 'signature',
             'type' => 'array',
-            'description' => t('The signature array. The following array keys are required: signature_source_api_key, petition_id, email, first_name, last_name. Accepted request content types: application/json, application/xml, text/xml, application/x-www-form-urlencoded, application/vnd.php.serialized'),
+            'description' => "The signature array. The following array keys are required: petition_id, email, first_name, last_name. Accepted request content types: application/json, application/xml, text/xml, application/x-www-form-urlencoded, application/vnd.php.serialized'",
             'source' => 'data',
             'optional' => FALSE,
           ),
