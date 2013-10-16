@@ -79,7 +79,7 @@ projects[recaptcha][version] = 1.10
 ; https://drupal.org/node/1954592
 projects[rules][version] = 2.3
 
-projects[services_documentation][version] = 1.2
+projects[services_documentation][version] = 1.3
 
 projects[shunt][version] = 1.1
 
