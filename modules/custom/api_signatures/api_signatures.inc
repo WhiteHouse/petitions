@@ -8,12 +8,14 @@
 /**
  * Adds a new signature to a petition.
  *
+ * @param string $api_key
+ *   The API key.
  * @param array $signature
  *   The signature argument received from the service request.
  */
 function _api_signatures_resource_create($api_key, array $signature) {
   // Add the API Key to the signature.
-  $signature = array_merge(array("signature_source_api_key" => $api_key), $signature);
+  $signature['signature_source_api_key'] = $api_key;
 
   // Submit the signature.
   $options = array('signature' => $signature);
