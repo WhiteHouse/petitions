@@ -264,9 +264,15 @@ function _signatures_queue_check_empty($name = NULL) {
 /**
  * Generates a validation link.
  *
- * @param $data the signatures data
- * @param $url the website url
- * @return string the validation link
+ * @param string $url
+ *   The website URL, without a trailing slash.
+ * @param array $data
+ *   The signature data.
+ * @param bool $absolute
+ *   (optional) TRUE to return an absolute URL or FALSE to return only the link (with a leading slash). Defaults to TRUE.
+ *
+ * @return string
+ *   The validation link.
  */
 function _signatures_queue_validation_link($url, $data, $absolute = TRUE) {
   $key = $data['secret_validation_key'];
