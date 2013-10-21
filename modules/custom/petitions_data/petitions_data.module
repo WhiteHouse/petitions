@@ -145,6 +145,12 @@ function petitions_data_get_petition($petition_id) {
 }
 
 /**
+ * Implements hook_flush_caches().
+ */
+function petitions_data_manager_flush_caches() {
+  return array('cache_petitions');
+}
+/**
  * Clear cache of specified petition_id.
  *
  * @param string $petition_id

@@ -38,19 +38,16 @@ function api_key_manager_menu() {
  * The API Key node object is cached indefinitely to prevent return trips to the
  * database for the same information.
  *
- * @todo To prevent stale data, cache entries need to be invalidated when the
- *  node is updated
- *
  * @param string $api_key
- *   A hexadecimal API Key.
+ *   An API Key.
  *
  * @return array
- *   A fully-populated node object, or FALSE if the node is not found.
+ *   A fully-populated node object, or an empty array if the node is not found.
  */
 function api_key_manager_get_key($api_key) {
   $key = &drupal_static(__FUNCTION__ . $api_key);
   if (!isset($key)) {
-    if ($cache = cache_get("api_key:{$api_key}", 'cache_api_keys')) {
+    if ($cache = cache_get("api_key:{$api_key}", 'cache_petitions_api_keys')) {
       $key = $cache->data;
     }
     else {
@@ -74,7 +71,7 @@ function api_key_manager_get_key($api_key) {
       }
 
       // Cache the result.
-      cache_set("api_key:{$api_key}", $key, 'cache_api_keys', CACHE_PERMANENT);
+      cache_set("api_key:{$api_key}", $key, 'cache_petitions_api_keys', CACHE_PERMANENT);
     }
   }
   return $key;
@@ -84,21 +81,35 @@ function api_key_manager_get_key($api_key) {
  * Implements hook_flush_caches().
  */
 function api_key_manager_flush_caches() {
-  return array('cache_api_keys');
+  return array('cache_petitions_api_keys');
 }
 
 /**
  * Clear cache of specified api_key.
  *
  * @param string $api_key
- *   A hexadecimal petition ID.
+ *   An API Key.
  */
-function api_key_manager_clear_cached_petition($api_key) {
+function api_key_manager_clear_cached_api_key($api_key) {
   // Assuming a cache clear is more expensive than a get, we check
   // if it is cached before clearing.
-  if (cache_get("api_key:{$api_key}", 'cache_api_keys')) {
-    cache_clear_all("api_key:{$api_key}", 'cache_api_keys');
+  if (cache_get("api_key:{$api_key}", 'cache_petitions_api_keys')) {
+    cache_clear_all("api_key:{$api_key}", 'cache_petitions_api_keys');
   }
+}
+
+/**
+ * Freshen cache of specified api_key.
+ *
+ * @param string $api_key
+ *   An API Key.
+ */
+function api_key_manager_freshen_cached_apoi_key($api_key) {
+  // Clear the API Key from cache.
+  api_key_manager_clear_cached_api_key($api_key);
+
+  // Reload the API Key into cache.
+  api_key_manager_get_key($api_key);
 }
 
 /**
@@ -309,11 +320,9 @@ function api_key_manager_node_presave($node) {
       $node->title = $node->uid . ' - ' . $node->field_api_key_manager_name[$node->language][0]['value'];
     }
 
-    if (!$node->is_new) {
-      // Clear cache of specified api_key.
-      $key = $node->original->field_api_key_manager_key[LANGUAGE_NONE][0]['value'];
-      api_key_manager_clear_cached_petition($key);
-    }
+    // Clear cache of specified api_key.
+    $key = $node->original->field_api_key_manager_key[LANGUAGE_NONE][0]['value'];
+    api_key_manager_clear_cached_api_key($key);
 
     // Send email on key node status change.
     global $language;
@@ -348,7 +357,7 @@ function api_key_manager_node_delete($node) {
   if ($node->type == 'key') {
     // Clear cache of specified api_key.
     $api_key = $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'];
-    api_key_manager_clear_cached_petition($api_key);
+    api_key_manager_clear_cached_api_key($api_key);
   }
 }
 
