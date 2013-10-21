@@ -18,7 +18,7 @@ function api_key_manager_update_7000() {
 function api_key_manager_install() {
   $t = get_t();
 
-  // Define the machine name for the API Key node type
+  // Define the machine name for the API Key node type.
   $name = 'key';
 
   // Define the API Key node type.
@@ -34,10 +34,10 @@ function api_key_manager_install() {
   // Set other node defaults not declared above.
   $content_type = node_type_set_defaults($key);
 
-  // Save the content type
+  // Save the content type.
   node_type_save($content_type);
 
-  // Add peristant variables that control settings
+  // Add peristant variables that control settings.
   variable_set('additional_settings__active_tab_' . $name, 'edit-menu');
   variable_set('node_preview_' . $name, 0);
   variable_set('node_options_' . $name, array(0 => 'status'));
@@ -45,12 +45,12 @@ function api_key_manager_install() {
   variable_set('menu_options_' . $name, array());
   variable_set('menu_parent_' . $name, 'main-menu:0');
 
-  // Create fields for API Key node type
+  // Create fields for API Key node type.
   foreach (_api_key_manager_installed_fields() as $field) {
     field_create_field($field);
   }
 
-  // Create instances for API Key node type
+  // Create instances for API Key node type.
   foreach (_api_key_manager_installed_instances() as $instance) {
     $instance['entity_type'] = 'node';
     $instance['bundle'] = $key['type'];
@@ -63,16 +63,13 @@ function api_key_manager_install() {
 }
 
 /**
- * Returns a structured array defining the fields created by the API Key node
- * type.
+ * Returns an array defining the fields created by the API Key node type.
  *
  * @return array
  *   An associative array specifying the fields we wish to add to the API Key
  *   node type.
  */
 function _api_key_manager_installed_fields() {
-  $t = get_t();
-
   return array(
     'field_api_key_manager_name' => array(
       'translatable' => '0',
@@ -530,7 +527,6 @@ function api_key_manager_uninstall() {
   variable_del('menu_options_' . $name);
   variable_del('menu_parent_' . $name);
 
-
   // Find all fields and delete them.
   foreach (array_keys(_api_key_manager_installed_fields()) as $field) {
     field_delete_field($field);
@@ -542,9 +538,9 @@ function api_key_manager_uninstall() {
     field_delete_instance($instance);
   }
 
-  // Delete the API Key node type
+  // Delete the API Key node type.
   node_type_delete($name);
 
-  // Purge all field infromation
+  // Purge all field infromation.
   field_purge_batch(1000);
 }

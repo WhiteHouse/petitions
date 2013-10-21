@@ -5,7 +5,7 @@
  * This is the main module file for API Key Manager.
  */
 
-define('SHUNT_API_KEY_MANAGER', 'shunt_api_key_manager');
+define('API_KEY_MANAGER_SHUNT', 'shunt_api_key_manager');
 
 /**
  * Implements hook_views_api().
@@ -146,7 +146,7 @@ function api_key_manager_get_url($key) {
  */
 function api_key_manager_shunt() {
   return array(
-    SHUNT_API_KEY_MANAGER => 'Shunt for creating API keys nodes.',
+    API_KEY_MANAGER_SHUNT => 'Shunt for creating API keys nodes.',
   );
 }
 
@@ -154,7 +154,7 @@ function api_key_manager_shunt() {
  * Implements hook_shunt_enable().
  */
 function api_key_manager_shunt_enable($name) {
-  if ($name == SHUNT_API_KEY_MANAGER) {
+  if ($name == API_KEY_MANAGER_SHUNT) {
     // @todo: Message necessary?
   }
 }
@@ -244,7 +244,7 @@ function api_key_manager_permission() {
  * Implements hook_form_alter().
  */
 function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'key_node_form' && shunt_is_enabled(SHUNT_API_KEY_MANAGER)) {
+  if ($form_id == 'key_node_form' && shunt_is_enabled(API_KEY_MANAGER_SHUNT)) {
     global $user;
     if (!in_array('administrator', $user->roles)) {
       drupal_access_denied();
@@ -308,7 +308,7 @@ function api_key_manager_key_node_form_submit($form, &$form_state) {
  */
 function api_key_manager_node_presave($node) {
   // Make shunt available to programmatic methods of saving keys.
-  if ($node->type == 'key' && shunt_is_enabled(SHUNT_API_KEY_MANAGER)) {
+  if ($node->type == 'key' && shunt_is_enabled(API_KEY_MANAGER_SHUNT)) {
     global $user;
     if (!in_array('administrator', $user->roles)) {
       drupal_access_denied();
@@ -441,7 +441,12 @@ function _api_key_manager_user_page($user) {
 
   $table = array(
     '#theme' => 'table',
-    '#header' => array(t('Application Name'), t('Application URL'), t('API Key'), t('Status')),
+    '#header' => array(
+      t('Application Name'),
+      t('Application URL'),
+      t('API Key'),
+      t('Status'),
+    ),
     '#rows' => $display_rows,
   );
 
@@ -452,6 +457,8 @@ function _api_key_manager_user_page($user) {
  * Provides is_not_cached rule by akm_is_not_cached_api_key_pages().
  *
  * @return array
+ *   A multidimensional array.
+ *
  * @see is_not_cached.api.php
  */
 function api_key_manager_is_not_cached_rules() {
