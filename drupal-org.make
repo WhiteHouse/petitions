@@ -155,9 +155,7 @@ projects[zen][version] = 5.4
 
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
-projects[fortyfour][download][type] = git
-projects[fortyfour][download][branch] = 7.x-1.x
-projects[fortyfour][download][tag] = 7.x-1.0-alpha7
+projects[fortyfour][version] = 1.0-alpha7
 
 ; External libraries
 ; -----------------
