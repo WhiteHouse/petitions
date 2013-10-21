@@ -323,8 +323,20 @@ function api_key_manager_node_presave($node) {
     }
 
     // Clear cache of specified api_key.
-    $key = $node->original->field_api_key_manager_key[LANGUAGE_NONE][0]['value'];
-    api_key_manager_clear_cached_api_key($key);
+    $keys = array(
+      'old_key' => $node->original->field_api_key_manager_key[LANGUAGE_NONE][0]['value'],
+      'new_key' => $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'],
+    );
+    // If the API Key has changed, clear the cache for both values.
+    if ($keys['new_key'] != $keys['old_key']) {
+      foreach ($keys as $key) {
+        api_key_manager_clear_cached_api_key($key);
+      }
+    }
+    // If the API Key has not changed, clear the cache for the original value.
+    else {
+      api_key_manager_clear_cached_api_key($keys['old_key']);
+    }
 
     // Send email on key node status change.
     global $language;
