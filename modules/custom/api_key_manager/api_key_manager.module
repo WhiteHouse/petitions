@@ -4,6 +4,7 @@
  * @file
  * This is the main module file for API Key Manager.
  */
+
 define('SHUNT_API_KEY_MANAGER', 'shunt_api_key_manager');
 
 /**
@@ -57,7 +58,8 @@ function api_key_manager_get_key($api_key) {
         ->entityCondition('bundle', 'key')
         ->fieldCondition('field_api_key_manager_key', 'value', $api_key, '=')
         ->fieldCondition('field_api_key_manager_status', 'value', 'approved', '=')
-        ->addMetaData('account', user_load(1)); // Run the query as user 1.
+        // Run the query as user 1.
+        ->addMetaData('account', user_load(1));
 
       $result = $query->execute();
 
@@ -104,7 +106,7 @@ function api_key_manager_clear_cached_api_key($api_key) {
  * @param string $api_key
  *   An API Key.
  */
-function api_key_manager_freshen_cached_apoi_key($api_key) {
+function api_key_manager_freshen_cached_api_key($api_key) {
   // Clear the API Key from cache.
   api_key_manager_clear_cached_api_key($api_key);
 
@@ -368,19 +370,22 @@ function api_key_manager_mail($key, &$message, $params) {
   $language = $message['language'];
   switch ($key) {
     case 'blocked':
-    $message['subject'] = t('Your Application has been blocked');
-    $message['body'][] = t('Your Application has been blocked.');
-    break;
+      $message['subject'] = t('Your Application has been blocked');
+      $message['body'][] = t('Your Application has been blocked.');
+      break;
+
     case 'rejected':
-    $message['subject'] = t('Your Application has been rejected');
-    $message['body'][] = t('Your Application has been rejected.');
-    break;
+      $message['subject'] = t('Your Application has been rejected');
+      $message['body'][] = t('Your Application has been rejected.');
+      break;
+
     case 'approved':
-    $message['subject'] = t('Your Application has been approved');
-    $message['body'][] = t('Your Application has been approved. This is your new key @key', array('@key' => check_plain($params['api_key'])));
-    break;
+      $message['subject'] = t('Your Application has been approved');
+      $message['body'][] = t('Your Application has been approved. This is your new key @key', array('@key' => check_plain($params['api_key'])));
+      break;
+
     default:
-    break;
+      break;
   }
 }
 
@@ -440,7 +445,7 @@ function _api_key_manager_user_page($user) {
  */
 function api_key_manager_is_not_cached_rules() {
   return array(
-    'akm_is_not_cached_api_key_pages' => t("API Key pages")
+    'akm_is_not_cached_api_key_pages' => t("API Key pages"),
   );
 }
 
