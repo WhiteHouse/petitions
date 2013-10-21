@@ -27,7 +27,7 @@ function api_signatures_services_resources() {
             'name' => 'api_key',
             'optional' => FALSE,
             'type' => 'string',
-            'description' => t('The API Key provided by We the People.'),
+            'description' => t('The API Key.'),
             'source' => array('param' => 'api_key'),
           ),
           array(

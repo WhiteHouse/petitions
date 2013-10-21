@@ -42,8 +42,8 @@ function api_key_manager_menu() {
  * @param string $api_key
  *   An API Key.
  *
- * @return array
- *   A fully-populated node object, or an empty array if the node is not found.
+ * @return object
+ *   A fully-populated node object, or an empty object if the node is not found.
  */
 function api_key_manager_get_key($api_key) {
   $key = &drupal_static(__FUNCTION__ . $api_key);
@@ -52,24 +52,23 @@ function api_key_manager_get_key($api_key) {
       $key = $cache->data;
     }
     else {
+      // Search for a node with the given key value.
       $query = new EntityFieldQuery();
-
       $query->entityCondition('entity_type', 'node')
         ->entityCondition('bundle', 'key')
         ->fieldCondition('field_api_key_manager_key', 'value', $api_key, '=')
         ->fieldCondition('field_api_key_manager_status', 'value', 'approved', '=')
         // Run the query as user 1.
         ->addMetaData('account', user_load(1));
-
       $result = $query->execute();
 
-      // If the API Key exists, return it.
+      // If the node exists, return it.
       if (isset($result['node'])) {
         $key = node_load(current(array_keys($result['node'])));
       }
-      // If no such API Key exists, return an empty array.
+      // If no such node exists, return an empty array.
       else {
-        $key = array();
+        $key = new stdClass();
       }
 
       // Cache the result.
@@ -322,7 +321,7 @@ function api_key_manager_node_presave($node) {
       $node->title = $node->uid . ' - ' . $node->field_api_key_manager_name[$node->language][0]['value'];
     }
 
-    // Clear cache of specified api_key.
+    // Freshen cache of specified api_key.
     $keys = array(
       'old_key' => $node->original->field_api_key_manager_key[LANGUAGE_NONE][0]['value'],
       'new_key' => $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'],
@@ -330,12 +329,12 @@ function api_key_manager_node_presave($node) {
     // If the API Key has changed, clear the cache for both values.
     if ($keys['new_key'] != $keys['old_key']) {
       foreach ($keys as $key) {
-        api_key_manager_clear_cached_api_key($key);
+        api_key_manager_freshen_cached_api_key($key);
       }
     }
     // If the API Key has not changed, clear the cache for the original value.
     else {
-      api_key_manager_clear_cached_api_key($keys['old_key']);
+      api_key_manager_freshen_cached_api_key($keys['old_key']);
     }
 
     // Send email on key node status change.
@@ -369,9 +368,9 @@ function api_key_manager_node_insert($node) {
  */
 function api_key_manager_node_delete($node) {
   if ($node->type == 'key') {
-    // Clear cache of specified api_key.
+    // Freshen cache of specified api_key.
     $api_key = $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'];
-    api_key_manager_clear_cached_api_key($api_key);
+    api_key_manager_freshen_cached_api_key($api_key);
   }
 }
 
