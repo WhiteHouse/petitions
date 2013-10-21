@@ -119,7 +119,7 @@ function petitions_data_form($form, &$form_state) {
 function petitions_data_get_petition($petition_id) {
   $petition = &drupal_static(__FUNCTION__ . $petition_id);
   if (!isset($petition)) {
-    if ($cache = cache_get("petition:{$petition_id}", 'cache_petitions')) {
+    if ($cache = cache_get("petition:{$petition_id}", 'cache_petitions_petitions')) {
       $petition = $cache->data;
     }
     else {
@@ -138,7 +138,7 @@ function petitions_data_get_petition($petition_id) {
       }
 
       // Cache the result.
-      cache_set("petition:{$petition_id}", $petition, 'cache_petitions', CACHE_PERMANENT);
+      cache_set("petition:{$petition_id}", $petition, 'cache_petitions_petitions', CACHE_PERMANENT);
     }
   }
   return $petition;
@@ -148,7 +148,7 @@ function petitions_data_get_petition($petition_id) {
  * Implements hook_flush_caches().
  */
 function petitions_data_manager_flush_caches() {
-  return array('cache_petitions');
+  return array('cache_petitions_petitions');
 }
 /**
  * Clear cache of specified petition_id.
@@ -159,8 +159,8 @@ function petitions_data_manager_flush_caches() {
 function petitions_data_clear_cached_petition($petition_id) {
   // Assuming a cache clear is more expensive than a get, we check
   // if it is cached before clearing.
-  if (cache_get("petition:{$petition_id}", 'cache_petitions')) {
-    cache_clear_all("petition:{$petition_id}", 'cache_petitions');
+  if (cache_get("petition:{$petition_id}", 'cache_petitions_petitions')) {
+    cache_clear_all("petition:{$petition_id}", 'cache_petitions_petitions');
   }
 }
 

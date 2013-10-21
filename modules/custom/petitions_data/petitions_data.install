@@ -18,6 +18,6 @@ function petitions_data_uninstall() {
  */
 function petitions_data_schema() {
   $schema = array();
-  $schema['cache_petitions'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_petitions_petitions'] = drupal_get_schema_unprocessed('system', 'cache');
   return $schema;
 }
