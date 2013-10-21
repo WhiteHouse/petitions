@@ -1,6 +1,17 @@
 UPDATE
 ======
 
+Verson 7.x-2.0-rc4 -> 7.x-2.0-rc6
+----------------------------------------------
+
+Release notes:
+  - Fixed numerous bugs.
+  - Added API functionality.
+  - Updated services_documentation module.
+
+Update steps:
+  1. Clear caches
+
 Verson 7.x-2.0-rc1 -> 7.x-2.0-rc4
 ----------------------------------------------
 
