@@ -273,6 +273,9 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
         $form['field_api_key_manager_status']['#disabled'] = TRUE;
       }
 
+      // Add URL validation to Application URL field.
+      $form['field_api_key_manager_url']['#element_validate'][] = '_api_key_manager_key_url_validate';
+
       // Add submit handler for DSM message.
       $form['#submit'][] = 'api_key_manager_key_node_form_submit';
       break;
@@ -289,6 +292,15 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
       $form['permission']['delete own key content']['#description'] = $description;
       $form['permission']['delete any key content']['#description'] = $description;
       break;
+  }
+}
+
+/**
+ * Element validate callback for Application URL field.
+ */
+function _api_key_manager_key_url_validate($element, &$form_state) {
+  if (!valid_url($element[LANGUAGE_NONE][0]['value']['#value'], TRUE)) {
+    form_error($element, t('A valid URL is required.'));
   }
 }
 
