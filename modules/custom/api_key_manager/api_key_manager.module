@@ -305,8 +305,8 @@ function _api_key_manager_key_url_validate($element, &$form_state) {
     return;
   }
   $result = drupal_http_request($url);
-  if ($result->code != 200) {
-    form_error($element, t('The URL does not return a 200 status code.'));
+  if ($result->code < 200 || $result->code >= 400) {
+    form_error($element, t('The URL does not return a valid status code.'));
   }
 }
 
