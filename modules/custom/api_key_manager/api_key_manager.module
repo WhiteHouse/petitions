@@ -299,8 +299,14 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
  * Element validate callback for Application URL field.
  */
 function _api_key_manager_key_url_validate($element, &$form_state) {
-  if (!valid_url($element[LANGUAGE_NONE][0]['value']['#value'], TRUE)) {
+  $url = $element[LANGUAGE_NONE][0]['value']['#value'];
+  if (!valid_url($url, TRUE)) {
     form_error($element, t('A valid URL is required.'));
+    return;
+  }
+  $result = drupal_http_request($url);
+  if ($result->code != 200) {
+    form_error($element, t('The URL does not return a 200 status code.'));
   }
 }
 
