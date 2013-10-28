@@ -262,6 +262,7 @@ body.petition #page-inner {
 /* line 204, ../sass/style.scss */
 #wh-footer {
   background-image: url(../img/wh_home_footer.jpg);
+  background-color: #FFF;
   background-position: 0px 0px;
   position: relative;
 }
