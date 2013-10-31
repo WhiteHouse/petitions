@@ -17,11 +17,11 @@ function api_validations_services_resources() {
         'callback' => '_api_validations_resource_index',
         'args' => array(
           array(
-            'name' => 'key',
+            'name' => 'api_key',
             'optional' => FALSE,
             'type' => 'string',
-            'description' => t('The source API key.'),
-            'source' => array('param' => 'key'),
+            'description' => t('The API key.'),
+            'source' => array('param' => 'api_key'),
           ),
           array(
             'name' => 'petition_id',
@@ -53,7 +53,7 @@ function api_validations_services_resources() {
 /**
  * Callback for Services validations index method.
  */
-function _api_validations_resource_index($key, $petition_id, $mock) {
+function _api_validations_resource_index($api_key, $petition_id, $mock) {
   global $base_url;
 
   // Return mock response.
@@ -63,19 +63,17 @@ function _api_validations_resource_index($key, $petition_id, $mock) {
   }
 
   // Check for the required key.
-  // @todo: include a check for valid API key after PT-1044 is implemented,
-  // and there is a content type to validate against.
-  if (empty($key)) {
+  if (empty($api_key) || !api_key_manager_valid_key($api_key)) {
     $status_code = 401;
     $developer_message = t("Invalid key.");
     $user_message = t("The key provided is not valid.");
-    api_errors_throw_error($status_code, $developer_message, $user_message);
+    return api_errors_throw_error($status_code, $developer_message, $user_message);
   }
 
   $query = db_select('signature_validations', 'v')
     ->fields('v', array('vid', 'email', 'signature_id', 'petition_id'))
     // Only get records for the provided key.
-    ->condition('signature_source_api_key', $key);
+    ->condition('signature_source_api_key', $api_key);
 
   // Filter by optional parameters.
   !empty($petition_id) AND $query = $query->condition('petition_id', $petition_id);
@@ -98,7 +96,13 @@ function _api_validations_resource_index($key, $petition_id, $mock) {
 
   $response = array(
     'metadata' => array(
-      'count' => count($results),
+      'responseInfo' => array(
+        'status' => 200,
+        'developerMessage' => t('OK'),
+      ),
+      'resultset' => array(
+        'count' => count($results),
+      ),
       // The query can be useful during development.
       // 'query' => $query->execute()->getQueryString(),
     ),

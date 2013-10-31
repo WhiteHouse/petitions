@@ -116,7 +116,7 @@ function _signatures_queue_preprocess_signatures_batch($queue_name, $table_name,
 
   $max = signatures_queue_get_queue_batch_size('preprocess_signatures');
 
-  for ($i = 0; ($i < $max && $i < $queue->numberOfItems()); $i++) {
+  for ($i = 0; ($i < $max && $queue->numberOfItems() > 0); $i++) {
 
     // It's possible for Amazon SQS to return empty objects, skip them.
     if (!$item = $queue->claimItem()) {
@@ -149,7 +149,19 @@ function _signatures_queue_preprocess_signatures_batch($queue_name, $table_name,
       else {
         // Preprocess data to be inserted.
         signatures_queue_set_db();
-        $record = (array) $item->data;
+
+        // Load the database schema for the appropriate table.
+        module_load_install('signatures_queue');
+        if ($queue_name == 'validations_queue') {
+          $schema = _signatures_queue_get_validations_schema();
+        }
+        // signatures_pending_validation_queue
+        else {
+          $schema = _signatures_queue_get_signatures_schema();
+        }
+        $fields = array_keys($schema['fields']);
+        $record = array_intersect_key((array) $item->data, array_flip($fields));
+
         $id = db_insert($table_name)
           ->fields($record)
           ->execute();

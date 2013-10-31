@@ -375,20 +375,8 @@ function signatures_queue_get_queue_batch_size($workflow) {
   if (!in_array($workflow, signatures_queue_get_workflow_names())) {
     return FALSE;
   }
-
   // Get the size from the configured variable.
   $batch_size = variable_get("signatures_queue_${workflow}_batch_size", SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT);
-
-  // If there are other load handling adjustments, they can be added here.
-  $load = sys_getloadavg();
-  // 8 is chosen for a 6 to 8 core CPU server. Load is typically < 1.
-  if ($load[0] > 8) {
-    // Scale down the batch with higher load.
-    // Example: if $batch_size is 200 and load is 10, $batch_size will be 20.
-    $batch_size = $batch_size / $load[0];
-    // Log the $batch_size scaling? watchdog(...);
-  }
-
   return (int) $batch_size;
 }
 

@@ -14,6 +14,14 @@
  *   The signature argument received from the service request.
  */
 function _api_signatures_resource_create($api_key, array $signature) {
+  // Check for the required key.
+  if (empty($api_key) || !api_key_manager_valid_key($api_key)) {
+    $status_code = 401;
+    $developer_message = t("Invalid key.");
+    $user_message = t("The key provided is not valid.");
+    return api_errors_throw_error($status_code, $developer_message, $user_message);
+  }
+
   // Add the API Key to the signature.
   $signature['signature_source_api_key'] = $api_key;
 
@@ -27,7 +35,13 @@ function _api_signatures_resource_create($api_key, array $signature) {
   // Deliver response.
   switch ($status) {
     case SIGNATURES_QUEUE_STATUS_OK:
-      return array('status' => 200);
+      return array(
+        'metadata' => array(
+          'responseInfo' => array(
+            'status' => 200,
+          ),
+        ),
+      );
 
     case SIGNATURES_QUEUE_STATUS_BAD_REQUEST:
       $developer_message = $user_message = t('Missing required fields. These fields are required: signature_source_api_key, petition_id, email, first_name, last_name.');

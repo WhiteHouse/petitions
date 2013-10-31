@@ -81,7 +81,7 @@ projects[rules][version] = 2.3
 
 projects[services_documentation][version] = 1.3
 
-projects[shunt][version] = 1.1
+projects[shunt][version] = 1.3
 
 projects[textcaptcha][version] = 1.3
 
