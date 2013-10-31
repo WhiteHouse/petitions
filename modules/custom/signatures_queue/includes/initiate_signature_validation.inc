@@ -183,6 +183,7 @@ function _signatures_queue_add_md5_evaluation_keys(array $signatures) {
  *     array('sent' => $signatures_sent, 'not sent' => $signatures_not_sent)
  */
 function _signatures_queue_send_validation_emails(array $signatures, $watchdog_suffix) {
+  global $base_url;
   $signatures_mailed = array('sent' => array(), 'not sent' => array());
   $errors = array();
 

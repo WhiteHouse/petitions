@@ -1,6 +1,21 @@
 UPDATE
 ======
 
+Verson 7.x-2.0-rc6 -> 7.x-2.0-rc7
+----------------------------------------------
+
+Release notes:
+  - Updated the Shunt module.
+  - Fixed several issues with the API Key Manager module.
+  - Fixed various bugs in the signatures_queue module.
+  - Fixed response formatting in the signatures resource.
+
+Update steps:
+  1. Deploy code changes.
+  2. Run update.php.
+  3. Clear caches.
+  4. Update permissions related to the API Key Manager module.
+
 Verson 7.x-2.0-rc4 -> 7.x-2.0-rc6
 ----------------------------------------------
 
