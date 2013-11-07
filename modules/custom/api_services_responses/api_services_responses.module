@@ -1,0 +1,161 @@
+<?php
+
+/**
+ * @file
+ * Provides custom response formatting for services module..
+ */
+
+/**
+ * Implements hook_services_request_preprocess_alter().
+ */
+function api_services_responses_services_request_preprocess_alter(&$controller, &$args, $options) {
+  // It's a little cheap to hijack the $controller, but harmless. Whereas adding
+  // something to $args will severely mess up other logic.
+  $controller['requestTime'] = microtime(TRUE);
+}
+
+/**
+ * Implements hook_services_request_postprocess_alter().
+ */
+function api_services_responses_services_request_postprocess_alter($controller, $args, &$result) {
+  // Set execution time.
+  if (isset($controller['requestTime']) && empty($result['metadata']['responseInfo']['errorCode'])) {
+    $result['metadata']['executionTime'] = (float) microtime(TRUE) - $controller['requestTime'];
+  }
+}
+
+/**
+ * Formats a REST response for a services resource.
+ *
+ * @param array $params
+ *   (optional) An associative array of response values:
+ *   - result: (optional) an array of results to return. Defaults to NULL.
+ *   - limit: (optional) The maximum number of results to return.
+ *     Defaults to NULL.
+ *    - count: (optional) The total number of available results to be queried.
+ *     This is not necessarily the same as the number of results returned in
+ *     the current request. Defaults to NULL.
+ *   - offset: (optional) The resultset offset. Defaults to 0.
+ *   - status_code: (optional) The REST status code, which should correspond to
+ *     the HTTP status code. Defaults to 200.
+ *   - developer_message: (optional) A verbose, plain language description of
+ *     the problem. Provide developers suggestions about how to solve their
+ *     problems here. Defaults to 'OK'.
+ *   - user_message: (optional) A message that can be passed along to end-users
+ *     if needed. Defaults to NULL.
+ *   - more_info: (optional) A URL to visit for more information about the
+ *     error. Defaults to NULL.
+ *   - error_code: (optional) An internally determined error number.
+ *     Defaults to NULL.
+ *
+ * @return array
+ *   A formatted array comprising the REST resposne compliant with
+ *   White House API Standards.
+ *
+ * @throws InvalidArgumentException()
+ */
+function api_services_responses_format($params = array()) {
+
+  // Define a map of acceptable parameters for $params.
+  $parameter_map = array(
+    'results' => array(
+      '#type' => 'array',
+      '#required' => FALSE,
+      '#default_value' => NULL,
+    ),
+    'count' => array(
+      '#type' => 'int',
+      '#required' => FALSE,
+      '#default_value' => NULL,
+    ),
+    'limit' => array(
+      '#type' => 'int',
+      '#required' => FALSE,
+      '#default_value' => NULL,
+    ),
+    'offset' => array(
+      '#type' => 'int',
+      '#required' => FALSE,
+      '#default_value' => 0,
+    ),
+    'status_code' => array(
+      '#type' => 'int',
+      '#required' => FALSE,
+      '#default_value' => 200,
+    ),
+    'developer_message' => array(
+      '#type' => 'string',
+      '#required' => FALSE,
+      '#default_value' => t('OK'),
+    ),
+    'user_message' => array(
+      '#type' => 'string',
+      '#required' => FALSE,
+      '#default_value' => '',
+    ),
+    'more_info' => array(
+      '#type' => 'string',
+      '#required' => FALSE,
+      '#default_value' => '',
+    ),
+    'error_code' => array(
+      '#type' => 'string',
+      '#required' => FALSE,
+      '#default_value' => '',
+    ),
+  );
+
+  // Check parameters that were passed.
+  foreach ($parameter_map as $param_key => $param_def) {
+    // Verify that required arguments are not missing.
+    if (!empty($param_def['#required']) && empty($params[$param_key])) {
+      $error_message = 'Missing ' . $param_key . ' key.';
+      throw InvalidArgumentException($error_message);
+    }
+    // Verify that each set argument is the correct data type.
+    if (isset($params[$param_key]) && !call_user_func('is_' . $param_def['#type'], $params[$param_key])) {
+      // Cast variable to correct type.
+      settype($params[$param_key], $param_def['#type']);
+    }
+    // Set the default value for empty params.
+    if (!isset($params[$param_key]) && isset($param_def['#default_value'])) {
+      $params[$param_key] = $param_def['#default_value'];
+    }
+  }
+
+  $response = array(
+    'metadata' => array(
+      'responseInfo' => array(
+        'status' => $params['status_code'],
+        'developerMessage' => $params['developer_message'],
+      ),
+    ),
+  );
+
+  // Set optional datapoints.
+  if ($params['user_message']) {
+    $response['metadata']['responseInfo']['userMessage'] = $params['user_message'];
+  }
+  if ($params['error_code']) {
+    $response['metadata']['responseInfo']['errorCode'] = $params['error_code'];
+  }
+  if ($params['more_info']) {
+    $response['metadata']['responseInfo']['moreInfo'] = $params['more_info'];
+  }
+
+  // Set resultset info. Relevant only to GET requests, and so optional.
+  if (isset($params['results']) || $params['count'] || $params['limit'] || $params['offset']) {
+    $response['metadata']['resultset']['count'] = $params['count'] ? $params['count'] : count($params['results']);
+    $response['metadata']['resultset']['limit'] = $params['limit'];
+    $response['metadata']['resultset']['offset'] = $params['offset'];
+    $response['results'] = (array) $params['results'];
+  }
+
+  // Throwing 5xx errors will cause varnish to override our response, so we
+  // can't return a 500 error in the HTTP header, only in the response body.
+  if (substr($params['status_code'], 0, 1) != 5) {
+    drupal_add_http_header('Status', $params['status_code']);
+  }
+
+  return $response;
+}

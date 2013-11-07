@@ -128,21 +128,15 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
   try {
     // Calculate result set size before doing real query.
     $size = ($size = variable_get('api_users_count', FALSE)) ? $size : api_users_get_count();
-
-    // The following 3 lines previously calculated the total user count.  They
-    // are no longer being used.
-    // $size_query = $user_select;
-    // $size_result = services_resource_execute_index_query($size_query->countQuery());
-    // $size = $size_result->fetchField();
   }
   // Catch any error causing the query to fail. Throw our own, custom error
   // instead.
   catch (Exception $e) {
-    $status = 500;
+    $status_code = 500;
     $error_code = 598;
     $developer_message = t("Could not perform resource query.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
-    api_errors_throw_error($status, $developer_message, $error_code, $user_message);
+    return api_errors_throw_error($status_code, $developer_message, $error_code, $user_message);
   }
 
   // Enforce maximum limit size.
@@ -162,32 +156,18 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
   // Catch any error causing the query to fail. Throw our own, custom error
   // instead.
   catch (Exception $e) {
-    $status = 500;
+    $status_code = 500;
     $error_code = 598;
     $developer_message = t("Could not perform resource query.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
-    api_errors_throw_error($status, $developer_message, $error_code, $user_message);
+    return api_errors_throw_error($status_code, $developer_message, $error_code, $user_message);
   }
 
   // Performs default user sanitation.
   $users = services_resource_build_index_list($results, 'user', 'uid');
 
-  // Reformat response.
-  $response = array(
-    'metadata' => array(
-      'resultset' => array(
-        'count' => $size,
-        'offset' => $offset,
-        'limit' => $limit,
-      ),
-      'responseInfo' => array(
-        'status' => 200,
-        'developerMessage' => 'OK',
-      ),
-    ),
-  );
   foreach ($users as $user) {
-    $response['results'][] = array(
+    $results[] = array(
       'type' => 'user',
       'id' => $user->id,
       'created' => $user->created,
@@ -199,7 +179,14 @@ function _api_users_resource_index($created_before, $created_after, $created_at,
     );
   }
 
-  return $response;
+  $response_params = array(
+    'results' => $results,
+    'count' => $size,
+    'limit' => $limit,
+    'offset' => $offset,
+  );
+
+  return api_services_responses_format($response_params);
 }
 
 /**

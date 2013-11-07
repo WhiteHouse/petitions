@@ -9,8 +9,8 @@
  * How to throw an API error.
  */
 function something_involved_in_creating_a_response() {
-  // Do something here.
 
+  // Do something here.
   if ($things_go_as_expected) {
     $result = get_data($things_go_as_expected);
   }

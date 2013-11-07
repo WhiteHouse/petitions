@@ -8,8 +8,8 @@ class PetitionsBase {
 
   protected $collection;
   protected $baseURL;
-  protected $executionTime;
   protected $result;
+  protected $count;
   protected $query = array();
 
   /**
@@ -41,20 +41,6 @@ class PetitionsBase {
   }
 
   /**
-   * Set accessor for $this->executionTime.
-   *
-   * @param int $time
-   *   Epoch (UNIX style) time stamp.
-   *
-   * @return PetitionsMongoRaw
-   *   Returns current instance of object.
-   */
-  protected function setExecutionTime($time) {
-    $this->executionTime = $time;
-    return $this;
-  }
-
-  /**
    * Set accessor for $this->result.
    *
    * @param array $result
@@ -65,6 +51,20 @@ class PetitionsBase {
    */
   protected function setResult($result) {
     $this->result = $result;
+    return $this;
+  }
+
+  /**
+   * Set accessor for $this->result.
+   *
+   * @param int $count
+   *   Number of results of query to MongoDB.
+   *
+   * @return PetitionsMongoRaw
+   *   Returns current instance of object.
+   */
+  protected function setCount($count) {
+    $this->count = $count;
     return $this;
   }
 
@@ -103,16 +103,6 @@ class PetitionsBase {
   }
 
   /**
-   * Get accessor for $this->executionTime.
-   *
-   * @return int
-   *   Epoch (UNIX style) time stamp.
-   */
-  protected function getExecutionTime() {
-    return $this->executionTime;
-  }
-
-  /**
    * Get accessor for $this->result.
    *
    * @return array
@@ -123,6 +113,16 @@ class PetitionsBase {
   }
 
   /**
+   * Get accessor for $this->count.
+   *
+   * @return int
+   *   Number of results of query to MongoDB.
+   */
+  public function getcount() {
+    return $this->count;
+  }
+
+  /**
    * Get accessor for $this->query.
    *
    * @return array
@@ -130,16 +130,6 @@ class PetitionsBase {
    */
   protected function getQuery() {
     return $this->query;
-  }
-
-  /**
-   * Helper function to calculate the execution time of the load function.
-   *
-   * @return string
-   *   Unique string identifier for a petition.
-   */
-  protected function calcExecutionTime() {
-    return microtime(TRUE) - $this->getExecutionTime();
   }
 
   /**

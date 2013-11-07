@@ -23,7 +23,7 @@ projects[colorbox][version] = 2.4
 
 projects[conditional_styles][version] = 2.1
 
-projects[context][version] = 3.0-beta7
+projects[context][version] = 3.1
 
 projects[ctools][version] = 1.3
 
@@ -35,7 +35,7 @@ projects[email_confirm][version] = 1.1
 
 projects[entity][version] = 1.2
 
-projects[entitycache][version] = 1.1
+projects[entitycache][version] = 1.2
 
 projects[features][version] = 1.0
 

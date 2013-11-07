@@ -20,7 +20,7 @@ class SignaturesBase {
   protected $locationFormat;
   protected $query = array();
   protected $collection;
-  protected $executionTime;
+  protected $count;
   protected $result;
 
   /**
@@ -234,21 +234,6 @@ class SignaturesBase {
   }
 
   /**
-   * Set accessor for $this->executionTime.
-   *
-   * @param int $time
-   *   Epoch (UNIX style) time stamp.
-   *
-   * @return SignaturesMongoRaw
-   *   Returns current instance of object.
-   */
-  protected function setExecutionTime($time) {
-    $this->executionTime = $time;
-
-    return $this;
-  }
-
-  /**
    * Set accessor for $this->result.
    *
    * @param array $result
@@ -260,6 +245,20 @@ class SignaturesBase {
   protected function setResult($result) {
     $this->result = $result;
 
+    return $this;
+  }
+
+  /**
+   * Set accessor for $this->result.
+   *
+   * @param int $count
+   *   Number of results of query to MongoDB.
+   *
+   * @return SignaturesMongoRaw
+   *   Returns current instance of object.
+   */
+  protected function setCount($count) {
+    $this->count = $count;
     return $this;
   }
 
@@ -409,16 +408,6 @@ class SignaturesBase {
   }
 
   /**
-   * Get accessor for $this->executionTime.
-   *
-   * @return int
-   *   Epoch (UNIX style) time stamp.
-   */
-  protected function getExecutionTime() {
-    return $this->executionTime;
-  }
-
-  /**
    * Get accessor for $this->result.
    *
    * @return array
@@ -426,6 +415,16 @@ class SignaturesBase {
    */
   public function result() {
     return $this->result;
+  }
+
+  /**
+   * Get accessor for $this->count.
+   *
+   * @return int
+   *   Number of results of query to MongoDB.
+   */
+  public function getcount() {
+    return $this->count;
   }
 
   /**
@@ -525,13 +524,6 @@ class SignaturesBase {
       );
       $this->setQuery($query);
     }
-  }
-
-  /**
-   * Helper function to calculate the executionTime of the load function.
-   */
-  protected function calcExecutionTime() {
-    return microtime(TRUE) - $this->getExecutionTime();
   }
 
   /**

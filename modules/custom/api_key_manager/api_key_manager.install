@@ -37,7 +37,7 @@ function api_key_manager_install() {
   // Save the content type.
   node_type_save($content_type);
 
-  // Add peristant variables that control settings.
+  // Add persistent variables that control settings.
   variable_set('additional_settings__active_tab_' . $name, 'edit-menu');
   variable_set('node_preview_' . $name, 0);
   variable_set('node_options_' . $name, array(0 => 'status'));
@@ -502,6 +502,15 @@ function _api_key_manager_installed_instances() {
 }
 
 /**
+ * Implements hook_schema().
+ */
+function api_key_manager_schema() {
+  $schema = array();
+  $schema['cache_petitions_api_keys'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
  * Implements hook_uninstall().
  */
 function api_key_manager_uninstall() {
@@ -519,7 +528,7 @@ function api_key_manager_uninstall() {
   // Delete all of the API Key nodes at noce.
   node_delete_multiple($nids);
 
-  // Remove peristant variables that control settings.
+  // Remove persistent variables that control settings.
   variable_del('additional_settings__active_tab_' . $name);
   variable_del('node_preview_' . $name);
   variable_del('node_options_' . $name);
@@ -541,6 +550,6 @@ function api_key_manager_uninstall() {
   // Delete the API Key node type.
   node_type_delete($name);
 
-  // Purge all field infromation.
+  // Purge all field information.
   field_purge_batch(1000);
 }

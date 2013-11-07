@@ -14,7 +14,7 @@ function api_signatures_services_resources() {
   $resources['signatures'] = array(
     'operations' => array(
       'create' => array(
-        'help' => 'Creates a signature',
+        'help' => t('Creates a signature'),
         'file' => array(
           'type' => 'inc',
           'module' => 'api_signatures',

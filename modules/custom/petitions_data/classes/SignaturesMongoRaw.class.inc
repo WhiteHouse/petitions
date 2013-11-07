@@ -11,8 +11,6 @@ class SignaturesMongoRaw extends SignaturesBase implements ISignaturesRaw {
    */
   public function __construct() {
     $this->setCollection(mongodb_collection('petition_signatures'));
-    $this->setExecutionTime(microtime());
-    $this->setMaxReturnLimit();
   }
 
   /**
@@ -22,16 +20,7 @@ class SignaturesMongoRaw extends SignaturesBase implements ISignaturesRaw {
    *   Results of query to MongoDB.
    */
   public function load($petition_id) {
-    $response = array();
-    $response['metadata'] = array(
-      'executionTime' => '',
-      'resultset' => array(),
-      'responseInfo' => array(
-        'status' => 200,
-        'developerMessage' => t('OK'),
-      ),
-    );
-    $response['results'] = array();
+    $results = array();
 
     if ($this->getCreatedDate()) {
       $this->addCreatedDateToQuery();
@@ -60,24 +49,16 @@ class SignaturesMongoRaw extends SignaturesBase implements ISignaturesRaw {
       'petition_id' => $petition_id,
     );
 
-    $results = $this->getCollection()
+    $mongoResults = $this->getCollection()
       ->find($query, $fields)
       ->limit($this->getLimit())
       ->skip($this->getOffset())
       ->sort(array('timestamp' => -1));
 
-    // Set the result set information.
-    $response['metadata']['resultset'] = array(
-      'count' => $results->count(),
-      'offset' => $this->getOffset(),
-      'limit' => $this->getLimit(),
-    );
-
-    foreach ($results as $doc) {
+    foreach ($mongoResults as $doc) {
 
       $location = $this->formatReturnLocation($doc['user']['zip'], $doc['user']['city'], $doc['user']['state']);
 
-      $signature = array();
       $signature = array(
         'id' => $this->formatReturnId($doc['_id']),
         'type' => 'signature',
@@ -88,12 +69,11 @@ class SignaturesMongoRaw extends SignaturesBase implements ISignaturesRaw {
         'created' => $doc['timestamp'],
       );
 
-      $response['results'][] = $signature;
+      $results[] = $signature;
     }
 
-    $response['metadata']['executionTime'] = $this->calcExecutionTime();
-
-    $this->setResult($response);
-    return $response;
+    $this->setCount($mongoResults->count());
+    $this->setResult($results);
+    return $results;
   }
 }

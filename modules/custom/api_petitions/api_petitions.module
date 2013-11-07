@@ -314,24 +314,31 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
   try {
     $resource = PetitionsRetrieveRawFactory::create();
     $resource->setBaseURL($website_url);
-    $response = $resource->load($petition_id);
+    $results = $resource->load($petition_id);
   }
   // Catch any errors that may cause $reource->load() to fail. E.g., mongodb
   // errors. Throw our own, custom error instead.
   catch (Exception $e) {
-    $error_code = 599;
+    $status_code = 599;
     $developer_message = t("Class could not be instatiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
-    api_errors_throw_error($error_code, $developer_message, $user_message);
+    return api_errors_throw_error($status_code, $developer_message, $user_message);
   }
 
   // Throw error if petition was not found.
-  if (empty($response['results'])) {
-    $error_code = 404;
+  if (empty($results)) {
+    $status_code = 404;
     $developer_message = t("Petition @petition_id not found.", array('@petition_id' => $petition_id));
     $user_message = t("The petition that you requested does not exist.", array('@petition_id' => $petition_id));
-    api_errors_throw_error($error_code, $developer_message, $user_message);
+    return api_errors_throw_error($status_code, $developer_message, $user_message);
   }
+
+
+  $response_params = array(
+    'results' => $results,
+    'limit' => 1,
+  );
+  $response = api_services_responses_format($response_params);
 
   return $response;
 }
@@ -376,16 +383,21 @@ function _api_petitions_resource_index($created_before, $created_after, $created
      ->setStatus($status)
      ->setResponseID($response_id);
 
-    $response = $resource->load();
+    $response_params = array(
+      'results' => $resource->load(),
+      'count' => $resource->getCount(),
+      'limit' => $limit,
+      'offset' => $offset,
+    );
 
-    return $response;
+    return api_services_responses_format($response_params);
   }
   // Throw error if resource cannot be accessed.
   catch (Exception $e) {
-    $error_code = 599;
+    $status_code = 599;
     $developer_message = t("500: Class could not be instatiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
-    api_errors_throw_error($error_code, $developer_message, $user_message);
+    return api_errors_throw_error($status_code, $developer_message, $user_message);
   }
 }
 
@@ -427,16 +439,21 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
       ->setNameFormat($name_format)
       ->setLocationFormat($location_format);
 
-    $response = $resource->load($petition_id);
+    $response_params = array(
+      'results' => $resource->load($petition_id),
+      'count' => $resource->getCount(),
+      'limit' => $limit,
+      'offset' => $offset,
+    );
 
-    return $response;
+    return api_services_responses_format($response_params);
   }
   // Throw error if resource cannot be accessed.
   catch (Exception $e) {
-    $error_code = 599;
+    $status_code = 599;
     $developer_message = t("Class could not be instantiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
-    api_errors_throw_error($error_code, $developer_message, $user_message);
+    return api_errors_throw_error($status_code, $developer_message, $user_message);
   }
 }
 
@@ -479,7 +496,7 @@ function _api_petitions_retrieve_doc_example_implementations() {
     'thermometer' => array(
       '#name' => t('Thermometer'),
       '#description' => t('Display the status of a petition as a thermometer.'),
-      //'#location' => _api_petitions_example_implementation('retrieve', 'javascript', 'thermometer'),
+      // '#location' => _api_petitions_example_implementation('retrieve', 'javascript', 'thermometer'),
       '#download_link' => drupal_get_path('module', 'api_petitions') . '/example_implementations/javascript/thermometer.zip',
       '#uses_sdk' => FALSE,
     ),

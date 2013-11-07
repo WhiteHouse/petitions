@@ -11,7 +11,6 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
    */
   public function __construct() {
     $this->setCollection(mongodb_collection('petitions'));
-    $this->setExecutionTime(microtime());
     $this->setMaxReturnLimit();
   }
 
@@ -22,14 +21,7 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
    *   Results of query to MongoDB.
    */
   public function load() {
-    $response = array();
-    $response['metadata'] = array(
-      'responseInfo' => array(
-        'status' => 200,
-        'developerMessage' => t('OK'),
-      ),
-    );
-    $response['results'] = array();
+    $results = array();
 
     if ($this->getCreatedDate()) {
       $this->addCreatedDateToQuery();
@@ -77,19 +69,17 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
     );
 
     $query = $this->getQuery();
-    $results = $this->getCollection()
+    $mongoResults = $this->getCollection()
       ->find($query, $fields)
       ->limit($this->getLimit())
       ->skip($this->getOffset())
       ->sort(array('created' => -1));
 
-    if (!$results->hasNext()) {
-      $response['noresults'] = 1;
-      $response['metadata']['executionTime'] = $this->calcExecutionTime();
-      return $response;
+    if (!$mongoResults->hasNext()) {
+      return $results;
     }
 
-    foreach ($results as $doc) {
+    foreach ($mongoResults as $doc) {
 
       $petition = array(
         'id' => $this->formatReturnId($doc['_id']),
@@ -103,23 +93,15 @@ class PetitionsIndexMongoRaw extends PetitionsIndexBase implements IPetitionsInd
         'url' => $this->formatReturnUrl($doc['nice_url']),
         'deadline' => $this->calcDeadline($doc['created'], $doc['review_timeframe']),
         'status' => $this->formatReturnPetitionStatus($doc['petition_status']),
-        'response' => $doc['response_id'] ? $this->formatReturnResponse($doc['response_id']) : NULL,
+        'response' => isset($doc['response_id']) ? $this->formatReturnResponse($doc['response_id']) : NULL,
         'created' => $doc['created'],
       );
 
-      $response['results'][] = $petition;
+      $results[] = $petition;
     }
 
-    // Set the result set information.
-    $response['metadata']['resultset'] = array(
-      'count' => $results->count(),
-      'offset' => $this->getOffset(),
-      'limit' => $this->getLimit(),
-    );
-
-    $response['metadata']['executionTime'] = $this->calcExecutionTime();
-
-    $this->setResult($response);
-    return $response;
+    $this->setCount($mongoResults->count());
+    $this->setResult($results);
+    return $results;
   }
 }

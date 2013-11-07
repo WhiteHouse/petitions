@@ -6,6 +6,11 @@
  */
 
 /**
+ * The maximum limit allowed for retrieving validations.
+ */
+define('API_VALIDATIONS_MAX_LIMIT_DEFAULT', 1000);
+
+/**
  * Implements hook_services_resources().
  */
 function api_validations_services_resources() {
@@ -14,6 +19,12 @@ function api_validations_services_resources() {
   $resources['validations'] = array(
     'operations' => array(
       'index' => array(
+        'help' => t('Provides a list of validated signatures'),
+        'file' => array(
+          'type' => 'inc',
+          'module' => 'api_validations',
+          'name' => 'api_validations',
+        ),
         'callback' => '_api_validations_resource_index',
         'args' => array(
           array(
@@ -38,11 +49,26 @@ function api_validations_services_resources() {
             'default value' => 0,
             'source' => array('param' => 'mock'),
           ),
+          array(
+            'name' => 'offset',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => t('Offset the returned results by this number. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed.'),
+            'default value' => 0,
+            'source' => array('param' => 'offset'),
+          ),
+          array(
+            'name' => 'limit',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => t('The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is @validations_default_limit.',
+              array('@validations_default_limit' => variable_get('api_validations_index_max_limit', API_VALIDATIONS_MAX_LIMIT_DEFAULT))),
+            'default value' => 1000,
+            'source' => array('param' => 'limit'),
+          ),
         ),
         'access callback' => 'services_access_menu',
         'documentation callback' => '_api_validations_index_doc',
-        'documentation versions' => array(1000),
-        'file' => 'api_validation.inc',
       ),
     ),
   );
@@ -51,71 +77,23 @@ function api_validations_services_resources() {
 }
 
 /**
- * Callback for Services validations index method.
+ * Implements hook_form_FORM_ID_alter().
  */
-function _api_validations_resource_index($api_key, $petition_id, $mock) {
-  global $base_url;
-
-  // Return mock response.
-  if ($mock) {
-    $response = json_decode(_api_validations_mock_response('index'));
-    return $response;
-  }
-
-  // Check for the required key.
-  if (empty($api_key) || !api_key_manager_valid_key($api_key)) {
-    $status_code = 401;
-    $developer_message = t("Invalid key.");
-    $user_message = t("The key provided is not valid.");
-    return api_errors_throw_error($status_code, $developer_message, $user_message);
-  }
-
-  $query = db_select('signature_validations', 'v')
-    ->fields('v', array('vid', 'email', 'signature_id', 'petition_id'))
-    // Only get records for the provided key.
-    ->condition('signature_source_api_key', $api_key);
-
-  // Filter by optional parameters.
-  !empty($petition_id) AND $query = $query->condition('petition_id', $petition_id);
-
-  // Limit the query to some maximum.
-  $query->range(0, 10000);
-
-  // Get all results in an array.
-  $results = $query->execute()->fetchAllAssoc('vid', PDO::FETCH_ASSOC);
-
-  // Error out if there aren't any results.
-  if (empty($results)) {
-    $status_code = 400;
-    $developer_message = t("Not found.");
-    $user_message = t("There were no results for this request.");
-    $more_info = "http://github.com/whitehouse/petitions/issue/[PLACEHOLDER]";
-    $error_code = "[GitHub issue number]";
-    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
-  }
-
-  $response = array(
-    'metadata' => array(
-      'responseInfo' => array(
-        'status' => 200,
-        'developerMessage' => t('OK'),
-      ),
-      'resultset' => array(
-        'count' => count($results),
-      ),
-      // The query can be useful during development.
-      // 'query' => $query->execute()->getQueryString(),
-    ),
-    'results' => $results,
+function api_validations_form_petitions_data_form_alter(&$form, &$form_state) {
+  $form['petitions_data_limits']['api_validations_index_max_limit'] = array(
+    '#title' => t('Validations maximum result limit'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('api_validations_index_max_limit', API_VALIDATIONS_MAX_LIMIT_DEFAULT),
+    '#element_validate' => array('element_validate_number'),
   );
-
-  return $response;
 }
 
 /**
  * Documentation callback for index method.
  */
 function _api_validations_index_doc() {
+  module_load_include('inc', 'api_validations');
+
   $element = array(
     '#name' => t('Index'),
     '#path' => '/validations',
@@ -127,18 +105,4 @@ function _api_validations_index_doc() {
   );
 
   return $element;
-}
-
-/**
- * Returns a mock response for validations methods.
- */
-function _api_validations_mock_response($method) {
-  switch ($method) {
-    case 'index':
-      $file = 'api_validations_index.response.json';
-      break;
-
-  }
-  $response = file_get_contents(__DIR__ . '/example_validations/' . $file);
-  return $response;
 }

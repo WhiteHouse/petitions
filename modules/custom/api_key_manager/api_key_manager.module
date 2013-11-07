@@ -66,7 +66,7 @@ function api_key_manager_get_key($api_key) {
       if (isset($result['node'])) {
         $key = node_load(current(array_keys($result['node'])));
       }
-      // If no such node exists, return an empty array.
+      // If no such node exists, cache an empty object.
       else {
         $key = new stdClass();
       }
@@ -104,13 +104,20 @@ function api_key_manager_clear_cached_api_key($api_key) {
  *
  * @param string $api_key
  *   An API Key.
+ * @param object $node
+ *   (optional) A node object to insert into the cache. Defaults to NULL.
  */
-function api_key_manager_freshen_cached_api_key($api_key) {
+function api_key_manager_freshen_cached_api_key($api_key, $node = NULL) {
   // Clear the API Key from cache.
   api_key_manager_clear_cached_api_key($api_key);
 
-  // Reload the API Key into cache.
-  api_key_manager_get_key($api_key);
+  // If we have a node object, insert into cache.
+  if ($node) {
+    cache_set("api_key:{$api_key}", $node, 'cache_petitions_api_keys', CACHE_PERMANENT);
+  }
+  else {
+    api_key_manager_get_key($api_key);
+  }
 }
 
 /**
@@ -251,6 +258,9 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
         $form['field_api_key_manager_status']['#disabled'] = TRUE;
       }
 
+      // Add URL validation to Application URL field.
+      $form['field_api_key_manager_url']['#element_validate'][] = '_api_key_manager_key_url_validate';
+
       // Add submit handler for DSM message.
       $form['#submit'][] = 'api_key_manager_key_node_form_submit';
       break;
@@ -325,6 +335,21 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
+ * Element validate callback for Application URL field.
+ */
+function _api_key_manager_key_url_validate($element, &$form_state) {
+  $url = $element[LANGUAGE_NONE][0]['value']['#value'];
+  if (!valid_url($url, TRUE)) {
+    form_error($element, t('A valid URL is required.'));
+    return;
+  }
+  $result = drupal_http_request($url);
+  if ($result->code < 200 || $result->code >= 400) {
+    form_error($element, t('The URL does not return a valid status code.'));
+  }
+}
+
+/**
  * Implements hook_submit().
  *
  * Provides a message upon submit notifying the user that they have successfully
@@ -358,21 +383,18 @@ function api_key_manager_node_presave($node) {
       'old_key' => $node->original->field_api_key_manager_key[LANGUAGE_NONE][0]['value'],
       'new_key' => $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'],
     );
-    // If the API Key has changed, clear the cache for both values.
-    if ($keys['new_key'] != $keys['old_key']) {
-      foreach ($keys as $key) {
-        api_key_manager_freshen_cached_api_key($key);
-      }
-    }
-    // If the API Key has not changed, clear the cache for the original value.
-    else {
-      api_key_manager_freshen_cached_api_key($keys['old_key']);
-    }
+
+    // Clear old key.
+    api_key_manager_clear_cached_api_key($keys['old_key']);
+    // Set nodes straight to cache.
+    api_key_manager_freshen_cached_api_key($keys['new_key'], $node);
 
     // Send email on key node status change.
     global $language;
     $user_mail = user_load($node->uid)->mail;
     $params = array(
+      'name' => $node->field_api_key_manager_name[LANGUAGE_NONE][0]['value'],
+      'url' => $node->field_api_key_manager_url[LANGUAGE_NONE][0]['value'],
       'status' => $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'],
       'api_key' => !empty($node->field_api_key_manager_key[LANGUAGE_NONE][0]['value']) ? $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'] : t('Key has not been set yet'),
     );
@@ -429,7 +451,7 @@ function api_key_manager_mail($key, &$message, $params) {
 
     case 'approved':
       $message['subject'] = variable_get('api_key_manager_approved_email_subject', t('Your Application has been approved'));
-      $body_text = variable_get('api_key_manager_approved_email_body', t('Your Application has been approved. Your new key This is your new key [api-key:key]'));
+      $body_text = variable_get('api_key_manager_approved_email_body', t('Your Application has been approved. This is your new key [api-key:key]'));
       // We do not sanitize the token replacement, since the output of this
       // replacement is intended for an e-mail message, not a web browser.
       $message['body'][] = token_replace($body_text, $params, array(

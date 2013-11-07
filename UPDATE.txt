@@ -1,7 +1,22 @@
 UPDATE
 ======
 
-Verson 7.x-2.0-rc6 -> 7.x-2.0-rc7
+Version 7.x-2.0-rc7 -> 7.x-2.0-rc8
+----------------------------------------------
+
+Release notes:
+  - Updated contrib modules.
+  - Added offset and limit parameters to the validations resource.
+  - Fixed issues with the API Key Manager module.
+  - Fixed tokens provided by the Signatures Queue module.
+  - Updated API responses for consistency.
+
+Update steps:
+  1. Deploy code changes.
+  2. Run update.php.
+  3. Clear caches.
+
+Version 7.x-2.0-rc6 -> 7.x-2.0-rc7
 ----------------------------------------------
 
 Release notes:
@@ -16,7 +31,7 @@ Update steps:
   3. Clear caches.
   4. Update permissions related to the API Key Manager module.
 
-Verson 7.x-2.0-rc4 -> 7.x-2.0-rc6
+Version 7.x-2.0-rc4 -> 7.x-2.0-rc6
 ----------------------------------------------
 
 Release notes:
@@ -27,7 +42,7 @@ Release notes:
 Update steps:
   1. Clear caches
 
-Verson 7.x-2.0-rc1 -> 7.x-2.0-rc4
+Version 7.x-2.0-rc1 -> 7.x-2.0-rc4
 ----------------------------------------------
 
 Release notes:
@@ -37,7 +52,7 @@ Update steps:
   1. Deploy code changes.
   2. Run update.php.
 
-Verson 7.x-2.0-beta24 -> 7.x-2.0-rc1
+Version 7.x-2.0-beta24 -> 7.x-2.0-rc1
 ----------------------------------------------
 
 *** Please see notes in INSTALL.md about new signatures_processing database. ***

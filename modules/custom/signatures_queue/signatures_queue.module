@@ -198,8 +198,10 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
     $signature_source_api_key = $data['signature info']['signature_source_api_key'];
     $replacements['[signature:signature-source-api-key]'] = $signature_source_api_key;
     if (module_exists('api_key_manager')) {
-      $replacements['[signature:signature-source-name]'] = api_key_manager_get_name($signature_source_api_key);
-      $replacements['[signature:signature-source-url]'] = api_key_manager_get_url($signature_source_api_key);
+      // Creating $key_node because it will be used several times.
+      $key_node = api_key_manager_get_key($signature_source_api_key);
+      $replacements['[signature:signature-source-name]'] = $key_node->field_api_key_manager_name['und'][0]['value'];
+      $replacements['[signature:signature-source-url]'] = $key_node->field_api_key_manager_url['und'][0]['value'];
     }
     // Tokens for additional values.
     $replacements['[signature:validation-url]'] = _signatures_queue_validation_link($website_url, $data['signature info']);

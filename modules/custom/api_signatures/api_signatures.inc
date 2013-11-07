@@ -14,6 +14,7 @@
  *   The signature argument received from the service request.
  */
 function _api_signatures_resource_create($api_key, array $signature) {
+
   // Check for the required key.
   if (empty($api_key) || !api_key_manager_valid_key($api_key)) {
     $status_code = 401;
@@ -27,27 +28,19 @@ function _api_signatures_resource_create($api_key, array $signature) {
 
   // Submit the signature.
   $options = array('signature' => $signature);
-  $status = signatures_queue_invoke_workflow('receive_new_signatures', $options);
-
-  // Round the status down to the nearest hundred (e.g. 200, 400, 500).
-  $rounded_status = floor($status / 100) * 100;
+  $status_code = signatures_queue_invoke_workflow('receive_new_signatures', $options);
 
   // Deliver response.
-  switch ($status) {
+  switch ($status_code) {
     case SIGNATURES_QUEUE_STATUS_OK:
-      return array(
-        'metadata' => array(
-          'responseInfo' => array(
-            'status' => 200,
-          ),
-        ),
-      );
+      // Return successsful, generic response.
+      return api_services_responses_format();
 
     case SIGNATURES_QUEUE_STATUS_BAD_REQUEST:
       $developer_message = $user_message = t('Missing required fields. These fields are required: signature_source_api_key, petition_id, email, first_name, last_name.');
       $more_info = 'https://github.com/WhiteHouse/petitions/issues/75';
       $error_code = 75;
-      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+      return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
 
     case SIGNATURES_QUEUE_STATUS_FORBIDDEN:
       global $base_url;
@@ -59,7 +52,7 @@ function _api_signatures_resource_create($api_key, array $signature) {
       ));
       $more_info = 'https://github.com/WhiteHouse/petitions/issues/74';
       $error_code = 74;
-      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+      return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
 
     case SIGNATURES_QUEUE_STATUS_NOT_FOUND:
       $developer_message = t("No such petition @petition_id", array(
@@ -68,13 +61,13 @@ function _api_signatures_resource_create($api_key, array $signature) {
       $user_message = t("The petition you are trying to sign doesn't exist.");
       $more_info = 'https://github.com/WhiteHouse/petitions/issues/76';
       $error_code = 76;
-      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+      return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
 
     case SIGNATURES_QUEUE_STATUS_SERVER_ERROR:
       $developer_message = t('Sorry. Service is not available right now.');
       $user_message = t('Sorry. We are unable to process your signature right now.');
       $more_info = 'https://github.com/WhiteHouse/petitions/issues/73';
       $error_code = 73;
-      return api_errors_throw_error($rounded_status, $developer_message, $user_message, $more_info, $error_code);
+      return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 }

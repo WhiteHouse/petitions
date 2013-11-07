@@ -11,7 +11,6 @@ class PetitionsRetrieveMongoRaw extends PetitionsRetrieveBase implements IPetiti
    */
   public function __construct() {
     $this->setCollection(mongodb_collection('petitions'));
-    $this->setExecutionTime(microtime(TRUE));
   }
 
   /**
@@ -25,8 +24,7 @@ class PetitionsRetrieveMongoRaw extends PetitionsRetrieveBase implements IPetiti
    */
   public function load($id) {
 
-    $response['metadata'] = array('responseInfo' => array());
-    $response['results'] = array();
+    $results = array();
 
     $doc = $this->getCollection()
       ->findOne(array('_id' => new MongoId($id)));
@@ -48,14 +46,10 @@ class PetitionsRetrieveMongoRaw extends PetitionsRetrieveBase implements IPetiti
         'created' => $doc['created'],
       );
 
-      $response['results'][] = $petition;
+      $results[] = $petition;
     }
 
-    $response['metadata']['executionTime'] = $this->calcExecutionTime();
-    $response['metadata']['responseInfo']['status'] = 200;
-    $response['metadata']['responseInfo']['developerMessage'] = 'OK';
-
-    $this->setResult($response);
-    return $response;
+    $this->setResult($results);
+    return $results;
   }
 }
