@@ -221,3 +221,24 @@ function petitions_maintenance_update_7010() {
 
   module_enable($modules);
 }
+
+/**
+ * Reverts the API Key Manager Feature.
+ */
+function petitions_maintenance_update_7011() {
+  module_load_include('inc', 'features', 'features.export');
+  features_include();
+  $module = 'api_key_manager';
+  if (($feature = feature_load($module, TRUE)) && module_exists($module)) {
+    $components = array();
+    // Forcefully revert all components of a feature.
+    foreach (array_keys($feature->info['features']) as $component) {
+      if (features_hook($component, 'features_revert')) {
+        $components[] = $component;
+      }
+    }
+    foreach ($components as $component) {
+      features_revert(array($module => array($component)));
+    }
+  }
+}

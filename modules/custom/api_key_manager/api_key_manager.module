@@ -5,6 +5,8 @@
  * This is the main module file for API Key Manager.
  */
 
+include_once 'api_key_manager.features.inc';
+
 define('API_KEY_MANAGER_SHUNT', 'shunt_api_key_manager');
 
 /**
@@ -121,34 +123,6 @@ function api_key_manager_freshen_cached_api_key($api_key, $node = NULL) {
 }
 
 /**
- * Define a hook that other modules can implement.
- *
- * @param string $key
- *   API key
- *
- * @return string
- *   Name of the person or organization who registered the API key.
- */
-function api_key_manager_get_name($key) {
-  // Returning dummy data for now.
-  return 'We the People (EXAMPLE)';
-}
-
-/**
- * Define a hook that other modules can implement.
- *
- * @param string $key
- *   API key
- *
- * @return string
- *   URL associated to the API key.
- */
-function api_key_manager_get_url($key) {
-  // Returning dummy data for now.
-  return 'https://petitions.whitehouse.gov';
-}
-
-/**
  * Implements hook_shunt().
  */
 function api_key_manager_shunt() {
@@ -209,7 +183,7 @@ function api_key_manager_permission() {
     ),
     'administer api keys' => array(
       'title' => t('Administer API Keys'),
-      'description' => t('Allow users to edit Application Key and Status fields'),
+      'description' => t('Allow users to edit Application Key, Status, and Feedback fields'),
     ),
   );
 }
@@ -256,9 +230,12 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
         $form['field_api_key_manager_key']['#disabled'] = TRUE;
         $form['field_api_key_manager_status']['#type'] = 'hidden';
         $form['field_api_key_manager_status']['#disabled'] = TRUE;
+        $form['field_api_key_manager_feedback']['#type'] = 'hidden';
+        $form['field_api_key_manager_feedback']['#disabled'] = TRUE;
+        $form['revision_information']['#access'] = FALSE;
       }
 
-      // Add URL validation to Application URL field.
+      // Add URL validation to the Application URL field.
       $form['field_api_key_manager_url']['#element_validate'][] = '_api_key_manager_key_url_validate';
 
       // Add submit handler for DSM message.
@@ -274,11 +251,15 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
       );
 
       // Token help.
-      $api_key_manager_token_help = t('Available body variables are: !name, !url, !status, !api-key', array(
+      $api_key_manager_token_help = t('Available body tokens are: !name, !desc, !url, !org, !phone, !api-key, !status, !feedback', array(
         '!name' => '[api-key:name]',
+        '!desc' => '[api-key:description]',
         '!url' => '[api-key:url]',
-        '!status' => '[api-key:status]',
+        '!org' => '[api-key:organization]',
+        '!phone' => '[api-key:phone]',
         '!api-key' => '[api-key:key]',
+        '!status' => '[api-key:status]',
+        '!feedback' => '[api-key:feedback]',
       ));
 
       foreach ($types as $type => $description) {
@@ -295,14 +276,18 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
 
           case 'rejected':
             $title = t('Notification: Your API key has been rejected.');
-            $description = t('Edit the API key status change e-mail message.');
+            $description = t('Edit the API key status change e-mail message. %token_help', array(
+              '%token_help' => $api_key_manager_token_help,
+            ));
             $subject = t('Your Application has been rejected.');
             $body = t('Your Application has been rejected.');
             break;
 
           case 'blocked':
             $title = t('Notification: Your API key has been blocked.');
-            $description = t('Edit the API key status change e-mail message.');
+            $description = t('Edit the API key status change e-mail message. %token_help', array(
+              '%token_help' => $api_key_manager_token_help,
+            ));
             $subject = t('Your Application has been blocked.');
             $body = t('Your Application has been blocked.');
             break;
@@ -335,7 +320,7 @@ function api_key_manager_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Element validate callback for Application URL field.
+ * Element validation callback for the Application URL field.
  */
 function _api_key_manager_key_url_validate($element, &$form_state) {
   $url = $element[LANGUAGE_NONE][0]['value']['#value'];
@@ -394,9 +379,13 @@ function api_key_manager_node_presave($node) {
     $user_mail = user_load($node->uid)->mail;
     $params = array(
       'name' => $node->field_api_key_manager_name[LANGUAGE_NONE][0]['value'],
+      'desc' => $node->field_api_key_manager_desc[LANGUAGE_NONE][0]['value'],
       'url' => $node->field_api_key_manager_url[LANGUAGE_NONE][0]['value'],
-      'status' => $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'],
+      'org' => $node->field_api_key_manager_org[LANGUAGE_NONE][0]['value'],
+      'phone' => $node->field_api_key_manager_phone[LANGUAGE_NONE][0]['value'],
       'api_key' => !empty($node->field_api_key_manager_key[LANGUAGE_NONE][0]['value']) ? $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'] : t('Key has not been set yet'),
+      'status' => $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'],
+      'feedback' => $node->field_api_key_manager_feedback[LANGUAGE_NONE][0]['value'],
     );
     if (!empty($node->original) && $node->original->field_api_key_manager_status[LANGUAGE_NONE][0]['value'] != $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'] && $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'] != 'pending') {
       drupal_mail('api_key_manager', $params['status'], $user_mail, $language, $params);
@@ -441,12 +430,24 @@ function api_key_manager_mail($key, &$message, $params) {
   switch ($key) {
     case 'blocked':
       $message['subject'] = variable_get('api_key_manager_blocked_email_subject', t('Your Application has been blocked'));
-      $message['body'][] = variable_get('api_key_manager_blocked_email_body', t('Your Application has been blocked.'));
+      $body_text = variable_get('api_key_manager_blocked_email_body', t('Your Application has been blocked.'));
+      $message['body'][] = token_replace($body_text, $params, array(
+        'language' => $language,
+        'callback' => 'api_key_manager_email_tokens',
+        'sanitize' => FALSE,
+        'clear' => TRUE,
+      ));
       break;
 
     case 'rejected':
       $message['subject'] = variable_get('api_key_manager_rejected_email_subject', t('Your Application has been rejected'));
-      $message['body'][] = variable_get('api_key_manager_rejected_email_body', t('Your Application has been rejected.'));
+      $body_text = variable_get('api_key_manager_rejected_email_body', t('Your Application has been rejected.'));
+      $message['body'][] = token_replace($body_text, $params, array(
+        'language' => $language,
+        'callback' => 'api_key_manager_email_tokens',
+        'sanitize' => FALSE,
+        'clear' => TRUE,
+      ));
       break;
 
     case 'approved':
@@ -484,9 +485,13 @@ function api_key_manager_mail($key, &$message, $params) {
  */
 function api_key_manager_email_tokens(&$replacements, $data, $options) {
   $replacements['[api-key:name]'] = $data['name'];
+  $replacements['[api-key:description]'] = $data['desc'];
   $replacements['[api-key:url]'] = $data['url'];
-  $replacements['[api-key:status]'] = $data['status'];
+  $replacements['[api-key:organization]'] = $data['org'];
+  $replacements['[api-key:phone]'] = $data['phone'];
   $replacements['[api-key:key]'] = $data['api_key'];
+  $replacements['[api-key:status]'] = $data['status'];
+  $replacements['[api-key:feedback]'] = $data['feedback'];
 }
 
 /**

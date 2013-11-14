@@ -123,11 +123,11 @@ function petitions_data_get_petition($petition_id) {
       $petition = $cache->data;
     }
     else {
-      $result = PetitionsRetrieveRawFactory::create()->load($petition_id);
+      $results = PetitionsRetrieveRawFactory::create()->load($petition_id);
 
       // If the petition exists, return it.
-      if (!empty($result['results'][0])) {
-        $petition = $result['results'][0];
+      if (!empty($results[0])) {
+        $petition = $results[0];
         // Unset signatureCount and signaturesNeeded because they would become
         // quickly stale and show unreliable values if included.
         unset($petition['signatureCount'], $petition['signaturesNeeded']);

@@ -201,7 +201,10 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
       // Creating $key_node because it will be used several times.
       $key_node = api_key_manager_get_key($signature_source_api_key);
       $replacements['[signature:signature-source-name]'] = $key_node->field_api_key_manager_name['und'][0]['value'];
+      $replacements['[signature:signature-source-description]'] = $key_node->field_api_key_manager_desc['und'][0]['value'];
       $replacements['[signature:signature-source-url]'] = $key_node->field_api_key_manager_url['und'][0]['value'];
+      $replacements['[signature:signature-source-organization]'] = $key_node->field_api_key_manager_org['und'][0]['value'];
+      $replacements['[signature:signature-source-phone]'] = $key_node->field_api_key_manager_phone['und'][0]['value'];
     }
     // Tokens for additional values.
     $replacements['[signature:validation-url]'] = _signatures_queue_validation_link($website_url, $data['signature info']);
@@ -391,7 +394,29 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
     module_load_include('inc', 'signatures_queue');
 
     // Signature validation email settings.
-    $signature_validation_email_token_help = t('Available variables are: [site:name], [signature:first-name], [signature:last-name], [signature:zip], [signature:email], [signature:signup], [signature:timestamp-submitted], [signature:secret-validation-key], [signature:signature-md5-encryption-key], [signature:timestamp_validation_close], [signature:signature-source-name], [signature:signature-source-url], [signature:signature-source-api-key], [signature:validation-url], [petition:title], [petition:body], [petition:url], [petition:deadline].');
+    $signature_validation_email_token_help = t('Available tokens are: !site-name, !signature-first-name, !signature-last-name, !signature-zip, !signature-email, !signature-signup, !signature-timestamp, !signature-secret, !signature-md5, !signature-close, !source-name, !source-desc, !source-url, !source-org, !source-phone, !source-key, !signature-validation-url, !petition-title, !petition-body, !petition-url, !petition-deadline.', array(
+      '!site-name' => '[site:name]',
+      '!signature-first-name' => '[signature:first-name]',
+      '!signature-last-name' => '[signature:last-name]',
+      '!signature-zip' => '[signature:zip]',
+      '!signature-email' => '[signature:email]',
+      '!signature-signup' => '[signature:signup]',
+      '!signature-timestamp' => '[signature:timestamp-submitted]',
+      '!signature-secret' => '[signature:secret-validation-key]',
+      '!signature-md5' => '[signature:signature-md5-encryption-key]',
+      '!signature-close' => '[signature:timestamp_validation_close]',
+      '!source-name' => '[signature:signature-source-name]',
+      '!source-desc' => '[signature:signature-source-description]',
+      '!source-url' => '[signature:signature-source-url]',
+      '!source-org' => '[signature:signature-source-organization]',
+      '!source-phone' => '[signature:signature-source-phone]',
+      '!source-key' => '[signature:signature-source-api-key]',
+      '!signature-validation-url' => '[signature:validation-url]',
+      '!petition-title' => '[petition:title]',
+      '!petition-body' => '[petition:body]',
+      '!petition-url' => '[petition:url]',
+      '!petition-deadline' => '[petition:deadline]',
+    ));
 
     $form['signature_validation_email'] = array(
       '#type' => 'fieldset',
@@ -428,5 +453,5 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
  */
 function signatures_queue_check_empty($name = NULL) {
   module_load_include('inc', 'signatures_queue');
-  return _signatures_queue_check_empty($name);  
+  return _signatures_queue_check_empty($name);
 }
