@@ -22,7 +22,9 @@ function _api_validations_resource_index($api_key, $petition_id, $mock, $offset,
     $status_code = 401;
     $developer_message = t("Invalid key.");
     $user_message = t("The key provided is not valid.");
-    return api_errors_throw_error($status_code, $developer_message, $user_message);
+    $error_code = 85;
+    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
   $query = db_select('signature_validations', 'v')

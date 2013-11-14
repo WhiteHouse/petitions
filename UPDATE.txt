@@ -1,6 +1,20 @@
 UPDATE
 ======
 
+Version 7.x-2.0-rc8 -> 7.x-2.0-rc9
+----------------------------------------------
+
+Release notes:
+  - Fixed a bug producing inaccurate counts for Petitions by Issue.
+  - Updated the API Key content type to use the Features module for management.
+  - Updated available tokens.
+  - Removed obsolete functions.
+  - Updated API responses for consistency.
+
+Update steps:
+  1. Deploy code changes.
+  2. Run update.php.
+
 Version 7.x-2.0-rc7 -> 7.x-2.0-rc8
 ----------------------------------------------
 

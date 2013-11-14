@@ -185,6 +185,7 @@ function api_key_manager_views_default_views() {
         'show_all_tokens' => 1,
         'display_values' => array(
           'key::field_api_key_manager_status' => 'key::field_api_key_manager_status',
+          'key::field_api_key_manager_feedback' => 'key::field_api_key_manager_feedback',
         ),
       ),
     ),

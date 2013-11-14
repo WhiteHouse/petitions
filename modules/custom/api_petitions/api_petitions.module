@@ -316,13 +316,15 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     $resource->setBaseURL($website_url);
     $results = $resource->load($petition_id);
   }
-  // Catch any errors that may cause $reource->load() to fail. E.g., mongodb
+  // Catch any errors that may cause $resource->load() to fail. E.g., mongodb.
   // errors. Throw our own, custom error instead.
   catch (Exception $e) {
     $status_code = 599;
-    $developer_message = t("Class could not be instatiated.");
+    $developer_message = t("Class could not be instantiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
-    return api_errors_throw_error($status_code, $developer_message, $user_message);
+    $error_code = 83;
+    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
   // Throw error if petition was not found.
@@ -330,6 +332,8 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     $status_code = 404;
     $developer_message = t("Petition @petition_id not found.", array('@petition_id' => $petition_id));
     $user_message = t("The petition that you requested does not exist.", array('@petition_id' => $petition_id));
+    $error_code = 84;
+    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
     return api_errors_throw_error($status_code, $developer_message, $user_message);
   }
 
@@ -395,9 +399,11 @@ function _api_petitions_resource_index($created_before, $created_after, $created
   // Throw error if resource cannot be accessed.
   catch (Exception $e) {
     $status_code = 599;
-    $developer_message = t("500: Class could not be instatiated.");
+    $developer_message = t("Class could not be instantiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
-    return api_errors_throw_error($status_code, $developer_message, $user_message);
+    $error_code = 83;
+    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 }
 
@@ -453,7 +459,9 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
     $status_code = 599;
     $developer_message = t("Class could not be instantiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
-    return api_errors_throw_error($status_code, $developer_message, $user_message);
+    $error_code = 83;
+    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 }
 
