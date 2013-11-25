@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Provides a RESTful API for petitions.
+ *
+ * @todo Move functionality from api_errors and api_services_responses to here.
+ */

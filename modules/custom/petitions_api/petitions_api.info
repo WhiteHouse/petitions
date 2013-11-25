@@ -1,0 +1,11 @@
+name = Petitions API
+description = Provides a RESTful API for petitions.
+core = 7.x
+package = Petitions API
+dependencies[] = services
+dependencies[] = rest_server
+dependencies[] = petitions_data
+dependencies[] = wh_petitions
+
+files[] = tests/PetitionsApiBaseTestCase.test
+files[] = tests/PetitionsApiRecieveSignaturesTestCase.test

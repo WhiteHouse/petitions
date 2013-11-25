@@ -1,0 +1,20 @@
+<?php
+/**
+ * @file
+ * Definition of PetitionsApiTestCase.
+ */
+
+/**
+ * Abstract class for Petitions API testing.
+ *
+ * This should contain only helper methods common to all child classes.
+ */
+abstract class PetitionsApiBaseTestCase extends PetitionsDataBaseTestCase {
+  /**
+   * Performs pre-requisite tasks.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp();
+  }
+}

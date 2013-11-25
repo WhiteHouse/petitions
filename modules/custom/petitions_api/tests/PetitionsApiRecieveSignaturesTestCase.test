@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Defines PetitionsApiSubmitSignaturesTestCase.
+ */
+
+/**
+ * Tests the recieve_signatures workflow.
+ */
+class PetitionsApiRecieveSignaturesTestCase extends PetitionsApiBaseTestCase {
+
+  /**
+   * Returns properties that are displayed in the test selection form.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Petitions API Recieve Signatures',
+      'description' => 'Ensure that the API is able to recieve signatures.',
+      'group' => 'Petitions API',
+    );
+  }
+
+  /**
+   * Performs pre-requisite tasks.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp();
+  }
+
+  /**
+   * Create a simpletest_example node using the node form.
+   */
+  public function testPetitionsApiRecieveSignatures() {
+    // @todo Create test.
+  }
+
+}
