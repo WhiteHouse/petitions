@@ -3,19 +3,22 @@ description = Data abstraction for use with services to provide a flexible backe
 core = 7.x
 package = Petitions API
 
-; Petitions Data access layer
-files[] = classes/IPetitionsIndexRaw.class.inc
-files[] = classes/IPetitionsRetrieveRaw.class.inc
-files[] = classes/ISignaturesRaw.class.inc
-files[] = classes/PetitionsIndexRawFactory.class.inc
-files[] = classes/PetitionsRetrieveRawFactory.class.inc
-files[] = classes/SignaturesRawFactory.class.inc
-files[] = classes/PetitionsBase.class.inc
-files[] = classes/PetitionsIndexBase.class.inc
-files[] = classes/PetitionsRetrieveBase.class.inc
-files[] = classes/SignaturesBase.class.inc
+dependencies[] = wh_petitions
 
-; Petitions Data Plugins
-files[] = classes/PetitionsIndexMongoRaw.class.inc
-files[] = classes/PetitionsRetrieveMongoRaw.class.inc
-files[] = classes/SignaturesMongoRaw.class.inc
+; Petitions Data access layer
+files[] = classes/Petition.inc
+files[] = classes/PetitionsController.inc
+files[] = classes/PetitionsSelectQuery.inc
+files[] = classes/PetitionsSelectQueryFactory.inc
+files[] = classes/PetitionsSelectQueryMongo.inc
+files[] = classes/SelectQueryBase.inc
+files[] = classes/Signature.inc
+files[] = classes/SignaturesController.inc
+files[] = classes/SignaturesSelectQuery.inc
+files[] = classes/SignaturesSelectQueryFactory.inc
+files[] = classes/SignaturesSelectQueryMongo.inc
+
+; Tests
+files[] = tests/PetitionsDataBaseTestCase.test
+files[] = tests/PetitionsDataPetitionsTestCase.test
+files[] = tests/PetitionsDataSignaturesTestCase.test

@@ -1,0 +1,224 @@
+<?php
+/**
+ * @file
+ * Definition of PetitionsDataBaseTestCase.
+ */
+
+/**
+ * Abstract class for Petitions Data testing.
+ *
+ * This should contain only helper methods common to all child classes.
+ */
+abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
+
+  // Set profile.
+  protected $profile = 'petitions';
+
+  /**
+   * @inheritdoc
+   */
+  protected function setUp() {
+
+    // Enable any modules required for the test.
+    parent::setUp(array(
+      'petitions',
+      // Creates 'issues' vocab.
+      'taxonomy_sync',
+    ));
+
+    // Set up $conf defaults from settings.php files. This is unconventional
+    // and should ideally not be done. However, given the reliance on MongoDB,
+    // we need $conf['mongo_collections'] to be able to test petition and
+    // signature functionality.
+    global $conf;
+    $petitions_conf = $this->getPetitionsConf();
+    $conf = array_merge($conf, $petitions_conf);
+  }
+
+  /**
+   * Extracts selected rows from the default $conf array for use with testing.
+   *
+   * @param array $vars
+   *   An array of variable names to load from default settings.php file.
+   *   Defaults to empty array, which will trigger usage of an array of
+   *   default variables.
+   *
+   * @return array
+   *   A configuration array.
+   */
+  public function getPetitionsConf($vars = array()) {
+    // Loading $databases variable will prevent the included settings files
+    // from complaining.
+    global $databases;
+
+    require DRUPAL_ROOT . '/' . conf_path() . '/settings.php';
+
+    // Load default variables if none have been specified.
+    if (empty($vars)) {
+      $vars = array(
+        'cache_backends',
+        'cache_default_class',
+        'cache_class_form',
+        'mongodb_connections',
+        'mongodb_collections',
+        'mongodb_options',
+        'wh_url',
+        'petitions_edit_url',
+        'signatures_queue_queue_prefix',
+      );
+    }
+
+    $return_conf = array();
+    foreach ($vars as $var_name) {
+      if (isset($conf[$var_name])) {
+        $return_conf[$var_name] = $conf[$var_name];
+      }
+    }
+
+    return $return_conf;
+  }
+
+  /**
+   * Creates a dummy petition.
+   *
+   * @return Petition
+   *   Returns a Petition object.
+   */
+  public function createDummyPetition() {
+    $user = $this->drupalCreateUser();
+
+    // Retrieve admin settings.
+    $signature_public_threshold = variable_get('wh_petitions_public_signatures', 20);
+    $signature_threshold = variable_get('wh_petitions_review_signatures', 500);
+    $review_timeframe = variable_get('wh_petitions_review_timeframe', 30);
+
+    // I don't know why this doesn't autoload.
+    // module_load_include('inc', 'petitions_data', 'classes/Petition.inc');
+    $petition = new Petition();
+    $petition
+      ->setUid($user->uid)
+      ->setTitle($this->randomString())
+      ->setBody($this->randomString())
+      ->setIssues($this->selectRandomIssues(TRUE))
+      ->setSignaturePublicThreshold($signature_public_threshold)
+      ->setSignatureThreshold($signature_threshold)
+      ->setSignatureCount(0)
+      ->setReviewTimeframe($review_timeframe)
+      ->setCreated(time())
+      ->setUserTags(array(
+        $this->randomString(), $this->randomString(), $this->randomString()
+      ))
+      // We set the petition to public and set the reachedPublic property.
+      ->setStatus(WH_PETITION_STATUS_PUBLIC)
+      ->setReachedPublic(time());
+
+    // Save and retrieve the ID for future use.
+    $petitions_controller = new PetitionsController();
+    $petition = $petitions_controller->save($petition);
+
+    return $petition;
+  }
+
+  /**
+   * Creates dummy taxonomy terms in the issues vocabulary.
+   */
+  public function createDummyIssues() {
+    $taxonomy_web_test_case = new TaxonomyWebTestCase();
+    $issues_vocab = taxonomy_vocabulary_machine_name_load('issues');
+    $issue = $taxonomy_web_test_case->createTerm($issues_vocab);
+    $issue = $taxonomy_web_test_case->createTerm($issues_vocab);
+    $issue = $taxonomy_web_test_case->createTerm($issues_vocab);
+  }
+
+  /**
+   * Returns an array of random issue taxonomy terms.
+   *
+   * @param bool $tids
+   *   If TRUE, an array of tids will be returned. Otherwise, an array of term
+   *   object will be returned.
+   *
+   * @param int $num
+   *   The number of issues to return.
+   *
+   * @return array
+   *   An array of randomly selected, real taxonomy terms from the issues vocab.
+   */
+  static public function selectRandomIssues($tids = FALSE, $num = 3) {
+    $issues_vocab = taxonomy_vocabulary_machine_name_load('issues');
+    $issues_tree = taxonomy_get_tree($issues_vocab->vid);
+    $issues_keys = array_rand($issues_tree, min(count($issues_tree), $num));
+    $issues = array();
+
+    foreach ($issues_keys as $key) {
+      // Build array of tids only.
+      if ($tids) {
+        $issues[] = $issues_tree[$key]->tid;
+      }
+      // Build array of term objects.
+      else {
+        $issues[] = $issues_tree[$key];
+      }
+    }
+    return $issues;
+  }
+
+  /**
+   * Returns a random, real petition ID.
+   *
+   * Returns an ID associated with a real, open petition, if one is available,
+   * or generates a random string if not.
+   *
+   * @return string
+   *   A 25 character alpha-numeric ID.
+   */
+  protected static function selectRandomPetitionID() {
+    // Get a real, open petition ID if one is available.
+    $query = PetitionsSelectQueryFactory::create()->setStatus('open');
+    $petitions = $query->execute()->getResult();
+
+    if (!empty($petitions)) {
+      shuffle($petitions);
+      foreach ($petitions as $petition) {
+        if ($petition['deadline'] > time()) {
+          return $petition['id'];
+        }
+      }
+    }
+
+    // Fall back to returning a random string.
+    return self::randomString(25);
+  }
+
+  /**
+   * Creates a dummy signature.
+   *
+   * @param string $petition_id
+   *   (optional) The petition id for this signature.
+   *
+   * @return Signature
+   *   The created signature.
+   */
+  public function createDummySignature($petition_id = NULL) {
+    $user = $this->drupalCreateUser();
+
+    if (!$petition_id) {
+      $petition_id = $this->selectRandomPetitionID();
+    }
+
+    $signature = new Signature($petition_id);
+    $signature
+      ->setFirstName($this->randomString())
+      ->setLastName($this->randomString())
+      ->setCity($this->randomString())
+      ->setState($this->randomName(2))
+      ->setZip(rand(0,9) . rand(0,9) . rand(0,9) . rand(0,9) . rand(0,9))
+      ->setCreated(time())
+      ->setUser($user);
+
+    // Save and retrieve the ID for future use.
+    $signatures_controller = new SignaturesController();
+    $signature = $signatures_controller->save($signature);
+
+    return $signature;
+  }
+}

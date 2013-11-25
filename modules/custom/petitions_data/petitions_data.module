@@ -123,7 +123,7 @@ function petitions_data_get_petition($petition_id) {
       $petition = $cache->data;
     }
     else {
-      $results = PetitionsRetrieveRawFactory::create()->load($petition_id);
+      $results = PetitionsController::load($petition_id);
 
       // If the petition exists, return it.
       if (!empty($results[0])) {
@@ -147,9 +147,17 @@ function petitions_data_get_petition($petition_id) {
 /**
  * Implements hook_flush_caches().
  */
-function petitions_data_manager_flush_caches() {
+function petitions_data_flush_caches() {
   return array('cache_petitions_petitions');
 }
+
+/**
+ * Clear the cache_petitions_petitions cache.
+ */
+function petitions_data_clear_caches() {
+  cache_clear_all('*', 'cache_petitions_petitions', TRUE);
+}
+
 /**
  * Clear cache of specified petition_id.
  *

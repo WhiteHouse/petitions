@@ -1,0 +1,43 @@
+<?php
+/**
+ * @file
+ * Definition of PetitionsDataSignaturesTestCase.
+ */
+
+/**
+ * Tests for Petitions data objects.
+ */
+class PetitionsDataSignaturesTestCase extends PetitionsDataBaseTestCase {
+  /**
+   * Returns properties that are displayed in the test selection form.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Petitions Data - Signatures',
+      'description' => 'Ensure CRUD operations for signature data objects.',
+      'group' => 'Petitions Data',
+    );
+  }
+
+  /**
+   * Performs pre-requisite tasks.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp();
+
+  }
+
+  /**
+   * Create a simpletest_example node using the node form.
+   */
+  public function testPetitionsDataCreateSignature() {
+
+    $this->createDummyIssues();
+    $petition = $this->createDummyPetition();
+    $signature = $this->createDummySignature($petition->getId());
+
+    $this->assertNotNull($signature->getId(), 'The signature id is set.');
+    $this->assertEqual($petition->getId(), $signature->getPetitionId(), 'The created signature was assigned to the correct petition.');
+  }
+}

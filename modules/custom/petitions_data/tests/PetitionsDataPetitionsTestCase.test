@@ -1,0 +1,40 @@
+<?php
+/**
+ * @file
+ * Definition of PetitionsDataPetitionsTestCase.
+ */
+
+/**
+ * Tests for Petitions data objects.
+ */
+class PetitionsDataPetitionsTestCase extends PetitionsDataBaseTestCase {
+
+  /**
+   * Performs pre-requisite tasks.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp();
+  }
+
+  /**
+   * Returns properties that are displayed in the test selection form.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Petitions Data - Petitions',
+      'description' => 'Ensure CRUD operations for petition data objects.',
+      'group' => 'Petitions Data',
+    );
+  }
+
+  /**
+   * Create a simpletest_example node using the node form.
+   */
+  public function testPetitionsDataCreatePetition() {
+    $this->createDummyIssues();
+    $petition = $this->createDummyPetition();
+    $this->assertNotNull($petition->getId(), 'Petition id is set.');
+    $this->assertNotNull($petition->getTitle(), 'Petition title is set.');
+  }
+}
