@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Install file for API Key Manager.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function api_key_manager_schema() {
+  $schema = array();
+
+  $schema['cache_petitions_api_keys'] = drupal_get_schema_unprocessed('system', 'cache');
+
+  return $schema;
+}

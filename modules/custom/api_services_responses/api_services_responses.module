@@ -66,12 +66,12 @@ function api_services_responses_format($params = array()) {
     'count' => array(
       '#type' => 'int',
       '#required' => FALSE,
-      '#default_value' => NULL,
+      '#default_value' => FALSE,
     ),
     'limit' => array(
       '#type' => 'int',
       '#required' => FALSE,
-      '#default_value' => NULL,
+      '#default_value' => FALSE,
     ),
     'offset' => array(
       '#type' => 'int',

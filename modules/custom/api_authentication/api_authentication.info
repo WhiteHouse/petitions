@@ -2,4 +2,4 @@ name = Petitions API Authentication
 description = Provides key-based authentication for the services module
 core = 7.x
 package = Petitions API
-dependencies[] = services
+dependencies[] = petitions_api

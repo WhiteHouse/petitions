@@ -189,6 +189,16 @@ function api_petitions_services_resources() {
             'default value' => 0,
             'source' => array('param' => 'mock'),
           ),
+          /*
+          array(
+            'name' => 'petition_id',
+            'optional' => TRUE,
+            'type' => 'string',
+            'description' => 'Accepts a comma-separated list of petition ids',
+            'default value' => NULL,
+            'source' => array('param' => 'petition_id'),
+          ),
+          */
         ),
         'access callback' => 'services_access_menu',
         'documentation callback' => '_api_petitions_index_doc',
@@ -312,9 +322,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 
   // Attempt to load response.
   try {
-    $resource = PetitionsRetrieveRawFactory::create();
-    $resource->setBaseURL($website_url);
-    $results = $resource->load($petition_id);
+    $results = PetitionsController::load($petition_id);
   }
   // Catch any errors that may cause $resource->load() to fail. E.g., mongodb.
   // errors. Throw our own, custom error instead.
@@ -337,7 +345,6 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     return api_errors_throw_error($status_code, $developer_message, $user_message);
   }
 
-
   $response_params = array(
     'results' => $results,
     'limit' => 1,
@@ -351,9 +358,6 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
  * Callback for Services petitions index method.
  */
 function _api_petitions_resource_index($created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $mock) {
-  global $base_url;
-
-  $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
   $public_threshold = variable_get('wh_petitions_public_signatures', 150) - 1;
   $petitions_default_limit = variable_get('api_petitions_index_max_limit', 1000);
 
@@ -364,10 +368,10 @@ function _api_petitions_resource_index($created_before, $created_after, $created
   }
 
   try {
-    $resource = PetitionsIndexRawFactory::create();
+    $query = PetitionsSelectQueryFactory::create();
 
     // Scaffolding is in place for inactive parameters but logic is required.
-    $resource->setBaseURL($website_url)
+    $query
      ->setMinSignatureCount($public_threshold)
      ->setMaxReturnLimit($petitions_default_limit)
      ->setStartDate($created_after)
@@ -387,9 +391,12 @@ function _api_petitions_resource_index($created_before, $created_after, $created
      ->setStatus($status)
      ->setResponseID($response_id);
 
+    // $petition_ids = explode(',' check_plain($petition_id));
+    // setPetitionIds($petition_ids);
+
     $response_params = array(
-      'results' => $resource->load(),
-      'count' => $resource->getCount(),
+      'results' => $query->execute()->getResult(),
+      'count' => $query->getCount(),
       'limit' => $limit,
       'offset' => $offset,
     );
@@ -403,6 +410,7 @@ function _api_petitions_resource_index($created_before, $created_after, $created
     $user_message = t("The resource that you requested is temporarily unavailable.");
     $error_code = 83;
     $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    watchdog('api_petitions', $e->getMessage());
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 }
@@ -419,19 +427,8 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
 
   $signatures_default_limit = variable_get('api_petitions_signatures_index_max_limit', 1000);
 
-  $name_format = '';
-  $location_format = '';
-  if (module_exists('petitions_signatures_display')) {
-    if (variable_get('petitions_data_signatures_display_names', 0)) {
-      $name_format = 'petitions_signatures_display_style';
-    }
-    if (variable_get('petitions_data_signatures_display_locations', 0)) {
-      $location_format = 'petitions_signatures_display_location_formatted';
-    }
-  }
-
   try {
-    $resource = SignaturesRawFactory::create();
+    $resource = SignaturesSelectQueryFactory::create();
     $resource->setCity($city)
       ->setState($state)
       ->setZipCode($zipcode)
@@ -442,11 +439,10 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
       ->setMaxReturnLimit($signatures_default_limit)
       ->setLimit($limit)
       ->setOffset($offset)
-      ->setNameFormat($name_format)
-      ->setLocationFormat($location_format);
+      ->setPetitionId($petition_id);
 
     $response_params = array(
-      'results' => $resource->load($petition_id),
+      'results' => $resource->execute()->getResult(),
       'count' => $resource->getCount(),
       'limit' => $limit,
       'offset' => $offset,
@@ -461,6 +457,7 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
     $user_message = t("The resource that you requested is temporarily unavailable.");
     $error_code = 83;
     $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    watchdog('api_petitions', $e->getMessage());
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 }
