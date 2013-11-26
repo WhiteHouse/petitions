@@ -1723,7 +1723,12 @@ function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $u
  * @param obj $user
  *   Druapl user object.
  *
+ * @param string $client_ip
+ *   The IP address of the signatory.
+ *
  * @return string $signature_id
+ *
+ * @todo replace usages of this function with method call to SignaturesQueryFactory::create->save().
  */
 function wh_petitions_create_new_signature($petition_id, $user, $client_ip) {
   // Setup connections for signatures and petitions.

@@ -202,7 +202,7 @@ function _wh_petitions_create_menu() {
       'menu_name' => 'petitions-menu',
       'title' => 'Petitions Menu',
       'description' => 'Default Main Menu for Petitions install profile.'
-	  );    
+	  );
 	  menu_save($menu);
 	  // Notify user about what we just did.
 	  $message = t("Petitions Main Menu has been created.");
@@ -234,7 +234,7 @@ function _wh_petitions_set_as_primary_menu() {
 
 /**
  * Implements hook_update_N().
- * 
+ *
  * Create Petition Menu and make it the site's Main Menu.
  */
 function wh_petitions_update_7104(&$sandbox) {
@@ -243,4 +243,13 @@ function wh_petitions_update_7104(&$sandbox) {
   menu_rebuild();
   // Now save new.
   wh_petitions_install();
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Set variable textcaptcha_cron to 1.
+ */
+function wh_petitions_update_7105(&$sandbox) {
+  variable_set('textcaptcha_cron', 1);
 }

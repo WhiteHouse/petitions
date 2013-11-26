@@ -83,8 +83,6 @@ projects[services_documentation][version] = 1.3
 
 projects[shunt][version] = 1.3
 
-projects[textcaptcha][version] = 1.3
-
 projects[simplehtmldom][version] = 1.12
 
 projects[strongarm][version] = 2.0
@@ -114,6 +112,19 @@ projects[libraries][patch][] = https://drupal.org/files/libraries-undefined-inde
 ;   - Make password available as a token
 ;   - @see http://drupal.org/node/1165126#comment-5492890
 ;
+
+; textcaptcha-cron_default-2144807-1.patch
+;   - Sets the textcaptcha_cron variable to 0 by default.
+projects[textcaptcha][version] = 1.3
+projects[textcaptcha][patch][] = https://drupal.org/files/issues/textcaptcha-cron_default-2144807-1.patch
+
+; zen-include_error-2144803-1.patch
+;   - Fixes Simpletest error.
+projects[zen][type] = theme
+projects[zen][subdir] = ""
+projects[zen][version] = 5.4
+projects[zen][patch][] = https://drupal.org/files/issues/zen-include_error-2144803-1.patch
+
 ;------------------------------------
 projects[logintoboggan][version] = 1.3
 projects[logintoboggan][patch][] = http://drupal.org/files/1747878-2-remove-lower.patch
@@ -148,10 +159,6 @@ projects[tao][version] = 3.0-beta4
 projects[rubik][type] = theme
 projects[rubik][subdir] = ""
 projects[rubik][version] = 4.0-beta9
-
-projects[zen][type] = theme
-projects[zen][subdir] = ""
-projects[zen][version] = 5.4
 
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
