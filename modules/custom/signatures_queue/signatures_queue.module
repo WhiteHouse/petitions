@@ -200,16 +200,25 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
     if (module_exists('api_key_manager')) {
       // Creating $key_node because it will be used several times.
       $key_node = api_key_manager_get_key($signature_source_api_key);
+
       $replacements['[signature:signature-source-name]'] = $key_node->field_api_key_manager_name['und'][0]['value'];
-      $replacements['[signature:signature-source-description]'] = $key_node->field_api_key_manager_desc['und'][0]['value'];
       $replacements['[signature:signature-source-url]'] = $key_node->field_api_key_manager_url['und'][0]['value'];
-      $replacements['[signature:signature-source-organization]'] = $key_node->field_api_key_manager_org['und'][0]['value'];
-      $replacements['[signature:signature-source-phone]'] = $key_node->field_api_key_manager_phone['und'][0]['value'];
+
+      if (!empty($key_node->field_api_key_manager_desc['und'][0]['value'])) {
+        $replacements['[signature:signature-source-description]'] = $key_node->field_api_key_manager_desc['und'][0]['value'];
+      }
+      if (!empty($key_node->field_api_key_manager_org['und'][0]['value'])) {
+        $replacements['[signature:signature-source-organization]'] = $key_node->field_api_key_manager_org['und'][0]['value'];
+      }
+      if (!empty($key_node->field_api_key_manager_phone['und'][0]['value'])) {
+        $replacements['[signature:signature-source-phone]'] = $key_node->field_api_key_manager_phone['und'][0]['value'];
+      }
+
     }
     // Tokens for additional values.
     $replacements['[signature:validation-url]'] = _signatures_queue_validation_link($website_url, $data['signature info']);
     // Load the petition via the API retrieve method.
-    $petition = PetitionsRetrieveRawFactory::create()->setBaseURL($website_url)->load($petition_id);
+    $petition = PetitionsController::load($petition_id);
     if (!empty($petition['results'])) {
       // Tokens for values associated to the petition.
       $replacements['[petition:title]'] = $petition['results'][0]['title'];
@@ -304,6 +313,8 @@ function signatures_queue_get_workflow_names() {
  *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
  *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
  *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
+ *
+ * @throws Exception()
  */
 function signatures_queue_invoke_workflow($workflow, array $options = array()) {
   // Initialize default options.
@@ -363,13 +374,26 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
  */
 function signatures_queue_set_db($conf_name = 'signatures_processing') {
   global $databases;
-  if (!empty($databases[$conf_name])) {
+  global $drupal_test_info;
+
+  // If this is a simpletest run, do not switch dbs. Simpletest prefixing
+  // does not support multiple databases.
+  // @todo Refactor this so that multi-db functionality is actually tested.
+  // Starting code for changes:
+  /*
+  if (!empty($drupal_test_info['test_run_id'])) {
+    $db_prefix = $drupal_test_info['test_run_id'];
+    $databases[$conf_name]['default']['prefix']['default'] = $db_prefix;
+  }
+  */
+  if (empty($drupal_test_info['test_run_id']) && !empty($databases[$conf_name])) {
     // Set database so that we create the tables there.
     db_set_active($conf_name);
   }
 }
 
 /**
+*
  * Get batch size.
  *
  * Get admin-defined number of pending and validated records to be processed at
@@ -447,7 +471,7 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
  * @param string $name
  *   (Optional) The machine name of a signatures queue.
  *
- * @return array $last_emptied
+ * @return array
  *   Returns array keyed by queue name(s). Value is a timestamp of when queue
  *   was last emptied.
  */

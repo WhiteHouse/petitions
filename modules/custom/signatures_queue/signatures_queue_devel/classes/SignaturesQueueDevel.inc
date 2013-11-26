@@ -1,11 +1,11 @@
 <?php
 /**
  * @file
- * Provides SignaturesQueueDev class to generate dummy data.
+ * Defines SignaturesQueueDev.
  */
 
 /**
- *
+ * Provides SignaturesQueueDev class to generate dummy data.
  */
 class SignaturesQueueDevel extends SignaturesQueue {
 
@@ -54,8 +54,10 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['signature_source_api_key'] = ($signature_source_api_key) ? $signature_source_api_key : self::generateRandomString(20);
         $item['signup'] = ($signup) ? $signup : (rand(0, 100) >= 50) ? TRUE : FALSE;
         $item['timestamp_submitted'] = ($timestamp_submitted) ? $timestamp_submitted : time();
-        $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : $item['timestamp_submitted'] + 864000;  // This just adds 10 days to time submitted.
-        $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : $item['timestamp_petition_close'] + 864000;  // This just adds 10 days to petition close.
+        // This just adds 10 days to time submitted.
+        $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : $item['timestamp_submitted'] + 864000;
+        // This just adds 10 days to petition close.
+        $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : $item['timestamp_petition_close'] + 864000;
         $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : '';
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
         $item['secret_validation_key'] = '';
@@ -87,7 +89,8 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1(self::generateRandomString(25));
         $item['timestamp_validated'] = ($timestamp_validated) ? $timestamp_validated : time();
-        // Make sure this defaults to greater than timestamp_validated, otherwise nothing gets counted.
+        // Make sure this defaults to greater than timestamp_validated,
+        // otherwise nothing gets counted.
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + 1 + $grace_period * 24 * 60 * 60;
         $item['client_ip'] = ($client_ip) ? $client_ip : ip_address();
         $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
@@ -111,12 +114,14 @@ class SignaturesQueueDevel extends SignaturesQueue {
    */
   protected static function generateRandomPetitionID() {
     // Get a real, open petition ID if one is available.
-    $petitions = PetitionsIndexRawFactory::create()->setStatus('open')->load();
-    if (!empty($petitions['results'])) {
-      shuffle($petitions['results']);
-      foreach ($petitions['results'] as $result) {
-        if ($result['deadline'] > time()) {
-          return $result['id'];
+    $query = PetitionsSelectQueryFactory::create()->setStatus('open');
+    $petitions = $query->execute()->getResult();
+
+    if (!empty($petitions)) {
+      shuffle($petitions);
+      foreach ($petitions as $petition) {
+        if ($petition['deadline'] > time()) {
+          return $petition['id'];
         }
       }
     }
