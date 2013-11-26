@@ -2,16 +2,4 @@ ame = Petitions API Responses
 description = Provides custom response formatting for services module.
 core = 7.x
 package = Petitions API
-<<<<<<< HEAD
-dependencies[] = services
-=======
 dependencies[] = petitions_api
-
-
-; Information added by drush on 2013-11-14
-version = "7.x-2.0-rc9"
-core = "7.x"
-project = "petitions"
-datestamp = "1384455370"
-
->>>>>>> PT-1213 Updating api resources to work with new petitions_data classes.
