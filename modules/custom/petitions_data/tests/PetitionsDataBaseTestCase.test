@@ -15,7 +15,7 @@ abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
   protected $profile = 'petitions';
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   protected function setUp() {
 
@@ -46,7 +46,7 @@ abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
    * @return array
    *   A configuration array.
    */
-  public function getPetitionsConf($vars = array()) {
+  public function getPetitionsConf(array $vars = array()) {
     // Loading $databases variable will prevent the included settings files
     // from complaining.
     global $databases;
@@ -106,7 +106,9 @@ abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
       ->setReviewTimeframe($review_timeframe)
       ->setCreated(time())
       ->setUserTags(array(
-        $this->randomString(), $this->randomString(), $this->randomString()
+        $this->randomString(),
+        $this->randomString(),
+        $this->randomString(),
       ))
       // We set the petition to public and set the reachedPublic property.
       ->setStatus(WH_PETITION_STATUS_PUBLIC)
@@ -211,7 +213,7 @@ abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
       ->setLastName($this->randomString())
       ->setCity($this->randomString())
       ->setState($this->randomName(2))
-      ->setZip(rand(0,9) . rand(0,9) . rand(0,9) . rand(0,9) . rand(0,9))
+      ->setZip(rand(0, 9) . rand(0, 9) . rand(0, 9) . rand(0, 9) . rand(0, 9))
       ->setCreated(time())
       ->setUser($user);
 

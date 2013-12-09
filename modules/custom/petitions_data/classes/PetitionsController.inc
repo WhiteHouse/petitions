@@ -86,7 +86,7 @@ class PetitionsController {
    * @return array
    *   An array of Petition objects.
    */
-  public static function loadMultiple($pids) {
+  public static function loadMultiple(array $pids) {
     $petitions_query = PetitionsSelectQueryFactory::create();
     $petitions = $petitions_query->setPetitionIds($pids)
       ->execute()->getResult();

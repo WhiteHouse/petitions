@@ -16,8 +16,8 @@ class SignaturesController {
    * Saves a signature.
    *
    * @param Signature $signature
-   *  The signature to be saved. This should have the $petitionId and $uid
-   *  properties defined.
+   *   The signature to be saved. This should have the $petitionId and $uid
+   *   properties defined.
    *
    * @return Signature
    *   Returns Signature object if successful.
@@ -57,7 +57,7 @@ class SignaturesController {
    * @return array
    *   An array of Signature objects.
    */
-  public static function loadMultiple($sids) {
+  public static function loadMultiple(array $sids) {
     $signatures_query = SignaturesSelectQueryFactory::create();
     $signatures = $signatures_query->setSignatureIds($sids)
       ->execute()->getResult();

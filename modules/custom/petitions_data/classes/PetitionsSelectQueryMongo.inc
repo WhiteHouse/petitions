@@ -21,9 +21,6 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   public function __construct() {
     parent::__construct();
     $collection = mongodb_collection('petitions');
-    //watchdog('debug', print_r($collection, TRUE));
-    // global $conf;
-    // watchdog('debug', print_r($conf, TRUE));
     $this->setCollection($collection);
   }
 
@@ -71,7 +68,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
    * @return PetitionsMongoRaw
    *   Returns current instance of object.
    */
-  protected function setQuery($query) {
+  protected function setQuery(array $query) {
     $this->query = $query;
     return $this;
   }
@@ -158,7 +155,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
         ->setResponse(isset($doc['response_id']) ? $this->formatReturnResponse($doc['response_id']) : NULL)
         ->setCreated($doc['created']);
 
-      $results[] = $petition->__toArray();
+      $results[] = $petition->toArray();
     }
 
     $this->setCount($mongo_results->count());

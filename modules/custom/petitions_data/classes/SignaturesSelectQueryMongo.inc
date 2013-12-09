@@ -67,7 +67,7 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
    * @return SignaturesMongoRaw
    *   Returns current instance of object.
    */
-  protected function setQuery($query) {
+  protected function setQuery(array $query) {
     $this->query = $query;
 
     return $this;
@@ -143,7 +143,7 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
         $signature->setZip($doc['user']['zip']);
       }
 
-      $results[] = $signature->__toArray();
+      $results[] = $signature->toArray();
     }
 
     $this->setCount($mongo_results->count());

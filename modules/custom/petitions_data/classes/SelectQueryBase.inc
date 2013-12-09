@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Defines QueryParent.
+ * Defines SelectQueryBase.
  */
 
 /**
- * Class QueryParent
+ * Class SelectQueryBase
  *
  * This should contain methods for querying petitions OR signatures. It should
  * not contain anything specific to a particular object class or backend.
@@ -47,7 +47,7 @@ abstract class SelectQueryBase {
    * @param int $limit
    *   Number of results to return
    *
-   * @return QueryParent
+   * @return SelectQueryBase
    *   Returns current instance of object.
    */
   public function setLimit($limit) {
@@ -76,7 +76,7 @@ abstract class SelectQueryBase {
    * @param int $max_return_limit
    *   The maximum number of results that may be returned, regardless of limit.
    *
-   * @return QueryParent
+   * @return SelectQueryBase
    *   Returns current instance of object.
    */
   public function setMaxReturnLimit($max_return_limit = 100) {
@@ -102,7 +102,7 @@ abstract class SelectQueryBase {
    * @param int $offset
    *   Number of results to skip before return.
    *
-   * @return QueryParent
+   * @return SelectQueryBase
    *   Returns current instance of object.
    */
   public function setOffset($offset) {
@@ -129,7 +129,7 @@ abstract class SelectQueryBase {
    * @param int $count
    *   Number of results of query.
    *
-   * @return QueryParent
+   * @return SelectQueryBase
    *   Returns current instance of object.
    */
   protected function setCount($count) {
@@ -153,7 +153,7 @@ abstract class SelectQueryBase {
    * @param array $result
    *   Processed results of query.
    *
-   * @return QueryParent
+   * @return SelectQueryBase
    *   Returns current instance of object.
    */
   protected function setResult($result) {

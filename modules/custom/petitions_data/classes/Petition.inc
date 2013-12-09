@@ -59,7 +59,7 @@ class Petition {
    * Sets $this->created.
    *
    * @param int $created
-   *   The UNIX timestamp when this petitio was created.
+   *   The UNIX timestamp when this petition was created.
    *
    * @return Petition
    *   Returns current instance of object.
@@ -74,7 +74,7 @@ class Petition {
    * Gets $this->created.
    *
    * @return int
-   *   The UNIX timestamp when this petitio was created.
+   *   The UNIX timestamp when this petition was created.
    */
   public function getCreated() {
     return $this->created;
@@ -142,7 +142,7 @@ class Petition {
    * @return Petition
    *   Returns current instance of object.
    */
-  public function setIssues($issues) {
+  public function setIssues(array $issues) {
     $this->issues = $issues;
 
     return $this;
@@ -162,8 +162,8 @@ class Petition {
    * Sets $this->reviewTimeframe.
    *
    * @param int $review_timeframe
-   *   The gap of time allotted for a response after a petitions has reached
-   *   the signature threshold.
+   *   The length of time in seconds between when a petition reaches threshold
+   *   and when a response must be posted (business rule).
    *
    * @return Petition
    *   Returns current instance of object.
@@ -175,10 +175,10 @@ class Petition {
   }
 
   /**
-   * Gets $this->status.
+   * Gets $this->reviewTimeframe.
    *
    * @return int
-   *   The petition status.
+   *   The petition review timeframe in seconds.
    */
   public function getReviewTimeframe() {
     return $this->reviewTimeframe;
@@ -203,7 +203,7 @@ class Petition {
    * Gets $this->signaturePublicThreshold.
    *
    * @return int
-   *    The number of signatures required for this petition to become public.
+   *   The number of signatures required for this petition to become public.
    */
   public function getSignaturePublicThreshold() {
     return $this->signaturePublicThreshold;
@@ -278,7 +278,7 @@ class Petition {
    *   The number of signatures needed for this petition to get a response.
    */
   public function getSignaturesNeeded() {
-    if (!$this->signaturesNeeded) {
+    if (!isset($this->signaturesNeeded)) {
       $this->setSignaturesNeeded();
     }
     return $this->signaturesNeeded;
@@ -486,10 +486,10 @@ class Petition {
   }
 
   /**
-   * Gets $this->response.
+   * Gets $this->responseStatus.
    *
-   * @return obj
-   *   The response to the petition.
+   * @return bool
+   *   The whether the petition has a response.
    */
   public function getResponseStatus() {
     return $this->responseStatus;
@@ -524,12 +524,12 @@ class Petition {
    * Sets $this->userTags.
    *
    * @param array $user_tags
-   *   An array of tags for this petition, indicated by user.
+   *   An array of tags for this petition, created by petition creator.
    *
    * @return Petition
    *   Returns current instance of object.
    */
-  public function setUserTags($user_tags) {
+  public function setUserTags(array $user_tags) {
     $this->userTags = $user_tags;
 
     return $this;
@@ -575,7 +575,7 @@ class Petition {
    *   Epoch (UNIX style) time stamp.
    */
   public static function calcDeadline($created, $days) {
-    return strtotime("+" . $days . " days", $created);
+    return strtotime("+{$days} days", $created);
   }
 
   /**
@@ -584,7 +584,7 @@ class Petition {
    * @return array
    *   An array to be used for public display.
    */
-  public function __toArray() {
+  public function toArray() {
     $output = array(
       'id' => $this->getId(),
       'type' => 'petition',

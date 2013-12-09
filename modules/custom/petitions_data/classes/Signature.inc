@@ -80,16 +80,16 @@ class Signature {
   }
 
   /**
-   * Sets $this->firstName
+   * Sets $this->firstName.
    *
-   * @param string $firstName
+   * @param string $first_name
    *   The first name of thet signatory.
    *
    * @return Signature
    *   Returns current instance of object.
    */
-  public function setFirstName($firstName) {
-    $this->firstName = $firstName;
+  public function setFirstName($first_name) {
+    $this->firstName = $first_name;
 
     return $this;
   }
@@ -227,7 +227,7 @@ class Signature {
   /**
    * Sets $this->uid.
    *
-   * @param int uid
+   * @param int $uid
    *   The signatory user's uid.
    *
    * @return Signature
@@ -341,7 +341,7 @@ class Signature {
    * @return array
    *   An array to be used for public display.
    */
-  public function __toArray() {
+  public function toArray() {
 
     $output = array(
       'id' => $this->getPetitionId(),

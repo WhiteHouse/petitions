@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Defines PetitionsQuery class.
+ * Defines PetitionsSelectQuery class.
  */
 
 /**
@@ -52,7 +52,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param string $url
    *   The petition URL used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setURL($url) {
@@ -66,7 +66,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setCreatedAt($date) {
@@ -102,7 +102,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setStartDate($date) {
@@ -128,7 +128,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $date
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setEndDate($date) {
@@ -154,7 +154,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param string $title
    *   The petition title used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setTitle($title) {
@@ -178,7 +178,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param string $body
    *   The petition body used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setBody($body) {
@@ -202,7 +202,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $issue_id
    *   The issue ID used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setIssueID($issue_id) {
@@ -226,11 +226,11 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param array $pids
    *   An array of petition ids.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
-  public function setPetitionIds($pids) {
-    $this->petitionIds = (array) $pids;
+  public function setPetitionIds(array $pids) {
+    $this->petitionIds = $pids;
 
     return $this;
   }
@@ -251,7 +251,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param string $pid
    *   A petition ids.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setPetitionId($pid) {
@@ -266,7 +266,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param string $issue
    *   The issue used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setIssue($issue) {
@@ -290,7 +290,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signature_threshold_ceiling
    *   The maximum signature threshold used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignatureThresholdCeiling($signature_threshold_ceiling) {
@@ -314,7 +314,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signature_threshold
    *   The exact signature threshold used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignatureThreshold($signature_threshold) {
@@ -338,7 +338,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signature_threshold_floor
    *   The minimum signature threshold used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignatureThresholdFloor($signature_threshold_floor) {
@@ -362,7 +362,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signature_count_ceiling
    *   The maximum signature count used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignatureCountCeiling($signature_count_ceiling) {
@@ -392,7 +392,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $min_signature_count
    *   The absolute minimum signature count used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setMinSignatureCount($min_signature_count) {
@@ -416,7 +416,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signature_count
    *   The exact signature count used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignatureCount($signature_count) {
@@ -446,7 +446,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signature_count_floor
    *   The minimum signature count used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignatureCountFloor($signature_count_floor) {
@@ -476,7 +476,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signatures_needed_ceiling
    *   The maximum signatures needed used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignaturesNeededCeiling($signatures_needed_ceiling) {
@@ -500,7 +500,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signatures_needed
    *   The exact signatures needed used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignaturesNeeded($signatures_needed) {
@@ -524,7 +524,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $signatures_needed_floor
    *   The minimum signature count used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setSignaturesNeededFloor($signatures_needed_floor) {
@@ -558,7 +558,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $deadline_before
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setDeadlineBefore($deadline_before) {
@@ -582,7 +582,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $deadline
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setDeadline($deadline) {
@@ -606,7 +606,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $deadline_after
    *   Epoch (UNIX style) time stamp.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setDeadlineAfter($deadline_after) {
@@ -630,7 +630,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param string $status
    *   The petition status used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setStatus($status) {
@@ -654,7 +654,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param int $response_id
    *   The response ID used to filter results.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setResponseID($response_id) {
@@ -678,6 +678,11 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
     }
     foreach ($issues as $issue_id) {
       $term = taxonomy_term_load($issue_id);
+
+      if (empty($term)) {
+        continue;
+      }
+
       $row = array(
         'id' => $term->tid,
         'name' => petitions_data_sanitize_output($term->name),
@@ -716,7 +721,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @param string $base_url
    *   The base url for the site that absolute URLs will be constructed with.
    *
-   * @return PetitionsQuery
+   * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
   public function setBaseURL($base_url) {

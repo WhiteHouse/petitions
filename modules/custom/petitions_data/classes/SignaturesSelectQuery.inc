@@ -220,8 +220,8 @@ abstract class SignaturesSelectQuery extends SelectQueryBase {
    * @return PetitionsQuery
    *   Returns current instance of object.
    */
-  public function setPetitionIds($pids) {
-    $this->petitionIds = (array) $pids;
+  public function setPetitionIds(array $pids) {
+    $this->petitionIds = $pids;
 
     return $this;
   }
