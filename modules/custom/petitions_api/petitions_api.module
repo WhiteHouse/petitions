@@ -6,3 +6,5 @@
  *
  * @todo Move functionality from api_errors and api_services_responses to here.
  */
+
+include_once 'petitions_api.features.inc';

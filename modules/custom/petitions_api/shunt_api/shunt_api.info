@@ -1,6 +1,6 @@
 name = Petitions API Shunt
 description = Implements shunts for the Petitions API to disable resources without clearing caches.
 core = 7.x
-package = Shunt
+package = Petitions API
 dependencies[] = api_errors
 dependencies[] = shunt
