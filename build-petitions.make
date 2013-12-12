@@ -13,4 +13,4 @@ projects[drupal][patch][] = http://drupal.org/files/drupal-menu-int-972536-83-D7
 
 ; Petitions installation profile
 ; -------------------------------
-projects[petitions][version] = 2.0-rc9
+projects[petitions][version] = 2.0-rc11
