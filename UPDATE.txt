@@ -1,6 +1,29 @@
 UPDATE
 ======
 
+Version 7.x-2.0-rc10 -> 7.x-2.0-rc11
+----------------------------------------------
+
+Release notes:
+  - Massively refactored petitions data layer.
+  - Added signatures queue diagrams.
+
+Update steps:
+  1. Deploy code changes.
+  2. Rebuild registry:
+    `drush registry-rebuild`
+
+Version 7.x-2.0-rc9 -> 7.x-2.0-rc10
+----------------------------------------------
+
+Release notes:
+  - Updated Drupal core version for security updates.
+
+Update steps:
+  1. Deploy code changes.
+  2. Perform the manual steps for the security update at
+     https://drupal.org/SA-CORE-2013-003.
+
 Version 7.x-2.0-rc8 -> 7.x-2.0-rc9
 ----------------------------------------------
 
