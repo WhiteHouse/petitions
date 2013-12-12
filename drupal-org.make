@@ -160,9 +160,13 @@ projects[rubik][type] = theme
 projects[rubik][subdir] = ""
 projects[rubik][version] = 4.0-beta9
 
+; 5ba70aaf95bf646211cc1d3086074885914c37cf
+;  - Fixes coding standards violations, including a PHP short tag that causes
+;    problems for simpletest.
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
 projects[fortyfour][version] = 1.0-alpha7
+projects[fortyfour][patch][] = http://drupalcode.org/project/fortyfour.git/patch/5ba70aaf95bf646211cc1d3086074885914c37cf
 
 ; External libraries
 ; -----------------
