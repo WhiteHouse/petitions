@@ -393,17 +393,21 @@ function signatures_queue_set_db($conf_name = 'signatures_processing') {
 }
 
 /**
-*
- * Get batch size.
+ * Get the admin-defined batch size for a given workflow.
  *
- * Get admin-defined number of pending and validated records to be processed at
- *   a time (which can be adjusted during heavy load).
+ * @param string $workflow
+ *   The machine name of the workflow as returned from
+ *   signatures_queue_get_workflow_names().
+ *
+ * @return int|false
+ *   The batch size if the given workflow is valid, or FALSE if it is not.
  */
 function signatures_queue_get_queue_batch_size($workflow) {
   // Fail if given workflow is invalid.
   if (!in_array($workflow, signatures_queue_get_workflow_names())) {
     return FALSE;
   }
+
   // Get the size from the configured variable.
   $batch_size = variable_get("signatures_queue_${workflow}_batch_size", SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT);
   return (int) $batch_size;
