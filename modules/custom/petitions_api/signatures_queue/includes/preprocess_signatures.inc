@@ -47,6 +47,9 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
 /**
  * Preprocesses signatures pending validation.
  *
+ * This claims items from signatures_pending_validation_queue, inserts them into
+ * the signatures_pending_validations table, and deletes them from the queue.
+ *
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
@@ -55,32 +58,45 @@ function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog
   $batch = _signatures_queue_preprocess_signatures_claim_batch('signatures_pending_validation_queue', $watchdog_suffix);
 
   // Return early if the batch is empty.
-  if (!$batch) {
-    return;
+  if (empty($batch)) {
+    return FALSE;
   }
 
   // Insert the batch into the signatures_pending_validation table.
-  _signatures_queue_preprocess_signatures_insert_batch_into_table($batch, 'signature_validations', $watchdog_suffix);
+  $inserted = _signatures_queue_preprocess_signatures_insert_batch_into_table($batch, 'signatures_pending_validation', $watchdog_suffix);
 
-  // Delete the batch from signatures_pending_validation_queue.
-  _signatures_queue_preprocess_signatures_delete_signatures_batch_from_queue($batch, 'signatures_pending_validation_queue');
+  if ($inserted) {
+    // Delete the batch from signatures_pending_validation_queue.
+    _signatures_queue_preprocess_signatures_delete_signatures_batch_from_queue($batch, 'signatures_pending_validation_queue');
+  }
 }
 
 /**
  * Preprocesses validations.
  *
+ * This claims items from validations_queue, inserts them into
+ * the validations_queue, and deletes them from the queue.
+ *
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
  */
 function _signatures_queue_preprocess_signatures_preprocess_validations($watchdog_suffix) {
+
   // Claim a batch of signatures from validations_queue.
-  $batch = _signatures_queue_preprocess_signatures_claim_batch('validations_queue');
+  $batch = _signatures_queue_preprocess_signatures_claim_batch('validations_queue', $watchdog_suffix);
+
+  // Return early if the batch is empty.
+  if (empty($batch)) {
+    return FALSE;
+  }
 
   // Merge the batch into the validations table.
-  _signatures_queue_preprocess_signatures_insert_batch_into_table($batch, 'validations', $watchdog_suffix);
+  $inserted = _signatures_queue_preprocess_signatures_insert_batch_into_table($batch, 'validations', $watchdog_suffix);
 
-  // Delete the batch from validations_queue.
-  _signatures_queue_preprocess_signatures_delete_signatures_batch_from_queue($batch, 'validations_queue');
+  if ($inserted) {
+    // Delete the batch from validations_queue.
+    _signatures_queue_preprocess_signatures_delete_signatures_batch_from_queue($batch, 'validations_queue');
+  }
 }
 
 /**
@@ -112,20 +128,43 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
   }
 
   // Build the batch.
-  $batch = array();
+  $submitted_signatures = array();
   $items_skipped = 0;
-  for ($i = 0; ($i < $batch_size && $queue->numberOfItems() > 0); $i++) {
-    // Claim item.
-    $item = $queue->claimItem();
 
-    // Some queue backends (e.g., Amazon SQS) can return empty objects. Skip
-    // them.
-    if (!$item) {
-      $items_skipped++;
-      continue;
+  // AWS SQS has the ability to claim multiple items in one request.
+  if (method_exists($queue, 'claimItems')) {
+    // Maximum number of messages per SQS request is 10. Must batch in 10s.
+    $num_requests = ceil($batch_size / 10);
+    for ($i = 0; $i < $num_requests && $queue->numberOfItems() > 0; $i++) {
+      if ($items = $queue->claimItems(NULL, 10)) {
+        // @todo check for empty objects. Is this still a problem?
+        $submitted_signatures = array_merge($submitted_signatures, $items);
+      }
     }
+  }
+  else {
+    for ($i = 0; ($i < $batch_size && $queue->numberOfItems() > 0); $i++) {
+      // Claim item.
+      $item = $queue->claimItem();
 
-    $batch[] = $item;
+      // Some queue backends (e.g., Amazon SQS) can return empty objects. Skip
+      // them.
+      if (!$item) {
+        $items_skipped++;
+        continue;
+      }
+
+      $submitted_signatures[] = $item;
+    }
+  }
+
+  // Create batch keyed by unique secret validation key.
+  $batch = array();
+  foreach ($submitted_signatures as $item) {
+    if (!empty($item->data['secret_validation_key'])) {
+      $key = $item->data['secret_validation_key'];
+      $batch[$key] = $item;
+    }
   }
 
   // Log anomalies.
@@ -150,42 +189,38 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
  *
- * @throws Exception
- *   Throws an exception if an invalid table name is supplied.
+ * @return bool
+ *   Returns TRUE if items were successfully inserted.
  */
 function _signatures_queue_preprocess_signatures_insert_batch_into_table($batch, $table_name, $watchdog_suffix) {
-  // Prepare the query and get the destination schema.
-  module_load_install('signatures_queue');
-  if ($table_name == 'signature_validations') {
-    $query = db_insert('signature_validations');
-    $schema = _signatures_queue_get_signatures_schema();
-  }
-  elseif ($table_name == 'validations_queue') {
-    $query = db_merge('validations_queue');
-    $schema = _signatures_queue_get_validations_schema();
-  }
-  else {
-    throw new Exception(t('Invalid table name.'));
-  }
+
+  // Dedupe signatures by cross-referencing chunks of the new submissions
+  // against data in the database.
+  $new_signatures = _signatures_queue_preprocess_signatures_dedupe_signatures($table_name, $batch);
+
+  // Build insert query.
+  $fields = _signatures_queue_preprocess_signatures_insert_batch_fields($table_name);
+  signatures_queue_set_db();
+  $query = db_insert($table_name);
+  $query->fields(array_values($fields));
 
   // Add values.
-  foreach ($batch as $item) {
+  foreach ($new_signatures as $item) {
     // Typecast the "signup" value for database type compatibility.
     if (array_key_exists('signup', $item->data)) {
       $item->data['signup'] = (int) $item->data['signup'];
     }
 
     // Restrict values to those that correspond to database fields.
-    $fields = array_keys($schema['fields']);
-    $values = array_intersect_key((array) $item->data, array_flip($fields));
+    $values = array_intersect_key((array) $item->data, $fields);
 
     // Add the resulting values to the query.
     $query->values($values);
   }
 
   // Execute the query.
-  signatures_queue_set_db();
   try {
+    signatures_queue_set_db();
     $query->execute();
     db_set_active();
   }
@@ -195,9 +230,92 @@ function _signatures_queue_preprocess_signatures_insert_batch_into_table($batch,
       '%error' => $e->getMessage(),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_ERROR);
+
+    return FALSE;
   }
+
+  return TRUE;
 }
 
+/**
+ * Returns an array of fields to be used for inserting batch into local db.
+ *
+ * @param string $table_name
+ *   The name of the table that the batch will be inserted into.
+ *
+ * @return array
+ *   An associative array of fields, keyed by field name.
+ *
+ * @throws Exception
+ *   Throws an exception if an invalid table name is supplied.
+ */
+function _signatures_queue_preprocess_signatures_insert_batch_fields($table_name) {
+  // Prepare the query and get the destination schema.
+  module_load_install('signatures_queue');
+  if ($table_name == 'signatures_pending_validation') {
+    // Use values from table schema to determine fields for db_insert().
+    $schema = _signatures_queue_get_signatures_schema();
+    $fields = drupal_map_assoc(array_keys($schema['fields']));
+    // Unset auto-inc and empty fields.
+    unset($fields['sid']);
+    unset($fields['timestamp_processed']);
+  }
+  elseif ($table_name == 'validations') {
+    // Use values from table schema to determine fields for db_insert().
+    $schema = _signatures_queue_get_validations_schema();
+    $fields = drupal_map_assoc(array_keys($schema['fields']));
+    // Unset auto-inc and empty fields.
+    unset($fields['vid']);
+    unset($fields['timestamp_processed']);
+    unset($fields['timestamp_validation_close']);
+  }
+  else {
+    throw new Exception(t('Invalid table name.'));
+  }
+
+  return $fields;
+}
+
+/**
+ * Removes extant signatures from an array of new signature submissions.
+ *
+ * @param string $table_name
+ *   The name of the table that signatures into which signatures will be
+ *   inserted.
+ *
+ * @param array $submitted_signatures
+ *   An associative array of submitted signatures, keyed by
+ *   secret_validation_key.
+ *
+ * @param int $chunk_size
+ *   The size of chunks to be deduped. This will be used to spilt the SELECT
+ *   query into multiple, smaller queries.
+ *
+ * @return array
+ *   An array in the same format as $chunk, with existing signatures removed.
+ */
+function _signatures_queue_preprocess_signatures_dedupe_signatures($table_name, $submitted_signatures, $chunk_size = NULL) {
+
+  if (!$chunk_size) {
+    $chunk_size = variable_get('signatures_queue_preprocess_dedupe_chunk_size', 50);
+  }
+
+  signatures_queue_set_db();
+  $new_signatures = array();
+  $chunks = array_chunk($submitted_signatures, $chunk_size, TRUE);
+  foreach ($chunks as $chunk) {
+    // Check to see if any of the vids already exist in our local db.
+    $query = db_select($table_name, 't');
+    $query->fields('t', array('secret_validation_key'));
+    $query->condition('secret_validation_key', array_keys($submitted_signatures), 'IN');
+    $existing_signatures = $query->execute()->fetchAllKeyed(0, 0);
+    // Add only signatures that are not in both arrays.
+    $new_signatures += array_diff_key($chunk, $existing_signatures);
+  }
+  db_set_active();
+
+  return $new_signatures;
+}
 /**
  * Deletes a batch of items from a given queue.
  *
@@ -212,8 +330,18 @@ function _signatures_queue_preprocess_signatures_delete_signatures_batch_from_qu
   $queue = SignaturesQueue::get($queue_name);
   $queue->createQueue();
 
-  // Delete items.
-  foreach ($batch as $item) {
-    $queue->deleteItem($item);
+  if (method_exists($queue, 'deleteItems')) {
+    // Maximum number of messages per SQS request is 10.
+    $max_messages_per_request = 10;
+    $chunks = array_chunk($batch, $max_messages_per_request, TRUE);
+    foreach ($chunks as $chunk) {
+      $queue->deleteItems($chunk);
+    }
+  }
+  else {
+    // Delete items.
+    foreach ($batch as $item) {
+      $queue->deleteItem($item);
+    }
   }
 }

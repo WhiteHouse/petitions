@@ -45,8 +45,8 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
 
   // Confirm that the md5 passed to Drupal through the validation URL is the MD5
   // hash of the secret_validation_key. (This is a simple check to try and keep
-  // spam out. NOTE: More complex checks can be added here if we need to harden the 
-  // application.
+  // spam out. NOTE: More complex checks can be added here if we need to harden
+  // the application.
   if ($options['md5'] == md5($options['secret_validation_key'])) {
     $is_valid = TRUE;
   }

@@ -378,14 +378,6 @@ function signatures_queue_set_db($conf_name = 'signatures_processing') {
 
   // If this is a simpletest run, do not switch dbs. Simpletest prefixing
   // does not support multiple databases.
-  // @todo Refactor this so that multi-db functionality is actually tested.
-  // Starting code for changes:
-  /*
-  if (!empty($drupal_test_info['test_run_id'])) {
-    $db_prefix = $drupal_test_info['test_run_id'];
-    $databases[$conf_name]['default']['prefix']['default'] = $db_prefix;
-  }
-  */
   if (empty($drupal_test_info['test_run_id']) && !empty($databases[$conf_name])) {
     // Set database so that we create the tables there.
     db_set_active($conf_name);

@@ -27,7 +27,7 @@ function signatures_queue_install() {
     drupal_set_message($t('IMPORTANT! Signature processing tables created in default database. This is not recommended for production installations. See INSTALL.md for more information.'), 'warning');
   }
 
-  // Set database to signatures_archive so that we create the archive tables there.
+  // Set database to signatures_archive so that we create tables there.
   signatures_queue_set_db('signatures_archive');
 
   $schema = _signatures_queue_archive_schema_tables();
@@ -99,6 +99,7 @@ function _signatures_queue_get_validations_schema() {
     'indexes' => array(
       'validation_key' => array('secret_validation_key'),
       'petition_signed' => array('petition_id'),
+      'timestamp_validation_close' => array('timestamp_validation_close'),
     ),
     'unique keys' => array(
       'secret_validation_key' => array('secret_validation_key'),
@@ -206,6 +207,7 @@ function _signatures_queue_get_signatures_schema() {
     'indexes' => array(
       'signatures_pending_validation_key' => array('secret_validation_key'),
       'signatures_pending_petition_id' => array('petition_id'),
+      'timestamp_validation_close' => array('timestamp_validation_close'),
     ),
     'unique keys' => array(
       'secret_validation_key' => array('secret_validation_key'),
