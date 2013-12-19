@@ -12,6 +12,7 @@ function signatures_queue_drush_command() {
   $items = array();
 
   $items['signatures-queue-invoke-workflow'] = array(
+    'aliases' => array('sqiw'),
     'callback' => 'drush_signatures_queue_invoke_workflow',
     'description' => 'Invoke a signatures queue processing workflow.',
     'arguments' => array(
@@ -25,7 +26,7 @@ function signatures_queue_drush_command() {
     'examples' => array(
       'drush signatures-queue-invoke-workflow initiate_signature_validation --server-name=M5 --worker-name=w42' => 'Invoke the "initiate_signature_validation" queue.',
     ),
-    'aliases' => array('sqiw'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_DATABASE,
     'drupal dependencies' => array(
       'signatures_queue',
     ),
@@ -129,7 +130,7 @@ function drush_signatures_queue_check_empty($name = NULL) {
   foreach ($last_emptied_timestamps as $queue_name => $timestamp) {
     drush_print(dt('@queue_name last emptied: @timestamp', array(
       '@queue_name' => $queue_name,
-      '@timestamp' => $timestamp ? date('Y-m-d', $timestamp): 'never',
+      '@timestamp' => $timestamp ? date('Y-m-d', $timestamp) : 'never',
     )));
   }
 }
