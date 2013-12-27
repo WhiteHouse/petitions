@@ -48,7 +48,8 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
  * Preprocesses signatures pending validation.
  *
  * This claims items from signatures_pending_validation_queue, inserts them into
- * the signatures_pending_validations table, and deletes them from the queue.
+ * the signatures_pending_validations table, and deletes them from
+ * signatures_pending_validation_queue.
  *
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
@@ -62,8 +63,8 @@ function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog
     return FALSE;
   }
 
-  // Insert the batch into the signatures_pending_validation table.
-  $inserted = _signatures_queue_preprocess_signatures_insert_batch_into_table($batch, 'signatures_pending_validation', $watchdog_suffix);
+  // Dedupe the batch and insert into the signatures_pending_validation table.
+  $inserted = _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($batch, 'signatures_pending_validation', $watchdog_suffix);
 
   if ($inserted) {
     // Delete the batch from signatures_pending_validation_queue.
@@ -75,7 +76,7 @@ function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog
  * Preprocesses validations.
  *
  * This claims items from validations_queue, inserts them into
- * the validations_queue, and deletes them from the queue.
+ * the validations table, and deletes them from validations_queue.
  *
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
@@ -90,8 +91,8 @@ function _signatures_queue_preprocess_signatures_preprocess_validations($watchdo
     return FALSE;
   }
 
-  // Merge the batch into the validations table.
-  $inserted = _signatures_queue_preprocess_signatures_insert_batch_into_table($batch, 'validations', $watchdog_suffix);
+  // Dedupe the batch and isnert into the validations table.
+  $inserted = _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($batch, 'validations', $watchdog_suffix);
 
   if ($inserted) {
     // Delete the batch from validations_queue.
@@ -129,15 +130,21 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
 
   // Build the batch.
   $submitted_signatures = array();
-  $items_skipped = 0;
 
-  // AWS SQS has the ability to claim multiple items in one request.
+  // Some queue backends have the ability to claim multiple items in one
+  // request.
+  //
+  // @todo It is undesirable for us to maintain parallel branches of logic based
+  //   on a difference between classes. We should instead patch core to add this
+  //   method to the queue interface. See https://drupal.org/node/2163061.
   if (method_exists($queue, 'claimItemMultiple')) {
     // Maximum number of messages per SQS request is 10. Must batch in 10s.
     $num_requests = ceil($batch_size / 10);
     for ($i = 0; $i < $num_requests && $queue->numberOfItems() > 0; $i++) {
-      if ($items = $queue->claimItemMultiple(NULL, 10)) {
-        // @todo check for empty objects. Is this still a problem?
+      $items = $queue->claimItemMultiple(NULL, 10);
+      if ($items) {
+        // @todo Check for empty objects. Is this still a problem in the context
+        //   of a multiple item claim?
         $submitted_signatures = array_merge($submitted_signatures, $items);
       }
     }
@@ -149,12 +156,9 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
 
       // Some queue backends (e.g., Amazon SQS) can return empty objects. Skip
       // them.
-      if (!$item) {
-        $items_skipped++;
-        continue;
+      if ($item) {
+        $submitted_signatures[] = $item;
       }
-
-      $submitted_signatures[] = $item;
     }
   }
 
@@ -167,22 +171,17 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
     }
   }
 
-  // Log anomalies.
-  if ($items_skipped) {
-    watchdog('signatures_queue', 'Skipped !num records because they were empty. @suffix', array(
-      '!num' => $items_skipped,
-      '@suffix' => $watchdog_suffix,
-    ), WATCHDOG_ERROR);
-  }
-
   return $batch;
 }
 
 /**
- * Inserts a batch of items into a given database table.
+ * Safely inserts a batch of items into a given database table.
+ *
+ * Prevents duplicate key integrity constraint violations by duduping the batch
+ * with the destination table first.
  *
  * @param array $batch
- *   The batch of items as returned by
+ *   A batch of items as returned by
  *   _signatures_queue_preprocess_signatures_claim_batch().
  * @param string $table_name
  *   The name of the table to insert the batch into.
@@ -190,9 +189,9 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
  *
  * @return bool
- *   Returns TRUE if items were successfully inserted.
+ *   Returns TRUE if items were successfully inserted, or FALSE if not.
  */
-function _signatures_queue_preprocess_signatures_insert_batch_into_table($batch, $table_name, $watchdog_suffix) {
+function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($batch, $table_name, $watchdog_suffix) {
 
   // Dedupe signatures by cross-referencing chunks of the new submissions
   // against data in the database.
@@ -280,8 +279,7 @@ function _signatures_queue_preprocess_signatures_insert_batch_fields($table_name
  * Removes extant signatures from an array of new signature submissions.
  *
  * @param string $table_name
- *   The name of the table that signatures into which signatures will be
- *   inserted.
+ *   The name of the table into which signatures will be inserted.
  *
  * @param array $submitted_signatures
  *   An associative array of submitted signatures, keyed by
@@ -316,6 +314,7 @@ function _signatures_queue_preprocess_signatures_dedupe_signatures($table_name, 
 
   return $new_signatures;
 }
+
 /**
  * Deletes a batch of items from a given queue.
  *
@@ -330,8 +329,14 @@ function _signatures_queue_preprocess_signatures_delete_signatures_batch_from_qu
   $queue = SignaturesQueue::get($queue_name);
   $queue->createQueue();
 
+  // @todo It is undesirable for us to maintain parallel branches of logic based
+  //   on a difference between classes. We should instead patch core to add this
+  //   method to the queue interface. See https://drupal.org/node/2163061.
   if (method_exists($queue, 'deleteItemMultiple')) {
     // Maximum number of messages per SQS request is 10.
+    // @todo Our code shouldn't know such details about the queue backend.
+    //   Maximums should be handled in transparently in aws_sqs module. See
+    //   https://drupal.org/node/2160949.
     $max_messages_per_request = 10;
     $chunks = array_chunk($batch, $max_messages_per_request, TRUE);
     foreach ($chunks as $chunk) {
