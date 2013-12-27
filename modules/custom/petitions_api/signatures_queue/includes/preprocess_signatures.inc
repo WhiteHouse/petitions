@@ -132,11 +132,11 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
   $items_skipped = 0;
 
   // AWS SQS has the ability to claim multiple items in one request.
-  if (method_exists($queue, 'claimItems')) {
+  if (method_exists($queue, 'claimItemMultiple')) {
     // Maximum number of messages per SQS request is 10. Must batch in 10s.
     $num_requests = ceil($batch_size / 10);
     for ($i = 0; $i < $num_requests && $queue->numberOfItems() > 0; $i++) {
-      if ($items = $queue->claimItems(NULL, 10)) {
+      if ($items = $queue->claimItemMultiple(NULL, 10)) {
         // @todo check for empty objects. Is this still a problem?
         $submitted_signatures = array_merge($submitted_signatures, $items);
       }
@@ -330,12 +330,12 @@ function _signatures_queue_preprocess_signatures_delete_signatures_batch_from_qu
   $queue = SignaturesQueue::get($queue_name);
   $queue->createQueue();
 
-  if (method_exists($queue, 'deleteItems')) {
+  if (method_exists($queue, 'deleteItemMultiple')) {
     // Maximum number of messages per SQS request is 10.
     $max_messages_per_request = 10;
     $chunks = array_chunk($batch, $max_messages_per_request, TRUE);
     foreach ($chunks as $chunk) {
-      $queue->deleteItems($chunk);
+      $queue->deleteItemMultiple($chunk);
     }
   }
   else {
