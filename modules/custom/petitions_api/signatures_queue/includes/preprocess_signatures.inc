@@ -138,10 +138,11 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
   //   on a difference between classes. We should instead patch core to add this
   //   method to the queue interface. See https://drupal.org/node/2163061.
   if (method_exists($queue, 'claimItemMultiple')) {
-    // Maximum number of messages per SQS request is 10. Must batch in 10s.
-    $num_requests = ceil($batch_size / 10);
+    // Maximum number of messages per AWS SQS request is 10, so default to 10.
+    $chunk_size = variable_get('signatures_queue_preprocess_claim_chunk_size', 10);
+    $num_requests = ceil($batch_size / $chunk_size);
     for ($i = 0; $i < $num_requests && $queue->numberOfItems() > 0; $i++) {
-      $items = $queue->claimItemMultiple(NULL, 10);
+      $items = $queue->claimItemMultiple(NULL, $chunk_size);
       if ($items) {
         // @todo Check for empty objects. Is this still a problem in the context
         //   of a multiple item claim?
@@ -177,7 +178,7 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
 /**
  * Safely inserts a batch of items into a given database table.
  *
- * Prevents duplicate key integrity constraint violations by duduping the batch
+ * Prevents duplicate key integrity constraint violations by deduping the batch
  * with the destination table first.
  *
  * @param array $batch
@@ -333,12 +334,9 @@ function _signatures_queue_preprocess_signatures_delete_signatures_batch_from_qu
   //   on a difference between classes. We should instead patch core to add this
   //   method to the queue interface. See https://drupal.org/node/2163061.
   if (method_exists($queue, 'deleteItemMultiple')) {
-    // Maximum number of messages per SQS request is 10.
-    // @todo Our code shouldn't know such details about the queue backend.
-    //   Maximums should be handled in transparently in aws_sqs module. See
-    //   https://drupal.org/node/2160949.
-    $max_messages_per_request = 10;
-    $chunks = array_chunk($batch, $max_messages_per_request, TRUE);
+    // Maximum number of messages per AWS SQS request is 10, so default to 10.
+    $chunk_size = variable_get('signatures_queue_preprocess_delete_chunk_size', 10);
+    $chunks = array_chunk($batch, $chunk_size, TRUE);
     foreach ($chunks as $chunk) {
       $queue->deleteItemMultiple($chunk);
     }
