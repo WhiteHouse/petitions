@@ -63,8 +63,13 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
   _signatures_queue_enqueue_item($item);
 
   // Log statistical event.
-  watchdog('petitions_api.new_signature_received', 'Received a new signature for petition @petition', array(
+  watchdog('petitions_api', 'Received a new signature for petition @petition', array(
     '@petition' => $signature['petition_id'],
+    '_WHSTATS' => array(
+      'app' => 'petitions_api',
+      'metric' => 'new_signature_received',
+      'type' => 'increment',
+    ),
   ), WATCHDOG_INFO);
 
   return SIGNATURES_QUEUE_STATUS_OK;
