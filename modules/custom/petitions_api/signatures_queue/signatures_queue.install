@@ -424,7 +424,7 @@ function signatures_queue_uninstall() {
 
   // Delete all Signatures Queue persistent variables.
   db_delete('variable')
-    ->condition('name', db_like('signature_queue') . '%', 'LIKE')
+    ->condition('name', db_like('signatures_queue') . '%', 'LIKE')
     ->execute();
   cache_clear_all('variables', 'cache_bootstrap');
 }

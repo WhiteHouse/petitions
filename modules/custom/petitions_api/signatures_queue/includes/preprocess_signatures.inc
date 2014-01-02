@@ -220,9 +220,7 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
 
   // Execute the query.
   try {
-    signatures_queue_set_db();
     $query->execute();
-    db_set_active();
   }
   catch (Exception $e) {
     db_set_active();
@@ -233,6 +231,8 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
 
     return FALSE;
   }
+
+  db_set_active();
 
   return TRUE;
 }
