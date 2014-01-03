@@ -1,0 +1,107 @@
+<?php
+/**
+ * @file
+ * Definition of a Test Case for the Validation API.
+ */
+
+/**
+ * Tests for Validations API.
+ */
+class ApiValidationsTestCase extends PetitionsDataBaseTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    $this->assertTrue(module_exists('api_validations'),
+      'api_validations module enabled.');
+
+    // Unknown why these lines are needed but they are on certain environments.
+    drupal_load('module', 'api_validations');
+    module_load_include('inc', 'api_validations');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Validations API',
+      'description' => 'Ensure signature validation are properly readable by the api.',
+      'group' => 'Petitions API',
+    );
+  }
+
+  /**
+   * Check the Validations API mock results.
+   */
+  public function testMockValidationResults() {
+    // Set the third parameter to TRUE to request a Mock response.
+    $result = _api_validations_resource_index('dummy_key', 'dummy_id', TRUE, 0, 5);
+    $this->assertTrue(isset($result) && is_array($result),
+      'Validations API returns an array');
+    $this->assertTrue(isset($result['metadata']), 'Validations API result has metadata');
+    $this->assertTrue(isset($result['results']), 'Mock Validations API request has results');
+    $this->assertTrue(($result['metadata']['resultset']['count'] > 0), 'One or more result found for Validations API mock request');
+  }
+
+  /**
+   * Check the results of a generated validation.
+   */
+  public function testGeneratedData() {
+    $this->createDummyIssues();
+    $petition = $this->createDummyPetition();
+    $this->assertNotNull($petition->getId(),
+      'Petition created with id ' . $petition->getId());
+
+    // Create a signature.
+    $signature = $this->createDummySignature($petition->getId());
+    $this->assertNotNull($signature, 'Signature created with id ' . $signature->getId());
+
+    // Create an API Key.
+    $key = $this->createDummyAPIKey();
+
+    // Create a validation.
+    $id = $this->createDummyValidation(
+      $signature->getId(), $petition->getId(), $key);
+    $this->assertNotNull($id, 'Validation created with id ' . $id);
+
+    // Assert with the correct petition but an invalid key.
+    // We should not get results with a key that isn't in the system. Instead
+    // it should through an exception containing the appropriate error code
+    // and message.
+    try {
+      $result = _api_validations_resource_index('Invalid key',
+        $petition->getId(), FALSE, 0, 5);
+    }
+    catch (Exception $exception) {
+      $data = $exception->getData();
+    }
+    $this->assertTrue((!empty($data['errorCode']) && $data['errorCode'] == 85),
+      'Correct error code with an invalid key.');
+
+    // Assert results with correct parameters and valid key.
+    $result = _api_validations_resource_index($key, $petition->getId(), FALSE, 0, 5);
+    $this->assertTrue((!empty($result['metadata']['resultset']) &&
+        $result['metadata']['resultset']['count']),
+      'One or more result found for Validations API request');
+
+    // Get the first result item.
+    $validation = $result['results'][0];
+    $is_object = $this->assertTrue(is_object($validation),
+      'Results are objects as expected.');
+
+    // Check for the correct fields.
+    $this->assertTrue(($is_object && isset($validation->vid)),
+      'Found vid field in validation object.');
+    $this->assertTrue(($is_object && isset($validation->email)),
+      'Found email field in validation object.');
+    $this->assertTrue(($is_object && isset($validation->signature_id)),
+      'Found signature_id field in validation object.');
+    $this->assertTrue(($is_object && isset($validation->petition_id)),
+      'Found petition_id field in validation object.');
+  }
+
+}

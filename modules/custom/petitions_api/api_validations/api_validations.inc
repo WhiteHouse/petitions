@@ -13,7 +13,7 @@ function _api_validations_resource_index($api_key, $petition_id, $mock, $offset,
 
   // Return mock response.
   if ($mock) {
-    $response = json_decode(_api_validations_mock_response('index'));
+    $response = drupal_json_decode(_api_validations_mock_response('index'));
     return $response;
   }
 

@@ -991,6 +991,15 @@ function wh_petitions_similar_petitions(&$conn, $petition_id) {
  * of how many petitions/responses are related to each issue term.
  */
 function wh_petitions_cron() {
+  // Skip this if in a simpletest run.
+  // This condition is added because in certain cases simpletest tests will not
+  // complete when this function is called.
+  // @todo remove once the mongo migration is completed as
+  // Simpletest should be compatible with cron.
+  global $drupal_test_info;
+  if (!empty($drupal_test_info['test_run_id'])) {
+    return;
+  }
   module_load_include('inc', 'wh_petitions', 'wh_petitions.cron');
   wh_petitions_close_petitions();
 

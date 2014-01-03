@@ -5,3 +5,7 @@ package = Petitions API
 dependencies[] = petitions_api
 dependencies[] = api_errors
 dependencies[] = api_services_responses
+
+; Tests
+files[] = tests/ApiValidationsTestCase.test
+

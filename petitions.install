@@ -1,13 +1,14 @@
 <?php
 
 /**
-* Implement hook_install().
-*
-* Perform actions to set up the site for this profile.
-*/
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
 function petitions_install() {
   include_once DRUPAL_ROOT . '/profiles/standard/standard.install';
   standard_install();
+  $t = get_t();
 
   // Enable the admin theme.
   db_update('system')
@@ -20,22 +21,25 @@ function petitions_install() {
   variable_set('theme_default', 'petitions44');
 
   $vocabulary = (object) array(
-    'name' => t('Issues'),
+    'name' => $t('Issues'),
     'machine_name' => 'issues',
   );
   taxonomy_vocabulary_save($vocabulary);
 
-  function save_issues_term($name) {
+  // Save issue terms for petitions install process.
+  $terms = array(
+    'Agriculture',
+    'Arts and Humanities',
+    'Budget and Taxes',
+    'Civil Rights and Liberties',
+    'Climate Change',
+  );
+  foreach ($terms as $name) {
     $term = (object) array(
-      'name' => st("$name"),
+      'name' => $t("$name"),
       'vocabulary_machine_name' => 'issues',
       'vid' => 2,
     );
     taxonomy_term_save($term);
   }
-  save_issues_term('Agriculture');
-  save_issues_term('Arts and Humanities');
-  save_issues_term('Budget and Taxes');
-  save_issues_term('Civil Rights and Liberties');
-  save_issues_term('Climate Change');
 }

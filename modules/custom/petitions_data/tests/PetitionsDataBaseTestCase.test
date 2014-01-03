@@ -223,4 +223,56 @@ abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
 
     return $signature;
   }
+
+  /**
+   * Generate a Dummy API Key.
+   *
+   * @param int $uid
+   *   (optional) The user id for the generated key. Default is uid 1..
+   *
+   * @return string
+   *   The generated key.
+   */
+  protected function createDummyAPIKey($uid = 1) {
+    // API Key.
+    $node = new stdClass();
+    $node->type = 'key';
+    $node->title = 'Simpletest';
+    node_object_prepare($node);
+    $node->uid = $uid;
+    $key = $this->randomName(16);
+    $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'] = $key;
+    $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'] = 'approved';
+    node_save($node);
+    $node = api_key_manager_get_key($key);
+    $this->assertNotNull($node->status, 'API Key created.');
+    return $key;
+  }
+
+  /**
+   * Create a Validation for testing.
+   *
+   * @param int $signature_id
+   *   The signature id.
+   * @param string $petition_id
+   *   The petition id.
+   * @param string $api_key
+   *   The API key string.
+   *
+   * @return int
+   *   Returns the validation id.
+   */
+  protected function createDummyValidation($signature_id, $petition_id, $api_key) {
+    return db_insert('signature_validations')
+      ->fields(array(
+        'secret_validation_key' => $this->randomName(32),
+        'signature_id' => $signature_id,
+        'petition_id' => $petition_id,
+        'signature_source_api_key' => $api_key,
+        'email' => $this->randomName() . '@mailinator.com',
+        'timestamp_processed' => time() - 360,
+      ))
+      ->execute();
+  }
+
 }
