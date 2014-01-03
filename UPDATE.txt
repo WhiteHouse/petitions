@@ -1,6 +1,18 @@
 UPDATE
 ======
 
+Version 7.x-2.0-rc11 -> 7.x-2.0-rc12
+----------------------------------------------
+
+Release notes:
+  - Minor refactoring of petitions api workflows for performance.
+  - Added automated test for api_validations.
+
+Update steps:
+  1. Deploy code changes.
+  2. Apply Drupal core patch:
+     https://drupal.org/files/issues/drupal-insertassert_exception-2155023-3.patch
+
 Version 7.x-2.0-rc10 -> 7.x-2.0-rc11
 ----------------------------------------------
 
