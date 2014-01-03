@@ -363,16 +363,15 @@ function api_key_manager_node_presave($node) {
       $node->title = $node->uid . ' - ' . $node->field_api_key_manager_name[$node->language][0]['value'];
     }
 
-    // Freshen cache of specified api_key.
-    $keys = array(
-      'old_key' => $node->original->field_api_key_manager_key[LANGUAGE_NONE][0]['value'],
-      'new_key' => $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'],
-    );
-
     // Clear old key.
-    api_key_manager_clear_cached_api_key($keys['old_key']);
+    if (!empty($node->original)) {
+      $old_key = $node->original->field_api_key_manager_key[LANGUAGE_NONE][0]['value'];
+      api_key_manager_clear_cached_api_key($old_key);
+    }
+
     // Set nodes straight to cache.
-    api_key_manager_freshen_cached_api_key($keys['new_key'], $node);
+    $new_key = $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'];
+    api_key_manager_freshen_cached_api_key($new_key, $node);
 
     // Send email on key node status change.
     global $language;
@@ -586,8 +585,5 @@ function akm_is_not_cached_api_key_pages() {
  */
 function api_key_manager_valid_key($api_key) {
   $key_node = api_key_manager_get_key($api_key);
-  if ($key_node->type == 'key') {
-    return TRUE;
-  }
-  return FALSE;
+  return isset($key_node->type) && $key_node->type == 'key';
 }

@@ -228,7 +228,7 @@ abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
    * Generate a Dummy API Key.
    *
    * @param int $uid
-   *   (optional) The user id for the generated key. Default is uid 1..
+   *   (optional) The user id for the generated key. Default is uid 1.
    *
    * @return string
    *   The generated key.
@@ -238,12 +238,22 @@ abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
     $node = new stdClass();
     $node->type = 'key';
     $node->title = 'Simpletest';
-    node_object_prepare($node);
+    $node->language = LANGUAGE_NONE;
     $node->uid = $uid;
+    $node->status = 1;
+    $node->path = array('alias' => '');
     $key = $this->randomName(16);
+    $node->field_api_key_manager_desc[LANGUAGE_NONE][0]['value'] = $this->randomString();
+    $node->field_api_key_manager_feedback[LANGUAGE_NONE][0]['value'] = $this->randomString();
     $node->field_api_key_manager_key[LANGUAGE_NONE][0]['value'] = $key;
+    $node->field_api_key_manager_name[LANGUAGE_NONE][0]['value'] = $this->randomName();
     $node->field_api_key_manager_status[LANGUAGE_NONE][0]['value'] = 'approved';
+    $node->field_api_key_manager_org[LANGUAGE_NONE][0]['value'] = $this->randomName();
+    $node->field_api_key_manager_phone[LANGUAGE_NONE][0]['value'] = $this->randomName();
+    $node->field_api_key_manager_url[LANGUAGE_NONE][0]['value'] = $this->randomName();
+    $node = node_submit($node);
     node_save($node);
+
     $node = api_key_manager_get_key($key);
     $this->assertNotNull($node->status, 'API Key created.');
     return $key;
