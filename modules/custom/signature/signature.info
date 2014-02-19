@@ -1,0 +1,6 @@
+name = Signature
+description = An entity type to store signatures
+core = 7.x
+
+dependencies[] = entity
+dependencies[] = petition

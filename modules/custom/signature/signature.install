@@ -1,0 +1,38 @@
+<?php
+/**
+ * @file
+ * Define the schema definition for our signature entity
+ */
+
+/**
+ * Implemenation of hook_shema.
+ */
+function signature_schema() {
+  $schema = array();
+
+  module_load_include("module", "signature", "signature");
+  $info = signature_get_signature_info();
+
+  foreach ($info as $name => $info) {
+    call_user_func_array("module_load_include", $info['file']);
+    $signature = new $info['class']();
+
+    $schema["signature_{$name}"] = $signature->getSchema();
+  }
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function signature_install() {
+  variable_set('signature_modules', array());
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function signature_uninstall() {
+  variable_del('signature_modules');
+}

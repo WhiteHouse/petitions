@@ -1,5 +1,5 @@
 name = Responses Resource
-description = Provides responsess resource for Services according to Whitehouse API Standards
+description = Provides responses resource for Services according to Whitehouse API Standards
 core = 7.x
 package = Petitions API
 dependencies[] = petitions_api

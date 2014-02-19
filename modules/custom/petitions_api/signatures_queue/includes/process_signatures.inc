@@ -75,13 +75,17 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     // Create user if a user with this email does not exist yet.
     $user = _signatures_queue_process_signatures_create_user($item);
 
-    // Get signature_id, if this user has already signed.
-    $item['signature_id'] = wh_petitions_get_signature_id($item['petition_id'], $user->uid);
+    // Confirm wh_petitions module is enabled before calling it's functions.
+    // Only save signatures into mongodb if that shunt is not enabled, see
+    // wh_petitions_shunt() for further details.
+    if (module_exists('wh_petitions') && !shunt_is_enabled('wh_petitions_signature_create')) {
+      // Get signature_id, if this user has already signed.
+      $item['signature_id'] = wh_petitions_get_signature_id($item['petition_id'], $user->uid);
 
-    // If this is a new signature...
-    if (!$item['signature_id']) {
-      // Create new record in petition_signatures.
-      if ($item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user)) {
+      // If this is a new signature...
+      if (!$item['signature_id']) {
+        // Create new record in petition_signatures.
+        $item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user);
         // New signature was created successfully. Increment signature count.
         wh_petitions_increment_count($item['petition_id']);
       }
@@ -100,8 +104,15 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       }
     }
 
-    // Invoke hook_save_signature. @@?
-    // module_invoke_all('save_signature', $item);
+    // Also save signature into MySQL if the shunt is not enabled. Note that
+    // the interim mongo2mysql function needs an existing signature_id, so we
+    // check for that also.
+    // @todo: Once MongoDB has been disabled, refactor the $item data structure
+    // to create and populate a signature object, then call $signature->save.
+    // This will replace the interim mongo2mysql wrapper below.
+    if (!shunt_is_enabled('signature_mail_mysql_save') && !empty($item['signature_id'])) {
+      signature_mail_mongo2mysql_save($item);
+    }
 
     // Add signature ID and API key to signatures_validations table.
     _signatures_queue_process_signatures_add_to_signatures_validations($item);
@@ -259,7 +270,7 @@ function _signatures_queue_process_signatures_create_user($item) {
  *   Drupal user object for checking petition_signatures.
  *
  * @return string
- *   A signature ID.
+ *   $signature_id The ID of the signature created
  */
 function _signatures_queue_process_signatures_create_record($item, $user) {
   // The wh_petitions_create_signature function called by

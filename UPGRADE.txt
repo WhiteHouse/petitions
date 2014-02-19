@@ -1,0 +1,14 @@
+UPGRADE
+=======
+
+Version 7.x-2.x -> 7.x-3.x
+----------------------------------------------
+
+Release notes:
+  - Changes from using Mongo based petitions to using mysql/node based petitions.
+  - Changes from using Mongo based signatures to using mysql/entity based signatures.
+  - Migration scripts to migrate Mongo data to native Drupal data types.
+
+Update steps:
+  1. Run drush updb. Now you will have a new node type called petitions and
+     the signature entity

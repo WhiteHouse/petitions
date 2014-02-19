@@ -3,6 +3,8 @@
 /**
  * @file
  * Management and utility for petitions.
+ *
+ * WARNING: THIS MODULE IS GOING TO BE REMOVED BEFORE 7.x-3.0.
  */
 
 /**
@@ -1100,15 +1102,6 @@ function wh_petitions_similar_petitions(&$conn, $petition_id) {
  * of how many petitions/responses are related to each issue term.
  */
 function wh_petitions_cron() {
-  // Skip this if in a simpletest run.
-  // This condition is added because in certain cases simpletest tests will not
-  // complete when this function is called.
-  // @todo remove once the mongo migration is completed as
-  // Simpletest should be compatible with cron.
-  global $drupal_test_info;
-  if (!empty($drupal_test_info['test_run_id'])) {
-    return;
-  }
   module_load_include('inc', 'wh_petitions', 'wh_petitions.cron');
   wh_petitions_close_petitions();
 
@@ -1376,6 +1369,9 @@ function wh_petitions_save_petition(&$collection, $petition) {
     }
     $collection->save($petition);
     petitions_data_freshen_cached_petition($petition['_id']);
+
+    module_invoke_all("wh_petitions_petition_save", $petition);
+    
     return $petition['_id']->__toString();
   }
 }
@@ -1392,6 +1388,7 @@ function wh_petitions_save_signature($signature, $collection = '') {
   if (!empty($signature) && !empty($collection)) {
     $collection->save($signature);
     module_invoke_all('wh_petitions_signature_save', $signature, $collection);
+
     return $signature['_id']->__toString();
   }
 }
@@ -2083,4 +2080,28 @@ function wh_petitions_increment_signature_count(&$petition, $connection = FALSE)
 
   // Reload petition object.
   $petition = wh_petitions_load_slim_petition($connection, $petition['_id'], $slim_petition_elements);
+}
+
+/**
+ * Implements hook_shunt().
+ */
+function wh_petitions_shunt() {
+  $shunts = array();
+ 
+  // This shunt will stop both mongo and mysql petition creation via the form.
+  // It overrides the shunts defined by petition and signature mail.
+  // Once we separate the mongo code from the current petition creation form,
+  // or if we create a v2 version of the form, this "incorrect" behavior will
+  // be eliminated and this toggle will only disable creation of petitions in
+  // MongoDB.
+  $shunts['wh_petitions_petition_create'] = t('Disable creation of new petitions when /petition/create is submitted.');
+
+  // This shunt will stop mongo signature creation. Whilst the mysql signature
+  // creation logic depends on a mongo signature ID, it will stop mysql
+  // signature creation also. It only works for signatures created through the
+  // API, so will not work for the signature form until that is converted to
+  // pass through the API.
+  $shunts['wh_petitions_signature_create'] = t('Disable creation of new signatures by the signature write API.');
+
+  return $shunts;
 }

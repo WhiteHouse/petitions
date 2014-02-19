@@ -1,0 +1,127 @@
+<?php
+/**
+ * @file
+ * Install file for the petition module.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function petition_enable() {
+  $t = get_t();
+  drupal_set_message($message = $t('The Petition  module was successfully enabled.'), $type = 'status');
+  // Start MySQL writes off disabled.
+  // @todo: remove this once MongoDB is removed.
+  shunt_enable_shunt('petition_mysql_save');
+}
+
+/**
+ * Implements hook_disable().
+ */
+function petition_disable() {
+  $t = get_t();
+  drupal_set_message($message = $t('The Petition  module has been disabled.'), $type = 'status');
+}
+
+
+/**
+ * Implements hook_install().
+ */
+function petition_install() {
+  require_once 'includes/petition.field.inc';
+  // Close comments.
+  variable_set('comment_petition', COMMENT_NODE_CLOSED);
+  // Build the fields and add their instances to the petition content type.
+  petition_build_fields(petition_fields());
+  $t = get_t();
+  drupal_set_message($message = $t('The Petition module has been installed and a Petition content type has been created.'), $type = 'status');
+
+  // Set the initial state of MySQL shunt to disable mysql writes.
+  // @todo This default setting should be removed when mongo is fully removed.
+  shunt_enable_shunt('petition_mysql_save');
+
+}
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function petition_uninstall() {
+  // Delete all petition nodes.
+  require_once 'includes/petition.inc';
+  petition_delete_all();
+  // Remove variables.
+  variable_del('comment_petition');
+  $t = get_t();
+  drupal_set_message($message = $t('The Petition module has been uninstalled and petition nodes deleted.'), $type = 'status');
+  // Remove petition content type.
+  node_type_delete('petition');
+  drupal_set_message($message = $t('The Petition content type hase been deleted.'), $type = 'status');
+  drupal_flush_all_caches();
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Updates fields from fields array if it changed.
+ */
+function petition_update_7000(&$sandbox) {
+  require_once 'includes/petition.field.inc';
+  // Update the fields and add their instances to the petition content type.
+  petition_build_fields(petition_fields());
+}
+
+
+/**
+ * Creates fields and adds field instances to petition content type.
+ *
+ * The structure of the array coming in matches the fields array created by
+ * the Features module.
+ * 
+ * @param array $fields
+ *   A fields array as created by Features.
+ */
+function petition_build_fields($fields = array()) {
+  if (!empty($fields)) {
+    // Clear out an fields info in case this is being called by an update.
+    field_info_cache_clear();
+
+    // Load all the existing fields and instances up-front so that we don't
+    // have to rebuild the cache all the time.
+    $existing_fields = field_info_fields();
+    $existing_instances = field_info_instances('node', 'petition');
+
+    // Loop through and process each field and field instance.
+    foreach ($fields as $field) {
+      // Create or update field.
+      $field_config = $field['field_config'];
+      if (isset($existing_fields[$field_config['field_name']])) {
+        $existing_field = $existing_fields[$field_config['field_name']];
+        if ($field_config + $existing_field != $existing_field) {
+          field_update_field($field_config);
+        }
+      }
+      else {
+        field_create_field($field_config);
+        $existing_fields[$field_config['field_name']] = $field_config;
+      }
+
+      // Create or update field instance.
+      $field_instance = $field['field_instance'];
+      if (isset($existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']])) {
+        $existing_instance = $existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']];
+        if ($field_instance + $existing_instance != $existing_instance) {
+          // This field instance exists, so update it.
+          field_update_instance($field_instance);
+        }
+      }
+      else {
+        // This field instance does not exist, so create it.
+        field_create_instance($field_instance);
+        $existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']] = $field_instance;
+      }
+    }
+    variable_set('menu_rebuild_needed', TRUE);
+  }
+
+}

@@ -242,3 +242,12 @@ function petitions_maintenance_update_7011() {
     }
   }
 }
+
+/**
+ * Activate the petitions and signature module.
+ */
+function petitions_maintenance_update_7012() {
+  // Enable new modules.
+  $modules = array('petition', 'signature_mail', 'petition_pages', 'migrate_mongo2mysql_petsig');
+  module_enable($modules);
+}

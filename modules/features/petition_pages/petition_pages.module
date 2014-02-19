@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Petiton Pages feature.
+ */
+
+include_once 'petition_pages.features.inc';

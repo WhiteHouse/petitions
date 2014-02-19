@@ -7,15 +7,6 @@ core = 7.x
 ;
 dependencies[] = wh_user_profile
 
-; depends on:
-;  migrate_extras
-;  profile2
-;  migrate
-;  wh_user_profile
-;
-dependencies[] = wh_profile_migrate
-
-
 ; depends on;
 ;  wh_user_profile
 ;

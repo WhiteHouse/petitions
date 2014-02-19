@@ -409,6 +409,19 @@ You can review and, if necessary, remove this petition at the following URL: !pe
     '#required' => FALSE,
   );
 
+  // Settings related to petition administration.
+  $form['mongo2mysql'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('MongoDB to MySQL Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['mongo2mysql']['wh_petitions_mysql_toggle'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow data to be saved to MySQL as well as MongoDB'),
+    '#default_value' => variable_get('wh_petitions_mysql_toggle', 0),
+  );
+
   $form['#validate'][] = 'wh_petitions_admin_petition_settings_validate';
 
   return system_settings_form($form, FALSE);

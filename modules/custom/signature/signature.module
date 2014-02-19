@@ -1,0 +1,125 @@
+<?php
+/**
+ * @file
+ * Supply information to the entity system about our signature entity, and
+ * helper function to create sample signatures, and to delete all signatures
+ */
+
+/**
+ * Signature info hook.
+ */
+function signature_get_signature_info($name = NULL) {
+  $info = module_invoke_all("signature_info");
+  drupal_alter("signature_info", $info);
+
+  if ($name) {
+    if (array_key_exists($name, $info)) {
+      return $info[$name];
+    }
+    else {
+      return FALSE;
+    }
+  }
+  else {
+    return $info;
+  }
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function signature_entity_info() {
+  $entity_type_info = array();
+
+  $info = signature_get_signature_info();
+
+  foreach ($info as $name => $info) {
+    call_user_func_array("module_load_include", $info['file']);
+    $signature = new $info['class']();
+
+    $full_name = "signature_{$name}";
+
+    $entity_type_info[$full_name] = array(
+      'label' => $signature->getLabel(),
+      'base table' => $full_name,
+      'entity class' => "Entity",
+      'controller class' => "EntityAPIController",
+      'access callback' => 'entity_access',
+      'module' => $info['module'],
+      'fieldable' => FALSE,
+      'entity keys' => array(
+        'id' => 'id',
+      ),
+      'label callback' => 'signature_label',
+      'uri callback' => 'signature_uri',
+      'bundles' => array(),
+      'view modes' => array(
+        'teaser' => array(
+          'label' => t('Teaser'),
+          'custom settings' => TRUE,
+        ),
+      ),
+    );
+  }
+
+  return $entity_type_info;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function signature_entity_property_info_alter(&$info) {
+  $sig_info = signature_get_signature_info();
+
+  foreach ($sig_info as $name => $pinfo) {
+    call_user_func_array("module_load_include", $pinfo['file']);
+    $signature = new $pinfo['class']();
+
+    $properties_info = $signature->getPropertiesInfo();
+    foreach ($properties_info as $property_name => $property_info) {
+      foreach ($property_info as $key => $value) {
+        $info["signature_{$name}"]['properties'][$property_name][$key] = $value;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_modules_enabled().
+ *
+ * When a module is enabled, if it is a signature module, we need to create its
+ * table.
+ */
+function signature_modules_enabled($modules) {
+  // When a module is enabled, we create its table and save its info in the
+  // signature_modules variable.
+  foreach ($modules as $module) {
+    $info = signature_get_signature_info();
+    foreach ($info as $name => $info) {
+      if ($info['module'] == $module) {
+        $signature = new $info['class']();
+        db_create_table("signature_{$name}", $signature->getSchema());
+
+        $variable = variable_get('signature_modules');
+        $variable[$info['module']] = $name;
+        variable_set('signature_modules', $variable);
+      }
+    }
+  }
+}
+
+/**
+ * When a signature module is uninstalled, we need to delete its table.
+ */
+function signature_modules_uninstalled($modules) {
+  $variable = variable_get('signature_modules');
+  foreach ($modules as $module) {
+    foreach ($variable as $sig_module => $name) {
+      if ($module == $sig_module) {
+        db_drop_table("signature_{$name}");
+        unset($variable[$sig_module]);
+        variable_set('signature_modules', $variable);
+      }
+    }
+  }
+}

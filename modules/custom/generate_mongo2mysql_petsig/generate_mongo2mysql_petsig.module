@@ -1,0 +1,26 @@
+<?php
+/**
+ * @file
+ * Using and informing libraries to define our dependency on the Faker library.
+ */
+
+/**
+ * Implements hook_libraries_info().
+ */
+function generate_mongo2mysql_petsig_libraries_info() {
+  $libraries['faker'] = array(
+    'name' => 'Faker',
+    'vendor url' => 'https://github.com/fzaninotto/Faker',
+    'download url' => 'https://github.com/fzaninotto/Faker/archive/v1.3.0.tar.gz',
+    // The actual library files are contained in 'sites/all/libraries/faker/src'
+    'path' => 'src',
+    'files' => array(
+      'php' => array(
+        'autoload.php',
+      ),
+    ),
+    'version' => '1.3',
+  );
+
+  return $libraries;
+}
