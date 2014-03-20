@@ -1,6 +1,17 @@
 UPDATE
 ======
 
+Version 7.x-2.0-rc12 -> 7.x-2.0-rc13
+----------------------------------------------
+
+Release notes:
+  - Updated contrib modules.
+  - Added the url parameter to the API's petitions index method.
+
+Update steps:
+  1. Deploy code changes.
+  2. Run update.php.
+
 Version 7.x-2.0-rc11 -> 7.x-2.0-rc12
 ----------------------------------------------
 

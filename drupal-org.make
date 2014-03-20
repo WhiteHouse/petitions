@@ -25,7 +25,7 @@ projects[conditional_styles][version] = 2.1
 
 projects[context][version] = 3.1
 
-projects[ctools][version] = 1.3
+projects[ctools][version] = 1.4
 
 projects[date][version] = 2.6
 
@@ -78,6 +78,8 @@ projects[recaptcha][version] = 1.10
 ; The latest security release is 2.3 so we can update to that for now:
 ; https://drupal.org/node/1954592
 projects[rules][version] = 2.3
+
+projects[services][version] = 3.7
 
 projects[services_documentation][version] = 1.3
 
@@ -143,12 +145,6 @@ projects[logintoboggan][patch][] = http://drupal.org/files/password_token-116512
 projects[nagios][version] = 1.1
 projects[nagios][patch][] = http://drupal.org/files/check_type.patch
 projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
-
-; services-1937312-format-arguments-errors-reroll-8.patch
-;  - Fixes WSOD when missing required arguments.
-;  - @see https://drupal.org/node/1937312
-projects[services][version] = 3.5
-projects[services][patch][] = http://drupal.org/files/services-1937312-format-arguments-errors-reroll-8.patch
 
 ; Contrib themes
 ; -----------------
