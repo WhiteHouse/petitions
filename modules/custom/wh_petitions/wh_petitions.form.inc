@@ -24,7 +24,8 @@ function wh_petitions_create_petition_iframe_html() {
   global $base_url;
   $styles = drupal_get_css();
   $scripts = drupal_get_js();
-  $form_html = drupal_render(drupal_get_form('wh_petitions_create_petition'));
+  $form = drupal_get_form('wh_petitions_create_petition');
+  $form_html = drupal_render($form);
   $messages = theme('status_messages');
   $url = $base_url . '/' . drupal_get_path('theme', 'petitions44');
 
