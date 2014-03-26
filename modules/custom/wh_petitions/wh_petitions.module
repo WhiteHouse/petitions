@@ -104,6 +104,16 @@ define('WH_PETITION_PETITIONS_PER_PAGE', 20);
 define('WH_PETITION_NICE_URL', 'petition/[petition:title]');
 
 /**
+ * Petitions signing methods
+ */
+
+// Registration required.
+define('WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED', 0);
+
+// Simplified signing.
+define('WH_PETITIONS_SIGNING_METHOD_SIMPLIFIED_SIGNING', 1);
+
+/**
  * Returns the title associated with a status.
  */
 function wh_petitions_display_status_name($status_id, $type = 'petition') {
@@ -270,7 +280,8 @@ function wh_petitions_menu() {
   $items['admin/petitions/settings'] = array(
     'title' => 'Settings',
     'description' => 'Administer petitions.',
-    'page callback' => 'wh_petitions_admin_petitions_settings_links',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wh_petitions_admin_petitions_settings_form'),
     'access arguments' => array('administer petitions'),
     'weight' => 10,
     'file' => 'wh_petitions.admin.inc',

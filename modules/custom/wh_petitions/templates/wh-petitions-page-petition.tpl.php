@@ -58,20 +58,24 @@
             </div><!--/inner-->
           </div><!--/thank you modal-->
           <?php else: ?>
-            <div class="col-left">
-              <a id="button-sign-this-petition-inactive" href="/user" class="no-follow inactive-margin"><?php print t('Sign this Petition'); ?></a>
-            </div><!--/col-2-->
-            <div class="col-right">
-              <h3><?php print t('A whitehouse.gov account is required to sign Petitions.'); ?></h3> <div id="why-overlay-text"><?php print t('WHY?'); ?></div>
-              <div id="why-overlay" class="display-none">
-                <div class="entry"><?php print $why_text; ?></div>
-              </div><!--/#why overlay-->
-              <div class="buttons">
-                <?php print l(t('Sign In'), 'user', array('query' => $return_destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-sign-in'))); ?>
-                <div class="or"><?php print t('or'); ?></div><!--/or-->
-                <?php print l(t('Create an Account'), 'user/register', array('query' => $return_destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-create-an-account'))); ?>
-              </div><!--/buttons-->
-            </div><!--/col-2-->
+            <?php if ($login_required): ?>
+              <div class="col-left">
+                <a id="button-sign-this-petition-inactive" href="/user" class="no-follow inactive-margin"><?php print t('Sign this Petition'); ?></a>
+              </div><!--/col-2-->
+              <div class="col-right">
+                <h3><?php print t('A whitehouse.gov account is required to sign Petitions.'); ?></h3> <div id="why-overlay-text"><?php print t('WHY?'); ?></div>
+                <div id="why-overlay" class="display-none">
+                  <div class="entry"><?php print $why_text; ?></div>
+                </div><!--/#why overlay-->
+                <div class="buttons">
+                  <?php print l(t('Sign In'), 'user', array('query' => $return_destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-sign-in'))); ?>
+                  <div class="or"><?php print t('or'); ?></div><!--/or-->
+                  <?php print l(t('Create an Account'), 'user/register', array('query' => $return_destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-create-an-account'))); ?>
+                </div><!--/buttons-->
+              </div><!--/col-2-->
+            <?php else: ?>
+              <div><?php print $signature_form; ?></div>
+            <?php endif; ?>
             <h3 class="clearfix" style="float: left"><?php print t('If you\'re logged in, but having trouble signing this petition, <a href="/how-why/frequently-asked-questions">click here for help.</a>') ?></h3><br />
           <?php endif; ?>
         </div>

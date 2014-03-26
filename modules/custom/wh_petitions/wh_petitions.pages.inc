@@ -316,6 +316,7 @@ function wh_petitions_petition_detail($petition_id) {
   global $base_url;
 
   $logged_in = ($user->uid > 0) ? TRUE : FALSE;
+  $login_required = (variable_get('petitions_signing_method', WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED) == WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED) ? TRUE : FALSE;
 
   // Make sure we got a petition id
   if (empty($petition_id)) {
@@ -527,9 +528,12 @@ function wh_petitions_petition_detail($petition_id) {
   if ($already_signed) {
     $signature_form = '';
   }
-  elseif (empty($user->uid)) {
+  elseif (empty($user->uid) && $login_required) {
     $signature_form = l('Sign This Petition', 'user/login', array('attributes' => array('id' => 'button-sign-this-petition')));
     $why_text = variable_get('wh_petitions_tooltip_why', '');
+  }
+  elseif (empty($user->uid) && !$login_required) {
+    $signature_form = t('<div>Placeholder for simplified signing form</div>');
   }
   elseif (in_array($petition['petition_status'], array(WH_PETITION_STATUS_PRIVATE, WH_PETITION_STATUS_PUBLIC, WH_PETITION_STATUS_UNDER_REVIEW))) {
     module_load_include('inc', 'wh_petitions', 'wh_petitions.form');
@@ -651,6 +655,7 @@ function wh_petitions_petition_detail($petition_id) {
     'signature_url' => $signature_url,
     'has_reported' => $has_reported,
     'logged_in' => $logged_in,
+    'login_required' => $login_required,
     'reported_link' => $reported_link,
     'why_text' => $why_text,
     'return_destination' => $return_destination,

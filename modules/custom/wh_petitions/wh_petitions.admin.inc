@@ -1062,6 +1062,36 @@ function wh_petitions_admin_petitions() {
 }
 
 /**
+ * Page callback: Displays form for petitions settings page.
+ */
+function wh_petitions_admin_petitions_settings_form() {
+  $form = array();
+  $form['petitions_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Petitions settings'),
+  );
+  $form['petitions_settings']['petitions_signing_method'] = array(
+    '#type' => 'radios',
+    '#title' => t('Signing method'),
+    '#description' => t('Choosing "Registration required" will display a "Log in or Register" action to anonymous users when viewing a petition and intending to submit a signature. Choosing Simplified signing will, instead, display the Simplified signing form, which allows for petitions signing without the need to register or log in the site. For this change to go into effect, a Drupal cache clear will be required.'),
+    '#default_value' => variable_get('petitions_signing_method', WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED),
+    '#options' => array(
+      WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED => t('Registration required'),
+      WH_PETITIONS_SIGNING_METHOD_SIMPLIFIED_SIGNING => t('Simplified signing'),
+    ),
+  );
+  $form['related_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Related settings'),
+  );
+  $form['related_settings']['links'] = array(
+    '#type' => 'markup',
+    '#markup' => wh_petitions_admin_petitions_settings_links(),
+  );
+  return system_settings_form($form);
+}
+
+/**
  * Page callback: Displays links to various petitions settings pages.
  */
 function wh_petitions_admin_petitions_settings_links() {
