@@ -107,10 +107,14 @@ define('WH_PETITION_NICE_URL', 'petition/[petition:title]');
  * Petitions signing methods
  */
 
-// Registration required.
+/**
+ * Registration required.
+ */
 define('WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED', 0);
 
-// Simplified signing.
+/**
+ * Simplified signing.
+ */
 define('WH_PETITIONS_SIGNING_METHOD_SIMPLIFIED_SIGNING', 1);
 
 /**

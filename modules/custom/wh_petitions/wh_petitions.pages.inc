@@ -525,27 +525,41 @@ function wh_petitions_petition_detail($petition_id) {
   $comment_form = '';
   $signature_url = '';
   $why_text = '';
+  // Do not display a form if user already signed it.
   if ($already_signed) {
     $signature_form = '';
   }
-  elseif (empty($user->uid) && $login_required) {
-    $signature_form = l('Sign This Petition', 'user/login', array('attributes' => array('id' => 'button-sign-this-petition')));
-    $why_text = variable_get('wh_petitions_tooltip_why', '');
-  }
-  elseif (empty($user->uid) && !$login_required) {
-    $signature_form = t('<div>Placeholder for simplified signing form</div>');
-  }
-  elseif (in_array($petition['petition_status'], array(WH_PETITION_STATUS_PRIVATE, WH_PETITION_STATUS_PUBLIC, WH_PETITION_STATUS_UNDER_REVIEW))) {
-    module_load_include('inc', 'wh_petitions', 'wh_petitions.form');
-    $signature_form = drupal_get_form('wh_petitions_sign_petition_form', $petition_id);
-    $signature_form = drupal_render($signature_form);
-    $comment_form = drupal_get_form('wh_petitions_comment_petition_form', $petition_id);
-    $comment_form = drupal_render($comment_form);
-    $signature_url = '';
-    $signature_url = $base_url . "/petition/form/sign/" . check_plain($petition_id);
-  }
+  // Petition hasn't been signed.
   else {
-    $signature_form = '';
+    // Check if login is required or if simplified login is on.
+    switch ($login_required) {
+      case TRUE:
+        // Prepare a button that will appear grayed out if the user is not logged in and the login/registration is required to sign.
+        if (!$logged_in) {
+          $signature_form = l('Sign This Petition', 'user/login', array('attributes' => array('id' => 'button-sign-this-petition')));
+          $why_text = variable_get('wh_petitions_tooltip_why', '');
+        }
+        // Display a direct sign button if user is authenticated and login is required to sign the petition.
+        elseif (in_array($petition['petition_status'], array(WH_PETITION_STATUS_PRIVATE, WH_PETITION_STATUS_PUBLIC, WH_PETITION_STATUS_UNDER_REVIEW))) {
+          module_load_include('inc', 'wh_petitions', 'wh_petitions.form');
+          $signature_form = drupal_get_form('wh_petitions_sign_petition_form', $petition_id);
+          $signature_form = drupal_render($signature_form);
+          $comment_form = drupal_get_form('wh_petitions_comment_petition_form', $petition_id);
+          $comment_form = drupal_render($comment_form);
+          $signature_url = '';
+          $signature_url = $base_url . "/petition/form/sign/" . check_plain($petition_id);
+        }
+        else {
+          $signature_form = '';
+        }
+        break;
+      case FALSE:
+      default:
+        // Regardless of user authentication, display a simplied signing form if chosen in settings.
+        // Both anonymous and authenticated users will be shown the same form.
+        $signature_form = t('<div>Placeholder for simplified signing form</div>');
+        break;
+    }
   }
 
   // Set the 'Report as Inappropriate' link if it should appear.  Should appear on public/private/under review

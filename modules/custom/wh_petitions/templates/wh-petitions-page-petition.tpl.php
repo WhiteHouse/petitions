@@ -1,11 +1,16 @@
 <?php
+
 /**
  * @file
  * wh-petitions-page-petition.tpl.php
  *
  * Available variables:
+ *
  * $path_to_petitions44: Dynamically generates path to petitions44 theme.
+ * $login_required: TRUE if login is required or FALSE if set to simplified signing.
+ * $signature_form: rendered form to be displayed on signing section.
  */
+
 ?>
 <div id="petition-wrapper">
   <?php if ($has_reported):
@@ -24,7 +29,7 @@
     <?php if(!$responded && !$archived && !$flagged): ?>
       <?php if(!$already_signed): ?>
         <div id="sign-this-petition" class="clearfix">
-          <?php if ($logged_in): ?>
+          <?php if ($logged_in && $login_required): ?>
           <div class="col-full">
             <?php print l(t('Sign This Petition'), 'petition/sign/' . $petition_id, array('attributes' => array('rel' => $petition_id, 'id' => 'button-sign-this-petition', 'class' => array('no-follow')))); ?>
           </div><!--/col-2-->
@@ -73,10 +78,10 @@
                   <?php print l(t('Create an Account'), 'user/register', array('query' => $return_destination, 'attributes' => array('class' => array('no-follow'), 'id' => 'button-create-an-account'))); ?>
                 </div><!--/buttons-->
               </div><!--/col-2-->
+              <h3 class="clearfix" style="float: left"><?php print t('If you\'re logged in, but having trouble signing this petition, <a href="/how-why/frequently-asked-questions">click here for help.</a>') ?></h3><br />
             <?php else: ?>
               <div><?php print $signature_form; ?></div>
             <?php endif; ?>
-            <h3 class="clearfix" style="float: left"><?php print t('If you\'re logged in, but having trouble signing this petition, <a href="/how-why/frequently-asked-questions">click here for help.</a>') ?></h3><br />
           <?php endif; ?>
         </div>
       <?php else: ?>
