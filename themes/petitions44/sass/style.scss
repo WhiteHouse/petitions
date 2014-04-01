@@ -213,7 +213,11 @@ body.petition #page-inner {position: relative;}
   position:fixed;
   float:right;
   top:0px;
-  z-index: 40px;
+  z-index: 40;
+}
+#petition-inner .right-rail-fixed-bottom {
+  position:absolute;
+  z-index: 40;
 }
 #petition-inner .right-rail-relative {
   position:relative;

@@ -432,7 +432,6 @@ Drupal.behaviors.railScroll = {
       $(window).resize(function(railpos) {
         var pos = $('#petition-inner .right-rail').offset();
         if(pos != null) {
-          $('#petition-inner .right-rail .container').css('left', pos.left + 'px');
           railScroll(pos);
         }
       });
@@ -446,14 +445,29 @@ Drupal.behaviors.railScroll = {
 }
 
 function railScroll(pos) {
+  var windowScrollTop = $(window).scrollTop();
+  var petitionHeight = $('#petition-inner .main-content').height();
+  var sidebarHeight = $('#petition-inner .right-rail .container').height();
   if(pos != null) {
-    if ($(window).scrollTop() >= pos.top) {
-      $('#petition-inner .right-rail .container').css('left', pos.left + 'px');
+    if (windowScrollTop >= pos.top && petitionHeight >= (windowScrollTop + sidebarHeight)) {
+      $('#petition-inner').css('position', 'relative');
+      $('#petition-inner .right-rail .container').removeClass('right-rail-fixed-bottom');
       $('#petition-inner .right-rail .container').addClass('right-rail-fixed');
+      $('#petition-inner .right-rail .container').css({top: ''});
       $('#button-back-to-top').removeClass('hide');
     }
-    else if ($(window).scrollTop() <= pos.top) {
+    else if (windowScrollTop >= pos.top && petitionHeight < (windowScrollTop + sidebarHeight)) {
+      $('#petition-inner').css('position', 'relative');
       $('#petition-inner .right-rail .container').removeClass('right-rail-fixed');
+      $('#petition-inner .right-rail .container').addClass('right-rail-fixed-bottom');
+      $('#petition-inner .right-rail .container').css({top: (petitionHeight - sidebarHeight)});
+      $('#button-back-to-top').removeClass('hide');
+    }
+    else if (windowScrollTop <= pos.top) {
+      $('#petition-inner').css('position', 'static');
+      $('#petition-inner .right-rail .container').removeClass('right-rail-fixed');
+      $('#petition-inner .right-rail .container').removeClass('right-rail-fixed-bottom');
+      $('#petition-inner .right-rail .container').css({top: ''});
       $('#button-back-to-top').addClass('hide');
     }
   }

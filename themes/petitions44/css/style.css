@@ -1,108 +1,71 @@
 /***** Reset ******/
-/* line 3, ../sass/style.scss */
 html {
-  line-height: normal;
-}
+  line-height: normal; }
 
-/* line 4, ../sass/style.scss */
 ul, ol, li, h1, h2, h3, h4, h5, p {
   margin: 0;
-  padding: 0;
-}
+  padding: 0; }
 
-/* line 7, ../sass/style.scss */
 .clear {
-  clear: both;
-}
+  clear: both; }
 
 /***** HTML ******/
-/* line 11, ../sass/style.scss */
 a {
   color: #336699;
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 12, ../sass/style.scss */
 a:hover {
-  color: #003365;
-}
+  color: #003365; }
 
-/* line 14, ../sass/style.scss */
 h2.page-title {
   color: #669900;
   font-size: 1.667em;
   font-weight: normal;
   letter-spacing: 0.04em;
-  margin: 20px 0;
-}
+  margin: 20px 0; }
 
-/* line 22, ../sass/style.scss */
 h4 {
   color: #737373;
   text-transform: uppercase;
   margin: 0;
   padding: 0;
   letter-spacing: 0.03em;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 30, ../sass/style.scss */
 h3 {
   font-weight: bold;
   color: #333;
   margin: 0 0 15px 0;
-  font-size: 1.167em;
-}
-
-table {
-  width: 100%;
-}
+  font-size: 1.167em; }
 
 /***** Cutup List ******/
-/* line 39, ../sass/style.scss */
 ul.cutuplist li {
   font-size: 18px;
-  margin: 0 0 10px 25px;
-}
+  margin: 0 0 10px 25px; }
 
-/* line 44, ../sass/style.scss */
 h1.cutuphead {
-  margin: 45px 0 0 20px;
-}
+  margin: 45px 0 0 20px; }
 
-/* line 48, ../sass/style.scss */
 ul.cutuplist {
-  margin: 20px;
-}
+  margin: 20px; }
 
-/* line 52, ../sass/style.scss */
 .spacer-for-cutup {
-  height: 105px;
-}
+  height: 105px; }
 
-/* line 56, ../sass/style.scss */
 ul.cutuplist li a {
-  color: #336699;
-}
+  color: #336699; }
 
 /***** Extras ******/
-/* line 62, ../sass/style.scss */
 :-moz-any-link:focus {
-  outline: none;
-}
+  outline: none; }
 
-/* line 66, ../sass/style.scss */
 .float-left {
-  float: left;
-}
+  float: left; }
 
-/* line 68, ../sass/style.scss */
 .float-right {
-  float: right;
-}
+  float: right; }
 
 /***** From WH.gov ******/
-/* line 72, ../sass/style.scss */
 body {
   font-family: Arial,Helvetica,sans-serif;
   font-size: 75%;
@@ -110,10 +73,8 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: none;
-}
+  background: none; }
 
-/* line 83, ../sass/style.scss */
 #petition-page {
   background: url(../img/wh_home_new_header.jpg) no-repeat scroll top center;
   /* background:url(../img/bg-main-one.jpg) center top no-repeat; */
@@ -122,26 +83,19 @@ body {
   margin: 0;
   min-width: 976px;
   padding: 0;
-  position: relative;
-}
+  position: relative; }
 
-/* line 93, ../sass/style.scss */
 .center-on-page {
   width: 976px;
-  margin: 0 auto;
-}
+  margin: 0 auto; }
 
-/* line 98, ../sass/style.scss */
 p {
   font-size: 1em;
-  line-height: 1.5;
-}
+  line-height: 1.5; }
 
 /****** Structure ******/
-/* line 104, ../sass/style.scss */
 body.petition #page-inner {
-  position: relative;
-}
+  position: relative; }
 
 /*
 #petition-outer {
@@ -150,229 +104,162 @@ body.petition #page-inner {
   width: 974px;
 }
 */
-/* line 114, ../sass/style.scss */
 #hdr-flag {
-  margin: 12px 0 0 8px;
-}
+  margin: 12px 0 0 8px; }
 
-/* line 118, ../sass/style.scss */
 #petition-inner {
   /* padding: 25px 15px 50px 15px; */
-  padding: 25px 15px 50px;
-}
+  padding: 25px 15px 50px; }
 
-/* line 123, ../sass/style.scss */
 #petition-inner .main-content {
   width: 687px;
-  float: left;
-}
+  float: left; }
 
-/* line 128, ../sass/style.scss */
 .page-user #petition-inner .main-content {
-  margin: -18px 0px 0px -15px;
-}
+  margin: -18px 0px 0px -15px; }
 
-/* line 132, ../sass/style.scss */
 #how-why-content {
   background: url(../img/bg-how-why-left-nav.png) no-repeat top left;
-  min-height: 500px;
-}
+  min-height: 500px; }
 
-/* line 137, ../sass/style.scss */
 #how-why-content .main-content {
   width: 620px;
   float: left;
-  padding: 0 80px 20px 10px;
-}
+  padding: 0 80px 20px 10px; }
 
-/* line 143, ../sass/style.scss */
 #how-why-content #step-content {
   padding: 0 0 20px 5px;
-  width: 720px;
-}
+  width: 720px; }
 
-/* line 148, ../sass/style.scss */
 .section-how-why #petition-inner {
-  padding: 0;
-}
+  padding: 0; }
 
-/* line 152, ../sass/style.scss */
 .section-how-why #petition-inner #main-content-wrapper {
-  width: 100%;
-}
+  width: 100%; }
 
-/* line 156, ../sass/style.scss */
 .section-how-why .read-more, .section-how-why .summary {
-  display: none;
-}
+  display: none; }
 
-/* line 160, ../sass/style.scss */
 .section-how-why .details {
-  display: block !important;
-}
+  display: block !important; }
 
-/* line 164, ../sass/style.scss */
 #button-sign-this-petition-signin {
   color: #669900;
   font-size: 1.333em;
-  margin: 31px 0 0;
-}
+  margin: 31px 0 0; }
 
-/* line 170, ../sass/style.scss */
 #step-content a#button-create-a-petition {
-  margin-left: 45px;
-}
+  margin-left: 45px; }
 
-/* line 174, ../sass/style.scss */
 #how-why-content .step-content {
   width: 620px;
   float: left;
-  padding: 0 80px 20px 5px;
-}
+  padding: 0 80px 20px 5px; }
 
-/* line 180, ../sass/style.scss */
 #how-why-content .left-nav {
   width: 198px;
   float: left;
-  padding: 14px 0 0 10px;
-}
+  padding: 14px 0 0 10px; }
 
-/* line 186, ../sass/style.scss */
 #petition-inner .right-rail {
   width: 238px;
   float: right;
-  z-index: -20;
-}
+  z-index: -20; }
 
-/* line 192, ../sass/style.scss */
 .page-user #petition-inner .right-rail {
-  margin-top: -3px !important;
-}
+  margin-top: -3px !important; }
 
-/* line 196, ../sass/style.scss */
 #petition-inner .right-rail p {
-  margin: 0 0 15px 0;
-}
+  margin: 0 0 15px 0; }
 
-/* line 200, ../sass/style.scss */
 #petition-inner .right-rail .block {
-  margin-bottom: 0px;
-}
+  margin-bottom: 0px; }
 
-/* line 204, ../sass/style.scss */
 #wh-footer {
   background-image: url(../img/wh_home_footer.jpg);
   background-position: 0px 0px;
-  position: relative;
-}
+  position: relative; }
 
-/* line 209, ../sass/style.scss */
 #petition-inner .right-rail .container {
-  width: 238px;
-}
+  width: 238px; }
 
-/* line 212, ../sass/style.scss */
 #petition-inner .right-rail-fixed {
   position: fixed;
   float: right;
   top: 0px;
-  z-index: 40px;
-}
+  z-index: 40; }
 
-/* line 218, ../sass/style.scss */
+#petition-inner .right-rail-fixed-bottom {
+  position: absolute;
+  z-index: 40; }
+
 #petition-inner .right-rail-relative {
-  position: relative;
-}
+  position: relative; }
 
 /****** Common Styles ******/
-/* line 225, ../sass/style.scss */
 .block-border {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
   padding: 3px 0 3px 5px;
   background: #FFF;
-  border: 1px solid #d2d2d2;
-}
+  border: 1px solid #d2d2d2; }
 
-/* line 234, ../sass/style.scss */
 .p-fuzzy-divide {
   background: url(../img/bg-divide.png) repeat-x;
-  height: 15px;
-}
+  height: 15px; }
 
 /****** Petition Header ******/
-/* line 241, ../sass/style.scss */
 #petition-header {
   background: url(../img/sprite-bg.png) top left no-repeat;
   min-height: 164px;
-  width: 976px;
-}
+  width: 976px; }
 
-/* line 247, ../sass/style.scss */
 #petition-header .col-1 {
   width: 720px;
   float: left;
-  padding: 20px 0 0 0;
-}
+  padding: 20px 0 0 0; }
 
-/* line 253, ../sass/style.scss */
 #petition-header .col-2 {
   width: 219px;
   float: right;
-  padding: 0 15px;
-}
+  padding: 0 15px; }
 
-/* line 259, ../sass/style.scss */
 #petition-header a {
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 263, ../sass/style.scss */
 #petition-header span.view-my-link a {
   font-size: 1em;
   font-weight: bold;
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 269, ../sass/style.scss */
 #petition-header span.loginout a {
   font-size: 12px;
   font-family: Arial;
   font-weight: bold;
   text-decoration: none;
-  color: #ffffff;
-}
+  color: #ffffff; }
 
-/* line 280, ../sass/style.scss */
 #petition-header .col-2 .link-wrapper {
   width: 100%;
   color: #ffffff;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 0 3px 0;
-}
+  padding: 5px 0 3px 0; }
 
-/* line 289, ../sass/style.scss */
 #petition-header .col-2 .float-right {
-  float: right;
-}
+  float: right; }
 
-/* line 293, ../sass/style.scss */
 #petition-header .col-2 .link-wrapper:hover {
   /*background: #829c44;*/
-  color: #c0e07e;
-}
+  color: #c0e07e; }
 
-/* line 298, ../sass/style.scss */
 #petition-header span.view-my-link {
   background: url(../img/sprite-circle-icons.png) no-repeat 102px -170px;
   padding-right: 27px;
-  padding-bottom: 4px;
-}
+  padding-bottom: 4px; }
 
-/* line 304, ../sass/style.scss */
 #petition-header .col-2 .text {
   margin: 22px 10px 5px 0;
   color: #d6eaad;
@@ -380,37 +267,27 @@ body.petition #page-inner {
   line-height: 1.2;
   font-family: Arial;
   font-weight: normal;
-  min-height: 58px;
-}
+  min-height: 58px; }
 
-/* line 314, ../sass/style.scss */
 #petition-header a.intro {
   background: url(../img/bg-hdr-text.png) no-repeat;
   height: 88px;
   margin: 0 0 0 25px;
   text-indent: -9000px;
   width: 558px;
-  display: block;
-}
+  display: block; }
 
-/* line 323, ../sass/style.scss */
 #petition-header ul {
   margin: 0;
-  padding: 0;
-}
+  padding: 0; }
 
-/* line 328, ../sass/style.scss */
 #petition-header ul.links {
-  margin-top: 15px;
-}
+  margin-top: 15px; }
 
-/* line 332, ../sass/style.scss */
 #petition-header ul.links li {
   list-style-type: none;
-  float: left;
-}
+  float: left; }
 
-/* line 337, ../sass/style.scss */
 #petition-header ul.links li a {
   display: block;
   font-size: 14px;
@@ -420,43 +297,30 @@ body.petition #page-inner {
   border-bottom: none;
   text-shadow: #535353 0px 2px 0px;
   font-weight: bold;
-  text-transform: uppercase;
-}
+  text-transform: uppercase; }
 
-/* line 349, ../sass/style.scss */
 #petition-header ul#main-menu-links li.front a {
   background: url(../img/nav-pet.gif) no-repeat;
   text-indent: -9999px;
-  width: 20px;
-}
+  width: 20px; }
 
-/* line 355, ../sass/style.scss */
 #petition-header ul.links li:last-child a {
-  border-right: none;
-}
+  border-right: none; }
 
-/* line 360, ../sass/style.scss */
 #petition-header ul.links li a:hover,
 #petition-header ul#main-menu-links li.first a:hover {
-  background-position: 0 -41px;
-}
+  background-position: 0 -41px; }
 
-/* line 365, ../sass/style.scss */
 #petition-header ul.links li a.active,
 #petition-header ul#main-menu-links li.first a.active {
-  background-position: 0 -82px;
-}
+  background-position: 0 -82px; }
 
-/* line 369, ../sass/style.scss */
 #petition-header ul.secondary-links {
   float: right;
-  padding: 4px 0;
-}
+  padding: 4px 0; }
 
-/* line 374, ../sass/style.scss */
 #petition-header ul.secondary-links li {
-  padding: 0;
-}
+  padding: 0; }
 
 /* TO-DO:  In an effort to meet required deadlines, we have used a manual
 solution to proerply display a divider to the right of secondary links.  A
@@ -469,80 +333,57 @@ permanent solution will need to be created in the future. */
 }
 
 */
-/* line 391, ../sass/style.scss */
 #petition-header ul.secondary-links li.menu-5401 a {
   padding-right: 5px;
   margin-right: 5px;
-  border-right: 1px solid white;
-}
+  border-right: 1px solid #FFFFFF; }
 
-/* line 397, ../sass/style.scss */
 #petition-header ul.secondary-links li.menu-5396 a {
   padding-right: 5px;
   margin-right: 5px;
-  border-right: 1px solid white;
-}
+  border-right: 1px solid #FFFFFF; }
 
 /* END OF CUSTOM CODE */
-/* line 405, ../sass/style.scss */
 #petition-header ul.secondary-links li a {
-  font-weight: bold;
-}
+  font-weight: bold; }
 
-/* line 408, ../sass/style.scss */
 #petition-header .col-2 .share-link {
   -moz-border-radius: 5px 5px 5px 5px;
   width: 170px;
-  margin: 0 0 23px 0;
-}
+  margin: 0 0 23px 0; }
 
-/* line 414, ../sass/style.scss */
 #petition-header .share-link span.view-my-link {
   background: url(../img/sprite-circle-icons.png) no-repeat 124px -170px;
   padding-right: 27px;
-  padding-bottom: 4px;
-}
+  padding-bottom: 4px; }
 
-/* line 420, ../sass/style.scss */
 #wh-feedback-link {
   font-family: Arial;
   font-size: 12px;
   font-weight: bold;
-  color: #ffffff;
-}
+  color: #ffffff; }
 
-/* line 427, ../sass/style.scss */
 #petition-header span.view-my-link a:hover {
-  color: #facc26;
-}
+  color: #facc26; }
 
 /****** Petition Intro Page ******/
-/* line 433, ../sass/style.scss */
 #petition-intro-outer {
   /*background:url(../img/sprite-bg.png) 0 -227px no-repeat;*/
   min-height: 745px;
   top: 0px;
-  width: 976px;
-}
+  width: 976px; }
 
-/* line 440, ../sass/style.scss */
 .homepage #petition-inner, .node #petition-inner {
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 444, ../sass/style.scss */
 #petition-intro-inner {
-  /*padding: 20px 15px 35px;*/
-}
+  /*padding: 20px 15px 35px;*/ }
 
-/* line 448, ../sass/style.scss */
 .petition-intro-video-wrapper {
   text-align: center;
   margin-bottom: 40px;
-  margin-top: 5px;
-}
+  margin-top: 5px; }
 
-/* line 454, ../sass/style.scss */
 #petition-intro-inner .col-3 {
   width: 300px;
   padding: 20px 15px 15px;
@@ -552,10 +393,8 @@ permanent solution will need to be created in the future. */
   position: relative;
   line-height: 140%;
   color: #565649;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 466, ../sass/style.scss */
 #petition-intro-inner .col-2 {
   width: 420px;
   padding: 20px 15px 15px;
@@ -565,44 +404,30 @@ permanent solution will need to be created in the future. */
   position: relative;
   line-height: 140%;
   color: #565649;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 479, ../sass/style.scss */
 #petition-intro-inner #intro-user-accounts {
-  width: 210px;
-}
+  width: 210px; }
 
-/* line 483, ../sass/style.scss */
 #petition-intro-inner .col-last {
-  margin-right: 0;
-}
+  margin-right: 0; }
 
-/* line 487, ../sass/style.scss */
 #petition-intro-inner h2 {
   font-family: Arial,sans-serif;
   font-size: 16px;
   letter-spacing: 0.1em;
   margin-bottom: 13px;
-  text-transform: uppercase;
-}
+  text-transform: uppercase; }
 
-/* line 495, ../sass/style.scss */
 #petition-intro-inner h2 a {
-  color: #565649;
-}
+  color: #565649; }
 
-/* line 499, ../sass/style.scss */
 #petition-intro-inner h2 a:hover {
-  color: #8b8b86;
-}
+  color: #8b8b86; }
 
-/* line 503, ../sass/style.scss */
 #petition-intro-inner .col-3 img {
-  float: right;
-}
+  float: right; }
 
-/* line 507, ../sass/style.scss */
 #petition-intro-inner a.more {
   color: #333;
   font-weight: bold;
@@ -610,142 +435,100 @@ permanent solution will need to be created in the future. */
   background: url(../img/bullet-green-arrow.png) no-repeat right;
   padding: 3px 19px 2px 0;
   position: absolute;
-  bottom: 10px;
-}
+  bottom: 10px; }
 
-/* line 517, ../sass/style.scss */
 #petition-intro-inner a.more:hover {
-  text-decoration: underline;
-}
+  text-decoration: underline; }
 
-/* line 521, ../sass/style.scss */
 #petition-intro-inner .bottom-box p, #petition-intro-inner .bottom-box ol {
   margin-bottom: 15px;
-  letter-spacing: 0.04em;
-}
+  letter-spacing: 0.04em; }
 
-/* line 526, ../sass/style.scss */
 #petition-intro-inner .bottom-box li {
-  list-style-position: inside;
-}
+  list-style-position: inside; }
 
 /****** Petition Step Pages ******/
 /* Steps */
-/* line 535, ../sass/style.scss */
 #steps-wrapper {
   background: url(../img/sprite.gif) no-repeat 0 -133px;
   height: 56px;
-  letter-spacing: 0.01em;
-}
+  letter-spacing: 0.01em; }
 
-/* line 541, ../sass/style.scss */
 #steps-wrapper a {
   color: #333;
   font-weight: bold;
   font-size: 1em;
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 548, ../sass/style.scss */
 #steps-wrapper .step a {
   height: 25px;
-  float: left;
-}
+  float: left; }
 
-/* line 553, ../sass/style.scss */
 #steps-wrapper .step-expand a {
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 557, ../sass/style.scss */
 #steps-wrapper .step-complete a {
-  color: #7a7a7a;
-}
+  color: #7a7a7a; }
 
-/* line 561, ../sass/style.scss */
 .step-1-collapse a {
   width: 63px;
   display: block;
   background: url(../img/sprite.gif) no-repeat -607px 1px;
   height: 25px;
-  padding: 13px 0 0 17px;
-}
+  padding: 13px 0 0 17px; }
 
-/* line 572, ../sass/style.scss */
 .step-2-collapse a,
 .step-3-collapse a,
 .step-4-collapse a {
   width: 67px;
   display: block;
   background: url(../img/sprite.gif) no-repeat -607px 1px;
-  padding: 13px 0 0 12px;
-}
+  padding: 13px 0 0 12px; }
 
-/* line 579, ../sass/style.scss */
 .step-1-expand a {
   background: url(../img/sprite.gif) no-repeat 0 -210px;
   width: 213px;
-  padding: 13px 0 0 12px;
-}
+  padding: 13px 0 0 12px; }
 
-/* line 588, ../sass/style.scss */
 .step-2-expand a,
 .step-3-expand a,
 .step-4-expand a {
   background: url(../img/sprite.gif) no-repeat 0 -257px;
   width: 203px;
   padding: 13px 0 0 30px;
-  margin-left: -20px;
-}
+  margin-left: -20px; }
 
-/* line 595, ../sass/style.scss */
 .step-4-expand a {
   width: 275px;
-  background: url(../img/sprite.gif) no-repeat 0 -306px;
-}
+  background: url(../img/sprite.gif) no-repeat 0 -306px; }
 
-/* line 600, ../sass/style.scss */
 .petition-instructions {
   font-size: 1.083em;
   font-weight: bold;
   color: #575757;
   padding: 10px 0;
-  margin-bottom: 10px;
-}
+  margin-bottom: 10px; }
 
-/* line 608, ../sass/style.scss */
 .either-or-msg {
-  /* background:url(../img/sprite.gif) no-repeat 216px -392px;*/
-}
+  /* background:url(../img/sprite.gif) no-repeat 216px -392px;*/ }
 
-/* line 612, ../sass/style.scss */
 .alert-msg span.red {
-  color: #880000;
-}
+  color: #880000; }
 
-/* line 616, ../sass/style.scss */
 .petition-instructions span.or {
   width: 28px;
-  font-size: 0;
-}
+  font-size: 0; }
 
-/* line 621, ../sass/style.scss */
 .alert-msg {
   color: #737373;
-  font-size: 1.333em;
-}
+  font-size: 1.333em; }
 
-/* line 626, ../sass/style.scss */
 .petition-list {
-  margin-bottom: 10px;
-}
+  margin-bottom: 10px; }
 
-/* line 630, ../sass/style.scss */
 .petition-list .add-margin {
-  margin-right: 17px;
-}
+  margin-right: 17px; }
 
-/* line 634, ../sass/style.scss */
 .list-we-petition-msg {
   color: #669900;
   text-align: center;
@@ -755,41 +538,29 @@ permanent solution will need to be created in the future. */
   width: 390px;
   margin: 0 auto;
   padding: 5px 0 20px 0;
-  letter-spacing: 0.02em;
-}
+  letter-spacing: 0.02em; }
 
-/* line 650, ../sass/style.scss */
 .petition-list .entry .title,
 .petition-detail .title,
 .petition-response .title {
   font-family: Georgia, serif;
   font-size: 1.667em;
-  line-height: 1.2em;
-}
+  line-height: 1.2em; }
 
-/* line 656, ../sass/style.scss */
 h1.title {
-  color: #333333;
-}
+  color: #333333; }
 
-/* line 660, ../sass/style.scss */
 .petition-list .entry .title {
   margin: 0;
-  word-wrap: break-word;
-}
+  word-wrap: break-word; }
 
-/* line 665, ../sass/style.scss */
 .petition-list .col-2 {
-  width: 335px;
-}
+  width: 335px; }
 
-/* line 669, ../sass/style.scss */
 .petition-list .entry {
   margin: 0 0 15px 0;
-  /*float: left;*/
-}
+  /*float: left;*/ }
 
-/* line 674, ../sass/style.scss */
 .petition-list .entry .title a {
   background: #f6f6f6;
   display: block;
@@ -802,23 +573,17 @@ h1.title {
   border-top-left-radius: 5px;
   -moz-border-radius-topleft: 5px;
   -webkit-border-radius-topleft: 5px;
-  width: auto;
-}
+  width: auto; }
 
-/* line 689, ../sass/style.scss */
 .petition-list .col-2 .entry .title a {
-  height: 120px;
-}
+  height: 120px; }
 
-/* line 693, ../sass/style.scss */
 .petition-list .entry .title a:hover {
   text-decoration: underline;
   color: #000;
   background: #FFF;
-  border: 1px solid #e6e6e6;
-}
+  border: 1px solid #e6e6e6; }
 
-/* line 703, ../sass/style.scss */
 .petition-list .petitions .entry .action-bar,
 #create-petition-form-step-2 .entry .action-bar,
 #my-petitions .petition-list .entry .action-bar,
@@ -830,7 +595,7 @@ h1.title {
   /* for webkit browsers */
   background: -moz-linear-gradient(top, #e1e1e1, #b7b7b7);
   /* for firefox 3.6+ */
-  border-top: 1px solid white;
+  border-top: 1px solid #FFF;
   padding: 0 10px 0 16px;
   border-bottom-right-radius: 5px;
   -moz-border-radius-bottomright: 5px;
@@ -838,18 +603,14 @@ h1.title {
   border-bottom-left-radius: 5px;
   -moz-border-radius-bottomleft: 5px;
   -webkit-border-radius-bottomleft: 5px;
-  text-shadow: 0 1px 0 white;
-}
+  text-shadow: 0 1px 0 #ffffff; }
 
-/* line 719, ../sass/style.scss */
 .full-page-list .entry .action-bar, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
-  filter: none;
-}
+  filter: none; }
 
-/* line 723, ../sass/style.scss */
 .petition-list .responses .response-entry .action-bar, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
   background: url(../img/bg-action-bar-grey.png) repeat-x;
-  border-top: 1px solid white;
+  border-top: 1px solid #FFF;
   padding: 0 10px 0 16px;
   border-bottom-right-radius: 5px;
   -moz-border-radius-bottomright: 5px;
@@ -857,79 +618,57 @@ h1.title {
   border-bottom-left-radius: 5px;
   -moz-border-radius-bottomleft: 5px;
   -webkit-border-radius-bottomleft: 5px;
-  text-shadow: 0 1px 0 white;
-}
+  text-shadow: 0 1px 0 #ffffff; }
 
-/* line 736, ../sass/style.scss */
 petition-list .responses .col-2 .response-entry .action-bar, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
   background: url(../img/bg-petitions-action-bar.png) no-repeat 0 0;
   text-indent: -9000px;
   display: block;
-  height: 41px;
-}
+  height: 41px; }
 
-/* line 742, ../sass/style.scss */
 .petition-list .responses .response-entry .action-bar, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
   background: url(../img/bg-petitions-action-bar.png) no-repeat 0 -100px;
   text-indent: -9000px;
-  display: block;
-}
+  display: block; }
 
-/* line 747, ../sass/style.scss */
 .petition-list .responses .col-2 .response-entry .action-bar:hover, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
-  background: url(../img/bg-petitions-action-bar.png) no-repeat 0 -49px;
-}
+  background: url(../img/bg-petitions-action-bar.png) no-repeat 0 -49px; }
 
-/* line 750, ../sass/style.scss */
 .petition-list .responses .response-entry .action-bar:hover {
-  background: url(../img/bg-petitions-action-bar.png) no-repeat 0 -148px;
-}
+  background: url(../img/bg-petitions-action-bar.png) no-repeat 0 -148px; }
 
-/* line 754, ../sass/style.scss */
 .petition-list .response-entry .read-response a {
   display: block;
   background: url(../img/sprite-buttons.png) no-repeat -298px -5px;
   height: 26px;
-  margin: 13px 0 0 0;
-}
+  margin: 13px 0 0 0; }
 
-/* line 762, ../sass/style.scss */
 .petition-list .entry .num-sig {
   width: 150px;
   float: left;
   padding: 5px 0 0 0;
-  font-size: 1.167em;
-}
+  font-size: 1.167em; }
 
-/* line 769, ../sass/style.scss */
 .petition-list .entry .num {
   font-family: Arial, sans-serif;
   font-size: 1.667em;
   font-weight: bold;
-  letter-spacing: 0.05em;
-}
+  letter-spacing: 0.05em; }
 
-/* line 776, ../sass/style.scss */
 .petition-list .entry .find-out {
   width: 140px;
   float: right;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 782, ../sass/style.scss */
 .petition-list .entry .find-out a {
   background: url(../img/button-find-out-more.png) no-repeat 0 0;
   width: 149px;
   height: 37px;
-  display: block;
-}
+  display: block; }
 
-/* line 784, ../sass/style.scss */
 .petition-list .entry .find-out a:hover {
-  background: url(../img/button-find-out-more.png) no-repeat 0 -50px;
-}
+  background: url(../img/button-find-out-more.png) no-repeat 0 -50px; }
 
-/* line 788, ../sass/style.scss */
 .petition-warning {
   padding: 8px;
   color: #FFF;
@@ -946,59 +685,41 @@ petition-list .responses .col-2 .response-entry .action-bar, #create-petition-fo
   font-weight: bold;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
-  border-radius: 5px;
-}
+  border-radius: 5px; }
 
 /* Petition Detail  */
-/* line 806, ../sass/style.scss */
 .petition-detail {
-  padding: 0px 0px 0px 15px;
-}
+  padding: 0px 0px 0px 15px; }
 
-/* line 810, ../sass/style.scss */
 .petition-detail-margin-right {
-  padding-right: 15px;
-}
+  padding-right: 15px; }
 
-/* line 814, ../sass/style.scss */
 .petition-detail .petition-warning {
-  margin: 0 0 25px 0;
-}
+  margin: 0 0 25px 0; }
 
-/* line 818, ../sass/style.scss */
 .petition-detail .title {
   margin: 5px 0 10px 0;
   font-size: 2em;
-  word-wrap: break-word;
-}
+  word-wrap: break-word; }
 
-/* line 824, ../sass/style.scss */
 .petition-detail p, .modal p, .main-content p {
   margin: 0 0 15px 0;
   font-size: 1.167em;
   line-height: 160%;
-  word-wrap: break-word;
-}
+  word-wrap: break-word; }
 
-/* line 831, ../sass/style.scss */
 .petition-list #petition-wrapper p.no-results, .petition-list .responses p.no-results {
-  text-align: center;
-}
+  text-align: center; }
 
-/* line 835, ../sass/style.scss */
 .petition-detail .issues, .petition-detail .date {
   color: #737373;
-  margin: 0 0 10px 0;
-}
+  margin: 0 0 10px 0; }
 
-/* line 840, ../sass/style.scss */
 .petition-detail .sig-num {
   background: url(../img/sprite.gif) no-repeat 0 -365px;
   height: 80px;
-  position: relative;
-}
+  position: relative; }
 
-/* line 846, ../sass/style.scss */
 .petition-detail .num-block {
   background: url(../img/bg-num-count.gif) no-repeat;
   height: 32px;
@@ -1007,43 +728,31 @@ petition-list .responses .col-2 .response-entry .action-bar, #create-petition-fo
   float: left;
   font-size: 2em;
   font-weight: bold;
-  letter-spacing: 0.07em;
-}
+  letter-spacing: 0.07em; }
 
-/* line 856, ../sass/style.scss */
 .petition-detail .num-block1 {
   position: absolute;
   left: 165px;
-  top: 22px;
-}
+  top: 22px; }
 
-/* line 861, ../sass/style.scss */
 .petition-detail .num-block2 {
   position: absolute;
   left: 475px;
-  top: 22px;
-}
+  top: 22px; }
 
-/* line 867, ../sass/style.scss */
 #total-on .num-block, #total-count .num-block {
   background: url(../img/bg-num-count-long.gif) no-repeat;
-  width: 160px;
-}
+  width: 160px; }
 
-/* line 872, ../sass/style.scss */
 #total-count .num-block {
   float: none;
-  margin: 0 0 5px 0;
-}
+  margin: 0 0 5px 0; }
 
-/* line 877, ../sass/style.scss */
 #total-on {
   margin-right: 0;
   width: 325px;
-  float: right;
-}
+  float: right; }
 
-/* line 883, ../sass/style.scss */
 .sig-num .col-2 h4 {
   width: 150px;
   padding-right: 15px;
@@ -1052,125 +761,87 @@ petition-list .responses .col-2 .response-entry .action-bar, #create-petition-fo
   vertical-align: middle;
   height: 80px;
   float: none;
-  line-height: 1.2em;
-}
+  line-height: 1.2em; }
 
-/* line 894, ../sass/style.scss */
 #total-on h4 {
-  width: 135px;
-}
+  width: 135px; }
 
-/* line 898, ../sass/style.scss */
 .sig-num .col-2 {
   width: 300px;
   float: left;
   margin-right: 25px;
-  height: 80px;
-}
+  height: 80px; }
 
-/* line 905, ../sass/style.scss */
 .sig-num #total-on h4 {
-  padding-top: 0px;
-}
+  padding-top: 0px; }
 
-/* line 909, ../sass/style.scss */
 .petition-detail-publish-options {
   background: url(../img/sprite.gif) no-repeat 0 -485px;
-  height: 219px;
-}
+  height: 219px; }
 
-/* line 914, ../sass/style.scss */
 .petition-detail-publish-options .col-2 {
   float: left;
   width: 285px;
-  padding: 24px 25px 0 0;
-}
+  padding: 24px 25px 0 0; }
 
-/* line 920, ../sass/style.scss */
 .petition-detail-publish-options a.button {
   display: block;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 925, ../sass/style.scss */
 input#button-publish-my-petition {
   width: 250px;
   height: 33px;
   background: url(../img/button-publish-my-petition.gif) no-repeat 0 0;
   margin: 0 0 15px 0;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 932, ../sass/style.scss */
 input#button-publish-my-petition:hover {
-  background: url(../img/button-publish-my-petition.gif) no-repeat 0 -33px;
-}
+  background: url(../img/button-publish-my-petition.gif) no-repeat 0 -33px; }
 
-/* line 935, ../sass/style.scss */
 input#button-publish-my-petition:active {
-  background: url(../img/button-publish-my-petition.gif) no-repeat 0 -65px;
-}
+  background: url(../img/button-publish-my-petition.gif) no-repeat 0 -65px; }
 
-/* line 939, ../sass/style.scss */
 a#button-save-this-petition-and-publish-later {
   width: 275px;
   height: 25px;
   background: url(../img/button-save-my-petition-and-publish-later.gif) no-repeat 0 0;
   margin: 0 0 5px 0;
   cursor: pointer;
-  -webkit-appearance: none !important;
-}
+  -webkit-appearance: none !important; }
 
-/* line 947, ../sass/style.scss */
 a#button-save-this-petition-and-publish-later:hover {
-  background: url(../img/button-save-my-petition-and-publish-later.gif) no-repeat 0 -26px;
-}
+  background: url(../img/button-save-my-petition-and-publish-later.gif) no-repeat 0 -26px; }
 
-/* line 950, ../sass/style.scss */
 a#button-save-this-petition-and-publish-later:active {
-  background: url(../img/button-save-my-petition-and-publish-later.gif) no-repeat 0 -51px;
-}
+  background: url(../img/button-save-my-petition-and-publish-later.gif) no-repeat 0 -51px; }
 
-/* line 954, ../sass/style.scss */
 input#button-back-to-previous-step {
   width: 140px;
   height: 25px;
   background: url(../img/button-edit-my-petition.gif) no-repeat 0 0;
   margin: 0 0 5px 0;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 961, ../sass/style.scss */
 input#button-back-to-previous-step:hover {
-  background: url(../img/button-edit-my-petition.gif) no-repeat 0 -26px;
-}
+  background: url(../img/button-edit-my-petition.gif) no-repeat 0 -26px; }
 
-/* line 964, ../sass/style.scss */
 input#button-back-to-previous-step:active {
-  background: url(../img/button-edit-my-petition.gif) no-repeat 0 -51px;
-}
+  background: url(../img/button-edit-my-petition.gif) no-repeat 0 -51px; }
 
-/* line 968, ../sass/style.scss */
 a.button-delete-my-petition {
   width: 155px;
   height: 25px;
   background: url(../img/button-delete-my-petition.gif) no-repeat 0 0;
   margin: 0 0 5px 0;
   cursor: pointer;
-  -webkit-appearance: none !important;
-}
+  -webkit-appearance: none !important; }
 
-/* line 976, ../sass/style.scss */
 a.button-delete-my-petition:hover {
-  background: url(../img/button-delete-my-petition.gif) no-repeat 0 -26px;
-}
+  background: url(../img/button-delete-my-petition.gif) no-repeat 0 -26px; }
 
-/* line 979, ../sass/style.scss */
 a.button-delete-my-petition:active {
-  background: url(../img/button-delete-my-petition.gif) no-repeat 0 -51px;
-}
+  background: url(../img/button-delete-my-petition.gif) no-repeat 0 -51px; }
 
-/* line 983, ../sass/style.scss */
 a#button-create-a-petition {
   width: 241px;
   height: 33px;
@@ -1178,48 +849,34 @@ a#button-create-a-petition {
   margin: 10px 0 15px 0;
   display: block;
   text-indent: -9000px;
-  -webkit-appearance: none !important;
-}
+  -webkit-appearance: none !important; }
 
-/* line 993, ../sass/style.scss */
 a#button-create-a-petition:hover {
-  background: url(../img/sprite-buttons.png) no-repeat 0 -284px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat 0 -284px; }
 
-/* line 997, ../sass/style.scss */
 a#button-create-a-petition:active {
-  background: url(../img/sprite-buttons.png) no-repeat 0 -317px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat 0 -317px; }
 
-/* line 1001, ../sass/style.scss */
 #button-back-to-top {
   width: 241px;
   height: 33px;
   background: url(../img/sprite-buttons.png) no-repeat 0 -840px;
   margin: 10px 0 15px 0;
   display: block;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 1010, ../sass/style.scss */
 #button-back-to-top:hover {
-  background: url(../img/sprite-buttons.png) no-repeat 0 -872px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat 0 -872px; }
 
-/* line 1014, ../sass/style.scss */
 #button-back-to-top:active {
-  background: url(../img/sprite-buttons.png) no-repeat 0 -904px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat 0 -904px; }
 
-/* line 1018, ../sass/style.scss */
 .petition-detail-publish-options p {
   font-size: 1em;
   color: #575757;
   margin: 0 0 10px 0;
-  line-height: normal;
-}
+  line-height: normal; }
 
-/* line 1027, ../sass/style.scss */
 .show-more-petitions-bar,
 .show-more-responses-bar {
   background: url(../img/sprite.gif) no-repeat 0 -728px;
@@ -1233,28 +890,20 @@ a#button-create-a-petition:active {
   font-weight: bold;
   letter-spacing: 0.03em;
   padding: 10px 0 0 7px;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1044, ../sass/style.scss */
 a.show-more-petitions-bar,
 a.show-more-responses-bar {
-  color: #737373;
-}
+  color: #737373; }
 
-/* line 1048, ../sass/style.scss */
 .show-more-responses-bar {
   letter-spacing: 0.01em;
-  padding-left: 9px;
-}
+  padding-left: 9px; }
 
-/* line 1052, ../sass/style.scss */
 a.show-more-petitions-bar:hover,
 a.show-more-responses-bar:hover {
-  color: #000;
-}
+  color: #000; }
 
-/* line 1056, ../sass/style.scss */
 .loading-more-petitions-bar {
   background: url(../img/sprite.gif) no-repeat 0 -794px;
   height: 23px;
@@ -1266,169 +915,117 @@ a.show-more-responses-bar:hover {
   font-size: 1em;
   font-weight: bold;
   letter-spacing: 0.03em;
-  padding: 10px 0 0 7px;
-}
+  padding: 10px 0 0 7px; }
 
-/* line 1070, ../sass/style.scss */
 .petition-detail .learn-more-about {
-  text-align: right;
-}
+  text-align: right; }
 
-/* line 1074, ../sass/style.scss */
 .petition-detail-publish-options .option p {
-  margin: 0 0 2px 0;
-}
+  margin: 0 0 2px 0; }
 
-/* line 1078, ../sass/style.scss */
 #no-publish-other-options {
   padding-left: 15px;
-  width: 320px;
-}
+  width: 320px; }
 
-/* line 1082, ../sass/style.scss */
 .petition-detail-publish-options .option {
-  margin-bottom: 15px;
-}
+  margin-bottom: 15px; }
 
-/* line 1086, ../sass/style.scss */
 .top-msg-bar {
   background: url(../img/sprite.gif) no-repeat 0 -133px;
   height: 40px;
   letter-spacing: 0.01em;
   padding: 13px 15px 0 15px;
-  font-weight: bold;
-}
+  font-weight: bold; }
 
-/* line 1094, ../sass/style.scss */
 .top-msg-bar a.arrow {
   color: #FFF;
   background: url(../img/arrow-white-right.png) no-repeat right;
   padding: 0 11px 0 0;
-  margin: 0 0 0 9px;
-}
+  margin: 0 0 0 9px; }
 
-/* line 1101, ../sass/style.scss */
 .top-msg-bar a.arrow:hover {
-  text-decoration: underline;
-}
+  text-decoration: underline; }
 
-/* line 1105, ../sass/style.scss */
 .top-msg-bar-blue {
   background: url(../img/bg-msg-bar-blue.gif) no-repeat;
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 1110, ../sass/style.scss */
 .top-msg-bar-blue span {
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1114, ../sass/style.scss */
 .top-msg-bar-red {
   background: url(../img/bg-msg-bar-red.gif) no-repeat;
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 1119, ../sass/style.scss */
 .top-msg-bar-reported {
   background: #8B0000;
   color: #FFF;
   height: auto;
   padding: 13px 15px;
-  margin-bottom: 15px;
-}
+  margin-bottom: 15px; }
 
-/* line 1127, ../sass/style.scss */
 .petition-filter, .response-filter {
   background: url(../img/sprite.gif) no-repeat 0 -133px;
   height: 55px;
   letter-spacing: 0.01em;
   padding: 0 0 0 15px;
   font-weight: bold;
-  position: relative;
-}
+  position: relative; }
 
-/* line 1136, ../sass/style.scss */
 .petition-filter-reported {
-  height: 38px;
-}
+  height: 38px; }
 
-/* line 1140, ../sass/style.scss */
 #petition-inner .petition-filter-individual li, #petition-inner .petition-filter-individual li a {
-  color: #535353;
-}
+  color: #535353; }
 
-/* line 1144, ../sass/style.scss */
 #petition-inner .petition-filter-individual li a:hover, #petition-inner .petition-filter-individual li .popup-title:hover {
-  color: #000;
-}
+  color: #000; }
 
-/* line 1148, ../sass/style.scss */
 #petition-inner .petition-filter-individual ul.filter-list {
   width: 190px;
   background: url(../img/bg-fuz-line-bar.png) no-repeat 0;
-  padding-left: 20px;
-}
+  padding-left: 20px; }
 
 /* Issues Filter */
-/* line 1157, ../sass/style.scss */
 #issues-filter-drop {
   width: 654px;
   position: absolute;
   z-index: 5;
   left: 225px;
   padding: 0px;
-  top: 25px;
-}
+  top: 25px; }
 
-/* line 1166, ../sass/style.scss */
 #issues-filter-top {
   background: url(../img/bg-issues-filter-top.png) no-repeat top;
-  height: 24px;
-}
+  height: 24px; }
 
-/* line 1171, ../sass/style.scss */
 #issues-filter-mid {
   padding: 0 0 0 11px;
-  background: url(../img/bg-issues-filter-mid.png) repeat-y top;
-}
+  background: url(../img/bg-issues-filter-mid.png) repeat-y top; }
 
-/* line 1175, ../sass/style.scss */
 #issues-filter-bottom {
   background: url(../img/bg-issues-filter-btm.png) no-repeat bottom;
-  height: 24px;
-}
+  height: 24px; }
 
-/* line 1180, ../sass/style.scss */
 .drop-down .header, .modal .header {
   background: url(../img/sprite.gif) no-repeat 0 -848px;
   color: #FFF;
-  height: 57px;
-}
+  height: 57px; }
 
-/* line 1185, ../sass/style.scss */
 .response-filter #issues-filter-drop .header {
-  background: url(../img/sprite.gif) no-repeat 0 -1337px;
-}
+  background: url(../img/sprite.gif) no-repeat 0 -1337px; }
 
-/* line 1189, ../sass/style.scss */
 .drop-down .header h2, .modal .header h2 {
-  font-size: 1.333em;
-}
+  font-size: 1.333em; }
 
-/* line 1195, ../sass/style.scss */
 #issues-filter-drop h2,
 #thank-you-modal .header h2 {
   width: 300px;
-  float: left;
-}
+  float: left; }
 
-/* line 1200, ../sass/style.scss */
 .drop-down .header, .modal .header {
-  padding: 11px 0 0 15px;
-}
+  padding: 11px 0 0 15px; }
 
-/* line 1206, ../sass/style.scss */
 .drop-down div.close-button,
 .modal div.close-button {
   width: 100px;
@@ -1443,93 +1040,65 @@ a.show-more-responses-bar:hover {
   font-size: 0.833em;
   width: 56px;
   font-weight: bold;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1222, ../sass/style.scss */
 .drop-down .header div.close-button:hover {
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 1226, ../sass/style.scss */
 input#button-filter-petitions {
   width: 177px;
   height: 33px;
   background: url(../img/sprite-buttons.png) no-repeat -321px -48px;
   margin: 0 0 15px 0;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 1234, ../sass/style.scss */
 #petition-inner #issues-filter-drop .form-item {
-  margin-bottom: 15px;
-}
+  margin-bottom: 15px; }
 
-/* line 1239, ../sass/style.scss */
 #issues-filter-drop
 input#button-filter-petitions {
   margin: 15px 0 0 220px;
   clear: both;
   font-size: 0;
   display: block;
-  line-height: 0;
-}
+  line-height: 0; }
 
-/* line 1250, ../sass/style.scss */
 #issues-filter-drop .header div.close-button,
 #thank-you-modal .header div.close-button,
 #sign-create-modal .header a.close-button {
   margin: 3px 10px 0 0;
   background: url(../img/sprite-circle-icons.png) 37px -102px no-repeat;
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 1256, ../sass/style.scss */
 #petition-inner .drop-down label {
   display: inline;
   color: #737373;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 1262, ../sass/style.scss */
 #form-item-issues-filter {
-  margin: 0 0 0 10px;
-}
+  margin: 0 0 0 10px; }
 
-/* line 1266, ../sass/style.scss */
 #form-item-issues-filter .group {
   width: 211px;
-  float: left;
-}
+  float: left; }
 
-/* line 1271, ../sass/style.scss */
 #form-item-issues-filter .form-item-checkbox {
-  margin: 0 0 2px 0;
-}
+  margin: 0 0 2px 0; }
 
-/* line 1275, ../sass/style.scss */
 .drop-down .form-type-checkbox .num {
-  font-weight: normal;
-}
+  font-weight: normal; }
 
-/* line 1277, ../sass/style.scss */
 .form-item-petition-issues {
   clear: both;
-  margin-top: 40px;
-}
+  margin-top: 40px; }
 
-/* line 1282, ../sass/style.scss */
 #petition-inner #issues-filter-drop .form-item {
-  margin: 0px;
-}
+  margin: 0px; }
 
-/* line 1285, ../sass/style.scss */
 #petition-inner #issues-filter-drop .form-type-checkbox {
-  margin: 0 0 8px 0;
-}
+  margin: 0 0 8px 0; }
 
 /* Search drop down */
-/* line 1291, ../sass/style.scss */
 #search-drop {
   background: url(../img/bg-search-drop.png) no-repeat;
   width: 588px;
@@ -1538,10 +1107,8 @@ input#button-filter-petitions {
   z-index: 5;
   left: 355px;
   padding: 21px 0 0 11px;
-  top: 25px;
-}
+  top: 25px; }
 
-/* line 1305, ../sass/style.scss */
 #search-drop div.close-button, .modal a.close-button,
 #share-this-petition #report-petition-overlay span.close-button,
 .delete-petition-overlay a.close-button {
@@ -1552,25 +1119,19 @@ input#button-filter-petitions {
   text-transform: uppercase;
   text-shadow: none;
   font-size: 0.833em;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1317, ../sass/style.scss */
 #share-this-petition #report-petition-overlay span.close-button,
 .delete-petition-overlay a.close-button {
   padding: 4px 20px 2px 0;
-  margin: 12px 0 0 0;
-}
+  margin: 12px 0 0 0; }
 
-/* line 1322, ../sass/style.scss */
 .delete-petition-overlay a.close-button {
   float: right;
   display: block;
   height: auto;
-  width: 35px;
-}
+  width: 35px; }
 
-/* line 1329, ../sass/style.scss */
 #search-drop #search-go-button {
   border: none;
   cursor: pointer;
@@ -1582,10 +1143,8 @@ input#button-filter-petitions {
   text-indent: -9999px;
   width: 61px;
   left: 500px;
-  top: 45px;
-}
+  top: 45px; }
 
-/* line 1343, ../sass/style.scss */
 #search-drop input#edit-filter-search {
   background: url(../img/sprite.gif) no-repeat 0 -936px;
   height: 38px;
@@ -1594,36 +1153,26 @@ input#button-filter-petitions {
   border: none;
   font-weight: bold;
   font-size: 1.333em;
-  outline: none;
-}
+  outline: none; }
 
-/* line 1354, ../sass/style.scss */
 #search-drop .form-item {
-  margin: 25px 0 0 20px;
-}
+  margin: 25px 0 0 20px; }
 
-/* line 1360, ../sass/style.scss */
 .petition-filter ul.select-view,
 .response-filter ul.select-view {
   width: 290px;
-  padding-top: 8px;
-}
+  padding-top: 8px; }
 
-/* line 1367, ../sass/style.scss */
 .petition-filter ul li,
 .response-filter ul li {
   float: left;
   list-style-type: none;
-  text-shadow: 0 1px 0 gainsboro;
-}
+  text-shadow: 0 1px 0 #dcdcdc; }
 
-/* line 1375, ../sass/style.scss */
 .petition-filter ul li h2,
 .response-filter ul li h2 {
-  text-shadow: none;
-}
+  text-shadow: none; }
 
-/* line 1382, ../sass/style.scss */
 .petition-filter ul.select-view li a,
 .response-filter ul.select-view li a,
 .response-filter ul.select-view li div {
@@ -1631,22 +1180,16 @@ input#button-filter-petitions {
   display: block;
   padding: 4px 8px 3px 8px;
   margin-right: 7px;
-  text-align: center;
-}
+  text-align: center; }
 
-/* line 1392, ../sass/style.scss */
 .petition-filter ul.select-view li a:hover,
 .response-filter ul.select-view li a:hover {
-  color: #000;
-}
+  color: #000; }
 
-/* line 1398, ../sass/style.scss */
 .petition-filter ul.select-view li a:active,
 .response-filter ul.select-view li a:active {
-  color: #333;
-}
+  color: #333; }
 
-/* line 1404, ../sass/style.scss */
 .petition-filter ul.filter-list,
 .response-filter ul.filter-list {
   background: url(../img/bg-fuz-line-bar.png) no-repeat 60px 0;
@@ -1654,65 +1197,45 @@ input#button-filter-petitions {
   width: 270px;
   display: block;
   height: 37px;
-  margin: -7px 0 0 0;
-}
+  margin: -7px 0 0 0; }
 
-/* line 1414, ../sass/style.scss */
 ul.filter-list li.filter-by-issue,
 ul.filter-list li.search {
   padding: 2px 25px 2px 0;
   display: block;
   margin: 10px 0 0 0;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1421, ../sass/style.scss */
 ul.filter-list li.filter-by-issue {
   background: url(../img/sprite-circle-icons.png) no-repeat 83px 0;
-  margin-right: 7px;
-}
+  margin-right: 7px; }
 
-/* line 1426, ../sass/style.scss */
 .response-filter ul.filter-list li.filter-by-issue {
   background: url(../img/sprite-circle-icons.png) no-repeat 83px -65px;
-  margin-right: 7px;
-}
+  margin-right: 7px; }
 
-/* line 1431, ../sass/style.scss */
 ul.filter-list li.filter-by-issue .popup-title:hover {
   background: url(../img/sprite-circle-icons.png) no-repeat 83px -30px;
-  color: #000;
-}
+  color: #000; }
 
-/* line 1436, ../sass/style.scss */
 ul.filter-list li.filter-by-issue .popup-title {
   display: inline-block;
-  width: 84px;
-}
+  width: 84px; }
 
-/* line 1441, ../sass/style.scss */
 ul.filter-list li.search {
-  background: url(../img/sprite-circle-icons.png) no-repeat 42px 0;
-}
+  background: url(../img/sprite-circle-icons.png) no-repeat 42px 0; }
 
-/* line 1445, ../sass/style.scss */
 .response-filter ul.filter-list li.search {
-  background: url(../img/sprite-circle-icons.png) no-repeat 42px -65px;
-}
+  background: url(../img/sprite-circle-icons.png) no-repeat 42px -65px; }
 
-/* line 1449, ../sass/style.scss */
 ul.filter-list li.search .popup-title:hover {
   background: url(../img/sprite-circle-icons.png) no-repeat 42px -30px;
-  color: #000;
-}
+  color: #000; }
 
-/* line 1457, ../sass/style.scss */
 .petition-filter ul.filter-list a,
 .response-filter ul.filter-list a {
-  color: #535353;
-}
+  color: #535353; }
 
-/* line 1464, ../sass/style.scss */
 .petition-filter ul.select-view li.active a,
 .response-filter ul.select-view li.active a,
 .response-filter ul.select-view li.active div {
@@ -1729,85 +1252,57 @@ ul.filter-list li.search .popup-title:hover {
   /* for firefox 3.6+ */
   -moz-box-shadow: inset 1px 1px 1px 1px #b9b9b9;
   -webkit-box-shadow: inset 1px 1px 1px 1px #b9b9b9;
-  box-shadow: inset 1px 1px 1px 1px #b9b9b9;
-}
+  box-shadow: inset 1px 1px 1px 1px #b9b9b9; }
 
-/* line 1480, ../sass/style.scss */
 .petition-filter ul.select-view li.active a:hover,
 .response-filter ul.select-view li.active a:hover {
-  color: #535353;
-}
+  color: #535353; }
 
-/* line 1485, ../sass/style.scss */
 li.view-two-column a, li.view-one-column a {
   display: block;
   text-indent: -9000px;
   width: 20px;
   height: 20px;
-  margin: 8px 10px 0 0;
-}
+  margin: 8px 10px 0 0; }
 
-/* line 1493, ../sass/style.scss */
 li.view-two-column a.active, li.view-two-column a.active:hover {
-  background: url(../img/icons-filter-view.gif) no-repeat -73px 0;
-}
+  background: url(../img/icons-filter-view.gif) no-repeat -73px 0; }
 
-/* line 1497, ../sass/style.scss */
 li.view-two-column a {
-  background: url(../img/icons-filter-view.gif) no-repeat 0 0;
-}
+  background: url(../img/icons-filter-view.gif) no-repeat 0 0; }
 
-/* line 1501, ../sass/style.scss */
 li.view-one-column a.active, li.view-one-column a.active:hover {
   background: url(../img/icons-filter-view.gif) no-repeat -28px 0;
-  margin-right: 30px;
-}
+  margin-right: 30px; }
 
-/* line 1506, ../sass/style.scss */
 .response-filter li.view-two-column a.active, .response-filter li.view-two-column a.active:hover {
-  background: url(../img/icons-filter-view.gif) no-repeat -170px 0;
-}
+  background: url(../img/icons-filter-view.gif) no-repeat -170px 0; }
 
-/* line 1510, ../sass/style.scss */
 .response-filter li.view-one-column a.active {
-  background: url(../img/icons-filter-view.gif) no-repeat -139px 0;
-}
+  background: url(../img/icons-filter-view.gif) no-repeat -139px 0; }
 
-/* line 1514, ../sass/style.scss */
 li.view-one-column a {
   background: url(../img/icons-filter-view.gif) no-repeat -101px 0;
-  margin-right: 30px;
-}
+  margin-right: 30px; }
 
-/* line 1519, ../sass/style.scss */
 li.view-two-column a:hover {
-  background: url(../img/icons-filter-view.gif) no-repeat -202px 0;
-}
+  background: url(../img/icons-filter-view.gif) no-repeat -202px 0; }
 
-/* line 1522, ../sass/style.scss */
 li.view-one-column a:hover {
   background: url(../img/icons-filter-view.gif) no-repeat -230px 0;
-  margin-right: 30px;
-}
+  margin-right: 30px; }
 
-/* line 1527, ../sass/style.scss */
 .basic-text-block p {
   margin: 0 0 25px 0;
   font-size: 1.25em;
-  line-height: 160%;
-}
+  line-height: 160%; }
 
-/* line 1533, ../sass/style.scss */
 .basic-text-block {
-  padding: 0 15px;
-}
+  padding: 0 15px; }
 
-/* line 1537, ../sass/style.scss */
 .social-media-options {
-  margin: 35px 0 0 0;
-}
+  margin: 35px 0 0 0; }
 
-/* line 1541, ../sass/style.scss */
 .social-media-options div.options-box, .social-media-options a {
   display: block;
   width: 157px;
@@ -1825,31 +1320,21 @@ li.view-one-column a:hover {
   -webkit-box-shadow: 0 0 3px #ececec;
   box-shadow: 0 0 3px #ececec;
   float: left;
-  margin-right: 12px;
-}
+  margin-right: 12px; }
 
-/* line 1562, ../sass/style.scss */
 .social-media-options hover {
   border: 1px solid #b4b4b4;
-  color: #336699;
-}
+  color: #336699; }
 
-/* line 1567, ../sass/style.scss */
 .social-media-options #twitter a {
-  background: white url(../img/soc-media-graphics.gif) no-repeat 7px 19px;
-}
+  background: white url(../img/soc-media-graphics.gif) no-repeat 7px 19px; }
 
-/* line 1571, ../sass/style.scss */
 .social-media-options #fb a {
-  background: white url(../img/soc-media-graphics.gif) no-repeat 5px -65px;
-}
+  background: white url(../img/soc-media-graphics.gif) no-repeat 5px -65px; }
 
-/* line 1575, ../sass/style.scss */
 .social-media-options #email a {
-  background: white url(../img/soc-media-graphics.gif) no-repeat 7px -157px;
-}
+  background: white url(../img/soc-media-graphics.gif) no-repeat 7px -157px; }
 
-/* line 1579, ../sass/style.scss */
 .button-email-this-petition {
   background: url(../img/sprite-buttons.png) no-repeat 0 -714px;
   width: 205px;
@@ -1858,11 +1343,9 @@ li.view-one-column a:hover {
   display: block;
   float: left;
   text-indent: -9000px;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
 /* Tool Tip */
-/* line 1593, ../sass/style.scss */
 #petition-inner .tooltip {
   min-height: 5px;
   -moz-border-radius: 5px;
@@ -1881,173 +1364,125 @@ li.view-one-column a:hover {
   line-height: 135%;
   z-index: 50;
   background: #fff;
-  /*display: none;*/
-}
+  /*display: none;*/ }
 
-/* line 1614, ../sass/style.scss */
 #petition-inner .tip-arrow {
   position: absolute;
   top: 23px;
-  left: -9px;
-}
+  left: -9px; }
 
-/* line 1619, ../sass/style.scss */
 #petition-inner .tip-arrow-up {
   position: absolute;
   top: -9px;
-  left: 20px;
-}
+  left: 20px; }
 
-/* line 1624, ../sass/style.scss */
 #petition-inner .tip-arrow-down {
   left: 300px;
   position: absolute;
-  top: 195px;
-}
+  top: 195px; }
 
-/* line 1630, ../sass/style.scss */
 #form-item-create-petition-tags .tooltip {
-  top: 8px;
-}
+  top: 8px; }
 
-/* line 1634, ../sass/style.scss */
 .tooltip a.view {
   margin: 2px 0 0 0;
-  display: block;
-}
+  display: block; }
 
 /* Form */
 /* User Register form */
-/* line 1643, ../sass/style.scss */
 #petition-inner form {
-  padding: 0 15px 55px 15px;
-}
+  padding: 0 15px 55px 15px; }
 
-/* line 1649, ../sass/style.scss */
 #petition-inner form label,
 .modal form label {
   color: #333;
   font-weight: bold;
   display: block;
-  margin-bottom: 10px;
-}
+  margin-bottom: 10px; }
 
-/* line 1656, ../sass/style.scss */
 #form-item-create-petition-title {
-  margin-bottom: 20px;
-}
+  margin-bottom: 20px; }
 
-/* line 1665, ../sass/style.scss */
 #petition-inner form textarea,
 #petition-inner form input.input-text,
 .modal form textarea,
 .modal form input.input-text,
 #sign-in input.input-text {
-  border: 1px solid #cccccc;
+  border: 1px solid #CCC;
   border-bottom: 1px solid #e5e5e5;
   background: #fdfdfd url(../img/bg-textarea.png) repeat-x;
   font-size: 1.167em;
   font-family: Arial, sans-serif;
   color: #666;
   padding: 5px;
-  width: 390px;
-}
+  width: 390px; }
 
-/* line 1678, ../sass/style.scss */
 #form-item-create-petition-description,
 #form-item-create-petition-tags {
-  width: 400px;
-}
+  width: 400px; }
 
-/* line 1680, ../sass/style.scss */
 #form-item-create-petition-title .we-petition-msg {
   color: #669900;
   font-size: 1.4em;
   text-transform: uppercase;
   float: left;
   width: 230px;
-  padding: 20px 0 0 0;
-}
+  padding: 20px 0 0 0; }
 
-/* line 1689, ../sass/style.scss */
 #form-item-create-petition-description .tooltip {
-  height: 139px;
-}
+  height: 139px; }
 
-/* line 1693, ../sass/style.scss */
 #petition-inner .form-item {
-  position: relative;
-}
+  position: relative; }
 
-/* line 1697, ../sass/style.scss */
 form#create-petition-form-step-1 textarea {
   width: 410px;
-  height: 75px;
-}
+  height: 75px; }
 
-/* line 1702, ../sass/style.scss */
 form#create-petition-form-step-3 textarea {
   width: 390px;
-  height: 250px;
-}
+  height: 250px; }
 
-/* line 1707, ../sass/style.scss */
 #petition-inner label.sub-label {
   display: inline;
   color: #737373;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 1713, ../sass/style.scss */
 form .help-text {
   text-align: right;
   color: #737373;
-  font-size: 0.833em;
-}
+  font-size: 0.833em; }
 
-/* line 1719, ../sass/style.scss */
 #petition-inner .help-text .view-some {
   width: 200px;
   float: left;
   text-align: left;
   font-size: 11px;
-  font-weight: bold;
-}
+  font-weight: bold; }
 
-/* line 1727, ../sass/style.scss */
 .help-text .character-limit {
   float: right;
   text-align: right;
   font-size: 13px;
-  font-weight: bold;
-}
+  font-weight: bold; }
 
-/* line 1734, ../sass/style.scss */
 form#create-petition-form-step-1 .form-field-wrapper {
   float: right;
   width: 410px;
-  position: relative;
-}
+  position: relative; }
 
-/* line 1740, ../sass/style.scss */
 img.form-arrow {
   position: absolute;
   top: 31px;
-  left: -14px;
-}
+  left: -14px; }
 
-/* line 1746, ../sass/style.scss */
 #form-item-issues-describe .form-item-checkbox {
-  margin-bottom: 5px;
-}
+  margin-bottom: 5px; }
 
-/* line 1750, ../sass/style.scss */
 #form-item-issues-describe .group {
   width: 215px;
-  float: left;
-}
+  float: left; }
 
-/* line 1755, ../sass/style.scss */
 .input-button-steps {
   border: none;
   cursor: pointer;
@@ -2057,27 +1492,19 @@ img.form-arrow {
   font-size: 0;
   line-height: 0;
   position: absolute;
-  margin-bottom: 35px;
-}
+  margin-bottom: 35px; }
 
-/* line 1767, ../sass/style.scss */
 input#continue-to-step-2 {
-  background: url(../img/sprite-buttons.png) no-repeat 0 -48px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat 0 -48px; }
 
-/* line 1771, ../sass/style.scss */
 input#continue-to-step-3 {
-  background: url(../img/sprite-buttons.png) no-repeat 0 -84px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat 0 -84px; }
 
-/* line 1775, ../sass/style.scss */
 input#continue-to-final-step {
   background: url(../img/sprite-buttons.png) no-repeat 0 -121px;
-  width: 305px;
-}
+  width: 305px; }
 
 /****** Right Rail ******/
-/* line 1782, ../sass/style.scss */
 h2.trigger {
   background: #ececec;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ececec', endColorstr='#dcdcdc');
@@ -2090,30 +1517,22 @@ h2.trigger {
   height: 36px;
   line-height: 36px;
   padding: 0 15px;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid #FFF;
   color: #737373;
   display: block;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1797, ../sass/style.scss */
 h2.trigger a {
   color: #737373;
-  display: block;
-}
+  display: block; }
 
-/* line 1802, ../sass/style.scss */
 h2.trigger a:hover {
   text-decoration: none;
-  color: #2d2d2d;
-}
+  color: #2d2d2d; }
 
-/* line 1804, ../sass/style.scss */
 h2.active a {
-  color: #fff;
-}
+  color: #fff; }
 
-/* line 1806, ../sass/style.scss */
 h2.trigger:hover {
   color: #2d2d2d;
   background: #d8d8d8;
@@ -2122,17 +1541,13 @@ h2.trigger:hover {
   background: -webkit-gradient(linear, left top, left bottom, from(#d8d8d8), to(#b4b4b4));
   /* for webkit browsers */
   background: -moz-linear-gradient(top, #d8d8d8, #b4b4b4);
-  /* for firefox 3.6+ */
-}
+  /* for firefox 3.6+ */ }
 
-/* line 1814, ../sass/style.scss */
 #qa-content h2.trigger {
   background: none;
   filter: none;
-  border-bottom: 1px solid #cccccc;
-}
+  border-bottom: 1px solid #CCC; }
 
-/* line 1819, ../sass/style.scss */
 #qa-content h2.trigger.active, #qa-content h2.trigger.active:hover {
   background: #a3a3a3;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a3a3a3', endColorstr='#696969');
@@ -2140,15 +1555,11 @@ h2.trigger:hover {
   background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgrey));
   /* for webkit browsers */
   background: -moz-linear-gradient(top, #a3a3a3, dimgrey);
-  /* for firefox 3.6+ */
-}
+  /* for firefox 3.6+ */ }
 
-/* line 1825, ../sass/style.scss */
 #qa-content h2.trigger.active a, #qa-content h2.trigger.active a:hover {
-  color: #fff;
-}
+  color: #fff; }
 
-/* line 1828, ../sass/style.scss */
 #qa-content h2.trigger:hover {
   color: #2d2d2d;
   background: #d8d8d8;
@@ -2156,10 +1567,8 @@ h2.trigger:hover {
   background: -webkit-gradient(linear, left top, left bottom, from(#d8d8d8), to(#b4b4b4));
   /* for webkit browsers */
   background: -moz-linear-gradient(top, #d8d8d8, #b4b4b4);
-  /* for firefox 3.6+ */
-}
+  /* for firefox 3.6+ */ }
 
-/* line 1835, ../sass/style.scss */
 #qa-content h2.trigger:hover {
   background: #ececec;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ececec', endColorstr='#dcdcdc');
@@ -2167,68 +1576,50 @@ h2.trigger:hover {
   background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(gainsboro));
   /* for webkit browsers */
   background: -moz-linear-gradient(top, #ececec, gainsboro);
-  /* for firefox 3.6+ */
-}
+  /* for firefox 3.6+ */ }
 
-/* line 1841, ../sass/style.scss */
 #qa-content h2.trigger a:hover {
-  color: #737373;
-}
+  color: #737373; }
 
-/* line 1845, ../sass/style.scss */
 .toggle-container {
   background: #f6f6f6;
   border: 1px solid #e8e8e8;
   padding: 10px 15px;
   color: #333;
-  word-wrap: break-word;
-}
+  word-wrap: break-word; }
 
-/* line 1852, ../sass/style.scss */
 #how-why-content #qa-content .toggle-container {
   background: #f6f6f6;
-  border-bottom: 1px solid #e8e8e8;
-}
+  border-bottom: 1px solid #e8e8e8; }
 
-/* line 1857, ../sass/style.scss */
 .toggle-container li {
   list-style-type: none;
-  margin-bottom: 8px;
-}
+  margin-bottom: 8px; }
 
-/* line 1862, ../sass/style.scss */
 .toggle-container a {
-  color: #333;
-}
+  color: #333; }
 
-/* line 1866, ../sass/style.scss */
 #petition-inner .toggle-container a:hover {
   color: #000;
-  text-decoration: underline;
-}
+  text-decoration: underline; }
 
 /*h2.trigger hover {text-decoration: none; color: #2d2d2d;}*/
-/* line 1873, ../sass/style.scss */
 h2.top-trigger {
   border-top-right-radius: 5px;
   -moz-border-radius-topright: 5px;
   -webkit-border-radius-topright: 5px;
   border-top-left-radius: 5px;
   -moz-border-radius-topleft: 5px;
-  -webkit-border-radius-topleft: 5px;
-}
+  -webkit-border-radius-topleft: 5px; }
 
-/* line 1882, ../sass/style.scss */
 h2.bottom-trigger {
   border-bottom-right-radius: 5px;
   -moz-border-radius-bottomright: 5px;
   -webkit-border-radius-bottomright: 5px;
   border-bottom-left-radius: 5px;
   -moz-border-radius-bottomleft: 5px;
-  -webkit-border-radius-bottomleft: 5px;
-}
+  -webkit-border-radius-bottomleft: 5px; }
 
-/* line 1891, ../sass/style.scss */
 h2.active {
   background: #a3a3a3;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a3a3a3', endColorstr='#696969');
@@ -2236,11 +1627,9 @@ h2.active {
   background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgrey));
   /* for webkit browsers */
   background: -moz-linear-gradient(top, #a3a3a3, dimgrey);
-  /* for firefox 3.6+ */
-}
+  /* for firefox 3.6+ */ }
 
 /****** Individual Petition Page ******/
-/* line 1900, ../sass/style.scss */
 a#button-sign-this-petition {
   background: url(../img/sprite-buttons.png) no-repeat -252px -250px;
   width: 245px;
@@ -2249,10 +1638,8 @@ a#button-sign-this-petition {
   display: block;
   float: left;
   text-indent: -9000px;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1911, ../sass/style.scss */
 a#button-sign-this-petition-inactive {
   background: url(../img/sprite-buttons.png) no-repeat 0 -756px;
   width: 210px;
@@ -2261,69 +1648,49 @@ a#button-sign-this-petition-inactive {
   display: block;
   float: left;
   text-indent: -9000px;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1922, ../sass/style.scss */
 #sign-this-petition {
-  min-height: 69px;
-}
+  min-height: 69px; }
 
-/* line 1926, ../sass/style.scss */
 #signed-by-user #sign-this-petition {
-  min-height: 62px;
-}
+  min-height: 62px; }
 
-/* line 1931, ../sass/style.scss */
 #sign-this-petition h3, #signed-by-user #sign-this-petition h3 {
   color: #669900;
   /*float: left;*/
   font-size: 1em;
   margin: 15px 0 0;
-  width: 150px;
-}
+  width: 150px; }
 
-/* line 1940, ../sass/style.scss */
 #signed-by-user #sign-this-petition h3 {
   width: auto;
   margin: 10px 0 6px 0;
   float: none;
   font-size: 1.333em;
-  font-weight: bold;
-}
+  font-weight: bold; }
 
-/* line 1950, ../sass/style.scss */
 a#button-sign-this-petition:hover {
-  background: url(../img/sprite-buttons.png) no-repeat -252px -283px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -252px -283px; }
 
-/* line 1954, ../sass/style.scss */
 a#button-sign-this-petition:active {
-  background: url(../img/sprite-buttons.png) no-repeat -252px -316px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -252px -316px; }
 
-/* line 1958, ../sass/style.scss */
 #sign-this-petition h3 {
   color: #333;
   font-size: 1.167em;
   font-weight: normal;
-  width: auto;
-}
+  width: auto; }
 
-/* line 1965, ../sass/style.scss */
 #sign-this-petition .col-left {
   width: 250px;
-  float: left;
-}
+  float: left; }
 
-/* line 1970, ../sass/style.scss */
 #sign-this-petition .col-right {
   width: 410px;
   float: left;
-  position: relative;
-}
+  position: relative; }
 
-/* line 1976, ../sass/style.scss */
 #sign-this-petition a#button-sign-in, #sign-in-or-create-account a#button-sign-in {
   background: url(../img/sprite-buttons.png) no-repeat -236px -757px;
   width: 95px;
@@ -2332,20 +1699,16 @@ a#button-sign-this-petition:active {
   display: block;
   float: left;
   text-indent: -9000px;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 1987, ../sass/style.scss */
 #sign-this-petition .or {
   height: 32px;
   margin: 9px 0;
   float: left;
   text-indent: -9000px;
   width: 40px;
-  background: url(../img/sprite-buttons.png) no-repeat -230px -805px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -230px -805px; }
 
-/* line 1996, ../sass/style.scss */
 #sign-this-petition a#button-create-an-account, #sign-in-or-create-account a#button-create-an-account {
   background: url(../img/sprite-buttons.png) no-repeat 0 -801px;
   width: 191px;
@@ -2354,10 +1717,8 @@ a#button-sign-this-petition:active {
   display: block;
   float: left;
   text-indent: -9000px;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 2007, ../sass/style.scss */
 #why-overlay {
   background: url(../img/bg-why-signin-overlay.png) no-repeat;
   height: 152px;
@@ -2366,84 +1727,64 @@ a#button-sign-this-petition:active {
   top: -164px;
   width: 360px;
   z-index: 500;
-  left: -10px;
-}
+  left: -10px; }
 
-/* line 2018, ../sass/style.scss */
 #why-overlay p {
   color: #818181;
   font-size: 0.917em;
   font-weight: bold;
-  line-height: 1.5;
-}
+  line-height: 1.5; }
 
-/* line 2025, ../sass/style.scss */
 #why-overlay-text {
   color: #336699;
   cursor: pointer;
   font-size: 1.167em;
   margin-top: 17px;
-  display: inline-block;
-}
+  display: inline-block; }
 
-/* line 2033, ../sass/style.scss */
 #sign-this-petition .col-right h3 {
   width: 350px;
-  float: left;
-}
+  float: left; }
 
-/* line 2038, ../sass/style.scss */
 form#form-sign-this-petition {
   background: url(../img/sprite.gif) no-repeat 0 -1027px;
   min-height: 118px;
   position: relative;
   margin: 0;
-  padding-bottom: 20px;
-}
+  padding-bottom: 20px; }
 
-/* line 2046, ../sass/style.scss */
 form#form-sign-this-petition textarea#add-comment-with-sig {
   border: none;
   float: none;
   width: 630px;
   height: 60px;
   margin: 2px 0 0 0;
-  padding: 8px 0 0 0;
-}
+  padding: 8px 0 0 0; }
 
-/* line 2055, ../sass/style.scss */
 #petition-inner form#form-sign-this-petition .character-limit {
   float: right;
   color: #939393;
   margin: 12px 15px 0 0;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 2062, ../sass/style.scss */
 #share-this-petition {
   background: url(../img/sprite.gif) no-repeat 0 -1157px;
   height: 34px;
   padding: 26px 15px 0 15px;
-  margin-left: -15px;
-}
+  margin-left: -15px; }
 
-/* line 2071, ../sass/style.scss */
 #share-this-petition ul li,
 #thank-you-modal ul.share-this-petition li {
   list-style-type: none;
-  float: left;
-}
+  float: left; }
 
-/* line 2076, ../sass/style.scss */
 #share-this-petition li.title {
   font-weight: bold;
   color: #292929;
   font-family: Arial, sans-serif;
   font-size: 1em;
-  margin: 7px 7px 0 0;
-}
+  margin: 7px 7px 0 0; }
 
-/* line 2084, ../sass/style.scss */
 #share-this-petition .report-petition {
   text-align: right;
   float: right;
@@ -2451,18 +1792,14 @@ form#form-sign-this-petition textarea#add-comment-with-sig {
   font-weight: bold;
   text-indent: -9000px;
   margin: 8px 0 0 0;
-  position: relative;
-}
+  position: relative; }
 
-/* line 2094, ../sass/style.scss */
 #share-this-petition .report-petition #report-inappropriate-link {
   color: #880000;
   text-shadow: 0 1px 0 #f0f0f0;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
 /* Report Petition Overlay */
-/* line 2103, ../sass/style.scss */
 #report-petition-overlay {
   background: url(../img/bg-report-petition-overlay.png) no-repeat;
   height: 190px;
@@ -2471,73 +1808,53 @@ form#form-sign-this-petition textarea#add-comment-with-sig {
   position: absolute;
   top: -203px;
   width: 500px;
-  z-index: 500;
-}
+  z-index: 500; }
 
-/* line 2114, ../sass/style.scss */
 #report-petition-overlay p {
-  font-weight: normal;
-}
+  font-weight: normal; }
 
-/* line 2118, ../sass/style.scss */
 .delete-petition-overlay {
   padding: 10px 10px 0 0;
   z-index: 500;
   position: absolute;
-  -moz-box-shadow: 0 0 3px black;
-  -webkit-box-shadow: 0 0 3px black;
-  box-shadow: 0 0 3px black;
+  -moz-box-shadow: 0 0 3px #000000;
+  -webkit-box-shadow: 0 0 3px #000000;
+  box-shadow: 0 0 3px #000000;
   background: #FFF;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
   height: 180px;
   width: 450px;
-  top: 0px;
-}
+  top: 0px; }
 
-/* line 2134, ../sass/style.scss */
 .delete-insert {
-  position: relative;
-}
+  position: relative; }
 
-/* line 2138, ../sass/style.scss */
 .delete-petition-overlay .buttons {
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 2142, ../sass/style.scss */
 .petition-detail-publish-options .delete-petition-overlay {
   left: -300px;
-  top: -200px;
-}
+  top: -200px; }
 
-/* line 2147, ../sass/style.scss */
 #share-this-petition #report-petition-overlay .entry, .delete-petition-overlay .wrap {
   text-align: left;
   text-indent: 0;
-  margin: 10px 30px;
-}
+  margin: 10px 30px; }
 
-/* line 2153, ../sass/style.scss */
 #share-this-petition #report-petition-overlay .entry p, .delete-petition-overlay .wrap p {
   font-weight: normal;
   margin: 0;
-  line-height: 140%;
-}
+  line-height: 140%; }
 
-/* line 2159, ../sass/style.scss */
 .delete-petition-overlay {
   text-align: right;
-  z-index: 500;
-}
+  z-index: 500; }
 
-/* line 2164, ../sass/style.scss */
 #share-this-petition h2 {
-  margin-bottom: 9px;
-}
+  margin-bottom: 9px; }
 
-/* line 2168, ../sass/style.scss */
 input#button-report-this-petition {
   background: url(../img/sprite-buttons.png) no-repeat 0 -584px;
   display: block;
@@ -2545,10 +1862,8 @@ input#button-report-this-petition {
   width: 170px;
   text-indent: -9000px;
   margin: 15px 0 0 0;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 2182, ../sass/style.scss */
 #share-this-petition li.share-link,
 #share-this-petition li.share-link a,
 #thank-you-modal ul.share-this-petition li.share-link,
@@ -2556,101 +1871,69 @@ input#button-report-this-petition {
   display: block;
   width: 91px;
   height: 27px;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 2191, ../sass/style.scss */
 #share-this-petition li.email a,
 #thank-you-modal ul.share-this-petition li.email a {
-  background: url(../img/sprite-buttons.png) no-repeat -217px -369px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -217px -369px; }
 
-/* line 2197, ../sass/style.scss */
 #share-this-petition li.email a:hover,
 #thank-you-modal ul.share-this-petition li.email a:hover {
-  background: url(../img/sprite-buttons.png) no-repeat -217px -396px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -217px -396px; }
 
-/* line 2204, ../sass/style.scss */
 #share-this-petition li.email a:active,
 #thank-you-modal ul.share-this-petition li.email a:active {
-  background: url(../img/sprite-buttons.png) no-repeat -217px -423px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -217px -423px; }
 
-/* line 2211, ../sass/style.scss */
 #share-this-petition li.twitter a,
 #thank-you-modal ul.share-this-petition li.twitter a {
   background: url(../img/sprite-buttons.png) no-repeat -310px -370px;
-  height: 26px;
-}
+  height: 26px; }
 
-/* line 2217, ../sass/style.scss */
 #share-this-petition li.twitter a:hover,
 #thank-you-modal ul.share-this-petition li.twitter a:hover {
-  background: url(../img/sprite-buttons.png) no-repeat -310px -396px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -310px -396px; }
 
-/* line 2223, ../sass/style.scss */
 #share-this-petition li.twitter a:active,
 #thank-you-modal ul.share-this-petition li.twitter a:active {
-  background: url(../img/sprite-buttons.png) no-repeat -310px -423px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -310px -423px; }
 
-/* line 2229, ../sass/style.scss */
 #share-this-petition li.facebook a,
 #thank-you-modal ul.share-this-petition li.facebook a {
   background: url(../img/sprite-buttons.png) no-repeat -402px -370px;
   width: 95px;
-  height: 26px;
-}
+  height: 26px; }
 
-/* line 2237, ../sass/style.scss */
 #share-this-petition li.facebook a:hover,
 #thank-you-modal ul.share-this-petition li.facebook a:hover {
-  background: url(../img/sprite-buttons.png) no-repeat -402px -396px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -402px -396px; }
 
-/* line 2243, ../sass/style.scss */
 #share-this-petition li.facebook a:active,
 #thank-you-modal ul.share-this-petition li.facebook a:active {
-  background: url(../img/sprite-buttons.png) no-repeat -402px -423px;
-}
+  background: url(../img/sprite-buttons.png) no-repeat -402px -423px; }
 
-/* line 2247, ../sass/style.scss */
 .divide-green-fuz {
   background: url(../img/divide-green-fuz.gif) repeat-x;
-  height: 12px;
-}
+  height: 12px; }
 
-/* line 2255, ../sass/style.scss */
 #petitions-individual #share-this-petition {
-  margin-bottom: 20px;
-}
+  margin-bottom: 20px; }
 
-/* line 2259, ../sass/style.scss */
 #petitions-individual .petition-detail .divide-green-fuz {
-  margin-left: -15px;
-}
+  margin-left: -15px; }
 
-/* line 2263, ../sass/style.scss */
 #petitions-individual h4 {
-  margin: 3px 0 5px 0;
-}
+  margin: 3px 0 5px 0; }
 
-/* line 2267, ../sass/style.scss */
 #signature-list {
   margin-left: -15px;
-  margin-top: 20px;
-}
+  margin-top: 20px; }
 
-/* line 2272, ../sass/style.scss */
 #signature-list .numbers {
   font-weight: bold;
   font-size: 1.167em;
-  margin: 5px 0 12px 0;
-}
+  margin: 5px 0 12px 0; }
 
-/* line 2278, ../sass/style.scss */
 #signature-list .entry {
   width: 126px;
   height: 108px;
@@ -2659,62 +1942,44 @@ input#button-report-this-petition {
   float: left;
   margin-right: 15px;
   background: url(../img/bg-sig.gif) no-repeat -336px 0;
-  position: relative;
-}
+  position: relative; }
 
-/* line 2289, ../sass/style.scss */
 #signature-list .entry .details {
-  margin-bottom: 5px;
-}
+  margin-bottom: 5px; }
 
-/* line 2293, ../sass/style.scss */
 #signature-list .entry-creator {
   background: url(../img/bg-sig.gif) no-repeat 0 0;
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 2298, ../sass/style.scss */
 #signature-list .entry-creator .title {
   font-size: 1.25em;
   font-family: Georgia, serif;
   text-transform: uppercase;
-  margin: 0 0 3px 0;
-}
+  margin: 0 0 3px 0; }
 
-/* line 2307, ../sass/style.scss */
 #signature-list .entry-reg .name,
 #signature-list .entry-you-signed .name {
   color: #000;
   font-family: Georgia, serif;
   font-size: 1.25em;
-  margin: 0 0 4px 0;
-}
+  margin: 0 0 4px 0; }
 
-/* line 2314, ../sass/style.scss */
 #signature-list .entry-you-signed {
   background: url(../img/bg-sig.gif) no-repeat -168px 0;
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 2319, ../sass/style.scss */
 #signature-list .read-comment {
   font-weight: bold;
   color: #336699;
   margin: 0px;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 2326, ../sass/style.scss */
 #signature-list .entry-you-signed .name {
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 2328, ../sass/style.scss */
 #signature-list .last {
-  margin-right: 0;
-}
+  margin-right: 0; }
 
-/* line 2332, ../sass/style.scss */
 #signature-list .load-next {
   width: 126px;
   height: 103px;
@@ -2727,26 +1992,20 @@ input#button-report-this-petition {
   color: #669900;
   display: block;
   padding-top: 28px;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 2347, ../sass/style.scss */
 #signature-list .comment-popup {
   width: 301px;
   position: absolute;
   font-weight: normal;
   z-index: 500;
   bottom: 98px;
-  height: 135px;
-}
+  height: 135px; }
 
-/* line 2356, ../sass/style.scss */
 #signature-list .comment-popup .top {
   background: url(../img/bg-comment-bubble-top.png) no-repeat bottom;
-  height: 13px;
-}
+  height: 13px; }
 
-/* line 2361, ../sass/style.scss */
 #signature-list .comment-popup .mid {
   background: url(../img/bg-comment-bubble-mid.png) repeat-y;
   padding: 5px 22px 10px 22px;
@@ -2754,50 +2013,36 @@ input#button-report-this-petition {
   font-size: 1em;
   line-height: 140%;
   height: 100px;
-  word-wrap: break-word;
-}
+  word-wrap: break-word; }
 
-/* line 2371, ../sass/style.scss */
 #signature-list .comment-popup .bottom {
   background: url(../img/bg-comment-bubble-btm.png) no-repeat;
-  height: 22px;
-}
+  height: 22px; }
 
 /****** Delete Modal ******/
-/* line 2378, ../sass/style.scss */
 .modal {
   z-index: 100;
   position: absolute;
-  -moz-box-shadow: 0 0 3px black;
-  -webkit-box-shadow: 0 0 3px black;
-  box-shadow: 0 0 3px black;
-}
+  -moz-box-shadow: 0 0 3px #000000;
+  -webkit-box-shadow: 0 0 3px #000000;
+  box-shadow: 0 0 3px #000000; }
 
-/* line 2386, ../sass/style.scss */
 .modal h2 {
   font-size: 1.333em;
-  margin: 0 0 10px 0;
-}
+  margin: 0 0 10px 0; }
 
-/* line 2391, ../sass/style.scss */
 h2.alert {
   color: #880000;
   font-size: 1.333em;
-  margin: 0 0 10px 0;
-}
+  margin: 0 0 10px 0; }
 
-/* line 2397, ../sass/style.scss */
 .delete-petition-overlay .buttons {
   margin: 10px 0 0 30px;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 2402, ../sass/style.scss */
 #petition-thankyou .petition-detail {
-  padding: 0 0 25px 0;
-}
+  padding: 0 0 25px 0; }
 
-/* line 2406, ../sass/style.scss */
 input#button-delete-this-petition, a#button-delete-this-petition {
   background: url(../img/sprite-buttons.png) no-repeat 0 -463px;
   height: 27px;
@@ -2806,10 +2051,8 @@ input#button-delete-this-petition, a#button-delete-this-petition {
   text-indent: -9000px;
   float: left;
   margin-right: 10px;
-  -webkit-appearance: none !important;
-}
+  -webkit-appearance: none !important; }
 
-/* line 2417, ../sass/style.scss */
 input#button-no-thanks-keep, a#button-no-thanks-keep {
   background: url(../img/sprite-buttons.png) no-repeat 0 -497px;
   height: 27px;
@@ -2818,23 +2061,17 @@ input#button-no-thanks-keep, a#button-no-thanks-keep {
   text-indent: -9000px;
   float: left;
   font-size: 0;
-  line-height: 0;
-}
+  line-height: 0; }
 
-/* line 2428, ../sass/style.scss */
 .modal p {
-  line-height: 140%;
-}
+  line-height: 140%; }
 
-/* line 2431, ../sass/style.scss */
 #filter-page #wh-petitions-comment-petition-form p {
   clear: both;
   margin-top: 20px;
-  padding-top: 20px;
-}
+  padding-top: 20px; }
 
 /****** Thank You Modal ******/
-/* line 2439, ../sass/style.scss */
 #thank-you-modal {
   background: #FFF;
   -moz-border-radius: 5px;
@@ -2844,59 +2081,39 @@ input#button-no-thanks-keep, a#button-no-thanks-keep {
   position: absolute;
   width: 637px;
   padding: 7px 7px 0 7px;
-  z-index: 500;
-}
+  z-index: 500; }
 
-/* line 2451, ../sass/style.scss */
 #thank-you-modal .inner {
-  padding: 15px 15px 55px 15px;
-}
+  padding: 15px 15px 55px 15px; }
 
-/* line 2455, ../sass/style.scss */
 #thank-you-modal .header {
-  height: 51px;
-}
+  height: 51px; }
 
-/* line 2457, ../sass/style.scss */
 #thank-you-modal p {
-  margin: 20px 0 20px 0;
-}
+  margin: 20px 0 20px 0; }
 
-/* line 2460, ../sass/style.scss */
 #thank-you-modal #sig-needed {
   margin-right: 5px;
-  width: 280px;
-}
+  width: 280px; }
 
-/* line 2464, ../sass/style.scss */
 #thank-you-modal #sig-needed .num-block1 {
-  margin-right: 5px;
-}
+  margin-right: 5px; }
 
-/* line 2467, ../sass/style.scss */
 #thank-you-modal #total-on {
-  width: 300px;
-}
+  width: 300px; }
 
-/* line 2470, ../sass/style.scss */
 #thank-you-modal #total-on h4 {
   margin-right: 0px;
   padding-right: 0px;
-  width: 125px;
-}
+  width: 125px; }
 
-/* line 2475, ../sass/style.scss */
 #thank-you-modal #total-on .num-block2 {
-  left: 437px;
-}
+  left: 437px; }
 
-/* line 2479, ../sass/style.scss */
 #petition-inner #thank-you-modal textarea {
   width: 570px;
-  height: 90px;
-}
+  height: 90px; }
 
-/* line 2486, ../sass/style.scss */
 input.blue-button,
 a.blue-button, .response-filter #issues-filter-drop input.blue-button {
   background: #003366;
@@ -2917,34 +2134,26 @@ a.blue-button, .response-filter #issues-filter-drop input.blue-button {
   font-family: Arial, sans-serif;
   font-weight: bold;
   letter-spacing: 0.03em;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
-/* line 2505, ../sass/style.scss */
 .response-filter #issues-filter-drop input.blue-button {
   width: 170px;
   padding: 8px 0;
   margin: 15px 0 0 220px;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 2512, ../sass/style.scss */
 input#submit-comment-with-sig {
-  margin: 5px 0 0 0;
-}
+  margin: 5px 0 0 0; }
 
-/* line 2516, ../sass/style.scss */
 #petition-inner #thank-you-modal form .help-text {
   font-size: 1em;
   float: right;
   position: absolute;
   left: 375px;
   width: 200px;
-  margin: 5px 0 0 0;
-}
+  margin: 5px 0 0 0; }
 
 /****** Petition Response ******/
-/* line 2527, ../sass/style.scss */
 .petition-response {
   background: #f6f6dc;
   padding: 20px 20px 10px 20px;
@@ -2955,75 +2164,53 @@ input#submit-comment-with-sig {
   -webkit-border-radius-topright: 5px;
   -moz-border-radius-topleft: 5px;
   border-top-left-radius: 5px;
-  -webkit-border-radius-topleft: 5px;
-}
+  -webkit-border-radius-topleft: 5px; }
 
-/* line 2540, ../sass/style.scss */
 .individual-response {
   background: #dbecfc;
   border: none;
   margin: 0 0 0 -15px;
-  padding: 7px 20px 20px 20px;
-}
+  padding: 7px 20px 20px 20px; }
 
-/* line 2547, ../sass/style.scss */
 .petition-response .media {
   margin: 0 0 15px 0;
-  word-wrap: break-word;
-}
+  word-wrap: break-word; }
 
-/* line 2552, ../sass/style.scss */
 .petition-response p {
-  word-wrap: break-word;
-}
+  word-wrap: break-word; }
 
-/* line 2556, ../sass/style.scss */
 .petition-response h2 {
   font-weight: normal;
-  font-size: 1.833em;
-}
+  font-size: 1.833em; }
 
-/* line 2561, ../sass/style.scss */
 img.response-call {
   position: absolute;
   top: -19px;
-  left: 23px;
-}
+  left: 23px; }
 
-/* line 2567, ../sass/style.scss */
 .response-author-org span {
-  display: block;
-}
+  display: block; }
 
-/* line 2570, ../sass/style.scss */
 .response-author-org img.graphic {
   float: left;
-  padding: 0 8px 0 0;
-}
+  padding: 0 8px 0 0; }
 
-/* line 2575, ../sass/style.scss */
 .response-author-org span.official {
   text-transform: uppercase;
   font-size: 0.917em;
   font-weight: bold;
   letter-spacing: 0.02em;
-  padding: 12px 0 0 0;
-}
+  padding: 12px 0 0 0; }
 
-/* line 2583, ../sass/style.scss */
 .response-author-org span.petition-title {
   font-size: 1.25em;
-  margin: 2px 0 0 1px;
-}
+  margin: 2px 0 0 1px; }
 
-/* line 2588, ../sass/style.scss */
 .response-applies-msg {
   margin: 28px 0 10px 0;
-  font-weight: bold;
-}
+  font-weight: bold; }
 
 /****** Sign Petition and Create Account Modal ******/
-/* line 2596, ../sass/style.scss */
 #sign-create-modal {
   background: #FFF;
   -moz-border-radius: 5px;
@@ -3033,176 +2220,120 @@ img.response-call {
   width: 763px;
   left: 350px;
   top: 120px;
-  padding: 7px 7px 25px 7px;
-}
+  padding: 7px 7px 25px 7px; }
 
-/* line 2608, ../sass/style.scss */
 #sign-create-modal .inner {
-  padding: 0 20px 55px 20px;
-}
+  padding: 0 20px 55px 20px; }
 
-/* line 2612, ../sass/style.scss */
 #sign-create-modal .header h2 {
   width: 500px;
-  float: left;
-}
+  float: left; }
 
-/* line 2618, ../sass/style.scss */
 #sign-create-modal p,
 #create-account-not-signed-in p {
   margin: 0;
   font-size: 1em;
-  color: #737373;
-}
+  color: #737373; }
 
-/* line 2624, ../sass/style.scss */
 #sign-create-modal .form-item {
-  margin: 0 0 8px 0;
-}
+  margin: 0 0 8px 0; }
 
-/* line 2628, ../sass/style.scss */
 #sign-create-modal .header {
   height: 55px;
-  background: url(../img/sprite.gif) no-repeat 0 -1243px;
-}
+  background: url(../img/sprite.gif) no-repeat 0 -1243px; }
 
-/* line 2633, ../sass/style.scss */
 #sign-create-modal .header a.close-button {
   margin: 4px 15px 0 0;
-  padding: 2px 0 3px 0;
-}
+  padding: 2px 0 3px 0; }
 
-/* line 2639, ../sass/style.scss */
 #sign-create-modal .col-2, #sign-create-modal .or,
 #create-account-not-signed-in .or {
-  float: left;
-}
+  float: left; }
 
-/* line 2644, ../sass/style.scss */
 #create-account-not-signed-in .or {
-  float: left;
-}
+  float: left; }
 
-/* line 2646, ../sass/style.scss */
 #sign-create-modal #have-account {
-  width: 285px;
-}
+  width: 285px; }
 
-/* line 2650, ../sass/style.scss */
 #create-account-not-signed-in #have-account {
   width: 260px;
-  float: left;
-}
+  float: left; }
 
-/* line 2655, ../sass/style.scss */
 #petition-inner #create-account-not-signed-in .form-item {
-  margin-bottom: 10px;
-}
+  margin-bottom: 10px; }
 
-/* line 2659, ../sass/style.scss */
 #sign-create-modal #no-account {
-  width: 360px;
-}
+  width: 360px; }
 
-/* line 2663, ../sass/style.scss */
 #create-account-not-signed-in #no-account {
   width: 350px;
   float: left;
-  padding-left: 10px;
-}
+  padding-left: 10px; }
 
-/* line 2668, ../sass/style.scss */
 #no-account form {
   margin: 15px 0 0 0;
-  padding: 0;
-}
+  padding: 0; }
 
-/* line 2674, ../sass/style.scss */
 #sign-create-modal .form-item-checkbox label,
 #petition-inner #create-account-not-signed-in .form-item-checkbox label {
   display: inline;
   width: auto;
   float: none;
-  font-weight: normal;
-}
+  font-weight: normal; }
 
-/* line 2681, ../sass/style.scss */
 #create-account-not-signed-in {
-  margin: 2px 0 0 2px;
-}
+  margin: 2px 0 0 2px; }
 
-/* line 2685, ../sass/style.scss */
 #create-account-not-signed-in #no-account .form-item-checkbox {
-  margin: 0 40px 10px 90px;
-}
+  margin: 0 40px 10px 90px; }
 
-/* line 2689, ../sass/style.scss */
 #create-account-not-signed-in .note {
   color: #880000;
   font-size: 1em;
-  margin: 15px 0 10px;
-}
+  margin: 15px 0 10px; }
 
-/* line 2697, ../sass/style.scss */
 #sign-create-modal .or,
 #create-account-not-signed-in .or {
   width: 40px;
   padding: 125px 0;
   margin: 0 20px 0 10px;
   background: url(../img/line-gr.gif) repeat-y center;
-  min-height: 88px;
-}
+  min-height: 88px; }
 
-/* line 2705, ../sass/style.scss */
 #create-account-not-signed-in .or {
   margin: 0 10px;
-  padding: 145px 0 180px 0;
-}
+  padding: 145px 0 180px 0; }
 
-/* line 2712, ../sass/style.scss */
 #sign-create-modal input.input-text,
 #sign-in input.input-text,
 #petition-inner #create-account-not-signed-in input.input-text {
   background: white url(../img/bg-input-text.gif) repeat-x;
   border: 1px solid #e5e5e5;
   color: #7b7b7b;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 2719, ../sass/style.scss */
 #sign-in input.input-text {
   width: 160px;
-  height: 17px;
-}
+  height: 17px; }
 
-/* line 2724, ../sass/style.scss */
 #form-item-password .help-text {
   margin-top: 4px;
-  font-size: 0.917em;
-}
+  font-size: 0.917em; }
 
-/* line 2729, ../sass/style.scss */
 #have-account input.input-text {
-  width: 170px;
-}
+  width: 170px; }
 
-/* line 2733, ../sass/style.scss */
 #petition-inner #have-account form input.input-text {
-  width: 150px;
-}
+  width: 150px; }
 
-/* line 2737, ../sass/style.scss */
 #petition-inner #have-account form {
-  padding: 0;
-}
+  padding: 0; }
 
-/* line 2741, ../sass/style.scss */
 #no-account input.input-text,
 #petition-outer #create-account-not-signed-in input.input-text {
-  width: 120px;
-}
+  width: 120px; }
 
-/* line 2746, ../sass/style.scss */
 #sign-create-modal label,
 #petition-outer #create-account-not-signed-in label {
   color: #7b7b7b;
@@ -3211,37 +2342,27 @@ img.response-call {
   float: left;
   width: 100px;
   display: block;
-  padding: 6px 0 0 0;
-}
+  padding: 6px 0 0 0; }
 
-/* line 2756, ../sass/style.scss */
 #petition-outer #create-account-not-signed-in label {
-  width: 90px;
-}
+  width: 90px; }
 
-/* line 2761, ../sass/style.scss */
 #sign-create-modal h3,
 #create-account-not-signed-in h3 {
   font-weight: normal;
   font-size: 1.5em;
-  margin: 0 0 7px 0;
-}
+  margin: 0 0 7px 0; }
 
-/* line 2768, ../sass/style.scss */
 #sign-create-modal h4,
 #create-account-not-signed-in h4 {
   text-transform: none;
   font-size: 1.167em;
-  margin: 0 0 10px 0;
-}
+  margin: 0 0 10px 0; }
 
-/* line 2774, ../sass/style.scss */
 #create-account-not-signed-in h4 {
   font-size: 1.083em;
-  margin: 10px 0 14px 0;
-}
+  margin: 10px 0 14px 0; }
 
-/* line 2780, ../sass/style.scss */
 #sign-create-modal input.sign-in-button,
 #create-account-not-signed-in input.sign-in-button {
   height: 34px;
@@ -3250,474 +2371,326 @@ img.response-call {
   line-height: 0;
   cursor: pointer;
   clear: both;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 2790, ../sass/style.scss */
 #no-account #form-item-first-last-name input.input-text {
-  width: 115px;
-}
+  width: 115px; }
 
-/* line 2794, ../sass/style.scss */
 #sign-create-modal .form-item-checkbox {
   margin: 0 0 20px 95px;
   float: right;
   width: auto;
-  line-height: 140%;
-}
+  line-height: 140%; }
 
-/* line 2802, ../sass/style.scss */
 #sign-create-modal #updates-check,
 #create-account-not-signed-in #updates-check {
-  float: left;
-}
+  float: left; }
 
-/* line 2806, ../sass/style.scss */
 #create-account-not-signed-in #updates-check {
-  margin: 2px 10px 20px 0;
-}
+  margin: 2px 10px 20px 0; }
 
-/* line 2810, ../sass/style.scss */
 a.open-id-signin {
   background: url(../img/icon-openid.gif) no-repeat 0 0;
   padding: 0 0 0 20px;
   margin: 10px 0 0 0;
-  display: block;
-}
+  display: block; }
 
-/* line 2819, ../sass/style.scss */
 #sign-create-modal p.guide-privacy-links,
 #create-account-not-signed-in p.guide-privacy-links {
   margin: 10px 0 0 0;
-  font-size: 1.083em;
-}
+  font-size: 1.083em; }
 
-/* line 2825, ../sass/style.scss */
 #no-account #form-item-email-create input.input-text,
 #no-account #form-item-reenter-email input.input-text {
-  width: 245px;
-}
+  width: 245px; }
 
-/* line 2829, ../sass/style.scss */
 #no-account label {
-  width: 100px;
-}
+  width: 100px; }
 
-/* line 2834, ../sass/style.scss */
 input#button-sign-in-and-start-my-petition {
   background: url(../img/sprite-buttons.png) no-repeat 0 -637px;
   width: 247px;
-  margin: 26px 0 0 0;
-}
+  margin: 26px 0 0 0; }
 
-/* line 2840, ../sass/style.scss */
 input#button-submit-and-start-my-petition {
   background: url(../img/sprite-buttons.png) no-repeat -250px -637px;
   width: 250px;
-  margin: 0;
-}
+  margin: 0; }
 
-/* line 2846, ../sass/style.scss */
 input#button-sign-petition-and-create {
   background: url(../img/sprite-buttons.png) no-repeat 0 -537px;
-  width: 316px;
-}
+  width: 316px; }
 
 /****** How Why Pages ******/
 /* Left Nav */
-/* line 2855, ../sass/style.scss */
 #how-why-content .left-nav li {
   list-style-type: none;
   margin: 0 0 3px 0;
   display: block;
   padding: 0 5px;
   font-weight: bold;
-  font-size: 1.083em;
-}
+  font-size: 1.083em; }
 
-/* line 2864, ../sass/style.scss */
 #how-why-content .left-nav li a {
   color: #737373;
   display: block;
   height: 23px;
-  padding: 7px 0 0 6px;
-}
+  padding: 7px 0 0 6px; }
 
-/* line 2871, ../sass/style.scss */
 #how-why-content .left-nav li a.active {
   color: #333;
-  background: url(../img/bg-left-nav-active.png) no-repeat -1px 0;
-}
+  background: url(../img/bg-left-nav-active.png) no-repeat -1px 0; }
 
-/* line 2876, ../sass/style.scss */
 #how-why-content .left-nav li a:hover {
-  color: #333;
-}
+  color: #333; }
 
-/* line 2880, ../sass/style.scss */
 #how-why-content blockquote {
-  margin: 0 0 20px 0;
-}
+  margin: 0 0 20px 0; }
 
-/* line 2884, ../sass/style.scss */
 #how-why-content p {
-  margin: 0 0 20px 0;
-}
+  margin: 0 0 20px 0; }
 
-/* line 2888, ../sass/style.scss */
 #how-why-content blockquote p {
   font-family: Georgia, serif;
   font-size: 1.417em;
   line-height: 150%;
   margin: 0px;
-  padding: 0;
-}
+  padding: 0; }
 
-/* line 2896, ../sass/style.scss */
 #how-why-content p a {
-  text-decoration: underline;
-}
+  text-decoration: underline; }
 
-/* line 2900, ../sass/style.scss */
 #how-why-content .step {
-  clear: both;
-}
+  clear: both; }
 
-/* line 2904, ../sass/style.scss */
 #how-why-content .step .num {
   width: 31px;
   height: 33px;
   float: left;
   margin: 0 15px 0 0;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 2912, ../sass/style.scss */
 .step-text h3 {
-  margin-bottom: 10px;
-}
+  margin-bottom: 10px; }
 
-/* line 2916, ../sass/style.scss */
 #how-why-content p.sub-step {
-  margin-left: 45px;
-}
+  margin-left: 45px; }
 
-/* line 2920, ../sass/style.scss */
 #how-why-content .step-text {
   float: left;
-  width: 650px;
-}
+  width: 650px; }
 
-/* line 2925, ../sass/style.scss */
 #how-why-content #step-1 .num {
-  background: url(../img/how-to-numbers.gif) no-repeat;
-}
+  background: url(../img/how-to-numbers.gif) no-repeat; }
 
-/* line 2929, ../sass/style.scss */
 #how-why-content #step-2 .num {
-  background: url(../img/how-to-numbers.gif) no-repeat 0 -51px;
-}
+  background: url(../img/how-to-numbers.gif) no-repeat 0 -51px; }
 
-/* line 2933, ../sass/style.scss */
 #how-why-content #step-3 .num {
-  background: url(../img/how-to-numbers.gif) no-repeat 0 -102px;
-}
+  background: url(../img/how-to-numbers.gif) no-repeat 0 -102px; }
 
-/* line 2937, ../sass/style.scss */
 #how-why-content #step-4 .num {
-  background: url(../img/how-to-numbers.gif) no-repeat 0 -156px;
-}
+  background: url(../img/how-to-numbers.gif) no-repeat 0 -156px; }
 
-/* line 2941, ../sass/style.scss */
 #how-why-content p a:hover {
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 2945, ../sass/style.scss */
 #how-why-content h2.trigger a {
   background: url(../img/circle-arrow1.png) no-repeat 0 5px;
-  padding-left: 25px;
-}
+  padding-left: 25px; }
 
-/* line 2950, ../sass/style.scss */
 #qa-content p {
   margin: 0 0 10px 17px;
   color: #737373;
   line-height: 130%;
-  font-size: 1.083em;
-}
+  font-size: 1.083em; }
 
-/* line 2957, ../sass/style.scss */
 #how-why-content h2.row1 {
-  background: #FFF;
-}
+  background: #FFF; }
 
-/* line 2961, ../sass/style.scss */
 #how-why-content h2.active a {
   background: url(../img/circle-arrow3.png) no-repeat 0 5px;
   padding-left: 25px;
-  color: #fff;
-}
+  color: #fff; }
 
-/* line 2967, ../sass/style.scss */
 #how-why-content h2.active {
   background: #FFF;
-  filter: none;
-}
+  filter: none; }
 
-/* line 2972, ../sass/style.scss */
 #how-why-content h2.trigger {
   padding: 0 5px;
   height: 28px;
-  line-height: 30px;
-}
+  line-height: 30px; }
 
-/* line 2978, ../sass/style.scss */
 #how-why-content .toggle-container {
   background: #FFF;
-  border: none;
-}
+  border: none; }
 
-/* line 2983, ../sass/style.scss */
 img.img-float-right {
-  margin: 10px 0 0 15px;
-}
+  margin: 10px 0 0 15px; }
 
-/* line 2987, ../sass/style.scss */
 #how-why-content blockquote p.source {
   margin: 5px 0;
   font-family: Arial, sans-serif;
   font-size: 12px;
-  line-height: normal;
-}
+  line-height: normal; }
 
-/* line 2994, ../sass/style.scss */
 #how-why-content .media-wrapper {
-  margin: 0 0 20px 0;
-}
+  margin: 0 0 20px 0; }
 
-/* line 2998, ../sass/style.scss */
 #how-why-content .api-gallery-page {
-  width: 756px;
-}
+  width: 756px; }
 
-/* line 3002, ../sass/style.scss */
 #how-why-content .project-row {
-  margin-bottom: 20px;
-}
+  margin-bottom: 20px; }
 
-/* line 3006, ../sass/style.scss */
 #how-why-content .api-project {
   width: 250px;
   float: left;
-  padding: 1px;
-}
+  padding: 1px; }
 
-/* line 3012, ../sass/style.scss */
 #how-why-content .api-project img {
-  border: 1px solid lightgrey;
-}
+  border: 1px solid #d3d3d3; }
 
-/* line 3016, ../sass/style.scss */
 #how-why-content .project-intro {
-  padding-right: 10px;
-}
+  padding-right: 10px; }
 
-/* line 3020, ../sass/style.scss */
 #how-why-content .api-project ul li {
   font-weight: bold;
   list-style: none;
-  margin-bottom: 4px;
-}
+  margin-bottom: 4px; }
 
-/* line 3026, ../sass/style.scss */
 #how-why-content .api-project p {
   font-size: 12px;
   line-height: 16px;
-  margin-bottom: 10px;
-}
+  margin-bottom: 10px; }
 
 /****** My Petitions / Dashboard ******/
-/* line 3034, ../sass/style.scss */
 h2.section-title {
   color: #333;
   font-size: 1.25em;
-  padding: 0 0 10px 0;
-}
+  padding: 0 0 10px 0; }
 
-/* line 3040, ../sass/style.scss */
 #my-petitions .entry {
   width: 335px;
   float: left;
-  position: relative;
-}
+  position: relative; }
 
-/* line 3046, ../sass/style.scss */
 #my-petitions .last-entry {
-  margin-right: 0;
-}
+  margin-right: 0; }
 
-/* line 3050, ../sass/style.scss */
 #my-petitions .action-links {
   width: 128px;
-  float: right;
-}
+  float: right; }
 
-/* line 3055, ../sass/style.scss */
 .action-links {
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 3059, ../sass/style.scss */
 .action-links a, .action-links a.delete {
   display: block;
   float: left;
   height: 36px;
-  width: 57px;
-}
+  width: 57px; }
 
-/* line 3066, ../sass/style.scss */
 #my-petitions .petition-list-group {
-  margin: 0 0 15px 0;
-}
+  margin: 0 0 15px 0; }
 
-/* line 3070, ../sass/style.scss */
 #my-petitions a.finish {
-  background: url(../img/my-petitions-actions.png) no-repeat 0 5px;
-}
+  background: url(../img/my-petitions-actions.png) no-repeat 0 5px; }
 
-/* line 3074, ../sass/style.scss */
 #my-petitions a.delete {
   background: url(../img/my-petitions-actions.png) no-repeat 0 -50px;
-  margin-left: 8px;
-}
+  margin-left: 8px; }
 
-/* line 3079, ../sass/style.scss */
 #my-petitions a.view, .petition-list .entry .view a {
   background: url(../img/my-petitions-actions.png) no-repeat 0 -122px;
-  margin: 5px 0 0 67px;
-}
+  margin: 5px 0 0 67px; }
 
-/* line 3084, ../sass/style.scss */
 .fuzzy-divide {
   background: url(../img/bg-fuz-divide.png) repeat-x;
-  height: 17px;
-}
+  height: 17px; }
 
-/* line 3089, ../sass/style.scss */
 #my-petitions .fuzzy-divide {
-  margin: 0 0 10px 0;
-}
+  margin: 0 0 10px 0; }
 
-/* line 3093, ../sass/style.scss */
 .tag-status {
   width: 74px;
   height: 67px;
   text-indent: -9000px;
   position: absolute;
   z-index: 300;
-  left: 261px;
-}
+  left: 261px; }
 
-/* line 3102, ../sass/style.scss */
 .add-margin .tag-status {
-  left: 261px;
-}
+  left: 261px; }
 
-/* line 3106, ../sass/style.scss */
 .entry-archived .tag-status {
-  background: url(../img/tag-petition-status.png) no-repeat 0 0;
-}
+  background: url(../img/tag-petition-status.png) no-repeat 0 0; }
 
-/* line 3110, ../sass/style.scss */
 .entry-response .tag-status {
-  background: url(../img/tag-petition-status.png) no-repeat -82px 0;
-}
+  background: url(../img/tag-petition-status.png) no-repeat -82px 0; }
 
-/* line 3114, ../sass/style.scss */
 .entry-removed .tag-status {
-  background: url(../img/tag-petition-status.png) no-repeat -165px 0;
-}
+  background: url(../img/tag-petition-status.png) no-repeat -165px 0; }
 
 /******* Petitions Removed Page ******/
 /* No nav or seal on page */
-/* line 3123, ../sass/style.scss */
 body.petitions-removed-page #page {
   background: url(../img/bg-page-no-nav.jpg) center top no-repeat;
   margin: 0;
   min-width: 976px;
   padding: 0;
   position: relative;
-  min-height: 1000px;
-}
+  min-height: 1000px; }
 
-/* line 3132, ../sass/style.scss */
 body.petitions-removed-page #petition-outer {
   position: relative;
-  top: -60px;
-}
+  top: -60px; }
 
-/* line 3137, ../sass/style.scss */
 body.petitions-removed-page .main-content {
   float: none;
-  width: 687px;
-}
+  width: 687px; }
 
-/* line 3142, ../sass/style.scss */
 a#button-view-white-house-petitions {
   display: block;
   background: url(../img/sprite-buttons.png) no-repeat -223px -592px;
   height: 33px;
   width: 280px;
   text-indent: -9000px;
-  margin: 0 0 15px 0;
-}
+  margin: 0 0 15px 0; }
 
-/* line 3151, ../sass/style.scss */
 #petitions-removed .intro {
   font-family: Georgia, serif;
   color: #880000;
   font-size: 1.5em;
-  margin: 0 50px 15px 0;
-}
+  margin: 0 50px 15px 0; }
 
-/* line 3158, ../sass/style.scss */
 #petitions-removed p {
-  line-height: 130%;
-}
+  line-height: 130%; }
 
-/* line 3162, ../sass/style.scss */
 .deleted-petition-divide {
   background: url(../img/line-mid.gif) repeat-x 0 7px;
-  margin: 20px 0 20px 0;
-}
+  margin: 20px 0 20px 0; }
 
-/* line 3167, ../sass/style.scss */
 .deleted-petition-divide .title {
   background: #FFF;
   display: block;
   width: 120px;
   color: #880000;
   font-weight: bold;
-  font-size: 1.167em;
-}
+  font-size: 1.167em; }
 
 /* By The Numbers block */
-/* line 3177, ../sass/style.scss */
 #by-the-numbers .number {
   color: #669900;
   font-size: 1.333em;
-  display: block;
-}
+  display: block; }
 
-/* line 3182, ../sass/style.scss */
 #by-the-numbers .text {
   padding: 1px 0 6px 0;
-  display: block;
-}
+  display: block; }
 
 /* Misc */
-/* line 3188, ../sass/style.scss */
 #mask {
   position: absolute;
   z-index: 400;
@@ -3725,10 +2698,8 @@ a#button-view-white-house-petitions {
   display: none;
   opacity: 0;
   filter: alpha(opacity=0);
-  width: 100%;
-}
+  width: 100%; }
 
-/* line 3197, ../sass/style.scss */
 #comment-mask {
   position: absolute;
   z-index: 400;
@@ -3736,41 +2707,27 @@ a#button-view-white-house-petitions {
   display: none;
   opacity: .78;
   filter: alpha(opacity=78);
-  width: 100%;
-}
+  width: 100%; }
 
-/* line 3206, ../sass/style.scss */
 #petition-inner #wh-petitions-report-inappropriate-form {
-  padding: 0 0 20px 0;
-}
+  padding: 0 0 20px 0; }
 
-/* line 3209, ../sass/style.scss */
 #petition-inner .delete-petition-overlay form {
-  padding: 0 0 20px 0;
-}
+  padding: 0 0 20px 0; }
 
-/* line 3212, ../sass/style.scss */
 #form-item-search-drop {
-  margin: 25px 0 0 20px;
-}
+  margin: 25px 0 0 20px; }
 
-/* line 3215, ../sass/style.scss */
 #petition-inner #form-item-issues-filter {
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 3218, ../sass/style.scss */
 #petition-inner #form-item-search-drop .form-item {
   margin: 0px;
-  width: 440px;
-}
+  width: 440px; }
 
-/* line 3223, ../sass/style.scss */
 #apply-modal a.close-button {
-  margin: -17px -17px 0 0;
-}
+  margin: -17px -17px 0 0; }
 
-/* line 3226, ../sass/style.scss */
 #apply-modal {
   background: #FFF;
   -moz-border-radius: 5px;
@@ -3780,83 +2737,57 @@ a#button-view-white-house-petitions {
   height: 300px;
   width: 450px;
   left: -500px;
-  top: -200px;
-}
+  top: -200px; }
 
-/* line 3237, ../sass/style.scss */
 .display-none {
-  display: none;
-}
+  display: none; }
 
-/* line 3240, ../sass/style.scss */
 #thank-you-modal h3 {
   color: #333333;
   font-size: 1.167em;
   font-weight: bold;
   margin: 0 0 15px;
   float: none;
-  width: auto;
-}
+  width: auto; }
 
-/* line 3248, ../sass/style.scss */
 #petition-inner #wh-petitions-comment-petition-form {
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 3254, ../sass/style.scss */
 #petition-inner .form-item-petition-description,
 #petition-inner .form-item-petition-tags {
-  width: 400px;
-}
+  width: 400px; }
 
-/* line 3257, ../sass/style.scss */
 #petition-inner form#create-petition-form-step-4, #petition-inner form#create-petition-form-thank-you {
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 3260, ../sass/style.scss */
 #petition-inner form#create-petition-form-step-1 .p-fuzzy-divide {
   margin-top: 40px;
-  clear: both;
-}
+  clear: both; }
 
-/* line 3264, ../sass/style.scss */
 #petition-inner #create-petition-form-step-2 {
-  padding: 0 0 55px 0;
-}
+  padding: 0 0 55px 0; }
 
-/* line 3267, ../sass/style.scss */
 #edit-petition-issues .group {
   width: 215px;
-  float: left;
-}
+  float: left; }
 
-/* line 3271, ../sass/style.scss */
 #petition-inner #edit-petition-issues label {
   display: inline;
   color: #737373;
-  font-size: 1em;
-}
+  font-size: 1em; }
 
-/* line 3277, ../sass/style.scss */
 #petition-inner #edit-petition-issues .form-item {
   margin: 0 0 5px 0;
-  line-height: 1.6em;
-}
+  line-height: 1.6em; }
 
-/* line 3282, ../sass/style.scss */
 #petition-inner form .help-text {
   text-align: right;
   color: #737373;
-  font-size: 0.833em;
-}
+  font-size: 0.833em; }
 
-/* line 3288, ../sass/style.scss */
 #edit-petition-issues .form-item-checkbox {
-  margin-bottom: 5px;
-}
+  margin-bottom: 5px; }
 
-/* line 3292, ../sass/style.scss */
 #petition-inner .view-tooltip, #petition-inner .view-tooltip-tag {
   position: absolute;
   top: 26px;
@@ -3864,58 +2795,41 @@ a#button-view-white-house-petitions {
   font-size: 11px;
   font-weight: bold;
   text-align: left;
-  width: 230px;
-}
+  width: 230px; }
 
-/* line 3301, ../sass/style.scss */
 #petition-inner .view-threshold-tooltip {
-  position: relative;
-}
+  position: relative; }
 
-/* line 3305, ../sass/style.scss */
 #petition-inner .tooltip {
   left: 0px;
-  top: 20px;
-}
+  top: 20px; }
 
-/* line 3310, ../sass/style.scss */
 input#edit-delete {
   width: 155px;
   height: 25px;
   background: url(../img/sprite-buttons.png) no-repeat -287px -209px;
-  margin: 0 0 5px 0;
-}
+  margin: 0 0 5px 0; }
 
-/* line 3316, ../sass/style.scss */
 .petition-detail-publish-options input.button, .petition-detail-publish-options a.button {
   display: block;
   text-indent: -9000px;
   font-size: 0;
-  line-height: 0;
-}
+  line-height: 0; }
 
-/* line 3322, ../sass/style.scss */
 #email-page .email-petition-page input.button {
   display: block;
   text-indent: -9000px;
   font-size: 0;
-  line-height: 0;
-}
+  line-height: 0; }
 
-/* line 3328, ../sass/style.scss */
 .petition-detail-publish-options {
-  padding-left: 15px;
-}
+  padding-left: 15px; }
 
-/* line 3331, ../sass/style.scss */
 #thank-you-modal .form-item {
-  margin: 0px;
-}
+  margin: 0px; }
 
-/* line 3334, ../sass/style.scss */
 #closed-signatures {
-  padding-top: 0px;
-}
+  padding-top: 0px; }
 
 /*
 #petition-outer {
@@ -3923,150 +2837,101 @@ input#edit-delete {
   position:relative;
 }
 */
-/* line 3344, ../sass/style.scss */
 #petition-inner #title-tooltip {
   left: 260px;
   background: #fff;
-  top: 205px;
-}
+  top: 205px; }
 
-/* line 3349, ../sass/style.scss */
 #petition-inner #threshold-tooltip {
   height: 190px;
   left: 200px;
   text-align: left;
   top: -210px;
   width: 500px;
-  background: #fff;
-}
+  background: #fff; }
 
-/* line 3357, ../sass/style.scss */
 #petition-inner .petition-detail #threshold-tooltip p {
   font-size: 1em;
-  line-height: 1.5;
-}
+  line-height: 1.5; }
 
-/* line 3361, ../sass/style.scss */
 #filter-page h3 {
   color: #669900;
   text-align: left;
   font-size: 1.5em;
-  margin: 10px 0 20px 15px;
-}
+  margin: 10px 0 20px 15px; }
 
-/* line 3367, ../sass/style.scss */
 #petition-inner #filter-page .form-item {
-  margin: 4px 0 0 0;
-}
+  margin: 4px 0 0 0; }
 
-/* line 3370, ../sass/style.scss */
 #filter-page .button, .drop-down .blue-button {
   clear: both;
   float: left;
-  margin-top: 15px;
-}
+  margin-top: 15px; }
 
-/* line 3375, ../sass/style.scss */
 #email-page fieldset legend {
-  display: none;
-}
+  display: none; }
 
-/* line 3378, ../sass/style.scss */
 #email-page .email-response h2.page-title {
-  color: #003366;
-}
+  color: #003366; }
 
-/* line 3381, ../sass/style.scss */
 #email-page .fieldset-wrapper, #email-page .fieldset-collapsed * {
-  display: block;
-}
+  display: block; }
 
-/* line 3384, ../sass/style.scss */
 #email-page #edit-subject, #email-page #edit-body {
-  display: none;
-}
+  display: none; }
 
-/* line 3390, ../sass/style.scss */
 #email-page form .grippie, #email-page form textarea {
-  width: 600px;
-}
+  width: 600px; }
 
-/* line 3393, ../sass/style.scss */
 #petition-inner #form-item-create-petition-title .help-text .view-some {
-  width: 240px;
-}
+  width: 240px; }
 
-/* line 3396, ../sass/style.scss */
 #petition-inner #edit-filter-issues label {
   margin-bottom: 2px;
   position: relative;
   left: 22px;
   width: 182px;
-  display: block;
-}
+  display: block; }
 
-/* line 3403, ../sass/style.scss */
 #petition-inner #edit-filter-issues input {
   position: absolute;
-  width: 20px;
-}
+  width: 20px; }
 
-/* line 3407, ../sass/style.scss */
 #email-page h2.page-title {
-  margin-top: 0px;
-}
+  margin-top: 0px; }
 
-/* line 3410, ../sass/style.scss */
 #email-page form {
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 3413, ../sass/style.scss */
 #email-page .form-item {
-  margin: 0 0 15px 0;
-}
+  margin: 0 0 15px 0; }
 
-/* line 3416, ../sass/style.scss */
 #email-page {
-  padding-bottom: 100px;
-}
+  padding-bottom: 100px; }
 
-/* line 3419, ../sass/style.scss */
 #email-page .email-response input {
-  text-indent: 0px;
-}
+  text-indent: 0px; }
 
-/* line 3422, ../sass/style.scss */
 #petition-inner #form-item-search-drop label {
-  display: none;
-}
+  display: none; }
 
-/* line 3425, ../sass/style.scss */
 #petition-inner #wh-petitions-create-petition {
-  padding: 0px;
-}
+  padding: 0px; }
 
 /**** Sign in Create Account Page ****/
-/* line 3433, ../sass/style.scss */
 #sign-in-or-create-account .col-2 {
   float: left;
-  width: 300px;
-}
+  width: 300px; }
 
-/* line 3438, ../sass/style.scss */
 #sign-in-or-create-account p {
   line-height: normal;
-  font-size: 13px;
-}
+  font-size: 13px; }
 
-/* line 3443, ../sass/style.scss */
 #sign-in-or-create-account h3 {
   font-size: 1.3em;
   font-weight: normal;
-  margin: 0 0 7px;
-}
+  margin: 0 0 7px; }
 
-/* line 3449, ../sass/style.scss */
 #sign-in-or-create-account .or {
   background: url(../img/line-gr.gif) repeat-y center;
   margin: 0 20px 0 15px;
@@ -4074,96 +2939,64 @@ input#edit-delete {
   padding: 60px 0;
   width: 50px;
   float: left;
-  text-align: center;
-}
+  text-align: center; }
 
 /* Overrides of main site styles */
-/* line 3460, ../sass/style.scss */
 #petition-inner .block ul {
   margin: 0px;
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 3464, ../sass/style.scss */
 #petition-inner h2, h4, #petition-inner h1.title {
   font-family: Arial,Helvetica,sans-serif;
-  font-weight: bold;
-}
+  font-weight: bold; }
 
-/* line 3468, ../sass/style.scss */
 #petition-inner .drop-down .header h2, #thank-you-modal .header h2 {
-  color: #FFF;
-}
+  color: #FFF; }
 
-/* line 3471, ../sass/style.scss */
 #form-item-issues-filter input.form-checkbox {
   margin: 0 3px 0px 0;
-  padding: 0 0 3px 0;
-}
+  padding: 0 0 3px 0; }
 
-/* line 3475, ../sass/style.scss */
 #form-item-issues-filter .form-checkboxes {
-  margin: 0px;
-}
+  margin: 0px; }
 
-/* line 3478, ../sass/style.scss */
 #petition-inner a:hover {
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 3481, ../sass/style.scss */
 #petition-inner div.messages {
-  margin: 0 0 10px 0;
-}
+  margin: 0 0 10px 0; }
 
-/* line 3484, ../sass/style.scss */
 #petition-inner .form-submit {
-  border: 0px;
-}
+  border: 0px; }
 
-/* line 3487, ../sass/style.scss */
 #petition-inner fieldset {
   margin: 0px;
   border: 0px;
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 3492, ../sass/style.scss */
 #petition-inner #wh-petitions-sign-petition-form {
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 3495, ../sass/style.scss */
 #petition-inner textarea {
-  outline: none;
-}
+  outline: none; }
 
 /*Text changes EOP-4234*/
-/* line 3498, ../sass/style.scss */
 #sign-this-petition p {
   font-size: 11px;
-  color: #737373;
-}
+  color: #737373; }
 
-/* line 3502, ../sass/style.scss */
 .inactive-margin {
-  margin-top: 42px !important;
-}
+  margin-top: 42px !important; }
 
-/* line 3505, ../sass/style.scss */
 .col-full {
   float: left;
-  width: 675px;
-}
+  width: 675px; }
 
-/* line 3510, ../sass/style.scss */
 .hide {
-  display: none !important;
-}
+  display: none !important; }
 
 /* User Pages */
 /* Your Account */
-/* line 3517, ../sass/style.scss */
 .account-navtabs {
   background: url(../img/bg-navtabs.png) repeat-x bottom;
   font-size-adjust: none;
@@ -4171,93 +3004,67 @@ input#edit-delete {
   width: 715px;
   font-family: Georgia,"Times New Roman",Times,serif;
   font-size: 16px;
-  margin: 30px 0 8px 0;
-}
+  margin: 30px 0 8px 0; }
 
-/* line 3527, ../sass/style.scss */
 .account-navtabs ul {
-  padding-left: 22px;
-}
+  padding-left: 22px; }
 
-/* line 3531, ../sass/style.scss */
 .account-navtabs li {
   display: inline;
   margin: 0;
   padding: 0;
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 3538, ../sass/style.scss */
 .account-navtabs li a {
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 3540, ../sass/style.scss */
 .account-navtabs li.current a span {
   background: url(../img/tabright.png) no-repeat right top;
   color: #000;
   display: block;
   float: left;
-  padding: 6px 14px 4px 1px;
-}
+  padding: 6px 14px 4px 1px; }
 
-/* line 3548, ../sass/style.scss */
 .account-navtabs li a span {
   color: #336699;
   display: block;
   float: left;
   text-decoration: none;
-  padding: 6px 19px 4px 8px;
-}
+  padding: 6px 19px 4px 8px; }
 
-/* line 3556, ../sass/style.scss */
 li#profile-info a:hover span, #your-comments a:hover span {
-  text-decoration: underline;
-}
+  text-decoration: underline; }
 
-/* line 3558, ../sass/style.scss */
 #content .account-navtabs li.current a {
   background: url(../img/tableft.png) no-repeat left top;
   float: left;
   margin: 0;
   padding: 0 0 0 11px;
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 3566, ../sass/style.scss */
 #account-your-profile .button-wrapper {
   border-top: 1px solid #e6e6e6;
   padding: 15px 0 0 0;
-  margin: 25px 0 0 0;
-}
+  margin: 25px 0 0 0; }
 
-/* line 3572, ../sass/style.scss */
 #account-your-profile .btn-make-changes a {
   background: url(../img/btn-make-changes.png) no-repeat;
   display: block;
   width: 136px;
   height: 23px;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 3580, ../sass/style.scss */
 #account-your-profile p {
   font-size: 12px;
   font-weight: bold;
-  letter-spacing: 0.02em;
-}
+  letter-spacing: 0.02em; }
 
-/* line 3584, ../sass/style.scss */
 #account-your-profile span.label {
-  color: #666;
-}
+  color: #666; }
 
-/* line 3586, ../sass/style.scss */
 .comment-content {
-  border-bottom: 1px solid #e6e6e6;
-}
+  border-bottom: 1px solid #e6e6e6; }
 
-/* line 3588, ../sass/style.scss */
 #register-content .error-message, #user-page .error-message, #forgot-pass .error-message {
   margin: 5px 25px 0 119px !important;
   padding: 5px;
@@ -4268,168 +3075,118 @@ li#profile-info a:hover span, #your-comments a:hover span {
   float: left;
   font-size: 0.917em;
   letter-spacing: 0.02em;
-  text-align: left;
-}
+  text-align: left; }
 
-/* line 3601, ../sass/style.scss */
 #register-content p.email-list {
   margin-left: 120px;
-  width: 300px;
-}
+  width: 300px; }
 
-/* line 3605, ../sass/style.scss */
 #register-content .form-checkboxes .form-item {
-  margin-bottom: 4px;
-}
+  margin-bottom: 4px; }
 
-/* line 3608, ../sass/style.scss */
 #register-content .email-list-checkboxes {
-  margin-bottom: 4px;
-}
+  margin-bottom: 4px; }
 
-/* line 3611, ../sass/style.scss */
 #register-content #edit-email-updates-wrapper label {
   position: relative;
   left: 85px;
   width: 250px !important;
   text-align: left;
-  font-weight: normal;
-}
+  font-weight: normal; }
 
 /* User Registration */
-/* line 3623, ../sass/style.scss */
 .webform-client-form #webform-component-policy_comment #edit-submitted-policy-comment-wrapper label span,
 .webform-client-form #webform-component-non_policy_comment #edit-submitted-non-policy-comment-wrapper label span {
-  display: none;
-}
+  display: none; }
 
-/* line 3627, ../sass/style.scss */
 .right-rail {
-  margin-top: 0px;
-}
+  margin-top: 0px; }
 
-/* line 3632, ../sass/style.scss */
 .red-hint {
-  color: red;
-}
+  color: red; }
 
-/* line 3635, ../sass/style.scss */
 .padding-120 {
-  padding-left: 120px;
-}
+  padding-left: 120px; }
 
-/* line 3639, ../sass/style.scss */
 .right-rail .more-link {
   margin-bottom: 15px;
-  text-align: left;
-}
+  text-align: left; }
 
-/* line 3644, ../sass/style.scss */
 .right-rail .more-link a {
   color: #336699 !important;
   font-size: 12px;
   font-weight: bold;
-  text-transform: none;
-}
+  text-transform: none; }
 
-/* line 3651, ../sass/style.scss */
 .right-rail p {
-  margin-bottom: 20px;
-}
+  margin-bottom: 20px; }
 
-/* line 3655, ../sass/style.scss */
 .more-link {
   text-align: left;
   margin-top: 30px;
-  margin-bottom: 20px;
-}
+  margin-bottom: 20px; }
 
-/* line 3660, ../sass/style.scss */
 .more-link a {
   background: url(../img/arrow-blue-next.gif) no-repeat right;
   padding: 0 10px 0 0;
   font-size: 12px;
   /*16px x .625  = 10px */
   letter-spacing: 0.06em;
-  font-weight: bold;
-}
+  font-weight: bold; }
 
-/* line 3668, ../sass/style.scss */
 .more-link a:hover {
-  text-decoration: underline;
-}
+  text-decoration: underline; }
 
-/* line 3671, ../sass/style.scss */
 #forgot-pass p {
   color: #666;
   font-weight: bold;
   font-size: 1em;
   line-height: 1.5;
-  margin: 10px 0px 20px 0px;
-}
+  margin: 10px 0px 20px 0px; }
 
-/* line 3679, ../sass/style.scss */
 #user-page input#edit-submit, #user-page input#edit-submit:hover, #user-page input#edit-submit:focus {
   background: url(../img/login/user_account_submit_btn.png);
   width: 101px;
-  height: 32px;
-}
+  height: 32px; }
 
-/* line 3685, ../sass/style.scss */
 #user-page form#user-login input#edit-submit, #user-page form#user-login input#edit-submit:hover, #user-page form#user-login input#edit-submit:focus {
   background: url(../img/login/user_account_login_btn.png);
   width: 106px;
-  height: 32px;
-}
+  height: 32px; }
 
-/* line 3693, ../sass/style.scss */
 #user-page input#edit-submit {
   background-position: 0px 0px;
-  margin-left: 108px;
-}
+  margin-left: 108px; }
 
-/* line 3698, ../sass/style.scss */
 #user-page input#edit-submit:hover, #user-page input#edit-submit:focus {
-  background-position: 0px 32px;
-}
+  background-position: 0px 32px; }
 
-/* line 3702, ../sass/style.scss */
 #user-page {
-  position: relative;
-}
+  position: relative; }
 
-/* line 3706, ../sass/style.scss */
 #user-page .password {
   position: absolute;
   left: 210px;
   top: 0px;
   font-size: 1em;
   line-height: 1.5;
-  margin: 0;
-}
+  margin: 0; }
 
-/* line 3715, ../sass/style.scss */
 #user-page #content, #forgot-pass, #user-profile-form #content {
-  border-right: 1px solid #cecece !important;
+  border-right: 1px solid #CECECE !important;
   float: left;
   margin: 40px 10px 20px 70px !important;
   padding: 0px 30px 0px 0px !important;
   position: relative;
-  width: 520px !important;
-}
+  width: 520px !important; }
 
-/* line 3724, ../sass/style.scss */
 #user-page .password a {
   text-decoration: none;
-  width: 200px;
-}
+  width: 200px; }
 
-/* line 3728, ../sass/style.scss */
 #user-page .password a:hover {
-  text-decoration: underline;
-}
+  text-decoration: underline; }
 
-/* line 3731, ../sass/style.scss */
 #user-page label, #user-profile-form label {
   color: #666666 !important;
   font-weight: bold !important;
@@ -4437,119 +3194,79 @@ li#profile-info a:hover span, #your-comments a:hover span {
   text-align: left !important;
   text-indent: 3px;
   display: inline-block !important;
-  width: 100px !important;
-}
+  width: 100px !important; }
 
-/* line 3741, ../sass/style.scss */
 #user-page .required-field-wrapper span {
   background-image: none;
-  padding-left: 0px;
-}
+  padding-left: 0px; }
 
-/* line 3746, ../sass/style.scss */
 #user-page .form-text {
-  width: 225px;
-}
+  width: 225px; }
 
-/* line 3750, ../sass/style.scss */
 #user-page .form-item .description {
-  padding-left: 109px;
-}
+  padding-left: 109px; }
 
-/* line 3753, ../sass/style.scss */
 #user-profile-form #return-to-profile {
   position: absolute;
   right: 45px;
-  top: 0px;
-}
+  top: 0px; }
 
-/* line 3763, ../sass/style.scss */
 #register .webform-description {
-  border-bottom: none;
-}
+  border-bottom: none; }
 
-/* line 3766, ../sass/style.scss */
 #register #edit-profile-zip-wrapper span {
-  padding-left: 14px;
-}
+  padding-left: 14px; }
 
-/* line 3769, ../sass/style.scss */
 #register #edit-email-updates-wrapper {
-  padding-left: 29px;
-}
+  padding-left: 29px; }
 
-/* line 3772, ../sass/style.scss */
 #register .captcha {
-  padding-left: 61px;
-}
+  padding-left: 61px; }
 
-/* line 3776, ../sass/style.scss */
 #register #forgot-pass .submit-wrapper input, #register #forgot-pass .submit-wrapper input:hover, #register #forgot-pass .submit-wrapper input:focus {
   background: url(../img/login/user_account_submit_btn.png);
   padding: 16px 51px 16px 50px;
-  margin: 20px 0 20px 166px;
-}
+  margin: 20px 0 20px 166px; }
 
-/* line 3782, ../sass/style.scss */
 .main-content #forgot-pass .submit-wrapper input, .main-content #forgot-pass .submit-wrapper input:hover, .main-content #forgot-pass .submit-wrapper input:focus {
   background: url(../img/login/user_account_submit_btn.png);
   padding: 16px 51px 16px 50px;
-  margin: 20px 0 20px 166px;
-}
+  margin: 20px 0 20px 166px; }
 
-/* line 3789, ../sass/style.scss */
 #register #edit-name {
-  height: 25px;
-}
+  height: 25px; }
 
-/* line 3794, ../sass/style.scss */
 #register .webform-client-form input.form-submit {
-  float: left;
-}
+  float: left; }
 
-/* line 3798, ../sass/style.scss */
 #register #edit-submit {
-  background-position: 0 0;
-}
+  background-position: 0 0; }
 
-/* line 3802, ../sass/style.scss */
 .main-content #edit-submit {
-  background-position: 0 0;
-}
+  background-position: 0 0; }
 
-/* line 3806, ../sass/style.scss */
 .main-content input#edit-submit, .main-content input#edit-submit:hover, .main-content input#edit-submit:focus {
   background: url(../img/login/user_account_submit_btn.png) no-repeat;
   width: 106px;
   height: 32px;
   /*  margin: 20px 218px 0px 0px; */
-  margin-top: 20px;
-}
+  margin-top: 20px; }
 
-/* line 3814, ../sass/style.scss */
 .main-content input#edit-submit {
   background-position: 0px 0px;
-  margin-left: 108px;
-}
+  margin-left: 108px; }
 
-/* line 3819, ../sass/style.scss */
 #register .submit-wrapper input:hover, #register .submit-wrapper input:focus {
-  background-position: 0px -98px;
-}
+  background-position: 0px -98px; }
 
-/* line 3823, ../sass/style.scss */
 .main-content .submit-wrapper input:hover, main-content .submit-wrapper input:focus {
-  background-position: 0px -98px;
-}
+  background-position: 0px -98px; }
 
-/* line 3827, ../sass/style.scss */
 .required-field-wrapper span {
   background: url(../img/backgrounds/bg-star-required.gif) no-repeat 0 0;
   padding-left: 14px;
-  margin: 0 0 0 55px;
-}
+  margin: 0 0 0 55px; }
 
-/* line 3833, ../sass/style.scss */
 .user-account-btn {
   background: url(../img/login/user_account_account_info.png) top left no-repeat;
   text-indent: -9999px;
@@ -4558,345 +3275,239 @@ li#profile-info a:hover span, #your-comments a:hover span {
   height: 40px;
   position: absolute;
   bottom: 0px;
-  left: 65px;
-}
+  left: 65px; }
 
-/* line 3844, ../sass/style.scss */
 .login-buttons .login-tab, .login-buttons .sign-up-tab {
   background: url(../img/login/user_account_tabs.png);
   text-indent: -9999px;
   display: inline-block;
   width: 258px;
   height: 40px;
-  position: absolute;
-}
+  position: absolute; }
 
-/* line 3853, ../sass/style.scss */
 .login-buttons .sign-up-tab {
   background-position: 0px 0px;
   left: 65px;
   top: 108px;
   height: 42px;
-  width: 275px;
-}
+  width: 275px; }
 
-/* line 3861, ../sass/style.scss */
 .login .login-buttons .sign-up-tab {
   background-position: 0px 72px !important;
   height: 34px;
-  top: 116px !important;
-}
+  top: 116px !important; }
 
-/* line 3867, ../sass/style.scss */
 .login .login-buttons .sign-up-tab:hover, .login .login-buttons .sign-up-tab:focus {
-  background-position: 0px 36px !important;
-}
+  background-position: 0px 36px !important; }
 
-/* line 3871, ../sass/style.scss */
 .login-buttons .login-tab {
   background-position: 278px 72px;
   top: 116px;
   left: 340px;
   height: 34px;
-  width: 275px;
-}
+  width: 275px; }
 
-/* line 3879, ../sass/style.scss */
 .login .login-buttons .login-tab {
   background-position: 278px 114px;
   top: 108px !important;
-  height: 42px !important;
-}
+  height: 42px !important; }
 
-/* line 3884, ../sass/style.scss */
 .login .login-buttons .login-tab:hover, .login .login-buttons .login-tab:focus {
-  background-position: 278px 114px;
-}
+  background-position: 278px 114px; }
 
-/* line 3888, ../sass/style.scss */
 .login-buttons .login-tab:hover, .login-buttons .login-tab:focus {
   background-position: 278px -80px;
   top: 116px;
   left: 340px;
   height: 34px;
-  width: 275px;
-}
+  width: 275px; }
 
-/* line 3895, ../sass/style.scss */
 #register #register-content label {
-  width: 100px;
-}
+  width: 100px; }
 
-/* line 3899, ../sass/style.scss */
 #register #right-rail, #user-page #right-rail, #user-profile-form #right-rail {
   background-image: none !important;
-  width: 302px !important;
-}
+  width: 302px !important; }
 
-/* line 3904, ../sass/style.scss */
 #register #recaptcha_response_field {
   background: url(../img/backgrounds/bg-form-item.png) repeat-x scroll 0 0 #fdfdfd;
-  border-color: #cecece gainsboro gainsboro !important;
+  border-color: #CECECE #DCDCDC #DCDCDC !important;
   border-style: solid !important;
   border-width: 1px !important;
   color: #666666;
   font-size: 12px;
   padding: 3px 1px;
-  height: 25px;
-}
+  height: 25px; }
 
-/* line 3914, ../sass/style.scss */
 .login-header {
-  position: relative;
-}
+  position: relative; }
 
-/* line 3917, ../sass/style.scss */
 .user-message ul {
   display: block;
-  background: none repeat scroll 0 0 #ffcccc;
+  background: none repeat scroll 0 0 #FFCCCC;
   color: #220000;
   padding: 2px;
-  border: 1px solid #dd7777;
+  border: 1px solid #DD7777;
   list-style: none;
   font-weight: bold;
   width: 900px;
   margin: 20px 0px;
-  -moz-box-shadow: 1px 1px 1px #333333;
-  -webkit-box-shadow: 1px 1px 1px #333333;
-  box-shadow: 1px 1px 2px #333333;
-}
+  -moz-box-shadow: 1px 1px 1px #333;
+  -webkit-box-shadow: 1px 1px 1px #333;
+  box-shadow: 1px 1px 2px #333; }
 
-/* line 3931, ../sass/style.scss */
 .user-message ul li {
-  padding: 5px;
-}
+  padding: 5px; }
 
-/* line 3935, ../sass/style.scss */
 .change-password-form-elements #edit-submit, .change-password-form-elements #edit-submit:hover, .change-password-form-elements #edit-submit:focus {
   background-image: url(../img/login/user_account_save_changes_btn.png) !important;
   width: 167px !important;
-  height: 32px !important;
-}
+  height: 32px !important; }
 
-/* line 3941, ../sass/style.scss */
 .change-password-form-elements #edit-submit {
-  background-position: 0px 0px;
-}
+  background-position: 0px 0px; }
 
-/* line 3945, ../sass/style.scss */
 .change-password-form-elements #edit-submit:hover, .change-password-form-elements #edit-submit:focus {
-  background-position: 0px -33px;
-}
+  background-position: 0px -33px; }
 
 /* Login page */
-/* line 3951, ../sass/style.scss */
 #user-login {
-  font-size: 100%;
-}
+  font-size: 100%; }
 
-/* line 3956, ../sass/style.scss */
 #login .form-item label,
 #user-login #login .form-item label,
 #login form .form-item label {
   width: 80px;
   float: left;
-  margin: 2px 16px 0 0;
-}
+  margin: 2px 16px 0 0; }
 
-/* line 3962, ../sass/style.scss */
 #change-password #login form .form-item label {
   width: 150px;
   float: left;
-  margin: 2px 16px 0 0;
-}
+  margin: 2px 16px 0 0; }
 
-/* line 3970, ../sass/style.scss */
 #login .form-item,
 #user-login #login .form-item,
 #login form .form-item {
-  margin: 0 0 17px 0;
-}
+  margin: 0 0 17px 0; }
 
-/* line 3974, ../sass/style.scss */
 #login .form-text,
 #user-login #login .form-text,
 #login .form-text {
-  width: 202px;
-}
+  width: 202px; }
 
-/* line 3976, ../sass/style.scss */
 form#login-form {
-  margin: -2px;
-}
+  margin: -2px; }
 
-/* line 3978, ../sass/style.scss */
 #login p {
   font-weight: 12px;
-  width: 300px;
-}
+  width: 300px; }
 
-/* line 3983, ../sass/style.scss */
 #login p#forgot-your-password {
-  margin: 5px 0 0 94px;
-}
+  margin: 5px 0 0 94px; }
 
-/* line 3985, ../sass/style.scss */
 #login .btn-login {
   float: right;
-  margin: 5px 80px 0 0;
-}
+  margin: 5px 80px 0 0; }
 
-/* line 3987, ../sass/style.scss */
 #login .btn-login a, #change-password .btn-login a {
   background: url(../img/btn-login.png) no-repeat;
   display: block;
   width: 67px;
   height: 23px;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 3995, ../sass/style.scss */
 #login-services p {
-  margin-right: 55px;
-}
+  margin-right: 55px; }
 
-/* line 3997, ../sass/style.scss */
 #login-services .rpx-links ul li {
   float: left;
   list-style-type: none;
-  margin-right: 8px;
-}
+  margin-right: 8px; }
 
-/* line 4002, ../sass/style.scss */
 #login-services .rpx-links li a {
   width: 40px;
   display: block;
   height: 40px;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 4009, ../sass/style.scss */
 #login-services li#fb-option a {
-  background: url(../img/icons-login-options.png) no-repeat 0 0;
-}
+  background: url(../img/icons-login-options.png) no-repeat 0 0; }
 
-/* line 4013, ../sass/style.scss */
 #login-services li#fb-option a:hover {
-  background: url(../img/icons-login-options.png) no-repeat -40px 0;
-}
+  background: url(../img/icons-login-options.png) no-repeat -40px 0; }
 
-/* line 4017, ../sass/style.scss */
 #login-services li#google-option a {
-  background: url(../img/icons-login-options.png) no-repeat 0 -40px;
-}
+  background: url(../img/icons-login-options.png) no-repeat 0 -40px; }
 
-/* line 4021, ../sass/style.scss */
 #login-services li#google-option a:hover {
-  background: url(../img/icons-login-options.png) no-repeat -40px -40px;
-}
+  background: url(../img/icons-login-options.png) no-repeat -40px -40px; }
 
-/* line 4025, ../sass/style.scss */
 #login-services li#twitter-option a {
-  background: url(../img/icons-login-options.png) no-repeat 0 -80px;
-}
+  background: url(../img/icons-login-options.png) no-repeat 0 -80px; }
 
-/* line 4029, ../sass/style.scss */
 #login-services li#twitter-option a:hover {
-  background: url(../img/icons-login-options.png) no-repeat -40px -80px;
-}
+  background: url(../img/icons-login-options.png) no-repeat -40px -80px; }
 
-/* line 4033, ../sass/style.scss */
 #login-services li#yahoo-option a {
-  background: url(../img/icons-login-options.png) no-repeat 0 -120px;
-}
+  background: url(../img/icons-login-options.png) no-repeat 0 -120px; }
 
-/* line 4037, ../sass/style.scss */
 #login-services li#yahoo-option a:hover {
-  background: url(../img/icons-login-options.png) no-repeat -40px -120px;
-}
+  background: url(../img/icons-login-options.png) no-repeat -40px -120px; }
 
-/* line 4041, ../sass/style.scss */
 #login-services li#windows-option a {
-  background: url(../img/icons-login-options.png) no-repeat 0 -160px;
-}
+  background: url(../img/icons-login-options.png) no-repeat 0 -160px; }
 
-/* line 4045, ../sass/style.scss */
 #login-services li#windows-option a:hover {
-  background: url(../img/icons-login-options.png) no-repeat -40px -160px;
-}
+  background: url(../img/icons-login-options.png) no-repeat -40px -160px; }
 
-/* line 4049, ../sass/style.scss */
 #login-services li#myspace-option a {
-  background: url(../img/icons-login-options.png) no-repeat 0 -200px;
-}
+  background: url(../img/icons-login-options.png) no-repeat 0 -200px; }
 
-/* line 4053, ../sass/style.scss */
 #login-services li#myspace-option a:hover {
-  background: url(../img/icons-login-options.png) no-repeat -40px -200px;
-}
+  background: url(../img/icons-login-options.png) no-repeat -40px -200px; }
 
-/* line 4058, ../sass/style.scss */
 .openid-link .form-item,
 #openID-login .form-item {
   background: url(../img/icon-openID.gif) no-repeat left top;
   padding-left: 30px;
-  padding-right: 8px;
-}
+  padding-right: 8px; }
 
-/* line 4063, ../sass/style.scss */
 #openID-login .description a {
-  margin-left: 6px;
-}
+  margin-left: 6px; }
 
-/* line 4064, ../sass/style.scss */
 #openID-login ul {
-  padding-left: 0;
-}
+  padding-left: 0; }
 
-/* line 4066, ../sass/style.scss */
 #openID-login .btn-login {
   float: right;
-  margin: 0;
-}
+  margin: 0; }
 
-/* line 4068, ../sass/style.scss */
 #openID-login .btn-login a {
   background: url(../img/btn-login-grey.png) no-repeat;
   display: block;
   width: 67px;
   height: 23px;
-  text-indent: -9000px;
-}
+  text-indent: -9000px; }
 
-/* line 4076, ../sass/style.scss */
 #login a:hover, #login-services a:hover {
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 4078, ../sass/style.scss */
 #openID-login .form-text {
   width: 180px;
-  float: left;
-}
+  float: left; }
 
-/* line 4080, ../sass/style.scss */
 p#what-is-openid {
-  margin: 5px 0 0 0;
-}
+  margin: 5px 0 0 0; }
 
-/* line 4082, ../sass/style.scss */
 .change-password-form-elements {
-  width: 610px;
-}
+  width: 610px; }
 
-/* line 4083, ../sass/style.scss */
 .change-password-form-elements #edit-pass-wrapper {
   border-bottom: 1px solid #e6e6e6;
   border-top: 1px solid #e6e6e6;
-  padding: 20px 0;
-}
+  padding: 20px 0; }
 
-/* line 4089, ../sass/style.scss */
 .change-password-form-elements #edit-pass-wrapper label {
   color: #666;
   float: left;
@@ -4905,58 +3516,42 @@ p#what-is-openid {
   margin: 6px 10px 0 0;
   text-align: right;
   text-indent: 3px;
-  width: 150px;
-}
+  width: 150px; }
 
-/* line 4099, ../sass/style.scss */
 .change-password-form-elements #edit-pass-wrapper .form-text {
   background: #fdfdfd url(../img/backgrounds/bg-form-item.png) repeat-x scroll 0 0;
-  border-color: #cecece gainsboro gainsboro;
+  border-color: #CECECE #DCDCDC #DCDCDC;
   border-style: solid;
   border-width: 1px;
   color: #666666;
   font-size: 12px;
   padding: 3px 1px;
-  width: 225px;
-}
+  width: 225px; }
 
-/* line 4109, ../sass/style.scss */
 .change-password-form-elements .form-item {
-  margin-bottom: 14px;
-}
+  margin-bottom: 14px; }
 
-/* line 4111, ../sass/style.scss */
 .change-password-form-elements .password-strength,
 .change-password-form-elements .password-confirm {
   color: #666;
-  font-size: 12px;
-}
+  font-size: 12px; }
 
-/* line 4112, ../sass/style.scss */
 .change-password-form-elements span .error {
-  color: #c60;
-}
+  color: #c60; }
 
-/* line 4113, ../sass/style.scss */
 .change-password-form-elements span .ok {
-  color: #060;
-}
+  color: #060; }
 
-/* line 4114, ../sass/style.scss */
 .change-password-form-elements .password-description {
   padding: 4px 6px;
   background: #fdfdfd;
   border-color: #ccc;
-  color: #666;
-}
+  color: #666; }
 
-/* line 4115, ../sass/style.scss */
 .change-password-form-elements .password-description li {
-  margin-left: 20px;
-}
+  margin-left: 20px; }
 
 /* Sign up */
-/* line 4120, ../sass/style.scss */
 input#edit-submit {
   background-attachment: initial;
   background-clip: initial;
@@ -4981,45 +3576,31 @@ input#edit-submit {
   margin-right: 0;
   margin-top: 24px;
   text-indent: -9999px;
-  width: 100px;
-}
+  width: 100px; }
 
-/* line 4147, ../sass/style.scss */
 #content #sign-up a:hover, #post-comment-reply a:hover {
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 4149, ../sass/style.scss */
 #sign-up .webform-description p.text-required {
-  margin-bottom: 10px;
-}
+  margin-bottom: 10px; }
 
-/* line 4151, ../sass/style.scss */
 #receive-email-updates {
   color: #666666;
   font-family: Arial,Helvetica,sans-serif;
   font-size: 0.75em;
   font-weight: bold;
   margin: 34px 0 30px 165px;
-  letter-spacing: 0.02em;
-}
+  letter-spacing: 0.02em; }
 
-/* line 4160, ../sass/style.scss */
 #sign-up #edit-captcha-response-wrapper {
-  margin: 20px 0;
-}
+  margin: 20px 0; }
 
-/* line 4162, ../sass/style.scss */
 #sign-up .submit-wrapper {
-  margin: 20px 0 0 0;
-}
+  margin: 20px 0 0 0; }
 
-/* line 4164, ../sass/style.scss */
 #sign-up form.webform-client-form .form-item {
-  margin: 0 0 18px 0;
-}
+  margin: 0 0 18px 0; }
 
-/* line 4166, ../sass/style.scss */
 #sign-up .webform-client-form .submit-wrapper input {
   background: url(../img/btn-create-new-account.gif) no-repeat scroll 0 0;
   border: medium none;
@@ -5030,62 +3611,46 @@ input#edit-submit {
   line-height: 0;
   overflow: hidden;
   text-transform: capitalize;
-  width: 160px;
-}
+  width: 160px; }
 
-/* line 4178, ../sass/style.scss */
 #sign-up #recaptcha_widget_div {
   margin-left: 50px;
-  margin-top: -15px;
-}
+  margin-top: -15px; }
 
-/* line 4183, ../sass/style.scss */
 #register-content {
   float: left;
   margin: 40px 10px 20px 70px;
   position: relative;
   padding-right: 30px;
   border-right: 1px solid #cecece;
-  width: 520px !important;
-}
+  width: 520px !important; }
 
-/* line 4192, ../sass/style.scss */
 #forgot-pass {
   width: 590px;
-  margin: 20px;
-}
+  margin: 20px; }
 
-/* line 4197, ../sass/style.scss */
 .main-content #forgot-pass h1 {
-  border-bottom: 1px solid #cecece;
+  border-bottom: 1px solid #CECECE;
   color: #666;
   font-size: 1.75em;
   font-weight: normal;
   font-family: Arial,Helvetica,sans-serif;
   line-height: 0em;
   padding-bottom: 20px;
-  padding-bottom: 20px;
-}
+  padding-bottom: 20px; }
 
-/* line 4208, ../sass/style.scss */
 #edit-email-updates-wrapper .option {
   position: relative;
-  padding-left: 20px;
-}
+  padding-left: 20px; }
 
-/* line 4213, ../sass/style.scss */
 #edit-email-updates-wrapper .form-checkbox {
   position: absolute;
   left: 0px;
-  top: 0px;
-}
+  top: 0px; }
 
-/* line 4219, ../sass/style.scss */
 #user-profile-form #register-content {
-  margin: 5px;
-}
+  margin: 5px; }
 
-/* line 4223, ../sass/style.scss */
 .main-content #forgot-pass label {
   color: #666666;
   display: block;
@@ -5096,10 +3661,8 @@ input#edit-submit {
   margin: 6px 16px 0 0;
   text-align: left;
   text-indent: 3px;
-  width: 150px;
-}
+  width: 150px; }
 
-/* line 4236, ../sass/style.scss */
 #user-profile-form #register-content label {
   color: #666666;
   display: block;
@@ -5109,128 +3672,90 @@ input#edit-submit {
   margin: 6px 16px 0 0;
   text-align: left;
   text-indent: 3px;
-  width: 550px;
-}
+  width: 550px; }
 
-/* line 4249, ../sass/style.scss */
 #register-content .form-checkboxes,
 #register-content .form-radios {
-  clear: both;
-}
+  clear: both; }
 
-/* line 4253, ../sass/style.scss */
 #register-content .form-checkboxes .form-item,
 #register-content .form-radios .form-item {
-  float: left;
-}
+  float: left; }
 
-/* line 4257, ../sass/style.scss */
 #register-content .form-checkboxes,
 #register-content .form-radios {
   clear: both;
-  padding-left: 120px;
-}
+  padding-left: 120px; }
 
-/* line 4262, ../sass/style.scss */
 #register-content .form-checkboxes label,
 #register-content .form-radios label {
   float: none;
-  text-align: left;
-}
+  text-align: left; }
 
-/* line 4268, ../sass/style.scss */
 #edit-profile-email-opt-in-wrapper,
 #edit-notify-wrapper {
   letter-spacing: 0.02em;
-  margin: 34px 0 30px 165px;
-}
+  margin: 34px 0 30px 165px; }
 
-/* line 4273, ../sass/style.scss */
 #edit-profile-email-opt-in-wrapper label,
 #edit-notify-wrapper label {
   width: 330px;
-  text-align: left;
-}
+  text-align: left; }
 
-/* line 4277, ../sass/style.scss */
 #recaptcha_response_field {
   background: #fdfdfd url(../img/backgrounds/bg-form-item.png) repeat-x scroll 0 0;
-  border-color: #cecece gainsboro gainsboro;
+  border-color: #CECECE #DCDCDC #DCDCDC;
   border-style: solid;
   border-width: 1px;
   color: #666666;
   font-size: 12px;
-  padding: 3px 1px;
-}
+  padding: 3px 1px; }
 
 /* User Registration */
-/* line 4288, ../sass/style.scss */
 body.full-white #content {
   width: 770px;
   float: left;
   padding: 25px 0 0 20px;
-  background: #FFF;
-}
+  background: #FFF; }
 
-/* line 4294, ../sass/style.scss */
 body.full-white .extend-page {
-  background: #FFF;
-}
+  background: #FFF; }
 
-/* line 4295, ../sass/style.scss */
 body.full-white #right-rail {
   background: #FFF;
   width: 50px;
   min-height: inherit;
   padding: 0;
-  margin: 0;
-}
+  margin: 0; }
 
-/* line 4297, ../sass/style.scss */
 #user-profile-form #register-content fieldset {
-  display: none;
-}
+  display: none; }
 
-/* line 4301, ../sass/style.scss */
 .user-profile-form-main-content #content {
-  width: 656px !important;
-}
+  width: 656px !important; }
 
-/* line 4305, ../sass/style.scss */
 #account-your-comments {
-  width: 615px;
-}
+  width: 615px; }
 
-/* line 4309, ../sass/style.scss */
 #account-your-profile {
   margin: 20px 0 0 0;
-  width: 715px;
-}
+  width: 715px; }
 
-/* line 4315, ../sass/style.scss */
 #profile-header {
-  padding: 0 10px 5px 0;
-}
+  padding: 0 10px 5px 0; }
 
-/* line 4319, ../sass/style.scss */
 #user-page #profile-header {
-  border-bottom: 1px solid #dddddd;
-}
+  border-bottom: 1px solid #DDDDDD; }
 
-/* line 4323, ../sass/style.scss */
 #profile-header h1 {
-  margin: 0px;
-}
+  margin: 0px; }
 
-/* line 4329, ../sass/style.scss */
 #user-profile-form #profile
 #account-profile {
   margin: 10px 0;
   padding: 0 0 10px 0;
-  border-bottom: 1px solid #e6e6e6;
-}
+  border-bottom: 1px solid #E6E6E6; }
 
-/* line 4334, ../sass/style.scss */
 #account-profile h2, #account-preferences h2 {
   color: #000;
   font-size: 1.167em;
@@ -5238,63 +3763,47 @@ body.full-white #right-rail {
   letter-spacing: 0.07em;
   margin: 0;
   padding: 0px;
-  text-transform: uppercase;
-}
+  text-transform: uppercase; }
 
-/* line 4343, ../sass/style.scss */
 #account-profile span.label {
   width: 100px;
   display: inline-block;
   font-weight: normal;
-  color: #666;
-}
+  color: #666; }
 
-/* line 4350, ../sass/style.scss */
 #account-profile {
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #DDDDDD;
   padding-bottom: 10px;
   margin-bottom: 15px;
-  margin-top: 15px;
-}
+  margin-top: 15px; }
 
-/* line 4354, ../sass/style.scss */
 #account-profile p, #account-preferences p {
   margin: 10px 0 0 0;
   color: #000;
   font-weight: normal;
-  font-size: 1.167em;
-}
+  font-size: 1.167em; }
 
-/* line 4360, ../sass/style.scss */
 #account-preferences span.label {
   padding: 0px;
   font-weight: normal;
-  color: #666;
-}
+  color: #666; }
 
-/* line 4365, ../sass/style.scss */
 .edit-change {
   float: right;
-  display: block;
-}
+  display: block; }
 
-/* line 4369, ../sass/style.scss */
 .edit-change a {
   text-indent: -9000px;
   background: url(../img/button-edit-profile-change-password.gif) no-repeat 0;
   height: 25px;
   display: block;
   width: 233px;
-  margin: 0 0 2px 0;
-}
+  margin: 0 0 2px 0; }
 
-/* line 4377, ../sass/style.scss */
 .change-password-form-elements #edit-pass-wrapper {
   border: 0px;
-  padding: 0px;
-}
+  padding: 0px; }
 
-/* line 4381, ../sass/style.scss */
 .change-password-form-elements #edit-submit {
   text-indent: -9000px;
   background: transparent url(../img/button-save-changes.gif) no-repeat scroll 0 0;
@@ -5304,163 +3813,115 @@ body.full-white #right-rail {
   margin: 0 0 2px 0;
   float: left;
   border: none;
-  font-size: 0px;
-}
+  font-size: 0px; }
 
-/* line 4393, ../sass/style.scss */
 #login {
   width: 378px;
   float: left;
   /*padding: 10px 0 0 40px;*/
-  padding: 10px 0 0 0;
-}
+  padding: 10px 0 0 0; }
 
-/* line 4400, ../sass/style.scss */
 #login-services {
   width: 359px;
   float: left;
   padding: 10px 0 0 0;
-  margin-left: 27px;
-}
+  margin-left: 27px; }
 
-/* line 4407, ../sass/style.scss */
 #openID-login {
   border-top: 1px solid #e6e6e6;
   margin: 20px 0 0 0;
   padding: 20px 0 0 0;
-  clear: both;
-}
+  clear: both; }
 
-/* line 4413, ../sass/style.scss */
 #edit-openid-identifier {
-  width: 300px;
-}
+  width: 300px; }
 
-/* line 4417, ../sass/style.scss */
 #sign-up {
-  width: 590px;
-}
+  width: 590px; }
 
-/* line 4418, ../sass/style.scss */
 #register #sign-up {
-  width: 520px !important;
-}
+  width: 520px !important; }
 
-/* line 4422, ../sass/style.scss */
 #user-page #right-rail {
-  min-height: 600px;
-}
+  min-height: 600px; }
 
-/* line 4426, ../sass/style.scss */
 #user-profile-form #right-rail {
-  min-height: 600px;
-}
+  min-height: 600px; }
 
-/* line 4430, ../sass/style.scss */
 #user-profile-form ul.secondary a.active {
-  border-bottom: 0 none;
-}
+  border-bottom: 0 none; }
 
-/* line 4434, ../sass/style.scss */
 #user-profile-form ul.secondary li {
   border-right: 0 none;
   font-size: 0.9em;
   font-weight: bold;
   letter-spacing: 0.04em;
   padding: 0.5em;
-  text-transform: uppercase;
-}
+  text-transform: uppercase; }
 
-/* line 4443, ../sass/style.scss */
 #user-profile-form ul.secondary li.active {
-  border-left: 1px solid #dddddd;
-  border-right: 1px solid #dddddd;
-  border-top: 1px solid #dddddd;
+  border-left: 1px solid #DDDDDD;
+  border-right: 1px solid #DDDDDD;
+  border-top: 1px solid #DDDDDD;
   border-bottom: 1px solid white;
-  padding-bottom: 6px;
-}
+  padding-bottom: 6px; }
 
-/* line 4451, ../sass/style.scss */
 #user-profile-form ul.secondary {
-  border-bottom: 1px solid #dddddd;
-}
+  border-bottom: 1px solid #DDDDDD; }
 
-/* line 4454, ../sass/style.scss */
 #user-profile-form ul.secondary li a {
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 4458, ../sass/style.scss */
 #return-to-profile {
   position: relative;
   right: -18px;
-  top: 1px;
-}
+  top: 1px; }
 
-/* line 4464, ../sass/style.scss */
 #return-to-profile-bottom {
   float: right;
   position: relative;
   right: 290px;
-  top: 6px;
-}
+  top: 6px; }
 
-/* line 4471, ../sass/style.scss */
 #return-to-profile #return-to-profile-bottom a {
-  font-size: 0.9em;
-}
+  font-size: 0.9em; }
 
 /* User edit page styling */
-/* line 4477, ../sass/style.scss */
 .page-user-edit ul.petitions44-user-edit {
   width: 600px;
-  border-top: 1px solid #bbbbbb;
-  border-bottom: 1px solid #bbbbbb;
+  border-top: 1px solid #BBBBBB;
+  border-bottom: 1px solid #BBBBBB;
   margin: 5px;
   margin: 0px 5px 5px 5px;
-  padding: 10px 5px 10px 5px;
-}
+  padding: 10px 5px 10px 5px; }
 
-/* line 4486, ../sass/style.scss */
 .page-user-edit ul.petitions44-user-edit li {
-  border-right: 1px solid #cccccc;
+  border-right: 1px solid #CCCCCC;
   display: inline;
-  padding: 0 1em;
-}
+  padding: 0 1em; }
 
-/* line 4492, ../sass/style.scss */
 .page-user-edit ul.petitions44-user-edit a {
   padding: 0px;
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-/* line 4497, ../sass/style.scss */
 .page-user-edit ul.petitions44-user-edit a.active {
-  border-bottom: 4px solid #999999;
-}
+  border-bottom: 4px solid #999999; }
 
-/* line 4501, ../sass/style.scss */
 .page-user-edit input#edit-submit {
   background-position: 0px 0px;
-  margin-left: 419px !important;
-}
+  margin-left: 419px !important; }
 
-/* line 4508, ../sass/style.scss */
 .page-user-edit input#edit-submit,
 .page-user-edit input#edit-submit:hover,
 .page-user-edit input#edit-submit:focus {
   background: url(../img/login/user_account_submit_btn.png);
   width: 101px !important;
-  height: 33px !important;
-}
+  height: 33px !important; }
 
-/* line 4515, ../sass/style.scss */
 .page-user-edit input#edit-submit:hover,
 .page-user-edit input#edit-submit:focus {
-  background-position: 0px -32px !important;
-}
+  background-position: 0px -32px !important; }
 
-/* line 4519, ../sass/style.scss */
 #userreg-thanks {
   background: url(../img/thank-you-bg.png) no-repeat scroll 0 0 transparent;
   font-size: 20px;
@@ -5469,204 +3930,139 @@ body.full-white #right-rail {
   margin-top: 4px;
   padding: 8px 0px 0px 70px;
   position: relative;
-  z-index: 100;
-}
+  z-index: 100; }
 
 /* Services Documentation */
-/* line 4532, ../sass/style.scss */
 .section-developers #petition-inner {
-  padding: 0;
-}
-/* line 4535, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper {
-  width: 100%;
-}
-/* line 4539, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version pre {
-  color: black;
-  font-family: courier;
-  font-size: .9em;
-  border: none;
-  padding: 10px;
-  margin: 0;
-}
-/* line 4548, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version h1 {
-  color: #669900;
-  font-size: 1.667em;
-  letter-spacing: 0.04em;
-  margin: 20px 0;
-}
-/* line 4555, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version h2 {
-  font-size: 2em;
-  margin: 1em 0;
-}
-/* line 4560, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version h3 {
-  font-size: 1.8em;
-  margin: 1em 0;
-  text-decoration: underline;
-}
-/* line 4566, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version h4 {
-  font-size: 1.6em;
-  margin: 1em 0;
-}
-/* line 4571, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version h5 {
-  font-size: 1.3em;
-  margin: 0.5em 0 0 0;
-}
-/* line 4576, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version h6 {
-  font-size: 1em;
-  font-weight: bold;
-}
-/* line 4581, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-version-description {
-  border-bottom: double black;
-  margin: 0 0 2em 0;
-}
-/* line 4586, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc {
-  border-bottom: double black;
-  margin: 0 0 2em 0;
-}
-/* line 4590, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul {
-  margin: 1.5em 0 2em 0;
-  padding: 0;
-}
-/* line 4594, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul li {
-  margin: 0.5em 0;
-  font-size: 1.2em;
-  list-style: none;
-}
-/* line 4600, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul li a .verb {
-  color: #669900;
-  text-transform: uppercase;
-  min-width: 40px;
-  display: inline-block;
-  text-align: right;
-  margin-right: 7px;
-}
-/* line 4608, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul li a .path {
-  color: #0F3E72;
-}
-/* line 4617, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource {
-  padding: 0;
-  border: none;
-}
-/* line 4625, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .bundle-title {
-  text-transform: capitalize;
-}
-/* line 4631, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title {
-  padding: 2px 0;
-  border-bottom: 1px solid #f2f3f5;
-}
-/* line 4636, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-verb {
-  color: #669900;
-}
-/* line 4639, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-path {
-  color: #333;
-  text-transform: none;
-}
-/* line 4643, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-auth {
-  color: #333;
-  float: right;
-  display: block;
-  background: url(../img/auth-req.png) no-repeat top left;
-  font-size: .6em;
-  padding: 3px 0 0 13px;
-  text-transform: none;
-  height: 12px;
-  margin: 0;
-  line-height: 1em;
-}
-/* line 4661, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments .title,
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-title,
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-title,
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementations-title {
-  background: #0F3E72;
-  padding: 5px 5px;
-  color: white;
-  font-weight: bold;
-  border: 1px solid #f2f3f5;
-  font-size: 1.1em;
-}
-/* line 4675, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li,
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-url,
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-body,
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body,
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation {
-  border: 1px solid #f2f3f5;
-  padding: 5px 5px;
-}
-/* line 4684, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul {
-  padding-left: 0px;
-  padding-right: 13px;
-  display: block;
-}
-/* line 4689, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument {
-  padding-left: 5px;
-  padding-right: 5px;
-  display: table;
-  list-style: none;
-  list-style-image: none;
-  width: 100%;
-}
-/* line 4697, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-title {
-  width: 42%;
-  display: table-cell;
-}
-/* line 4704, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-title .argument-optional {
-  display: block;
-  color: #999;
-  font-style: italic;
-}
-/* line 4710, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-description {
-  display: table-cell;
-  width: 58%;
-}
-/* line 4720, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-body,
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body {
-  background: #F2F3F5;
-  word-wrap: normal;
-  white-space: pre;
-  overflow: auto;
-}
-/* line 4731, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation-bundle-language {
-  background: #F2F3F5;
-  padding: 5px;
-  margin: 0;
-}
-/* line 4737, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-name {
-  font-weight: bold;
-  margin: 0 0 0.25em 0;
-}
-/* line 4744, ../sass/style.scss */
-.section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-download {
-  font-weight: bold;
-  text-transform: uppercase;
-  margin: 0.25em 0;
-}
+  padding: 0; }
+  .section-developers #petition-inner #main-content-wrapper {
+    width: 100%; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version pre {
+      color: black;
+      font-family: courier;
+      font-size: .9em;
+      border: none;
+      padding: 10px;
+      margin: 0; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version h1 {
+      color: #669900;
+      font-size: 1.667em;
+      letter-spacing: 0.04em;
+      margin: 20px 0; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version h2 {
+      font-size: 2em;
+      margin: 1em 0; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version h3 {
+      font-size: 1.8em;
+      margin: 1em 0;
+      text-decoration: underline; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version h4 {
+      font-size: 1.6em;
+      margin: 1em 0; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version h5 {
+      font-size: 1.3em;
+      margin: .5em 0 0 0; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version h6 {
+      font-size: 1em;
+      font-weight: bold; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-version-description {
+      border-bottom: double black;
+      margin: 0 0 2em 0; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc {
+      border-bottom: double black;
+      margin: 0 0 2em 0; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul {
+        margin: 1.5em 0 2em 0;
+        padding: 0; }
+        .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul li {
+          margin: .5em 0;
+          font-size: 1.2em;
+          list-style: none; }
+          .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul li a .verb {
+            color: #669900;
+            text-transform: uppercase;
+            min-width: 40px;
+            display: inline-block;
+            text-align: right;
+            margin-right: 7px; }
+          .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-toc ul li a .path {
+            color: #0F3E72; }
+    .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource {
+      padding: 0;
+      border: none; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .bundle-title {
+        text-transform: capitalize; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title {
+        padding: 2px 0;
+        border-bottom: 1px solid #f2f3f5; }
+        .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-verb {
+          color: #669900; }
+        .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-path {
+          color: #333;
+          text-transform: none; }
+        .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-title .method-auth {
+          color: #333;
+          float: right;
+          display: block;
+          background: url(../img/auth-req.png) no-repeat top left;
+          font-size: .6em;
+          padding: 3px 0 0 13px;
+          text-transform: none;
+          height: 12px;
+          margin: 0;
+          line-height: 1em; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments .title,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-title,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-title,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementations-title {
+        background: #0F3E72;
+        padding: 5px 5px;
+        color: white;
+        font-weight: bold;
+        border: 1px solid #f2f3f5;
+        font-size: 1.1em; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-url,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-body,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation {
+        border: 1px solid #f2f3f5;
+        padding: 5px 5px; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul {
+        padding-left: 0px;
+        padding-right: 13px;
+        display: block; }
+        .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument {
+          padding-left: 5px;
+          padding-right: 5px;
+          display: table;
+          list-style: none;
+          list-style-image: none;
+          width: 100%; }
+          .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-title {
+            width: 42%;
+            display: table-cell; }
+            .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-title .argument-optional {
+              display: block;
+              color: #999;
+              font-style: italic; }
+          .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul li.method-argument .argument-description {
+            display: table-cell;
+            width: 58%; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-body,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body {
+        background: #F2F3F5;
+        word-wrap: normal;
+        white-space: pre;
+        overflow: auto; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation-bundle-language {
+        background: #F2F3F5;
+        padding: 5px;
+        margin: 0; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-name {
+        font-weight: bold;
+        margin: 0 0 .25em 0; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation .implementation-download {
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: .25em 0; }
