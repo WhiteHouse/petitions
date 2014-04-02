@@ -557,7 +557,8 @@ function wh_petitions_petition_detail($petition_id) {
       default:
         // Regardless of user authentication, display a simplied signing form if chosen in settings.
         // Both anonymous and authenticated users will be shown the same form.
-        $signature_form = t('<div>Placeholder for simplified signing form</div>');
+        $signature_form = drupal_get_form('petitionssignatureform_signature_form', $petition_id);
+        $signature_form = drupal_render($signature_form);
         break;
     }
   }
