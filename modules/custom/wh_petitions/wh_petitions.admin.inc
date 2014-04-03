@@ -1097,10 +1097,11 @@ function wh_petitions_admin_petitions_settings_form() {
 function wh_petitions_admin_petitions_settings_links() {
   $links = array(
     'items' => array(
-      l('Petitions Data', 'admin/config/services/petitions_data'),
       l('Petition Signatures Queue', 'admin/config/system/signatures-queue'),
       l('Petition Tool', 'admin/config/system/petitions'),
       l('Petition Tool Hub', 'admin/config/system/petition-tool-hub'),
+      l('Petitions Data', 'admin/config/services/petitions_data'),
+      l('Petitions Signature Form', 'admin/config/services/petitionssignatureform'),
       l('Petitions Users Statistics', 'admin/config/services/stats/users'),
     ),
   );
