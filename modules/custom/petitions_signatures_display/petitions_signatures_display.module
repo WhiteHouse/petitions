@@ -117,11 +117,9 @@ function petitions_signatures_display_location_formatted($zipcode, $city, $state
     case 'api':
       return $location[0];
 
-    break;
-
     default:
-      $city = $location[0]['city'];
-      $state = $location[0]['state'];
+      $city = (!empty($location[0]['city'])) ? $location[0]['city'] : '';
+      $state = (!empty($location[0]['state'])) ? $location[0]['state'] : '';
       if ($city && $state) {
         $formatted_location = $city . ', ' . $state;
       }
@@ -131,9 +129,10 @@ function petitions_signatures_display_location_formatted($zipcode, $city, $state
       elseif (!$city && $state) {
         $formatted_location = $state;
       }
+      else {
+        $formatted_location = '';
+      }
       return $formatted_location;
-
-    break;
   }
 }
 

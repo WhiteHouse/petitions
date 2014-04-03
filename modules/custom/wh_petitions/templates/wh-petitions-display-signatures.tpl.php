@@ -19,7 +19,9 @@
     
     <div class="name"><?php print check_plain($signature['full_name']); ?></div><!--/name-->
     <div class="details">
-      <?php print $signature['location']; ?><br />
+      <?php if (!empty($signature['location'])): ?>
+        <?php print $signature['location']; ?><br />
+      <?php endif; ?>
       <?php print date("F d, Y", $signature['timestamp']); ?><br />
       <?php print t('Signature #'); ?> <?php print $signature['number']; ?>
     </div>
