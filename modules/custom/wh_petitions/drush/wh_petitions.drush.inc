@@ -137,6 +137,7 @@ function wh_petitions_signatures_report($petition_id, $name) {
   while ($uids = _wh_petitions_get_uids_batch($uids_file)) {
     $rows = _wh_petitions_signatures_report_rows($uids);
     file_put_contents($filename, implode(PHP_EOL, $rows), FILE_APPEND);
+    file_put_contents($filename, PHP_EOL, FILE_APPEND);
   }
   // All $uids have been procesed. We're all done.
   drush_print("All uids have been processed and stored here:"
@@ -184,7 +185,8 @@ function _wh_petitions_signatures_report_rows($uids) {
 
   $rows = array();
 
-  while ($record = $result->fetchAssoc()) {
+  $records = $result->fetchAllAssoc('uid', PDO::FETCH_ASSOC);
+  foreach ($records as $record) {
 
     switch($report_type) {
       case 'email_csv':
@@ -253,19 +255,18 @@ function wh_petitions_get_signatures_uids($petition_id) {
 
   $uids = _wh_petitions_get_signatures_uids($petition_id);
 
-  $id_list = '';
+  $id_list = array();
   foreach ($uids as $uid => $values) {
-    $id_list .= $uid . ',';
+    $id_list[] = $uid;
   }
 
   $file_name = sprintf('%s/signatures-uids.%s.%s.txt', $filepath, $petition_id, $name);
   drush_print('Writing results to file: ' . $file_name);
-  file_put_contents($file_name, $id_list);
+  file_put_contents($file_name, implode(PHP_EOL, array_unique($id_list)));
 }
 
 /**
- * Get list of uids of for a petition's signature.
- * Write results to file.
+ * Retrieve list of uids for a petition's signatures.
  *
  * @param string $petition_id
  *
@@ -312,33 +313,23 @@ function _wh_petitions_csv_sanitize($data) {
 function _wh_petitions_get_uids_batch($uids_file, $batch_size = 200) {
   // TODO Make batch size configurable.
   $contents = file_get_contents($uids_file);
-  $uids = explode(",", $contents);
+  $uids = explode(PHP_EOL, $contents);
   drush_print("processing uids from $uids_file");
   drush_print("processing $batch_size uids now");
 
-  // Shift a batch of uids off $uids to be processed.
-  $batch = array();
-  for($i = 0; $i < $batch_size; $i++) {
-    $count = count($uids);
-    if ($count == 0) {
-      break;
-    }
-    $batch[] = array_shift($uids);
-  }
-
-  if ($count > 0) {
+  if (count($uids) > 1) {
+    // Slice a batch of uids off $uids to be processed.
+    $batch = array_splice($uids, 0 ,200);
+    $query = count($batch);
+    drush_print("Sending $query uids.");
     // Rewrite $uids_file with remainder to be processed later.
+    $count = count($uids);
     drush_print("uids remaining to be processed: $count");
-    $contents = implode(',', $uids);
-    $write = file_put_contents($uids_file, $contents);
-
+    $contents = implode(PHP_EOL, $uids);
+    file_put_contents($uids_file, $contents);
     // Return batch of uids to be processed.
     return $batch;
   }
-  else {
-    return FALSE;
-  }
-
 }
 
 /**
