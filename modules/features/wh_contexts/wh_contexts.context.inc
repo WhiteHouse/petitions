@@ -1,12 +1,16 @@
 <?php
+/**
+ * @file
+ * wh_contexts.context.inc
+ */
 
 /**
- * Implementation of hook_context_default_contexts().
+ * Implements hook_context_default_contexts().
  */
 function wh_contexts_context_default_contexts() {
   $export = array();
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'create_petition';
@@ -57,7 +61,7 @@ function wh_contexts_context_default_contexts() {
   t('misc');
   $export['create_petition'] = $context;
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'dashboard';
@@ -114,7 +118,7 @@ function wh_contexts_context_default_contexts() {
   t('list');
   $export['dashboard'] = $context;
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'petition';
@@ -130,47 +134,53 @@ function wh_contexts_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
+        'petitionssignatureform-petitionssignatureform_form' => array(
+          'module' => 'petitionssignatureform',
+          'delta' => 'petitionssignatureform_form',
+          'region' => 'right_rail',
+          'weight' => '-10',
+        ),
         'wh_petitions-wh_petitions_similar_petitions' => array(
           'module' => 'wh_petitions',
           'delta' => 'wh_petitions_similar_petitions',
           'region' => 'right_rail',
-          'weight' => '-10',
+          'weight' => '-9',
         ),
         'wh_petitions-wh_petitions_helpful_hints' => array(
           'module' => 'wh_petitions',
           'delta' => 'wh_petitions_helpful_hints',
           'region' => 'right_rail',
-          'weight' => '-9',
+          'weight' => '-8',
         ),
         'wh_petitions-wh_petitions_recent_petitions' => array(
           'module' => 'wh_petitions',
           'delta' => 'wh_petitions_recent_petitions',
           'region' => 'right_rail',
-          'weight' => '-8',
+          'weight' => '-7',
         ),
         'wh_response-wh_response_recent_responses' => array(
           'module' => 'wh_response',
           'delta' => 'wh_response_recent_responses',
           'region' => 'right_rail',
-          'weight' => '-7',
+          'weight' => '-6',
         ),
         'wh_petitions-wh_petitions_history' => array(
           'module' => 'wh_petitions',
           'delta' => 'wh_petitions_history',
           'region' => 'right_rail',
-          'weight' => '-6',
+          'weight' => '-5',
         ),
         'wh_petitions-wh_petitions_create_petition' => array(
           'module' => 'wh_petitions',
           'delta' => 'wh_petitions_create_petition',
           'region' => 'right_rail',
-          'weight' => '-5',
+          'weight' => '-4',
         ),
         'wh_petitions-wh_petitions_back_to_top' => array(
           'module' => 'wh_petitions',
           'delta' => 'wh_petitions_back_to_top',
           'region' => 'right_rail',
-          'weight' => '-4',
+          'weight' => '-3',
         ),
       ),
     ),
@@ -183,7 +193,7 @@ function wh_contexts_context_default_contexts() {
   t('detail');
   $export['petition'] = $context;
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'petitions';
@@ -246,7 +256,7 @@ function wh_contexts_context_default_contexts() {
   t('list');
   $export['petitions'] = $context;
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'response';
@@ -305,7 +315,7 @@ function wh_contexts_context_default_contexts() {
   t('detail');
   $export['response'] = $context;
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'responses';
