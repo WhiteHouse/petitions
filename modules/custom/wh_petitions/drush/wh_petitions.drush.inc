@@ -111,7 +111,7 @@ function wh_petitions_signatures_report($petition_id, $name) {
 
   // Define the number of signatures to write in each batch.
   if (!$batch_size = drush_get_option('batch_size')) {
-    $batch_size = 200;
+    $batch_size = 1000;
   }
 
   // Write records in batches.
