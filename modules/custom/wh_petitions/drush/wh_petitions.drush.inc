@@ -30,7 +30,7 @@ function wh_petitions_drush_command() {
       'name' => "Human readable name to be used in filename like this: signatures-report.petition_id.name.txt",
     ),
     'options' => array(
-      'batch_size' => "Define the number of signatures that should be queried in each batch. Defaults to 200.",
+      'batch_size' => "Define the number of signatures that should be queried in each batch. Defaults to 1000.",
       'report_type' => "Define the appropriate report to run (e.g. email_csv).",
       'filepath' => "Set the file path that the report will be written to",
     ),
