@@ -18,4 +18,4 @@ projects[drupal][patch][] = https://drupal.org/files/issues/drupal-insertassert_
 
 ; Petitions installation profile
 ; -------------------------------
-projects[petitions][version] = 2.0-rc13
+projects[petitions][version] = 2.0-rc14
