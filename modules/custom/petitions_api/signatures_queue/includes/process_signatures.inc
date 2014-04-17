@@ -95,7 +95,13 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
 
     // Subscribe to list if requested.
     if ((bool) $item['signup']) {
-      module_invoke_all('signatures_queue_subscribe', $item);
+      $signatory = array(
+        'first_name' => $item['first_name'],
+        'last_name' => $item['last_name'],
+        'email' => $item['email'],
+        'zip' => $item['zip'],
+      );
+      module_invoke_all('petition_signatory_opt_in', $signatory);
     }
 
     $count++;
