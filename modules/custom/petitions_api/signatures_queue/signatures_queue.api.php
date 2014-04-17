@@ -21,6 +21,7 @@
  *   - last_name: Last name.
  *   - email: Email address.
  *   - zip: Zip code.
+ *   - petition_id: The ID of the petition the signatory signed.
  */
 function hook_petition_signatory_opt_in(array $signatory) {
   // Save the signatory details to a database, add them to a mailing list, or

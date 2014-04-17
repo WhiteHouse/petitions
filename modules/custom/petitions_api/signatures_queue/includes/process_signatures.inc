@@ -100,6 +100,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
         'last_name' => $item['last_name'],
         'email' => $item['email'],
         'zip' => $item['zip'],
+        'petition_id' => $item['petition_id'],
       );
       module_invoke_all('petition_signatory_opt_in', $signatory);
     }
