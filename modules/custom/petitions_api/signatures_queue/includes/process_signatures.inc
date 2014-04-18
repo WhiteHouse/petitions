@@ -94,8 +94,9 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     _signatures_queue_process_signatures_move_to_processed($item);
 
     // Subscribe to list if requested.
-    // Turned off until further review...
-    // _signatures_queue_process_signatures_list_subscribe($item);
+    if ((bool) $item['signup']) {
+      module_invoke_all('signatures_queue_subscribe', $item);
+    }
 
     $count++;
   }
@@ -328,33 +329,3 @@ function _signatures_queue_process_signatures_move_to_processed($item) {
   // Set the active database back to default.
   db_set_active();
 }
-
-/**
- * Sign up user to email list if requested.
- *
- * @@ Placeholder function for now.
- *
- * @param string $item
- *   The item from the database query.
- *
- * @return bool
- *   Returns TRUE on success.
- */
-function _signatures_queue_process_signatures_list_subscribe($item) {
-  // For now we skip this step.
-  return;
-
-  // Check if user signed up for email list.
-  if ($item['signup']) {
-    /*
-     * Check for GovDelivery list and add the topic id if it wasn't
-     * in the petition object previously.
-     */
-    $topic_title = 'petitions_' . $petition['_id']->__toString();
-    $topic_id = '';
-
-    // Add their email to GovDelivery.
-    govdelivery_subscriber_api_add_subscriber($user->mail, $topic_title, $topic_id);
-  }
-}
-
