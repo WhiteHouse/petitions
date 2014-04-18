@@ -3,8 +3,6 @@ description = "Encapsulates configurations specific to Petitions in the Whitehou
 core = 7.x
 package = White House Custom
 
-files[] = ../../contrib/captcha/captcha.inc
-
 stylesheets[all][] = wh_core.css
 
 dependencies[] = rules
