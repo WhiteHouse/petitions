@@ -108,7 +108,7 @@ function _signatures_queue_validate_signature(array $signature) {
 }
 
 /**
- * Builds a queue item from a validated service requrest signature argument.
+ * Builds a queue item from a validated service request signature argument.
  *
  * @param array $signature
  *   The signature argument received from the service request.
