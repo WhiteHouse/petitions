@@ -811,6 +811,22 @@ function wh_petitions_block_view($delta) {
 }
 
 /**
+ * Implements hook_block_view_alter().
+ */
+function wh_petitions_block_view_alter(&$data, $block) {
+  switch ($block->delta) {
+    // Control the petitionssignatureform_form block visibility.
+    case 'petitionssignatureform_form':
+      $login_required = (variable_get('petitions_signing_method', WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED) == WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED) ? TRUE : FALSE;
+
+      if ($login_required) {
+        unset($data['content']);
+      }
+      break;
+  }
+}
+
+/**
  * Implements hook_info().
  */
 function wh_petitions_hook_info() {

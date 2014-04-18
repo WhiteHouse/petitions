@@ -87,8 +87,10 @@
       <?php else: ?>
         <div id="signed-by-user">
           <div id="sign-this-petition" class="clearfix">
-            <h3><?php print t("You've already signed this petition"); ?></h3>
-            <p><?php print t("Thank you for participating.  Find other petitions you're interested in or start your own."); ?></p>
+            <?php if ($login_required): ?>
+              <h3><?php print t("You've already signed this petition"); ?></h3>
+              <p><?php print t("Thank you for participating.  Find other petitions you're interested in or start your own."); ?></p>
+            <?php endif; ?>
           </div><!--/sign this petition-->
       <?php endif; ?>
 
