@@ -968,7 +968,7 @@ function wh_petitions_admin_petitions() {
 
     // Feature link.
     $featured = '<div id="featured-' . check_plain($id) . '" class="featured" style="display:inline;cursor:pointer;"><a>' . t('Feature') . '</a></div>';
-    if ($res['featured']) {
+    if (!empty($res['featured'])) {
       $featured = '<div id="featured-' . check_plain($id) . '" class="featured" style="display:inline;cursor:pointer;"><a>' . t('Un-Feature') . '</a></div>';
     }
 

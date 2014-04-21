@@ -836,14 +836,14 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
     $signatures[$i]['comment'] = check_plain($signatures[$i]['comment']);
     $signatures[$i]['number'] = wh_petitions_format_number($signatures[$i]['number']);
 
-    $username = $signatures[$i]['user']['username'];
-    $first_name = $signatures[$i]['user']['first_name'];
-    $last_name = $signatures[$i]['user']['last_name'];
+    $username = (!empty($signatures[$i]['user']['username'])) ? $signatures[$i]['user']['username'] : '';
+    $first_name = (!empty($signatures[$i]['user']['first_name'])) ? $signatures[$i]['user']['first_name'] : '';
+    $last_name = (!empty($signatures[$i]['user']['last_name'])) ? $signatures[$i]['user']['last_name'] : '';
     $name = petitions_signatures_display_style($username, $first_name, $last_name);
 
-    $zipcode = $signatures[$i]['user']['zip'];
-    $city = $signatures[$i]['user']['city'];
-    $state = $signatures[$i]['user']['state'];
+    $zipcode = (!empty($signatures[$i]['user']['zip'])) ? $signatures[$i]['user']['zip'] : '';
+    $city = (!empty($signatures[$i]['user']['city'])) ? $signatures[$i]['user']['city'] : '';
+    $state = (!empty($signatures[$i]['user']['state'])) ? $signatures[$i]['user']['state'] : '';
     $location = petitions_signatures_display_location_formatted($zipcode, $city, $state);
 
     if ($location) {
