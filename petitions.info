@@ -70,17 +70,3 @@ dependencies[] = signatures_queue
 
 ; files
 files[] =  petitions.profile
-
-
-; Information added by drush on 2013-05-16
-version = ""
-project = "petitions"
-datestamp = "1368679058"
-
-
-
-; Information added by drush on 2013-08-08
-version = ""
-project = "petitions"
-datestamp = "1375992615"
-
