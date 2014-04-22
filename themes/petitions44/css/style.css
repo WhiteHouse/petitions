@@ -1629,6 +1629,69 @@ h2.active {
   background: -moz-linear-gradient(top, #a3a3a3, dimgrey);
   /* for firefox 3.6+ */ }
 
+#petition-inner .block-petitionssignatureform {
+  background: #ebebeb;
+  margin-bottom: 1em !important; }
+
+#petition-inner .block-petitionssignatureform form {
+  padding: 0; }
+
+#petition-inner .block-petitionssignatureform form .form-item:first-child {
+  margin-top: 0; }
+
+#petition-inner .block-petitionssignatureform form label {
+  padding: 0;
+  color: #7a7a7a;
+  margin: 0; }
+
+#petition-inner .block-petitionssignatureform form .form-type-checkbox label {
+  display: inline;
+  font-weight: normal; }
+
+#petition-inner .block-petitionssignatureform form .form-text {
+  max-width: 100%;
+  border: 1px solid #cbcbcb;
+  height: 2em; }
+
+#petition-inner .block-petitionssignatureform form .form-text.error {
+  border: 1px solid #c00; }
+
+#petition-inner .block-petitionssignatureform form input#edit-submit {
+  text-indent: 0px;
+  background-color: #af0208;
+  color: #fffaf8;
+  font-size: 1.3em;
+  font-weight: 600;
+  text-transform: uppercase;
+  width: 100%;
+  line-height: inherit;
+  height: inherit;
+  margin: inherit;
+  padding: 0.75em;
+  border: 1px solid #840202;
+  border-radius: 5px;
+  background: #8b0000;
+  background: -webkit-linear-gradient(#af0208, darkred);
+  background: -o-linear-gradient(#af0208, darkred);
+  background: -moz-linear-gradient(#af0208, darkred);
+  background: linear-gradient(#af0208, darkred); }
+
+#petition-inner .block-petitionssignatureform .toggle-container {
+  background: none; }
+
+#petition-inner .block-petitionssignatureform h2,
+#petition-inner .block-petitionssignatureform h2.top-trigger {
+  border-radius: 0;
+  background: none; }
+
+#petition-inner .block-petitionssignatureform h2.trigger {
+  border-bottom: none; }
+
+#petition-inner .block-petitionssignatureform h2 a,
+#petition-inner .block-petitionssignatureform h2.active a {
+  color: #323232;
+  font-size: 1.5em; }
+
 /****** Individual Petition Page ******/
 a#button-sign-this-petition {
   background: url(../img/sprite-buttons.png) no-repeat -252px -250px;
