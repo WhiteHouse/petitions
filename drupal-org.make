@@ -166,3 +166,13 @@ projects[fortyfour][tag] = 7.x-1.0-alpha8
 
 libraries[colorbox][download][type] = "file"
 libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/archive/1.4.27.zip"
+
+; Include library required by Services module for REST server.
+;
+; For more information see Services module README.
+;
+; Post updated releases here: https://drupal.org/node/2248143
+; 
+libraries[spyc][download][type] = "file"
+libraries[spyc][download][url] = "https://drupal.org/files/issues/spyc.php.txt"
+libraries[spyc][download][filename] = "spyc.php"
