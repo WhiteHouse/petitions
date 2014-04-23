@@ -158,8 +158,7 @@ projects[rubik][version] = 4.0-beta9
 
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
-projects[fortyfour][download][type] = git
-projects[fortyfour][tag] = 7.x-1.0-alpha8
+projects[fortyfour][version] = 1.0-alpha8
 
 ; External libraries
 ; -----------------
