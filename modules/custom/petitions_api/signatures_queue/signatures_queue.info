@@ -4,5 +4,6 @@ core = 7.x
 package = Petitions
 dependencies[] = shunt
 dependencies[] = api_petitions
+dependencies[] = wh_petitions
 configure = admin/config/system/petitions/signatures-queue
 files[] = classes/SignaturesQueue.inc

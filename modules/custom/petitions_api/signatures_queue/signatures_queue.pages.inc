@@ -96,12 +96,17 @@ function _signatures_queue_validation_page_callback() {
  * Callback for thank-you/%.
  */
 function _signatures_queue_validated_page_callback($petition_id) {
-  $petition = petitions_data_get_petition($petition_id);
+  global $base_url;
+  $conn = wh_petitions_mongo_petition_connection();
+  $petition = wh_petitions_load_petition($conn, $petition_id);
+
   if (!empty($petition)) {
-    // Load the petition via the API retrieve method.
-    $title = $petition['title'];
-    $output = "Thank you for signing '{$title}' Your signature has been counted.";
-    return $output;
+    return theme('signatures_queue_validation_thank_you', array(
+      'title' => check_plain($petition['title']),
+      'petition_link' => $base_url . '/' . $petition['nice_url'],
+      'twitter_link' => wh_petition_tool_twitter_link(check_plain($petition_id), check_plain($petition['title']), 'petition', '', $petition['short_url'], $petition['nice_url']),
+      'facebook_link' => wh_petition_tool_facebook_link(check_plain($petition_id), check_plain($petition['title']), 'petition', '', $petition['nice_url']),
+    ));
   }
   else {
     drupal_goto('petition-error', array(), 301);

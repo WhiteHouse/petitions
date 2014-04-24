@@ -150,6 +150,18 @@ function signatures_queue_mail($key, &$message, $params) {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function signatures_queue_theme() {
+  return array(
+    'signatures_queue_validation_thank_you' => array(
+      'arguments' => array(),
+      'template' => 'templates/signatures-queue-validation-thank-you',
+    ),
+  );
+}
+
+/**
  * Token callback to add unsafe tokens for signature validation mails.
  *
  * This function is used by the token_replace() call at the end of
