@@ -1639,10 +1639,14 @@ h2.active {
 #petition-inner .block-petitionssignatureform form .form-item:first-child {
   margin-top: 0; }
 
-#petition-inner .block-petitionssignatureform form label {
+#petition-inner .block-petitionssignatureform form label,
+#petition-inner .block-petitionssignatureform form .privacy-legend {
   padding: 0;
   color: #7a7a7a;
   margin: 0; }
+
+#petition-inner .block-petitionssignatureform form .privacy-legend a {
+  color: #004990; }
 
 #petition-inner .block-petitionssignatureform form .form-type-checkbox label {
   display: inline;
