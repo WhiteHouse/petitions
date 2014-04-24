@@ -15,5 +15,6 @@ features[context][] = petition
 features[context][] = petitions
 features[context][] = response
 features[context][] = responses
+features[context][] = thankyou_signing
 features[ctools][] = context:context:3
 features[features_api][] = api:1

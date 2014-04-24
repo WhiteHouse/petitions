@@ -366,5 +366,38 @@ function wh_contexts_context_default_contexts() {
   t('list');
   $export['responses'] = $context;
 
+  $context = new stdClass();
+  $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
+  $context->api_version = 3;
+  $context->name = 'thankyou_signing';
+  $context->description = 'Thank you for signing page';
+  $context->tag = 'misc';
+  $context->conditions = array(
+    'path' => array(
+      'values' => array(
+        'thank-you/*' => 'thank-you/*',
+      ),
+    ),
+  );
+  $context->reactions = array(
+    'block' => array(
+      'blocks' => array(
+        'wh_response-wh_response_recent_responses' => array(
+          'module' => 'wh_response',
+          'delta' => 'wh_response_recent_responses',
+          'region' => 'right_rail',
+          'weight' => '-10',
+        ),
+      ),
+    ),
+  );
+  $context->condition_mode = 0;
+
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Thank you for signing page');
+  t('misc');
+  $export['thankyou_signing'] = $context;
+
   return $export;
 }
