@@ -1248,6 +1248,11 @@ function wh_petitions_form_alter(&$form, &$form_state, $form_id) {
           '!privacy_policy' => 'http://www.whitehouse.gov/privacy',
         )),
       );
+
+      // Move ajax wrapper end to end of array, to include privacy legend in the replace div.
+      $ajax_wrapper = $form['ajax_suffix'];
+      unset($form['ajax_suffix']);
+      $form['ajax_suffix'] = $ajax_wrapper;
       break;
     default:
   }
