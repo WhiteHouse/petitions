@@ -337,15 +337,17 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
     }
   }
 
-
   /**
    * Helper function to add $this->url as a query parameter.
    */
   protected function addURLToQuery() {
     // Filter by URL.
     if ($this->getURL()) {
-      $uri = explode($this->getBaseURL() . '/', $this->getURL());
-      $nice_url = $uri[1];
+      // The "nice URL" is just the URL path component without the leading
+      // forward slash (/).
+      $url_parts = parse_url($this->getURL());
+      $nice_url = substr($url_parts['path'], 1);
+
       $query = $this->getQuery();
       $query += array(
         'nice_url' => $nice_url,
