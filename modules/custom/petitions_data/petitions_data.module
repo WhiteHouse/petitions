@@ -28,6 +28,7 @@ function petitions_data_menu() {
  * Administration form.
  */
 function petitions_data_form($form, &$form_state) {
+  global $base_url;
   $form['petitions_data_petitions_website_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Petitions Website URL'),
