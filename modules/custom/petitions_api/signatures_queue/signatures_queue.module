@@ -152,11 +152,10 @@ function signatures_queue_mail($key, &$message, $params) {
 /**
  * Implements hook_theme().
  */
-function signatures_queue_theme() {
+function signatures_queue_theme($existing, $type, $theme, $path) {
   return array(
     'signatures_queue_validation_thank_you' => array(
-      'arguments' => array(),
-      'template' => 'templates/signatures-queue-validation-thank-you',
+      'template' => 'templates/signatures_queue-validation-thank-you',
     ),
   );
 }
