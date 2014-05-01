@@ -26,7 +26,7 @@
         <div id="sign-this-petition" class="clearfix">
           <?php if ($logged_in): ?>
           <div class="col-full">
-            <?php print l(t('Sign This Petition'), 'petition/sign/' . $petition_id, array('attributes' => array('rel' => $petition_id, 'id' => 'button-sign-this-petition', 'class' => array('no-follow')))); ?>
+            <?php print l(t('Sign This Petition'), 'petition/sign/' . $petition_id . '/' . $security_token, array('attributes' => array('rel' => $petition_id, 'id' => 'button-sign-this-petition', 'class' => array('no-follow')))); ?>
           </div><!--/col-2-->
           <div class="col-right"> </div>
           <p><?php print t('Note: When you sign this petition, your first name, last initial and city and state will be publicly displayed on the petition page. Once you sign a petition, your signature cannot be removed.'); ?></p>

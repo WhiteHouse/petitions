@@ -430,7 +430,7 @@ function wh_petitions_menu() {
     'title' => '',
     'description' => '',
     'page callback' => 'wh_petitions_sign_modal',
-    'page arguments' => array(2),
+    'page arguments' => array(2, 3),
     'access arguments' => array('access content'),
     'file' => 'wh_petitions.form.inc',
   );
