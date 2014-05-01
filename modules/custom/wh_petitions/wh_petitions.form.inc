@@ -1390,12 +1390,22 @@ function wh_petitions_delete_modal($petition_id) {
 /**
  * Signs a petition
  */
-function wh_petitions_sign_modal($petition_id) {
+function wh_petitions_sign_modal($petition_id, $security_token = '') {
   global $user;
   // Verify we got a petition id and that it's not blank and that the petition_id in the url matches the one from the POST
   if (empty($petition_id) || empty($user->uid)) {
      print 0;
      exit;
+  }
+
+  // Check for valid $security_token.
+  if (!drupal_valid_token($security_token, $petition_id)) {
+    // Invalid token, do not add signature, redirect to Petition.
+    // Load the petition.
+    $conn = wh_petitions_mongo_petition_connection();
+    $petition = wh_petitions_load_petition($conn, $petition_id);
+    $url = $petition['nice_url'];
+    drupal_goto($url);
   }
 
   wh_petitions_sign_petition($petition_id, $user->uid, ip_address(), $_SERVER['HTTP_USER_AGENT']);

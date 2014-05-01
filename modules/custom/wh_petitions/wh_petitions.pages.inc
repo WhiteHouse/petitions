@@ -661,6 +661,7 @@ function wh_petitions_petition_detail($petition_id) {
     'twitter_link' => wh_petition_tool_twitter_link(check_plain($petition_id), check_plain($petition['title']), 'petition', '', $petition['short_url'], $petition['nice_url']),
     'facebook_link' => wh_petition_tool_facebook_link(check_plain($petition_id), check_plain($petition['title']), 'petition', '', $petition['nice_url']),
     'short_url' => $short_url_link,
+    'security_token' => drupal_get_token($petition_id),
   ));
 }
 
