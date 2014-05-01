@@ -561,3 +561,31 @@ function wh_petition_tool_facebook_link($id, $title, $type = 'petition', $link_t
 
   return '<a href="#" class="options-box no-follow" onclick=\'window.open("http://www.facebook.com/share.php?u=' . urlencode($url) . '&amp;t='.urlencode($title) . '", "facebook", "status=0,toolbar=0,location=0,menubar=0,height=500,width=800,resizable=1"); return false;\'>' . $link_text . '</a>';
 }
+
+/**
+ * Creates an email share link for petitions and responses.
+ *
+ * @param string $link_text
+ *   The link text.
+ * @param string $email_subject
+ *   The translated email subject line.
+ * @param string $email_body
+ *   The translated email body.
+ *
+ * @return string
+ *   A themed HTML email link.
+ */
+function wh_petition_tool_email_link($link_text, $email_subject, $email_body) {
+  $path = 'mailto:';
+  $options = array(
+    'attributes' => array(
+      'class' => array('options-box', 'no-follow'),
+    ),
+    'absolute' => TRUE,
+    'query' => array(
+      'subject' => $email_subject,
+      'body' => $email_body,
+    ),
+  );
+  return l($link_text, $path, $options);
+}

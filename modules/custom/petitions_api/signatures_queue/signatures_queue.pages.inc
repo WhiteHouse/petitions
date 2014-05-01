@@ -101,6 +101,8 @@ function _signatures_queue_validated_page_callback($petition_id) {
 
   if (!empty($petition)) {
     $url = (!empty($petition['short_url'])) ? $petition['short_url'] : $petition['nice_url'];
+    $plain_petition_id = check_plain($petition_id);
+    $plain_petition_title = check_plain($petition['title']);
     return theme('signatures_queue_validation_thank_you', array(
       'petition' => $petition,
       'page_title' => t('Thank you for signing this petition!'),
@@ -108,8 +110,11 @@ function _signatures_queue_validated_page_callback($petition_id) {
         '@petition_link' => url($url, array('absolute' => TRUE)),
         '!title' => drupal_ucfirst(check_plain($petition['title'])),
       )),
-      'twitter_link' => wh_petition_tool_twitter_link(check_plain($petition_id), check_plain($petition['title']), 'petition', '', $petition['short_url'], $petition['nice_url']),
-      'facebook_link' => wh_petition_tool_facebook_link(check_plain($petition_id), check_plain($petition['title']), 'petition', '', $petition['nice_url']),
+      'email_link' => wh_petition_tool_email_link(t('E-mail'), t('A We the People Petition'), t('I wanted to share this We the People petition with you: @petition_link', array(
+        '@petition_link' => url($url, array('absolute' => TRUE)),
+      ))),
+      'twitter_link' => wh_petition_tool_twitter_link($plain_petition_id, $plain_petition_title, 'petition', '', $petition['short_url'], $petition['nice_url']),
+      'facebook_link' => wh_petition_tool_facebook_link($plain_petition_id, $plain_petition_title, 'petition', '', $petition['nice_url']),
     ));
   }
   else {

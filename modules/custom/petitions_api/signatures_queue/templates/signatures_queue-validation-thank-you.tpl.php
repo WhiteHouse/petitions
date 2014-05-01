@@ -7,6 +7,7 @@
  * Available variables:
  * - $page_title: The page title.
  * - $message: The thank you message body.
+ * - $email_link: Email share hyperlink.
  * - $twitter_link: Twitter share hyperlink.
  * - $facebook_link: Facebook share hyperlink.
  */
@@ -17,6 +18,7 @@
 <div class="petition-detail">
   <div id="share-this-petition">
     <ul>
+      <li class="share-link email"><?php print $email_link; ?></li>
       <li class="share-link twitter"><?php print $twitter_link; ?></li>
       <li class="share-link facebook"><?php print $facebook_link; ?></li>
     </ul>
