@@ -1005,7 +1005,7 @@ function wh_petitions_user_dashboard() {
       'petition_link' => l(t('View'), $res['nice_url'], array('attributes' => array('class' => 'view'))),
       'cols' => 2,
       'petition_status' => $petition_status,
-      'petition_id' => check_plain($res['_id']->__toString()),
+      'petition_id' => check_plain((string) $res['_id']),
       'entry_num' => $count,
       'dashboard' => TRUE,
     ));
