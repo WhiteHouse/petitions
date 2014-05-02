@@ -371,6 +371,23 @@ function _api_petitions_resource_index($created_before, $created_after, $created
     return $response;
   }
 
+  // The "url" argument is, for all practical purposes, a unique identifier. So
+  // if one is provided, just redirect the request to the retrieve method so
+  // that private petitions are accessible, just like they would be if the
+  // petition ID were provided directly. (Obviously the user knows about the
+  // existence of this petition if they have its URL.)
+  // @todo This creates a confusing user experience, where the filtered results
+  //   actually contain petitions that are not contained in the unfiltered
+  //   results. In other words, the filter WIDENS the scope rather than
+  //   narrowing it.
+  if (!empty($url)) {
+    $nice_url = petitions_data_get_nice_url_from_full_url($url);
+    $conn = wh_petitions_mongo_petition_connection();
+    $petition = $conn->findOne(array('nice_url' => $nice_url), array('title'));
+    $petition_id = (string) $petition['_id'];
+    return _api_petitions_resource_retrieve($petition_id, $mock);
+  }
+
   try {
     $query = PetitionsSelectQueryFactory::create();
 

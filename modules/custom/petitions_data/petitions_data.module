@@ -188,6 +188,23 @@ function petitions_data_freshen_cached_petition($petition_id) {
 }
 
 /**
+ * Gets a "nice URL" from a full URL.
+ *
+ * @param string $full_url
+ *   The full URL, e.g., "https://example.com/petition/some-title/as1d2vy6".
+ *
+ * @return string
+ *   The corresponding "nice URL", e.g., "petition/some-title/as1d2vy6".
+ */
+function petitions_data_get_nice_url_from_full_url($full_url) {
+  // The "nice URL" is just the URL path component without the leading forward
+  // slash (/).
+  $url_parts = parse_url($full_url);
+  $nice_url = substr($url_parts['path'], 1);
+  return $nice_url;
+}
+
+/**
  * Checks to see if a petition is open and not expired.
  *
  * @param string $petition_id

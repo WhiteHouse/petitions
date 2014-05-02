@@ -343,11 +343,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   protected function addURLToQuery() {
     // Filter by URL.
     if ($this->getURL()) {
-      // The "nice URL" is just the URL path component without the leading
-      // forward slash (/).
-      $url_parts = parse_url($this->getURL());
-      $nice_url = substr($url_parts['path'], 1);
-
+      $nice_url = petitions_data_get_nice_url_from_full_url($this->getURL());
       $query = $this->getQuery();
       $query += array(
         'nice_url' => $nice_url,
