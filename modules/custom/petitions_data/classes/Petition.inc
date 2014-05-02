@@ -29,6 +29,7 @@ class Petition {
   protected $response;
   protected $responseStatus;
   protected $userTags;
+  protected $isSignable;
 
   /**
    * Sets $this->body.
@@ -579,6 +580,28 @@ class Petition {
   }
 
   /**
+   * Determines if petition is signable and sets $this->isSignable.
+   *
+   * Note: Setting this as a property this way seems a little silly. This is
+   * really just a quick fix for surfacing an isSignable property in API
+   * results. If we were maintaining this long term we should probably move
+   * stuff from PetitionsSelectQueryMongo::exec into __construct and then call
+   * this there. But mongo2mysql work (7.x-3.x) will make the whole
+   * petitions_data module obsolete soon, so we're shoehorning this in for now.
+   *
+   * @return bool
+   *   TRUE if petition is signable, FALSE if not.
+   */
+  public function isSignable() {
+    if (!property_exists($this, 'status')) {
+      throw new Exception("Can't determin if petition is signable if petition status is not set.");  
+    }
+    $this->isSignable = in_array($this->status, array('responded', 'closed')) ? FALSE : TRUE;
+    return $this->isSignable;
+  }
+
+
+  /**
    * Converts into a publicly consumable array.
    *
    * @return array
@@ -599,6 +622,7 @@ class Petition {
       'status' => $this->formatStatus($this->getStatus()),
       'response' => $this->getResponse(),
       'created' => $this->getCreated(),
+      'isSignable' => $this->isSignable(),
     );
 
     return $output;
