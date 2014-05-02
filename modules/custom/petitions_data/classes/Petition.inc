@@ -29,7 +29,6 @@ class Petition {
   protected $response;
   protected $responseStatus;
   protected $userTags;
-  protected $isSignable;
 
   /**
    * Sets $this->body.
@@ -594,10 +593,9 @@ class Petition {
    */
   public function isSignable() {
     if (!property_exists($this, 'status')) {
-      throw new Exception("Can't determin if petition is signable if petition status is not set.");  
+      throw new Exception("Can't determine if petition is signable if petition status is not set.");
     }
-    $this->isSignable = in_array($this->status, array('responded', 'closed')) ? FALSE : TRUE;
-    return $this->isSignable;
+    return in_array($this->status, array('responded', 'closed')) ? FALSE : TRUE;
   }
 
 
