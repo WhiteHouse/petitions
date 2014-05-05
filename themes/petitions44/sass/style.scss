@@ -2286,14 +2286,15 @@ input#button-report-this-petition {
 
 #share-this-petition li.email a,
 #thank-you-modal ul.share-this-petition li.email a
- {
+{
   background: url(../img/sprite-buttons.png) no-repeat -217px -369px;
+  height: 26px;
 }
 
 #share-this-petition li.email a:hover,
 #thank-you-modal ul.share-this-petition li.email a:hover
 {
-  background: url(../img/sprite-buttons.png) no-repeat -217px -396px;
+  background: url(../img/sprite-buttons.png) no-repeat -217px -395px;
 }
 
 
