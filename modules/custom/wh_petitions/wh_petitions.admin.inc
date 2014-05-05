@@ -1079,6 +1079,7 @@ function wh_petitions_admin_petitions_settings_form() {
       WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED => t('Registration required'),
       WH_PETITIONS_SIGNING_METHOD_SIMPLIFIED_SIGNING => t('Simplified signing'),
     ),
+    '#access' => module_exists('petitionssignatureform'),
   );
   $form['related_settings'] = array(
     '#type' => 'fieldset',
