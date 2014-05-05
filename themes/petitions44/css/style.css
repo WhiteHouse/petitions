@@ -1552,9 +1552,9 @@ h2.trigger:hover {
   background: #a3a3a3;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a3a3a3', endColorstr='#696969');
   /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgrey));
+  background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgray));
   /* for webkit browsers */
-  background: -moz-linear-gradient(top, #a3a3a3, dimgrey);
+  background: -moz-linear-gradient(top, #a3a3a3, dimgray);
   /* for firefox 3.6+ */ }
 
 #qa-content h2.trigger.active a, #qa-content h2.trigger.active a:hover {
@@ -1624,9 +1624,9 @@ h2.active {
   background: #a3a3a3;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a3a3a3', endColorstr='#696969');
   /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgrey));
+  background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgray));
   /* for webkit browsers */
-  background: -moz-linear-gradient(top, #a3a3a3, dimgrey);
+  background: -moz-linear-gradient(top, #a3a3a3, dimgray);
   /* for firefox 3.6+ */ }
 
 #petition-inner .block-petitionssignatureform {
@@ -1665,7 +1665,7 @@ h2.active {
 #petition-inner .block-petitionssignatureform form .form-text.error {
   border: 1px solid #c00; }
 
-#petition-inner .block-petitionssignatureform form input#edit-submit {
+#petition-inner .block-petitionssignatureform form input.form-submit {
   text-indent: 0px;
   background-color: #af0208;
   color: #fffaf8;
