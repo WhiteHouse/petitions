@@ -417,6 +417,7 @@ function _api_petitions_resource_index($is_signable, $created_before, $created_a
      ->setSignatureCountCeiling($signature_count_ceiling)
      ->setSignatureCount($signature_count)
      ->setSignatureCountFloor($signature_count_floor)
+     ->setIsSignable($is_signable)
      ->setURL($url)
      ->setStatus($status)
      ->setResponseID($response_id);
