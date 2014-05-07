@@ -38,6 +38,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   protected $deadline;
   protected $deadlineAfter;
   protected $status;
+  protected $isSignable;
 
   /**
    * Constructor. This must be explicitly called by subclasses.
@@ -183,6 +184,33 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    */
   public function setBody($body) {
     $this->body = $body;
+    return $this;
+  }
+
+  /**
+   * Get accessor for $this->isSignable.
+   *
+   * @return string
+   *   The petition isSignable used to filter results.
+   */
+  protected function getIsSignable() {
+    return $this->isSignable;
+  }
+
+  /**
+   * Set accessor for $this->isSignable.
+   *
+   * @param string $is_signable
+   *   The signable status of the petition.
+   *
+   * @return PetitionsSelectQuery
+   *   Returns current instance of object.
+   */
+  public function setIsSignable($is_signable) {
+    if (intval($is_signable) || strtolower($is_signable) == 'true') {
+      $this->isSignable = TRUE;
+    }
+
     return $this;
   }
 
