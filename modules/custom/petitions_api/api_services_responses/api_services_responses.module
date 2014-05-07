@@ -47,6 +47,8 @@ function api_services_responses_services_request_postprocess_alter($controller, 
  *     error. Defaults to NULL.
  *   - error_code: (optional) An internally determined error number.
  *     Defaults to NULL.
+ *   - request_info: (optional) An array of information related to the request.
+ *     Defaults to NULL
  *
  * @return array
  *   A formatted array comprising the REST resposne compliant with
@@ -103,6 +105,11 @@ function api_services_responses_format($params = array()) {
       '#required' => FALSE,
       '#default_value' => '',
     ),
+    'request_info' => array(
+      '#type' => 'array',
+      '#required' => FALSE,
+      '#default_value' => NULL,
+    ),
   );
 
   // Check parameters that were passed.
@@ -141,6 +148,10 @@ function api_services_responses_format($params = array()) {
   }
   if ($params['more_info']) {
     $response['metadata']['responseInfo']['moreInfo'] = $params['more_info'];
+  }
+
+  if ($params['request_info']) {
+    $response['metadata']['requestInfo'] = $params['request_info'];
   }
 
   // Set resultset info. Relevant only to GET requests, and so optional.
