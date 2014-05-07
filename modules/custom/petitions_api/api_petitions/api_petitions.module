@@ -190,6 +190,14 @@ function api_petitions_services_resources() {
             'source' => array('param' => 'responseAssociationTimeBefore'),
           ),
           array(
+            'name' => 'is_public',
+            'optional' => TRUE,
+            'source' => array('isPublic' => 0),
+            'type' => 'string',
+            'description' => 'Filters results to public petitions by default.',
+            'default value' => 1,
+          ),
+          array(
             'name' => 'mock',
             'optional' => TRUE,
             'type' => 'int',
