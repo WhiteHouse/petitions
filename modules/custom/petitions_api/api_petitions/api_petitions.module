@@ -42,11 +42,19 @@ function api_petitions_services_resources() {
         'callback' => '_api_petitions_resource_index',
         'args' => array(
           array(
+            'name' => 'is_public',
+            'optional' => TRUE,
+            'type' => 'int',
+            'description' => t('When set to 1, this will only return petitions that are public.'),
+            'default value' => 1,
+            'source' => array('param' => 'isPublic'),
+          ),
+          array(
             'name' => 'is_signable',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => 'When set to 1, this will only return petitions accepting signatures.',
-            'default value' => 0,
+            'description' => t('When set to 1, this will only return petitions accepting signatures. When set to 0, returns only un-signable petitions.'),
+            'default value' => NULL,
             'source' => array('param' => 'isSignable'),
           ),
           array(
@@ -188,14 +196,6 @@ function api_petitions_services_resources() {
             'description' => 'Filters results to display items with a Response Assocation before a specified time. Accepts Unix timestamp.',
             'default value' => NULL,
             'source' => array('param' => 'responseAssociationTimeBefore'),
-          ),
-          array(
-            'name' => 'is_public',
-            'optional' => TRUE,
-            'source' => array('isPublic' => 0),
-            'type' => 'string',
-            'description' => 'Filters results to public petitions by default.',
-            'default value' => 1,
           ),
           array(
             'name' => 'mock',
@@ -373,7 +373,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 /**
  * Callback for Services petitions index method.
  */
-function _api_petitions_resource_index($is_signable, $created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $mock) {
+function _api_petitions_resource_index($is_public, $is_signable, $created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $mock) {
   global $base_url;
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
@@ -403,10 +403,36 @@ function _api_petitions_resource_index($is_signable, $created_before, $created_a
     $petition_id = (string) $petition['_id'];
     return _api_petitions_resource_retrieve($petition_id, $mock);
   }
+  // Makes the assumption that all query parameters are present at this instant.
+  // This assumption is risky as some values are altered in their setter.
+  $query_parameters = array(
+    'body' => $body,
+    'created_after' => $created_after,
+    'created_at' => $created_at,
+    'created_before' => $created_before,
+    'is_public' => $is_public,
+    'is_signable' => $is_signable,
+    'limit' => $limit,
+    'mock' => $mock,
+    'offset' => $offset,
+    'petitions_default_limit' => $petitions_default_limit,
+    'public_threshold' => $public_threshold,
+    'response_id' => $response_id,
+    'signature_count' => $signature_count,
+    'signature_count_ceiling' => $signature_count_ceiling,
+    'signature_count_floor' => $signature_count_floor,
+    'signature_threshold' => $signature_threshold,
+    'signature_threshold_ceiling' => $signature_threshold_ceiling,
+    'signature_threshold_floor' => $signature_threshold_floor,
+    'status' => $status,
+    'title' => $title,
+    'url' => $url,
+    'website_url' => $website_url,
+  );
+  ksort($query_parameters);
 
   try {
     $query = PetitionsSelectQueryFactory::create();
-
     // Scaffolding is in place for inactive parameters but logic is required.
     $query
      ->setBaseURL($website_url)
@@ -428,12 +454,19 @@ function _api_petitions_resource_index($is_signable, $created_before, $created_a
      ->setIsSignable($is_signable)
      ->setURL($url)
      ->setStatus($status)
+     ->setIsPublic($is_public)
      ->setResponseID($response_id);
 
+    $request_info = array(
+      'apiVersion' => 1,
+      'resource' => 'petitions',
+      'query' => $query_parameters,
+    );
     // $petition_ids = explode(',' check_plain($petition_id));
     // setPetitionIds($petition_ids);
 
     $response_params = array(
+      'request_info' => $request_info,
       'results' => $query->execute()->getResult(),
       'count' => $query->getCount(),
       'limit' => $limit,
@@ -444,11 +477,20 @@ function _api_petitions_resource_index($is_signable, $created_before, $created_a
   }
   // Throw error if resource cannot be accessed.
   catch (Exception $e) {
-    $status_code = 599;
-    $developer_message = t("Class could not be instantiated.");
-    $user_message = t("The resource that you requested is temporarily unavailable.");
-    $error_code = 83;
-    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    $data = $e->getData();
+    if (!$e->getCode()) {
+      // There is no specified status code so make one up.
+      $status_code = 599;
+      $developer_message = t("Sorry. Something went wrong. We're not sure what. And we're not sure 599 is an accurate status code for your error. Please file a ticket in the issue queue to help us understand what caused this error: https://github.com/whitehouse/petitions/issues?state=open");
+    }
+    else {
+      $status_code = $e->getCode();
+      $developer_message = (!empty($data['developerMessage'])) ? $data['developerMessage'] : '';
+    }
+    $user_message = (!empty($data['userMessage'])) ? $data['userMessage'] : '';
+    $error_code = (!empty($data['errorCode'])) ? $data['errorCode'] : '';
+    $more_info = (!empty($data['moreInfo'])) ? $data['moreInfo'] : '';
+
     watchdog('api_petitions', $e->getMessage());
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }

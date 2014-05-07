@@ -1,7 +1,45 @@
 {
   "metadata": {
-    "executionTime": 0.020001
-  },
+        "responseInfo": {
+            "status": 200,
+            "developerMessage": "OK"
+        },
+        "requestInfo": {
+            "apiVersion": 1,
+            "resource": "petitions",
+            "query": {
+                "base_url": "http://dev.petitions.com",
+                "body": null,
+                "created_after": null,
+                "created_at": null,
+                "created_before": null,
+                "is_public": 1,
+                "is_signable": null,
+                "limit": 10,
+                "mock": null,
+                "offset": 0,
+                "petitions_default_limit": "1000",
+                "public_threshold": 1,
+                "response_id": null,
+                "signature_count": null,
+                "signature_count_ceiling": null,
+                "signature_count_floor": 0,
+                "signature_threshold": null,
+                "signature_threshold_ceiling": null,
+                "signature_threshold_floor": null,
+                "status": null,
+                "title": null,
+                "url": null,
+                "website_url": ""
+            }
+        },
+        "resultset": {
+            "count": 4,
+            "limit": 10,
+            "offset": 0
+        },
+        "executionTime": 0.0049331188201904
+    },
   "results": [
     {
       "id": "50cb6d2ba9a0b1c52e000017",
@@ -77,7 +115,9 @@
       "deadline": 1363323600,
       "status": "pending response",
       "response": null,
-      "created": 1360908000
+      "created": 1360908000,
+      "isSignable": true,
+      "isPublic": true
     }
   ]
 }
