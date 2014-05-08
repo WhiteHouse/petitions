@@ -82,6 +82,21 @@ define('WH_PETITION_STATUS_REVIEWED', 5);
 define('WH_PETITION_STATUS_FLAGGED', 6);
 
 /**
+ * Returns an array of status id's that are to be treated as signable.
+ *
+ * @return array
+ *  Array of petition status id's considered signable
+ */
+function wh_petitions_signable_statuses() {
+  return array(
+    WH_PETITION_STATUS_PRIVATE,
+    WH_PETITION_STATUS_PUBLIC,
+    WH_PETITION_STATUS_UNDER_REVIEW,
+    WH_PETITION_STATUS_FLAGGED,
+    );
+}
+
+/**
  * Constants for Response Statuses
  */
 
