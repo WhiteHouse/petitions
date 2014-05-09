@@ -1096,16 +1096,14 @@ function wh_petitions_admin_petitions_settings_form() {
  * Page callback: Displays links to various petitions settings pages.
  */
 function wh_petitions_admin_petitions_settings_links() {
-  $links = array(
-    'items' => array(
-      l(t('Petition Signatures Queue'), 'admin/config/system/signatures-queue'),
-      l(t('Petition Tool'), 'admin/config/system/petitions'),
-      l(t('Petition Tool Hub'), 'admin/config/system/petition-tool-hub'),
-      l(t('Petitions Data'), 'admin/config/services/petitions_data'),
-      l(t('Petitions Signature Form'), 'admin/config/services/petitionssignatureform'),
-      l(t('Petitions Users Statistics'), 'admin/config/services/stats/users'),
-    ),
-  );
+  $links['items'][] = l(t('Petition Signatures Queue'), 'admin/config/system/signatures-queue');
+  $links['items'][] = l(t('Petition Tool'), 'admin/config/system/petitions');
+  $links['items'][] = l(t('Petition Tool Hub'), 'admin/config/system/petition-tool-hub');
+  $links['items'][] = l(t('Petitions Data'), 'admin/config/services/petitions_data');
+  if (module_exists('petitionssignatureform') && user_access('administer petitionssignatureform')) {
+    $links['items'][] = l(t('Petitions Signature Form'), 'admin/config/services/petitionssignatureform');
+  }
+  $links['items'][] = l(t('Petitions Users Statistics'), 'admin/config/services/stats/users');
   return theme('item_list', $links);
 }
 
