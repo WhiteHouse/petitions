@@ -39,6 +39,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   protected $deadlineAfter;
   protected $status;
   protected $isSignable;
+  protected $isPublic;
 
   /**
    * Constructor. This must be explicitly called by subclasses.
@@ -207,8 +208,71 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    *   Returns current instance of object.
    */
   public function setIsSignable($is_signable) {
-    if (intval($is_signable) === 1 || strtolower($is_signable) == 'true') {
-      $this->isSignable = TRUE;
+    // Case race: First to evaluate TRUE wins.
+    switch (TRUE) {
+      // These are all the possible true cases.
+      case intval($is_signable) == 1:
+      case strtolower($is_signable) == 'true':
+      case $is_signable === TRUE:
+        $this->isSignable = TRUE;
+        break;
+
+      // These are all the possible false cases.
+      case $is_signable === '0':
+      case $is_signable === 0:
+      case strtolower($is_signable) == 'false':
+      case $is_signable === FALSE:
+        $this->isSignable = FALSE;
+        break;
+
+      case $is_signable === NULL:
+      default:
+        break;
+    }
+
+    return $this;
+  }
+
+  /**
+   * Get accessor for $this->isPublic.
+   *
+   * @return string
+   *   The petition isPublic used to filter results.
+   */
+  protected function getIsPublic() {
+    return $this->isPublic;
+  }
+
+  /**
+   * Set accessor for $this->isPublic.
+   *
+   * @param string $is_public
+   *   The public property of the petition.
+   *
+   * @return PetitionsSelectQuery
+   *   Returns current instance of object.
+   */
+  public function setIsPublic($is_public) {
+    // Case race: First to evaluate TRUE wins.
+    switch (TRUE) {
+      // These are all the possible true cases.
+      case intval($is_public) == 1:
+      case strtolower($is_public) == 'true':
+      case $is_public === TRUE:
+        $this->isPublic = TRUE;
+        break;
+
+      // These are all the possible false cases.
+      case $is_public === '0':
+      case $is_public === 0:
+      case strtolower($is_public) == 'false':
+      case $is_public === FALSE:
+        $this->isPublic = FALSE;
+        break;
+
+      case $is_public === NULL:
+      default:
+        break;
     }
 
     return $this;

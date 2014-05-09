@@ -603,6 +603,28 @@ class Petition {
 
 
   /**
+   * Determines if petition is public and sets $this->isPublic.
+   *
+   * Note: Setting this as a property this way seems a little silly. This is
+   * really just a quick fix for surfacing an isSignable property in API
+   * results. If we were maintaining this long term we should probably move
+   * stuff from PetitionsSelectQueryMongo::exec into __construct and then call
+   * this there. But mongo2mysql work (7.x-3.x) will make the whole
+   * petitions_data module obsolete soon, so we're shoehorning this in for now.
+   *
+   * @return bool
+   *   TRUE if petition is public, FALSE if not.
+   */
+  public function isPublic() {
+    if (!isset($this->status)) {
+      throw new Exception("Can't determine if petition is public if petition status is not set.");
+    }
+    // A petition is considered public if its status is not Draft, or Private.
+    return (in_array($this->status, wh_petitions_public_statuses())) ? TRUE : FALSE;
+  }
+
+
+  /**
    * Converts into a publicly consumable array.
    *
    * @return array
@@ -624,6 +646,7 @@ class Petition {
       'response' => $this->getResponse(),
       'created' => $this->getCreated(),
       'isSignable' => $this->isSignable(),
+      'isPublic' => $this->isPublic(),
     );
 
     return $output;

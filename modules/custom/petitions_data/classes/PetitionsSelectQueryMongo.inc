@@ -82,6 +82,14 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   public function execute() {
     $results = array();
 
+    if (($this->getIsSignable() === TRUE) || ($this->getIsSignable() === FALSE)) {
+      $this->addIsSignableToQuery();
+    }
+
+    if (($this->getIsPublic() === TRUE) || ($this->getIsPublic() === FALSE)) {
+      $this->addIsPublicToQuery();
+    }
+
     if ($this->getCreatedDate()) {
       $this->addCreatedDateToQuery();
     }
@@ -409,6 +417,102 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       $query += array(
         'response_id' => $this->getResponseID(),
       );
+      $this->setQuery($query);
+    }
+  }
+
+  /**
+   * Helper function to add $this->isPublic as a query parameter.
+   */
+  protected function addIsPublicToQuery() {
+    $query = $this->getQuery();
+    // Petitions with any of the following status, are considered public.
+    $array_public_statuses = wh_petitions_public_statuses();
+
+    if ($this->getIsPublic()) {
+      // Request is for petitions that are public.
+      // Do not overwrite any other existing 'status'.
+      if (!empty($query['status'])) {
+        // Already has a status so preserve it.
+        $original_status = $query['status'];
+        // Make a new status from original AND new.
+        $query['petition_status'] = array(
+          '$and' => array(
+            $original_status,
+            array('$in' => $array_public_statuses),
+          ),
+        );
+      }
+      else {
+        // No existing status.
+        $query += array(
+          'petition_status' => array('$in' => $array_public_statuses),
+        );
+      }
+
+      $this->setQuery($query);
+    }
+    elseif ($this->getIsPublic() === FALSE) {
+      // Request is for petitions that are NOT public.
+      // Non-public petitions are not available through the index api.
+      // Return access denied with a message.
+      $developer_message = t('You need a petition id or url to access non-public petitions.');
+      api_errors_throw_error(403, $developer_message);
+    }
+  }
+
+  /**
+   * Helper function to add $this->isSignable as a query parameter.
+   */
+  protected function addIsSignableToQuery() {
+    $query = $this->getQuery();
+    // Petitions with any of the following status, are considered signable.
+    $array_signable_statuses = wh_petitions_signable_statuses();
+
+    if ($this->getIsSignable()) {
+      // Request is for petitions that are signable.
+      // Do not overwrite any other existing 'status'.
+      if (isset($query['status']) && !empty($query['status'])) {
+        // Already has a status so preserve it.
+        $original_status = $query['status'];
+        // Make a new status from original AND new.
+        $query['petition_status'] = array(
+          '$and' => array(
+            $original_status,
+            array('$in' => $array_signable_statuses),
+          ),
+        );
+      }
+      else {
+        // No existing status.
+        $query += array(
+          'petition_status' => array('$in' => $array_signable_statuses),
+        );
+      }
+
+      $this->setQuery($query);
+    }
+    elseif ($this->getIsSignable() === FALSE) {
+      // Request is for petitions that are NOT signable.
+      // Do not overwrite any other existing 'status'.
+      if (isset($query['status']) && !empty($query['status'])) {
+        // Already has a status so preserve it.
+        $original_status = $query['status'];
+        // Make a new status from original AND new.
+        $query['petition_status'] = array(
+          '$and' => array(
+            $original_status,
+            array('$nin' => $array_signable_statuses),
+          ),
+        );
+      }
+      else {
+        // No existing status.
+        $query += array(
+          'petition_status' => array('$nin' => $array_signable_statuses),
+        );
+      }
+
       $this->setQuery($query);
     }
   }
