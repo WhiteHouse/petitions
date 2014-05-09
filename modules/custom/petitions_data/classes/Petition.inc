@@ -592,12 +592,13 @@ class Petition {
    *   TRUE if petition is signable, FALSE if not.
    */
   public function isSignable() {
-    if (!property_exists($this, 'status')) {
+    if (!isset($this->status)) {
       throw new Exception("Can't determine if petition is signable if petition status is not set.");
     }
     // A petition is considered signable if its status is not Draft, Closed,
     // or Reviewed.
-    return (($this->status === WH_PETITION_STATUS_CLOSED) || ($this->status === WH_PETITION_STATUS_DRAFT) || ($this->status === WH_PETITION_STATUS_REVIEWED)) ? FALSE : TRUE;
+    $array_signable_statuses = wh_petitions_signable_statuses();
+    return (in_array($this->status, $array_signable_statuses)) ? TRUE : FALSE;
   }
 
 

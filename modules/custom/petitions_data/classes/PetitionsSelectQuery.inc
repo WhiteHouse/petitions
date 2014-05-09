@@ -207,7 +207,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    *   Returns current instance of object.
    */
   public function setIsSignable($is_signable) {
-    if (intval($is_signable) || strtolower($is_signable) == 'true') {
+    if (intval($is_signable) === 1 || strtolower($is_signable) == 'true') {
       $this->isSignable = TRUE;
     }
 
