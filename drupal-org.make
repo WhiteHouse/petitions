@@ -170,6 +170,10 @@ projects[fortyfour][version] = 1.0-alpha8
 libraries[colorbox][download][type] = "file"
 libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/archive/1.4.27.zip"
 
+libraries[petitions-php-sdk][download][type] = git
+libraries[petitions-php-sdk][download][url] = git@github.com:WhiteHouse/petitions-php-sdk.git
+libraries[petitions-php-sdk][download][revision] = fe03d49e39e88e87cff2295172d02a8a22c94910
+
 ; Required by Services module for REST server.
 libraries[spyc][download][type] = "file"
 libraries[spyc][download][url] = "https://raw.github.com/mustangostang/spyc/79f61969f63ee77e0d9460bc254a27a671b445f3/spyc.php"
