@@ -69,6 +69,7 @@ projects[openidadmin][version] = 1.0
 
 projects[pathauto][version] = 1.2
 
+projects[petitionssignatureform][type] = module
 projects[petitionssignatureform][download][type] = git
 projects[petitionssignatureform][download][url] = git@github.com:WhiteHouse/petitionssignatureform.git
 projects[petitionssignatureform][download][revision] = 13960b4c618c54838d60c3a29f9bbd1c9f19b6ee
