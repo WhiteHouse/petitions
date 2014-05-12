@@ -72,7 +72,6 @@ projects[pathauto][version] = 1.2
 projects[petitionssignatureform][type] = module
 projects[petitionssignatureform][download][type] = git
 projects[petitionssignatureform][download][url] = git@github.com:WhiteHouse/petitionssignatureform.git
-projects[petitionssignatureform][download][revision] = 13960b4c618c54838d60c3a29f9bbd1c9f19b6ee
 
 projects[profile2][version] = 1.3
 
@@ -173,7 +172,6 @@ libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/arch
 
 libraries[petitions-php-sdk][download][type] = git
 libraries[petitions-php-sdk][download][url] = git@github.com:WhiteHouse/petitions-php-sdk.git
-libraries[petitions-php-sdk][download][revision] = fe03d49e39e88e87cff2295172d02a8a22c94910
 
 ; Required by Services module for REST server.
 libraries[spyc][download][type] = "file"
