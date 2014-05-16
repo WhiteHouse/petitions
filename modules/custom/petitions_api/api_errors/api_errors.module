@@ -38,6 +38,7 @@ function api_errors_throw_error($status_code, $developer_message, $user_message 
     'userMessage' => $user_message,
     'errorCode' => $error_code,
     'moreInfo' => $more_info,
+    'developerMessage' => $developer_message,
   );
 
   // Throwing 5xx errors will cause varnish to override our response, so we
