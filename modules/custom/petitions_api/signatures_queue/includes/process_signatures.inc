@@ -95,8 +95,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
           '@timestamp_validated' => $item['timestamp_validated'],
           '@suffix' => $watchdog_suffix,
         ), WATCHDOG_CRITICAL);
-        // Do NOT move items to processed table or remove from pre-process
-        // table.
+        // Do NOT move items to processed table or remove from preprocess table.
         continue;
       }
     }

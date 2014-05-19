@@ -1809,22 +1809,23 @@ function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $u
 }
 
 /**
- * Create signature record.
+ * Creates a signature record.
  *
  * Wrapper around wh_petitions_create_signature(). This can be called by modules
  * who don't know anything about mongo.
  *
  * @param string $petition_id
- *
- * @param obj $user
- *   Druapl user object.
- *
+ *   The unique identifier of the petition to create a signature for.
+ * @param object $user
+ *   A Drupal user object.
  * @param string $client_ip
  *   The IP address of the signatory.
  *
- * @return string $signature_id
+ * @return string|false
+ *   The ID of the created signature record if one is created, or FALSE if not.
  *
- * @todo replace usages of this function with method call to SignaturesQueryFactory::create->save().
+ * @todo Replace usages of this function with method call to
+ *   SignaturesQueryFactory::create->save().
  */
 function wh_petitions_create_new_signature($petition_id, $user, $client_ip) {
   // Setup connections for signatures and petitions.
