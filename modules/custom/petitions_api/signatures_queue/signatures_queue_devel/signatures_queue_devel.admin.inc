@@ -52,7 +52,7 @@ function signatures_queue_devel_generate_form() {
   foreach ($overrides as $override) {
     $form['overrides'][$override] = array('#type' => 'textfield', '#title' => $override);
   }
-    
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate'),
@@ -85,9 +85,13 @@ function signatures_queue_devel_generate_form_submit($form_id, &$form_state) {
 }
 
 /**
+ * Returns a list of fields for which dummy data will be generated.
+ *
+ * This is a little helper function to make it easy to make all these
+ * overridable.
+ *
  * @return array
- *   List of fields for which dummy data will be generated. This is a little
- *   helper function to make it easy to make all these overridable.
+ *   An indexed array of field names.
  */
 function _signatures_queue_devel_overrides() {
   return array(

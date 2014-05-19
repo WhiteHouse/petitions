@@ -148,7 +148,12 @@ You can view [petition:title] by clicking this link or copying and pasting it to
   if ($replace) {
     // We do not sanitize the token replacement, since the output of this
     // replacement is intended for an e-mail message, not a web browser.
-    return token_replace($text, $variables, array('language' => $language, 'callback' => 'signatures_queue_validation_email_tokens', 'sanitize' => FALSE, 'clear' => TRUE));
+    return token_replace($text, $variables, array(
+      'language' => $language,
+      'callback' => 'signatures_queue_validation_email_tokens',
+      'sanitize' => FALSE,
+      'clear' => TRUE,
+    ));
   }
 
   return $text;
@@ -179,9 +184,16 @@ function _signatures_queue_notify_admin_text($part, $language, $params) {
   switch ($part) {
     case 'subject':
       return t('ALERT: Signature Queue !subject', array('!subject' => $params['subject']));
-      break;
+
     case 'body':
-      $required = array('first_name', 'last_name', 'email', 'secret_validation_key', 'petition_id', 'timestamp_petition_close');
+      $required = array(
+        'first_name',
+        'last_name',
+        'email',
+        'secret_validation_key',
+        'petition_id',
+        'timestamp_petition_close',
+      );
       foreach ($required as $r) {
         if (empty($params[$r])) {
           $params[$r] = t('missing !r', array('!r' => $r));
@@ -202,7 +214,6 @@ function _signatures_queue_notify_admin_text($part, $language, $params) {
         $body[] = t('Notice:') . ' ' . $params['notice'];
       }
       return $body;
-      break;
   }
 }
 
@@ -212,7 +223,7 @@ function _signatures_queue_notify_admin_text($part, $language, $params) {
  * @param string $name
  *   (Optional) The machine name of a signatures queue.
  *
- * @return array $last_emptied
+ * @return array
  *   Returns array keyed by queue name(s). Value is a timestamp of when queue
  *   was last emptied.
  */
@@ -269,7 +280,8 @@ function _signatures_queue_check_empty($name = NULL) {
  * @param array $data
  *   The signature data.
  * @param bool $absolute
- *   (optional) TRUE to return an absolute URL or FALSE to return only the link (with a leading slash). Defaults to TRUE.
+ *   (optional) TRUE to return an absolute URL or FALSE to return only the link
+ *   (with a leading slash). Defaults to TRUE.
  *
  * @return string
  *   The validation link.

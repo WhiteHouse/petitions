@@ -1,13 +1,15 @@
 <?php
+
 /**
  * @file
  * The "process signatures" workflow.
  *
  * Signature processing includes these steps:
  *  - Match records from validations to signatures_pending_validation tables.
- *  - If signature (email address) does not have a corresponding user, create one.
- *  - If a signature record with this email does not exist in petition_signatures
- *    create one, and get the signature id.
+ *  - If signature (email address) does not have a corresponding user, create
+ *    one.
+ *  - If a signature record with this email does not exist in
+ *    petition_signatures create one, and get the signature id.
  */
 
 /**
@@ -257,11 +259,13 @@ function _signatures_queue_process_signatures_create_user($item) {
  * @param object $user
  *   Drupal user object for checking petition_signatures.
  *
- * @return string $signature_id
+ * @return string
+ *   A signature ID.
  */
 function _signatures_queue_process_signatures_create_record($item, $user) {
   // The wh_petitions_create_signature function called by
-  // wh_petitions_create_new_signature determines if this user has already signed the petition.
+  // wh_petitions_create_new_signature determines if this user has already
+  // signed the petition.
   $signature_id = wh_petitions_create_new_signature($item['petition_id'], $user, $item['client_ip']);
 
   return $signature_id;

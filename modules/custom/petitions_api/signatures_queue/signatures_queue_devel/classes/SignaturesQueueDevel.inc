@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Defines SignaturesQueueDev.

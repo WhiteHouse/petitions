@@ -88,7 +88,8 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
   $queue->createQueue();
   $number_of_items = $queue->numberOfItems();
 
-  // If queue is empty and signatures_queue_send_validation_emaiging is on, log message.
+  // If queue is empty and signatures_queue_send_validation_emails is on, log
+  // message.
   if ($debug && !$number_of_items) {
     watchdog('signatures_queue', 'signatures_submitted_queue is empty. No validation emails will be sent. @suffix', array(
       '@suffix' => $watchdog_suffix,
@@ -185,13 +186,13 @@ function _signatures_queue_add_md5_evaluation_keys(array $signatures) {
 function _signatures_queue_send_validation_emails(array $signatures, $watchdog_suffix) {
   global $base_url;
   $signatures_mailed = array('sent' => array(), 'not sent' => array());
-  $errors = array();
 
   // NOTE: We're calling drupal_mail() one-by-one, but we're not sure if this is
   // the best solution here. If the cost charged by our email provider is
   // per-email-recipient (most likely), the real cost to us here is the expense
-  // of making so many API calls. TODO, Revisit implementation: If drupal_mail() allows us to send in batches
-  // that's probaby more efficient here.
+  // of making so many API calls.
+  // @todo Revisit implementation: If drupal_mail() allows us to send in batches
+  //   that's probably more efficient here.
   foreach ($signatures as $signature) {
     $signature->data['validation_link'] = _signatures_queue_validation_link(variable_get('petitions_data_petitions_website_url', $base_url), $signature->data, FALSE);
     // Send validation email.

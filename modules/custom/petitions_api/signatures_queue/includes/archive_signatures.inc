@@ -41,12 +41,14 @@ function _signatures_queue_archive_signatures($job_id, $server_name, $worker_nam
   // Determine if archiving is enabled.
   $archiving_is_enabled = variable_get('signatures_queue_archive_invalid_signatures', 1);
 
-  // Archive pending signatures not validated in time to be counted toward a petition.
+  // Archive pending signatures not validated in time to be counted toward a
+  // petition.
   if ($archiving_is_enabled) {
     _signatures_queue_archive_invalid_signatures($queues_last_emptied, $watchdog_suffix);
   }
 
-  // Delete pending signatures not validated in time to be counted toward a petition.
+  // Delete pending signatures not validated in time to be counted toward a
+  // petition.
   _signatures_queue_delete_invalid_signatures($queues_last_emptied, $watchdog_suffix);
 
   if ($archiving_is_enabled) {
@@ -119,7 +121,8 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
   // Set the active database to the signatures_archive db.
   signatures_queue_set_db('signatures_archive');
 
-  // Insert the invalid signatures into the signatures_not_validated_archive table.
+  // Insert the invalid signatures into the signatures_not_validated_archive
+  // table.
   while ($row = $query->fetchAssoc()) {
     db_insert('signatures_not_validated_archive')
       ->fields($row)
@@ -359,7 +362,8 @@ function _signatures_queue_archive_processed_signatures($queues_last_emptied, $w
   // Set the active database to the signatures_archive db.
   signatures_queue_set_db('signatures_archive');
 
-  // Insert the processed signatures into the signatures_processed_archive table.
+  // Insert the processed signatures into the signatures_processed_archive
+  // table.
   while ($row = $results->fetchAssoc()) {
     db_insert('signatures_processed_archive')
       ->fields($row)
@@ -431,7 +435,8 @@ function _signatures_queue_archive_processed_validations($queues_last_emptied, $
   // Set the active database to the signatures_archive db.
   signatures_queue_set_db('signatures_archive');
 
-  // Insert the processed validations into the validations_processed_archive table.
+  // Insert the processed validations into the validations_processed_archive
+  // table.
   while ($row = $results->fetchAssoc()) {
     db_insert('validations_processed_archive')
       ->fields($row)

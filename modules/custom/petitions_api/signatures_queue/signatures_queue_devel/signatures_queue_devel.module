@@ -29,14 +29,17 @@ function signatures_queue_devel_menu() {
  * Generate dummy data in signature queues.
  *
  * @param array $queue_names
- *
+ *   An indexed array of queue machine names to generate items in.
  * @param int $number
- *
+ *   (optional) The number of signatures to generate. Defaults to 10.
  * @param bool $delete_first
- *
- * @param int num_to_match
- *
- * @param string petition_id
+ *   (optional) TRUE to delete the queue first, or FALSE not to. Defaults to
+ *   FALSE.
+ * @param int $num_to_match
+ *   (optional) The number of records that should match. Defaults to 0.
+ * @param string $petition_id
+ *   (optional) The unique identifier for the petition to generate items for.
+ *   Defaults to NULL.
  */
 function signatures_queue_devel_generate($queue_names, $number = 10, $delete_first = FALSE, $num_to_match = 0, $petition_id = NULL) {
   // Remove all items first.
@@ -46,6 +49,10 @@ function signatures_queue_devel_generate($queue_names, $number = 10, $delete_fir
       // There is no harm in trying to recreate existing.
       $queue->createQueue();
       $count = $queue->numberOfItems();
+      // @todo This causes a problem when using AWS SQS as a queue backend,
+      //   because there's a 60-120 second period after deleting a queue during
+      //   which you can't add items back into it. Deleting an SQS queue
+      //   immediately before creating new items here will cause a fatal error.
       $queue->deleteQueue();
       $text = t('@name: This queue was deleted with @count items remaining in it.',
         array('@name' => $queue_name, '@count' => $count)
