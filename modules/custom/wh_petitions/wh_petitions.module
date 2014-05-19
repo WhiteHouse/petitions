@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Management and utility for white house petitions.
+ * Management and utility for petitions.
  */
 
 /**
@@ -157,18 +158,25 @@ function wh_petitions_display_status_name($status_id, $type = 'petition') {
       switch ($status_id) {
         case WH_PETITION_STATUS_DRAFT:
           return t('Draft');
+
         case WH_PETITION_STATUS_PRIVATE:
           return t('Private');
+
         case WH_PETITION_STATUS_PUBLIC:
           return t('Public');
+
         case WH_PETITION_STATUS_CLOSED:
           return t('Archived');
+
         case WH_PETITION_STATUS_UNDER_REVIEW:
           return t('Under Review');
+
         case WH_PETITION_STATUS_REVIEWED:
           return t('Reviewed');
+
         case WH_PETITION_STATUS_FLAGGED:
           return t('Removed');
+
         default:
           return '';
       }
@@ -176,10 +184,13 @@ function wh_petitions_display_status_name($status_id, $type = 'petition') {
       switch ($status_id) {
         case WH_PETITION_RESPONSE_STATUS_UNANSWERED:
           return t('Unanswered');
+
         case WH_PETITION_RESPONSE_STATUS_PENDING:
           return t('Awaiting Action');
+
         case WH_PETITION_RESPONSE_STATUS_ANSWERED:
           return t('Responded');
+
         default:
           return '';
       }
@@ -209,7 +220,7 @@ function wh_petitions_permission() {
     ),
     'administer petitions' => array(
       'title' => t('Administer petitions'),
-      'description' => t(''),
+      'description' => '',
     ),
     'create petition' => array(
       'title' => t('Create a petition'),
@@ -1267,7 +1278,7 @@ function wh_petitions_mail($key, &$message, $params) {
  */
 function wh_petitions_form_alter(&$form, &$form_state, $form_id) {
   switch ($form_id) {
-    case 'petitionssignatureform_signature_form' :
+    case 'petitionssignatureform_signature_form':
       // Add the privacy policy and terms of participation links to the bottom
       // of the simplified signing form, but only if the form itself is present.
       if (petitionssignatureform_module_is_configured()) {
@@ -1475,10 +1486,13 @@ function wh_petitions_load_petition_title(&$collection, $petition_id) {
  * Generate keywords for title_keywords, body_keywords and
  * keywords ( public and private ) fields.
  *
- * @param String $string
+ * @param string $string
  *   String to extract keywords from.
- * @param String $delimiter
+ * @param string $delimiter
  *   String to use as a delimiter for character analysis.
+ *
+ * @return array
+ *   An indexed array of keywords.
  */
 function wh_petitions_generate_keywords($string, $delimiter = ' ') {
   $words = array();
@@ -1503,7 +1517,7 @@ function wh_petitions_generate_keywords($string, $delimiter = ' ') {
 /**
  * Generate a nice url for this petition using pathauto URL cleaning.
  *
- * @param Array $petition
+ * @param array $petition
  *   Petition result array.
  */
 function wh_petitions_generate_nice_url(&$petition) {
@@ -1671,11 +1685,11 @@ function wh_petitions_default_petition() {
 /**
  * Log admin activity (removing/re-enabling) on petitions or signatures.
  *
- * @param Object $acting_user
+ * @param object $acting_user
  *   The drupal user object of the admin
- * @param String $entity_type
+ * @param string $entity_type
  *   String of type of entity
- * @param Object $entity_acted_upon
+ * @param object $entity_acted_upon
  *   the petition or signature object the admin acted upon
  *
  * @return Int
@@ -1722,9 +1736,9 @@ function wh_petitions_admin_log($acting_user, $entity_type, $entity_acted_upon) 
 /**
  * Prepare and send a notification when a petition is removed or re-enabled.
  *
- * @param Object $user
+ * @param object $user
  *   The drupal user object
- * @param Array $petition
+ * @param array $petition
  *   The petition result
  */
 function wh_petitions_removal_notification($user, $petition) {
@@ -1751,16 +1765,16 @@ function wh_petitions_removal_notification($user, $petition) {
  * Wrapper for invoking all the functionality that needs to be triggered
  * when a petition is signed.
  *
- * @param Int $petition_id
+ * @param int $petition_id
  *   The id of the petition being signed.
- * @param Int $user_id
+ * @param int $user_id
  *   The id of the user signing the petition.
- * @param String $ip_address
+ * @param string $ip_address
  *   (optional) The IP address from which the user is signing the petition.
- * @param String $user_agent
+ * @param string $user_agent
  *   (optional) The user agent string of the signer's browser.
  *
- * @return boolean
+ * @return bool
  *   TRUE on success, FALSE otherwise
  */
 function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $user_agent = '') {
@@ -1861,11 +1875,13 @@ function wh_petitions_create_new_signature($petition_id, $user, $client_ip) {
 /**
  * Check to see if signature exists already.
  *
- * @param obj $user
- *  User object.
+ * @param string $petition_id
+ *   The unique identifier of the petition.
+ * @param int $uid
+ *   A user ID.
  *
- * @return string
- *  Signature ID or FALSE if it doesn't exist yet.
+ * @return string|false
+ *   Signature ID or FALSE if it doesn't exist yet.
  */
 function wh_petitions_get_signature_id($petition_id, $uid) {
   $signature_id = FALSE;
@@ -1891,15 +1907,15 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
 /**
  * Create and save a signature object for the given user and petition.
  *
- * @param Object $petition
+ * @param object $petition
  *   The petition object being signed.
- * @param Object $user
+ * @param object $user
  *   The user object signing the petition.
  * @param MongoClient $signature_collection_connection
  *   Connection to be used for querying and storing the signature.
- * @param String $ip_address
+ * @param string $ip_address
  *   (optional) The IP address from which the user is signing the petition.
- * @param String $user_agent
+ * @param string $user_agent
  *   (optional) The user agent string of the signer's browser.
  *
  * @return string
@@ -1954,6 +1970,7 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
  * properly formatted $petition object.
  *
  * @param string $petition_id
+ *   The unique identifier of the petition.
  */
 function wh_petitions_increment_count($petition_id) {
   // Create connection.
@@ -1980,7 +1997,7 @@ function wh_petitions_increment_count($petition_id) {
  * Increment the signature_count of a petition and check to see
  * if has passed any milestones.
  *
- * @param Array $petition
+ * @param array $petition
  *   The petition object which will will be incremented
  * @param MongoClient $connection
  *   A connection to the petition dataset
