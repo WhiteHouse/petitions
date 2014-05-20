@@ -95,7 +95,9 @@ function signatures_queue_devel_generate($queue_names, $number = 10, $delete_fir
           }
           else {
             // Overwrite item elements to match previous queue's item.
-            isset($item[$f]) AND $item[$f] = $match_items[$i][$f];
+            if (!empty($item[$f])) {
+              $item[$f] = $match_items[$i][$f];
+            }
           }
         }
         $matched_count = $i + 1;
