@@ -99,7 +99,7 @@ function _api_validations_index_doc() {
     '#path' => '/validations',
     '#weight' => 1,
     '#description' => t('Returns a list of validations matching passed parameters.'),
-    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/validations.json?key=asY1k9uCQY7Hg8MCBaa', array('absolute' => TRUE)),
+    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/validations.json?api_key=asY1k9uCQY7Hg8MCBaa', array('absolute' => TRUE)),
     '#response' => _api_validations_mock_response('index'),
     '#auth' => TRUE,
   );
