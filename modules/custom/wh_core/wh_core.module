@@ -109,9 +109,6 @@ function wh_core_form_alter(&$form, &$form_state, $form_id) {
       // No really... this should be at the end.
       '#weight' => 100000,
     );
-
-    $form['#submit'][] = 'wh_core_user_register_submit';
-
   }
 
   if ($form_id == 'user_login') {
@@ -153,19 +150,6 @@ function wh_core_user_register_validate($form, &$form_state) {
   $form_state['values']['field_user_agent']['und'][0]['value'] = $_SERVER['HTTP_USER_AGENT'];
 }
 
-/**
- * Sends email updates field values to the correct govdelivery message.
- */
-function wh_core_user_register_submit($form, &$form_state) {
-  if (!empty($form_state['values']['email_updates']) && $form_state['values']['email_updates'] == 1) {
-    $request = array(
-      'code' => 'USEOPWH_10128',
-      'email' => $form_state['values']['mail'],
-    );
-    $key = md5(print_r($request, TRUE) . microtime() . strval(rand()));
-    govdelivery_queue_set('govdelivery_subscription_queue', $key, $request);
-  }
-}
 /**
  * Implements hook_user_login().
  *
