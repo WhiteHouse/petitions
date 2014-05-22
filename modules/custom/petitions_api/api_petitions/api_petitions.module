@@ -392,10 +392,6 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
   // that private petitions are accessible, just like they would be if the
   // petition ID were provided directly. (Obviously the user knows about the
   // existence of this petition if they have its URL.)
-  // @todo This creates a confusing user experience, where the filtered results
-  //   actually contain petitions that are not contained in the unfiltered
-  //   results. In other words, the filter WIDENS the scope rather than
-  //   narrowing it.
   if (!empty($url)) {
     $nice_url = petitions_data_get_nice_url_from_full_url($url);
     $conn = wh_petitions_mongo_petition_connection();
