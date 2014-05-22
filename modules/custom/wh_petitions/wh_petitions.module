@@ -104,7 +104,6 @@ function wh_petitions_signable_statuses() {
     WH_PETITION_STATUS_PRIVATE,
     WH_PETITION_STATUS_PUBLIC,
     WH_PETITION_STATUS_UNDER_REVIEW,
-    WH_PETITION_STATUS_FLAGGED,
   );
 }
 
@@ -127,7 +126,6 @@ function wh_petitions_public_statuses() {
   return array(
     WH_PETITION_STATUS_PUBLIC,
     WH_PETITION_STATUS_UNDER_REVIEW,
-    WH_PETITION_STATUS_FLAGGED,
     WH_PETITION_STATUS_REVIEWED,
     WH_PETITION_STATUS_CLOSED,
   );
