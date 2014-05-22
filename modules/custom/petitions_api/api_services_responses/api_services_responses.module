@@ -117,7 +117,7 @@ function api_services_responses_format($params = array()) {
     // Verify that required arguments are not missing.
     if (!empty($param_def['#required']) && empty($params[$param_key])) {
       $error_message = 'Missing ' . $param_key . ' key.';
-      throw InvalidArgumentException($error_message);
+      throw new InvalidArgumentException($error_message);
     }
     // Verify that each set argument is the correct data type.
     if (isset($params[$param_key]) && !call_user_func('is_' . $param_def['#type'], $params[$param_key])) {
