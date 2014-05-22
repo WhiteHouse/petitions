@@ -78,12 +78,23 @@ define('WH_PETITION_STATUS_UNDER_REVIEW', 4);
 define('WH_PETITION_STATUS_REVIEWED', 5);
 
  /**
-  * Has been removed from lists because of excessive abuse flags
+  * Has been removed from lists by administrative action on the dashboard.
+  * This may have been prompted by it exceeding the threshold for the number of
+  * abuse flags.  It shows on the dashboard as "removed".
   */
 define('WH_PETITION_STATUS_FLAGGED', 6);
 
 /**
  * Returns an array of status id's that are to be treated as signable.
+ *
+ * If a petition has an actual status (not the friendly display status) that
+ * is contained in the array returned by this function, it can be considered
+ * 'signable' and  may be returned as such by the API.  The following statuses
+ * are considered signable:
+ *  - WH_PETITION_STATUS_PRIVATE: Is signable but only visible by direct link.
+ *  - WH_PETITION_STATUS_PUBLIC: Is public and signable.
+ *  - WH_PETITION_STATUS_UNDER_REVIEW: Has reached enough signatures for a
+ *    response, but has not been responded to, so can get more signatures.
  *
  * @return array
  *   Array of petition status id's considered signable
@@ -99,6 +110,15 @@ function wh_petitions_signable_statuses() {
 
 /**
  * Returns an array of status id's that are to be treated as public.
+ *
+ * If a petition has an actual status (not the friendly display status) that
+ * is contained in the array returned by this function, it can be considered
+ * 'public' and  may be returned as such by the API.  The following statuses are
+ * considered public:
+ *  - WH_PETITION_STATUS_PUBLIC: By definition this is public.
+ *  - WH_PETITION_STATUS_UNDER_REVIEW:  No action has been taken on this.
+ *  - WH_PETITION_STATUS_REVIEWED: Has been reviewed and responded to.
+ *  - WH_PETITION_STATUS_CLOSED: Is closed but should still be visible.
  *
  * @return array
  *   Array of petition status id's considered public.
