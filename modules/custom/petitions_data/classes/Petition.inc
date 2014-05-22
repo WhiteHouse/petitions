@@ -579,14 +579,7 @@ class Petition {
   }
 
   /**
-   * Determines if petition is signable and sets $this->isSignable.
-   *
-   * Note: Setting this as a property this way seems a little silly. This is
-   * really just a quick fix for surfacing an isSignable property in API
-   * results. If we were maintaining this long term we should probably move
-   * stuff from PetitionsSelectQueryMongo::exec into __construct and then call
-   * this there. But mongo2mysql work (7.x-3.x) will make the whole
-   * petitions_data module obsolete soon, so we're shoehorning this in for now.
+   * Determine if petition is signable.
    *
    * @return bool
    *   TRUE if petition is signable, FALSE if not.
@@ -603,14 +596,7 @@ class Petition {
 
 
   /**
-   * Determines if petition is public and sets $this->isPublic.
-   *
-   * Note: Setting this as a property this way seems a little silly. This is
-   * really just a quick fix for surfacing an isSignable property in API
-   * results. If we were maintaining this long term we should probably move
-   * stuff from PetitionsSelectQueryMongo::exec into __construct and then call
-   * this there. But mongo2mysql work (7.x-3.x) will make the whole
-   * petitions_data module obsolete soon, so we're shoehorning this in for now.
+   * Determine if petition is public.
    *
    * @return bool
    *   TRUE if petition is public, FALSE if not.
