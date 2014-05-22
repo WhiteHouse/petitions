@@ -404,7 +404,12 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
     return _api_petitions_resource_retrieve($petition_id, $mock);
   }
   // Makes the assumption that all query parameters are present at this instant.
-  // This assumption is risky as some values are altered in their setter.
+  // This brittle, the values here can be altered by setters when petitions_data
+  // module builds the query to correspond with this request.
+  // @todo After mongo is replaced with mysql, consider hardening this by
+  // tying it directly to whatever is executing the query, so there's no
+  // possibility that the requested query and the actual query executed could
+  // get out of sync.
   $query_parameters = array(
     'body' => $body,
     'createdAfter' => $created_after,
