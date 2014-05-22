@@ -337,6 +337,10 @@ class Petition {
       case WH_PETITION_STATUS_REVIEWED:
         return "responded";
 
+      // Has been removed by administrative action.
+      case WH_PETITION_STATUS_FLAGGED:
+        return "removed";
+
       default:
         return "closed";
     }
