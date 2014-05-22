@@ -583,7 +583,13 @@ class Petition {
   }
 
   /**
-   * Determine if petition is signable.
+   * Determine if petition is signable by looking at its numeric status.
+   *
+   * Petitions considered signable will be of one of these statuses:
+   *  - WH_PETITION_STATUS_PRIVATE: Is signable but only visible by direct link.
+   *  - WH_PETITION_STATUS_PUBLIC: Is public and signable.
+   *  - WH_PETITION_STATUS_UNDER_REVIEW: Has reached enough signatures for a
+   *    response, but has not been responded to, so can get more signatures.
    *
    * @return bool
    *   TRUE if petition is signable, FALSE if not.
@@ -592,15 +598,21 @@ class Petition {
     if (!isset($this->status)) {
       throw new Exception("Can't determine if petition is signable if petition status is not set.");
     }
-    // A petition is considered signable if its status is not Draft, Closed,
-    // or Reviewed.
+    // A petition is considered signable if its status can be found in the array
+    // returned by wh_petitions_signable_statuses().
     $array_signable_statuses = wh_petitions_signable_statuses();
     return (in_array($this->status, $array_signable_statuses)) ? TRUE : FALSE;
   }
 
 
   /**
-   * Determine if petition is public.
+   * Determine if petition is public by looking at its numeric status.
+   *
+   * Petitions considered public will be of one of these statuses:
+   *  - WH_PETITION_STATUS_PUBLIC: By definition this is public.
+   *  - WH_PETITION_STATUS_UNDER_REVIEW:  No action has been taken on this.
+   *  - WH_PETITION_STATUS_REVIEWED: Has been reviewed and responded to.
+   *  - WH_PETITION_STATUS_CLOSED: Is closed but should still be visible.
    *
    * @return bool
    *   TRUE if petition is public, FALSE if not.
@@ -609,7 +621,8 @@ class Petition {
     if (!isset($this->status)) {
       throw new Exception("Can't determine if petition is public if petition status is not set.");
     }
-    // A petition is considered public if its status is not Draft, or Private.
+    // A petition is considered public if its status can be found in the array
+    // returned by wh_petitions_public_statuses().
     return (in_array($this->status, wh_petitions_public_statuses())) ? TRUE : FALSE;
   }
 
