@@ -19,5 +19,5 @@ projects[drupal][patch][] = https://drupal.org/files/issues/drupal-insertassert_
 ; Petitions installation profile
 ; -------------------------------
 projects[petitions][type] = profile
-projects[petitions][download][tag] = 7.x-2.0-rc19
+projects[petitions][download][tag] = 7.x-2.0-rc20
 projects[petitions][download][type] = git
