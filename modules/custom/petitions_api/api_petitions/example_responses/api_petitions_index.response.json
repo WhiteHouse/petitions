@@ -1,44 +1,44 @@
 {
   "metadata": {
-        "responseInfo": {
-            "status": 200,
-            "developerMessage": "OK"
-        },
-        "requestInfo": {
-            "apiVersion": 1,
-            "resource": "petitions",
-            "query": {
-                "body": null,
-                "createdAfter": null,
-                "createdAt": null,
-                "createdBefore": null,
-                "isPublic": 1,
-                "isSignable": null,
-                "limit": 10,
-                "mock": null,
-                "offset": 0,
-                "petitionsDefaultLimit": "1000",
-                "publicThreshold": 1,
-                "responseId": null,
-                "signatureCount": null,
-                "signatureCountCeiling": null,
-                "signatureCountFloor": 0,
-                "signatureThreshold": null,
-                "signatureThresholdCeiling": null,
-                "signatureThresholdFloor": null,
-                "status": null,
-                "title": null,
-                "url": null,
-                "website_url": "https://petitions.whitehouse.gov"
-            }
-        },
-        "resultset": {
-            "count": 4,
-            "limit": 10,
-            "offset": 0
-        },
-        "executionTime": 0.0049331188201904
+    "responseInfo": {
+      "status": 200,
+      "developerMessage": "OK"
     },
+    "requestInfo": {
+      "apiVersion": 1,
+      "resource": "petitions",
+      "query": {
+        "body": null,
+        "createdAfter": null,
+        "createdAt": null,
+        "createdBefore": null,
+        "isPublic": 1,
+        "isSignable": null,
+        "limit": 10,
+        "mock": null,
+        "offset": 0,
+        "petitionsDefaultLimit": "1000",
+        "publicThreshold": 1,
+        "responseId": null,
+        "signatureCount": null,
+        "signatureCountCeiling": null,
+        "signatureCountFloor": 0,
+        "signatureThreshold": null,
+        "signatureThresholdCeiling": null,
+        "signatureThresholdFloor": null,
+        "status": null,
+        "title": null,
+        "url": null,
+        "website_url": "https://petitions.whitehouse.gov"
+      }
+    },
+    "resultset": {
+      "count": 4,
+      "limit": 10,
+      "offset": 0
+    },
+    "executionTime": 0.004933119
+  },
   "results": [
     {
       "id": "50cb6d2ba9a0b1c52e000017",
