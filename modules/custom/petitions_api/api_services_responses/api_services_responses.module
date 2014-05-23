@@ -51,7 +51,7 @@ function api_services_responses_services_request_postprocess_alter($controller, 
  *     Defaults to NULL
  *
  * @return array
- *   A formatted array comprising the REST resposne compliant with
+ *   A formatted array comprising the REST response compliant with
  *   White House API Standards.
  *
  * @throws InvalidArgumentException()
