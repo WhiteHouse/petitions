@@ -140,17 +140,17 @@ function api_services_responses_format($params = array()) {
   );
 
   // Set optional datapoints.
-  if ($params['user_message']) {
+  if (isset($params['user_message'])) {
     $response['metadata']['responseInfo']['userMessage'] = $params['user_message'];
   }
-  if ($params['error_code']) {
+  if (isset($params['error_code'])) {
     $response['metadata']['responseInfo']['errorCode'] = $params['error_code'];
   }
-  if ($params['more_info']) {
+  if (isset($params['more_info'])) {
     $response['metadata']['responseInfo']['moreInfo'] = $params['more_info'];
   }
 
-  if ($params['request_info']) {
+  if (isset($params['request_info'])) {
     $response['metadata']['requestInfo'] = $params['request_info'];
   }
 
