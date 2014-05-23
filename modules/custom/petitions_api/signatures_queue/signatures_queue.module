@@ -486,3 +486,27 @@ function signatures_queue_check_empty($name = NULL) {
   module_load_include('inc', 'signatures_queue');
   return _signatures_queue_check_empty($name);
 }
+
+/**
+ * Make arrays oneline for log files, prettier for dblog.
+ *
+ * @param array|object $param
+ *   Arbitrary array or object to be formatted for readability in log.
+ *
+ * @return string
+ *   String to be sent to watchdog.
+ */
+function signatures_queue_pretty($param) {
+  // Check if dblog is enabled. If so, use pretty print for improved
+  // readability. Note: JSON_PRETTY_PRINT not available before PHP 5.4,
+  // use print_r instead.
+  if (module_exists('dblog')) {
+    $pretty = print_r($param, TRUE);
+  }
+  // Otherwise, just use JSON to get it all on a single line.
+  else {
+    $pretty = json_encode($param);
+  }
+
+  return $pretty;
+}
