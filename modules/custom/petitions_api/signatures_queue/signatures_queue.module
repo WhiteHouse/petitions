@@ -230,12 +230,12 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
     $replacements['[signature:validation-url]'] = _signatures_queue_validation_link($website_url, $data['signature info']);
     // Load the petition via the API retrieve method.
     $petition = PetitionsController::load($petition_id);
-    if (!empty($petition['results'])) {
+    if (!empty($petition[0])) {
       // Tokens for values associated to the petition.
-      $replacements['[petition:title]'] = $petition['results'][0]['title'];
-      $replacements['[petition:body]'] = $petition['results'][0]['body'];
-      $replacements['[petition:url]'] = $petition['results'][0]['url'];
-      $replacements['[petition:deadline]'] = date('l, F j, Y', $petition['results'][0]['deadline']);
+      $replacements['[petition:title]'] = $petition[0]['title'];
+      $replacements['[petition:body]'] = $petition[0]['body'];
+      $replacements['[petition:url]'] = $petition[0]['url'];
+      $replacements['[petition:deadline]'] = date('l, F j, Y', $petition[0]['deadline']);
     }
   }
 }
