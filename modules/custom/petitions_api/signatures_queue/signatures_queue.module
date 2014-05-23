@@ -488,25 +488,32 @@ function signatures_queue_check_empty($name = NULL) {
 }
 
 /**
- * Make arrays oneline for log files, prettier for dblog.
+ * Formats data for logging via watchdog.
  *
- * @param array|object $param
- *   Arbitrary array or object to be formatted for readability in log.
+ * Prints data structure on one line for log files. Prints them prettier for
+ * dblog.
+ *
+ * @param mixed $data
+ *   An arbitrary array or object to be formatted readably for logging.
  *
  * @return string
- *   String to be sent to watchdog.
+ *   The data formatted to send to watchdog.
+ *
+ * @see watchdog()
  */
-function signatures_queue_pretty($param) {
-  // Check if dblog is enabled. If so, use pretty print for improved
-  // readability. Note: JSON_PRETTY_PRINT not available before PHP 5.4,
-  // use print_r instead.
+function signatures_queue_format_for_logging($data) {
+  // Use pretty printing if dblog is enabled.
   if (module_exists('dblog')) {
-    $pretty = print_r($param, TRUE);
+    // JSON_PRETTY_PRINT is only available since PHP 5.4.0.
+    if (defined('JSON_PRETTY_PRINT')) {
+      return json_encode($data, JSON_PRETTY_PRINT);
+    }
+    else {
+      return print_r($data, TRUE);
+    }
   }
-  // Otherwise, just use JSON to get it all on a single line.
+  // Otherwise, use (compressed) JSON to get it all on a single line.
   else {
-    $pretty = json_encode($param);
+    return json_encode($data);
   }
-
-  return $pretty;
 }
