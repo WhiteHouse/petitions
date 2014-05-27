@@ -24,7 +24,6 @@ dependencies[] = syslog
 dependencies[] = search
 dependencies[] = shortcut
 dependencies[] = toolbar
-dependencies[] = overlay
 dependencies[] = field_ui
 dependencies[] = file
 dependencies[] = rdf

@@ -61,16 +61,6 @@ function wh_misc_user_default_permissions() {
     ),
   );
 
-  // Exported permission: access overlay
-  $permissions['access overlay'] = array(
-    'name' => 'access overlay',
-    'roles' => array(
-      '0' => 'New Media Content Boss',
-      '1' => 'New Media Content Creator',
-      '2' => 'admin',
-    ),
-  );
-
   // Exported permission: access site in maintenance mode
   $permissions['access site in maintenance mode'] = array(
     'name' => 'access site in maintenance mode',
