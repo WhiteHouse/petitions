@@ -478,7 +478,7 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
   }
   // Throw error if resource cannot be accessed.
   catch (Exception $e) {
-    $data = $e->getData();
+    $data = (method_exists($e, 'getData')) ? $e->getData() : array() ;
     if (!$e->getCode()) {
       // There is no specified status code so make one up.
       $status_code = 599;
