@@ -137,28 +137,9 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       'response_id',
     );
 
+    // WARNING: All query additions must happen prior to calling formatStatus().
+    $this->formatStatus();
     $query = $this->getQuery();
-
-    // Intercept the $query['petition_status_in'] & ['petition_status_exclude']
-    // which are a pair  of flat arrays, in to include and exclude.
-    $status_in = $this->getStatusInclude();
-    $status_nin = $this->getStatusExclude();
-
-    $status_to_query = $this->removeNINStatuses($status_in, $status_nin);
-    // Renumber keys so mongo doesn't throw a 500 error if the keys don't start
-    // with 0 and go in order.
-    sort($status_to_query);
-    // Remove non-mongofied statuses in the query array.
-    unset($query['petition_status_in']);
-    unset($query['petition_status_exclude']);
-    if (!empty($status_to_query)) {
-      $query['petition_status'] = array('$in' => (Array) $status_to_query);
-    }
-    else {
-      // Some combination of status filters have resulted in no filters,
-      // which is impossible to return.  Set this to nin for the entire status.
-      $query['petition_status'] = array('$nin' => array(0, 1, 2, 3, 4, 5, 6));
-    }
 
     $mongo_results = $this->getCollection()
       ->find($query, $fields)
@@ -509,7 +490,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       // There is no status(es) to include , but some to exclude. Diff the
       // $status_to_remove against the full array of possible statuses to end up
       // with just the statuses we want.
-      $statuses_all_possible = array(0, 1, 2, 3, 4, 5, 6);
+      $statuses_all_possible = wh_petitions_all_statuses();
       return array_diff($statuses_all_possible, $status_to_remove);
     }
     elseif (!empty($status_to_remove)) {
@@ -543,7 +524,6 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
    *
    * @param array $statuses_to_add
    *   An array of statuses to add to (intersect with) the include filter.
-   *
    */
   protected function setStatusInclude($statuses_to_add = array()) {
 
@@ -616,7 +596,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       $statuses_to_exclude = (is_array($statuses_to_exclude)) ? $statuses_to_exclude : (Array) $statuses_to_exclude;
       // Load the current query.
       $query = $this->getQuery();
-      // Get any existing include status(es).
+      // Get any existing excluded status(es).
       $status_exclude_original = $this->getStatusExclude();
       // Check to see if some status(es) have already been set.
       if (empty($status_exclude_original)) {
@@ -636,6 +616,35 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       // This is a non-mongo style query array at this time.  It will get
       // converted to mongo style just before the query is executed.
       $query['petition_status_exclude'] = $statuses_processed;
+    }
+    $this->setQuery($query);
+  }
+
+  /**
+   * Helper function to format the include and exclude statuses for Mongo.
+   */
+  protected function formatStatus() {
+    // Load the current query.
+    $query = $this->getQuery();
+    // Intercept the $query['petition_status_in'] & ['petition_status_exclude']
+    // which are a pair of flat arrays, to include and exclude.
+    $status_in = $this->getStatusInclude();
+    $status_nin = $this->getStatusExclude();
+
+    $status_to_query = $this->removeNINStatuses($status_in, $status_nin);
+    // Renumber keys so mongo doesn't throw a 500 error if the keys don't start
+    // with 0 and go in order.
+    sort($status_to_query);
+    // Remove non-mongofied statuses in the query array.
+    unset($query['petition_status_in']);
+    unset($query['petition_status_exclude']);
+    if (!empty($status_to_query)) {
+      $query['petition_status'] = array('$in' => (Array) $status_to_query);
+    }
+    else {
+      // Some combination of status filters have resulted in no filters,
+      // which is impossible to return.  Set this to nin for the entire status.
+      $query['petition_status'] = array('$nin' => wh_petitions_all_statuses());
     }
     $this->setQuery($query);
   }
