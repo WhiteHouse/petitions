@@ -108,6 +108,24 @@ function wh_petitions_signable_statuses() {
 }
 
 /**
+ * Returns an array of status IDs that are all the possible statuses.
+ *
+ * @return array
+ *   Array of petition all defined petitions status IDs.
+ */
+function wh_petitions_all_statuses() {
+  return array(
+    WH_PETITION_STATUS_DRAFT,
+    WH_PETITION_STATUS_PRIVATE,
+    WH_PETITION_STATUS_PUBLIC,
+    WH_PETITION_STATUS_CLOSED,
+    WH_PETITION_STATUS_UNDER_REVIEW,
+    WH_PETITION_STATUS_REVIEWED,
+    WH_PETITION_STATUS_FLAGGED,
+  );
+}
+
+/**
  * Returns an array of status id's that are to be treated as public.
  *
  * If a petition has an actual status (not the friendly display status) that
