@@ -346,6 +346,8 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
         '_id' => array('$in' => $mongo_ids),
       );
       $this->setQuery($query);
+      // Specifically set statuses to all allowed by the retrieve method.
+      $this->setStatusInclude(wh_petitions_all_statuses());
     }
   }
 
@@ -361,6 +363,8 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
         'nice_url' => $nice_url,
       );
       $this->setQuery($query);
+      // Specifically set statuses to all allowed by the retrieve method.
+      $this->setStatusInclude(wh_petitions_all_statuses());
     }
   }
 
