@@ -70,7 +70,7 @@ function api_petitions_services_resources() {
             'name' => 'created_after',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created before specified time. Accepts '
+            'description' => t('Filters results to display items created after specified time. Accepts '
                              . 'Unix timestamp. (There\'s a handy unix timestamp converter '
                              . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
             'source' => array('param' => 'createdAfter'),
@@ -79,7 +79,7 @@ function api_petitions_services_resources() {
             'name' => 'created_at',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created before specified time. Accepts '
+            'description' => t('Filters results to display items created at specified time. Accepts '
                              . 'Unix timestamp. (There\'s a handy unix timestamp converter '
                              . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
             'source' => array('param' => 'createdAt'),
