@@ -583,9 +583,10 @@ class Petition {
   }
 
   /**
-   * Determine if petition is signable by looking at its numeric status.
+   * Determine if petition is signable.
    *
-   * Petitions considered signable will be of one of these statuses:
+   * Confirm petition has not passed dealine for accepting signatures. If it
+   * hasn't, petitions considered signable will be of one of these statuses:
    *  - WH_PETITION_STATUS_PRIVATE: Is signable but only visible by direct link.
    *  - WH_PETITION_STATUS_PUBLIC: Is public and signable.
    *  - WH_PETITION_STATUS_UNDER_REVIEW: Has reached enough signatures for a
@@ -598,8 +599,15 @@ class Petition {
     if (!isset($this->status)) {
       throw new Exception("Can't determine if petition is signable if petition status is not set.");
     }
-    // A petition is considered signable if its status can be found in the array
-    // returned by wh_petitions_signable_statuses().
+
+    // Has the petition passed its deadline for accepting signatures?
+    if ($this->deadline < time()) {
+      return FALSE;
+    }
+
+    // A petition that has not passed its deadline is considered signable if its
+    // status can be found in the array returned by
+    // wh_petitions_signable_statuses().
     $array_signable_statuses = wh_petitions_signable_statuses();
     return (in_array($this->status, $array_signable_statuses)) ? TRUE : FALSE;
   }
