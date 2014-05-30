@@ -19,8 +19,8 @@ function api_services_responses_services_request_preprocess_alter(&$controller, 
  */
 function api_services_responses_services_request_postprocess_alter($controller, $args, &$result) {
   // Set execution time.
-  if (isset($controller['requestTime']) && empty($result['metadata']['responseInfo']['errorCode'])) {
-    $result['metadata']['executionTime'] = (float) microtime(TRUE) - $controller['requestTime'];
+  if (isset($controller['requestTime']) && empty($result->metadata->responseInfo->errorCode)) {
+    $result->metadata->executionTime = (float) microtime(TRUE) - $controller['requestTime'];
   }
 }
 
