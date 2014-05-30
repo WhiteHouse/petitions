@@ -373,7 +373,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 /**
  * Callback for Services petitions index method.
  */
-function _api_petitions_resource_index($is_public, $is_signable, $created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $mock) {
+function _api_petitions_resource_index($is_public, $is_signable, $created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $responseAssociationTimeBefore, $mock) {
   global $base_url;
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
