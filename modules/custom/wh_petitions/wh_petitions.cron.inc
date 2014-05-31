@@ -28,8 +28,6 @@ function wh_petitions_close_petitions() {
   
     // Petition has been open too long, close it.
     if ($today > $end_date) {
-      $id = $res['_id']->__toString();
-
       $conn->update(
         array('_id' => $res['_id']), 
         array('$set' => array('petition_status' => (int)WH_PETITION_STATUS_CLOSED, 'closed' => (int)time()))
