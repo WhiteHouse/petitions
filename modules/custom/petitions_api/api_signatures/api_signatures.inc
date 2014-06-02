@@ -20,10 +20,10 @@ function _api_signatures_resource_create($api_key, array $signature) {
 
   // Verbose logging, if debugging is enabled.
   if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
-    watchdog('api_signature', '_api_signatures_resource_create() param $api_key: @api_key', array(
+    watchdog('api_signatures', '_api_signatures_resource_create() param $api_key: @api_key', array(
       '@api_key' => $api_key,
     ));
-    watchdog('api_signature', '_api_signatures_resource_create() param $signature: @signature', array(
+    watchdog('api_signatures', '_api_signatures_resource_create() param $signature: @signature', array(
        '@signature' => signatures_queue_format_for_logging($signature),
     ));
   }
