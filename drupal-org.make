@@ -120,10 +120,13 @@ projects[libraries][patch][] = https://drupal.org/files/libraries-undefined-inde
 ;   - @see http://drupal.org/node/1165126#comment-5492890
 ;
 
+projects[textcaptcha][version] = 1.3
 ; textcaptcha-cron_default-2144807-1.patch
 ;   - Sets the textcaptcha_cron variable to 0 by default.
-projects[textcaptcha][version] = 1.3
-projects[textcaptcha][patch][] = https://drupal.org/files/issues/textcaptcha-cron_default-2144807-1.patch
+projects[textcaptcha][patch][2144807-1] = https://drupal.org/files/issues/textcaptcha-cron_default-2144807-1.patch
+; textcatpcha-query-optimizations-2279207-1.patch
+;   - Optimizes question fetching queries.
+projects[textcaptcha][patch][2279207-1] = https://drupal.org/files/issues/textcatpcha-query-optimizations-2279207-1.patch
 
 ; zen-include_error-2144803-1.patch
 ;   - Fixes Simpletest error.
