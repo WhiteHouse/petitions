@@ -72,7 +72,7 @@ projects[pathauto][version] = 1.2
 projects[petitionssignatureform][type] = module
 projects[petitionssignatureform][download][type] = git
 projects[petitionssignatureform][download][url] = git@github.com:WhiteHouse/petitionssignatureform.git
-projects[petitionssignatureform][download][revision] = a1102ff8ccd9b15e2144d5fdfdafb13ae27aa1a3
+projects[petitionssignatureform][download][revision] = f44656129bb9c47f780bff9ac03c921914335de4
 
 projects[profile2][version] = 1.3
 
