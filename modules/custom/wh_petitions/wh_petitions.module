@@ -426,7 +426,7 @@ function wh_petitions_menu() {
   );
 
   // Sign Petition AJAX call.
-  $items['petition/sign/%/%'] = array(
+  $items['petition/sign/%'] = array(
     'title' => '',
     'description' => '',
     'page callback' => 'wh_petitions_sign_modal',
