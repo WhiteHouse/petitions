@@ -71,7 +71,7 @@ projects[pathauto][version] = 1.2
 
 projects[petitionssignatureform][type] = module
 projects[petitionssignatureform][download][type] = git
-projects[petitionssignatureform][download][url] = http://git.drupal.org/sandbox/TravisCarden/2283171.git
+projects[petitionssignatureform][download][url] = http://git.drupal.org/sandbox/whitehouse/2283727.git
 projects[petitionssignatureform][download][revision] = 212fb88e21a0deabd7a6831be6a8913b3d8fc554
 
 projects[profile2][version] = 1.3
@@ -175,7 +175,7 @@ libraries[colorbox][download][type] = "file"
 libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/archive/1.4.27.zip"
 
 libraries[petitions-php-sdk][download][type] = git
-libraries[petitions-php-sdk][download][url] = http://git.drupal.org/sandbox/TravisCarden/2283175.git
+libraries[petitions-php-sdk][download][url] = http://git.drupal.org/sandbox/whitehouse/2283729.git
 libraries[petitions-php-sdk][download][revision] = fe03d49e39e88e87cff2295172d02a8a22c94910
 
 ; Required by Services module for REST server.
