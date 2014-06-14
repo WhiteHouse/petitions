@@ -12,8 +12,6 @@
  *    petition_signatures create one, and get the signature id.
  */
 
-require_once __DIR__ . '/process_signatures.mongo2mysql.inc';
-
 /**
  * Process signatures.
  *
@@ -456,12 +454,15 @@ function _process_signatures_get_signature_id($petition_id, $uid) {
 
   // Use deprecated mongo2mysql lookup?
   // @todo Remove this for 7.x-3.0 release.
-  if (function_exists('_process_signatures_mongo2mysql_get_id')
+  if (function_exists('wh_petitions_mongo2mysql_get_signature_id')
   && !shunt_is_enabled('wh_petitions_signature_create')) {
     // Get signature id from mongo petition_signatures collection.
-    $signature_id = _process_signatures_mongo2mysql_get_id($petition_id, $uid);
+    $signature_id = wh_petitions_mongo2mysql_get_signature_id($petition_id, $uid);
   }
 
+  // @todo We should start using this when mysql is enabled and test to confirm
+  // the ids match when both are enabled. It's a good, low risk opportunity to
+  // validate things working as expected before finally flipping the switcht.
   else {
 
     // Get signature id from signature_mail table in mysql.
@@ -507,26 +508,65 @@ function _process_signatures_get_signature_id($petition_id, $uid) {
  *   $signature_id The ID of the signature created
  */
 function _process_signatures_save_signature($item, $user) {
-  $signature_id = '';
-
   // Save to mongo?
-  $mongo2mysql_function = '_process_signatures_mongo2mysql_save_signature';
-  if (function_exists($mongo2mysql_function) && !shunt_is_enabled('wh_petitions_signature_create')) {
-    $legacy_signature_id = $mongo2mysql_function($item, $user);
+  if (function_exists('wh_petitions_mongo2mysql_create_new_signature') && !shunt_is_enabled('wh_petitions_signature_create')) {
+    $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item, $user);
   }
 
   // Save to mysql?
   if (!shunt_is_enabled('signature_mail_mysql_save') && isset($legacy_signature_id)) {
-    // Also save signature into MySQL if the shunt is not enabled. Note that
-    // the interim mongo2mysql function needs a legacy signature_id, so we
-    // check for that also.
-    // @TODO Refactor this so we can call a legit $signature->save() here,
-    // rather than push funky id handling down to siganture_mail module. When
-    // simplified signing is in place, this is the only place in the whole
-    // code base where signature creation happens. signature_mail shouldn't
-    // have to think about mongo.
-    $item['signature_id'] = $legacy_signature_id;
-    signature_mail_mongo2mysql_save($item);
+    // Build up $signature array to save via Entity::save().
+    $signature = array();
+
+    // If there's a corresponding mongo signature ID, save it as legacy_id.
+    $signature['legacy_id'] = (isset($legacy_signature_id)) ? $legacy_signature_id : '';
+
+    // Is petition_id from the item in the queue a mongo id? If so, store as legacy_petition_id.
+    if (petition_is_legacy_id($item['petition_id'])) {
+      $signature['legacy_petition_id'] = $item['petition_id'];
+    }
+
+    // Get the node id of the petition. Store this as main petition_id.
+    $nid = petition_get_nid($item['petition_id']);
+    $signature['petition_id'] = $nid;
+
+    // Get user id of signer.
+    $signature['uid'] = $user->uid;
+
+    // Map properties of $item pulled from the queue to signature entity fields.
+    $property_map = array(
+      "first_name" => "user_first_name",
+      "last_name" => "user_last_name",
+      "zip" => "user_zip",
+      "timestamp_submitted" => "timestamp",
+      "client_ip" => "ip_address",
+    );
+    foreach ($property_map as $item_key => $signature_key) {
+      $signature[$signature_key] = $item[$item_key];
+    }
+
+    // Double check we have default values for all properties.
+    // @todo This is currently hard coded to signature_mail. If/When we create
+    // more types of signatures, that come through this pipeline, refactor to
+    // accommodate broader use cases.
+    $schema = drupal_get_schema("signature_mail");
+    foreach ($schema['fields'] as $property => $info) {
+      if (empty($signature[$property])) {
+        if ($property != 'id' && ($info['type'] == 'text' || $info['type'] == "varchar")) {
+          $signature[$property] = "";
+        }
+        elseif ($property != 'id' && $info['type'] == 'int') {
+          $signature[$property] = 0;
+        }
+      }
+    }
+
+    // Convert $signature array to a signature entity (object).
+    $signature['bundle'] = array();
+    $signature = entity_create("signature_mail", $signature);
+
+    // Save it!
+    $signature->save();
   }
 
   // @TODO Refactor. Return mysql-based id if available.
@@ -541,7 +581,7 @@ function _process_signatures_save_signature($item, $user) {
  */
 function _process_signatures_increment_count($petition_id) {
   // Increment count in petition stored in mongo?
-  $mongo2mysql_function = '_process_signatures_mongo2mysql_increment_count';
+  $mongo2mysql_function = 'wh_petitions_mongo2mysql_increment_count';
   if (function_exists($mongo2mysql_function) && !shunt_is_enabled('wh_petitions_signature_create')) {
     $mongo2mysql_function($petition_id);
   }
