@@ -19,16 +19,8 @@ function petition_mongo2mysql_save($mongodb_petition) {
   // Lets make the _id plain to make our life easier.
   $mongodb_petition['id'] = $mongodb_petition['_id']->__toString();
 
-  // If we are dealing with an already existing petition, let's load it.
-  $query = new EntityFieldQuery();
-  $query->entityCondition("entity_type", "node");
-  $query->entityCondition("bundle", "petition");
-  $query->fieldCondition("field_legacy_id", "value", $mongodb_petition['id'], "=");
-  $results = $query->execute();
-
-  if (!empty($results)) {
-    $info = array_shift($results['node']);
-    $nid = $info->nid;
+  // If petition already exists, load it.
+  if ($nid = petition_get_nid($mongodb_petition['id'])) {
     $node = node_load($nid);
   }
   // Otherwise, create a new one.

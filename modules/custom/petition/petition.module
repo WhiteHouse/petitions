@@ -201,13 +201,19 @@ function petition_is_legacy_id($id) {
  *   Petition node id.
  */
 function petition_get_nid($petition_id) {
+  $nid = '';
+
   if (petition_is_legacy_id($petition_id)) {
-    $query = db_query("SELECT entity_id FROM {field_revision_field_legacy_id} "
-                    . "WHERE entity_type = 'node' "
-                    . "AND field_legacy_id_value = :petition_id ",
-                    array(':petition_id' => $petition_id));
-    $obj = $query->fetchObject();
-    $nid = $obj->entity_id;
+    $query = new EntityFieldQuery();
+    $query->entityCondition("entity_type", "node");
+    $query->entityCondition("bundle", "petition");
+    $query->fieldCondition("field_legacy_id", "value", $petition_id, "=");
+    $results = $query->execute();
+
+    if (!empty($results)) {
+      $info = array_shift($results['node']);
+      $nid = $info->nid;
+    }
   }
   elseif (is_numeric($petition_id)) {
     // Assume if it's numeric, it's a legit nid. (This would be a good place to
