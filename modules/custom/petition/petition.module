@@ -108,7 +108,6 @@ function petition_node_info() {
   return $items;
 }
 
-
 /**
  * Unpublish a single node from Drupal/MySql.
  *
@@ -141,4 +140,85 @@ function petition_publish($node) {
   if (function_exists($mongo2mysql_function) && !shunt_is_enabled('petition_mysql_save')) {
     $mongo2mysql_function($legacy_id);
   }
+
+/**
+ * Increment petition count.
+ *
+ * @param string $petition_id
+ *   Node id or legacy mongo id for a petition.
+ *
+ * @param int $increment
+ *   Optional amount to increment by. Defaults to 1.
+ *
+ * @return bool
+ *   True for success. False for fail.
+ */
+function petition_increment_count($petition_id, $increment = 1) {
+  // Legacy petition IDs are mongo IDs, not node IDs. Get nid.
+  $nid = petition_get_nid($petition_id);
+
+  // Load the node, increment the signature count, save.
+  $node = node_load($nid);
+  $signature_count = $node->field_petition_signature_count['und'][0]['value'];
+  $signature_count = $signature_count + $increment;
+  $node->field_petition_signature_count['und'][0]['value'] = $signature_count;
+  node_save($node);
+}
+
+/**
+ * Determine if ID is a legacy mongo id.
+ *
+ * @param string $id
+ *   Some id to test.
+ *
+ * @return bool
+ *   True for success. False for fail.
+ */
+function petition_is_legacy_id($id) {
+  // Assume it's not a legacy id unless it has some distinguising
+  // characteristics of a legacy mongo id.
+  // (Note: A more rigorous check would look in the db to see if the legacy id
+  // exists. Let's avoid that for now just because it may be an unnecessary db
+  // hit during high traffic events. Revisit if we need to make this more robust
+  // later.)
+  $is_legacy = FALSE;
+
+  // Mongo IDs are: alpha numeric (not numeric) and 24 characters long.
+  if (!is_numeric($id) && strlen($id) == 24) {
+    $is_legacy = TRUE;
+  }
+
+  return $is_legacy;
+}
+
+/**
+ * Look up node ID for a petition based on legacy id.
+ *
+ * @param string $petition_id
+ *   Legacy mongo-based petition id.
+ *
+ * @return int
+ *   Petition node id.
+ */
+function petition_get_nid($petition_id) {
+  if (petition_is_legacy_id($petition_id)) {
+    $query = db_query("SELECT entity_id FROM {field_revision_field_legacy_id} "
+                    . "WHERE entity_type = 'node' "
+                    . "AND field_legacy_id_value = :petition_id ",
+                    array(':petition_id' => $petition_id));
+    $obj = $query->fetchObject();
+    $nid = $obj->entity_id;
+  }
+  elseif (is_numeric($petition_id)) {
+    // Assume if it's numeric, it's a legit nid. (This would be a good place to
+    // make logic more robust if bad IDs start creeping in here somehow.)
+    $nid = $petition_id;
+  }
+  else {
+    throw new Exception(t('This petition ID is neither a valid legacy mongo ID nor a valid node ID for a petition node: !petition_id',
+      array('!petition_id' => $petition_id)
+    ));
+  }
+
+  return $nid;
 }
