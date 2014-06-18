@@ -43,6 +43,7 @@ dependencies[] = libraries
 dependencies[] = mongodb
 dependencies[] = pathauto
 dependencies[] = petitions_api
+dependencies[] = petitionssignatureform
 dependencies[] = rest_server
 dependencies[] = services
 dependencies[] = services_documentation

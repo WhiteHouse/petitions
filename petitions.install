@@ -20,6 +20,17 @@ function petitions_install() {
   variable_set('admin_theme', 'rubik');
   variable_set('theme_default', 'petitions44');
 
+  variable_set('admin_theme', 'rubik');
+  variable_set('theme_default', 'petitions44');
+  variable_set('admin_theme', 'rubik');
+  variable_set('theme_default', 'petitions44');
+
+  // Setings for petitionssignatureform module
+  variable_set('petitionssignatureform_api_endpoint', $base_url . '/v1/signatures');
+  variable_set('petitionssignatureform_petitions_website_url ', $base_url . '/v1/petitions');
+  variable_set('petitionssignatureform_form_petition_id_argument_location', 0);
+  variable_set('petitionssignatureform_form_petition_id_argument_type', 2);
+
   $vocabulary = (object) array(
     'name' => $t('Issues'),
     'machine_name' => 'issues',

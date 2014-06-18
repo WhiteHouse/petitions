@@ -3,3 +3,14 @@
  * @file petitions_maintenance.module
  */
 // This file is required by Drupal. But right now, this module is only used for implementing updates in the .install file.
+
+/**
+ * Implements hook_update_N().
+ *
+ * Enable petitionssignatureform module.
+ */
+function petitions_maintenance_update_7101(&$sandbox) {
+  $modules = array('petitionssignatureform');
+  $enable_dependencies = TRUE;
+  module_enable($modules, $enable_dependencies);
+}
