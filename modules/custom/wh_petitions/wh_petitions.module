@@ -1309,31 +1309,6 @@ function wh_petitions_mail($key, &$message, $params) {
   }
 }
 
-/**
- * Implements hook_form_alter().
- */
-function wh_petitions_form_alter(&$form, &$form_state, $form_id) {
-  switch ($form_id) {
-    case 'petitionssignatureform_signature_form':
-      // Add the privacy policy and terms of participation links to the bottom
-      // of the simplified signing form, but only if the form itself is present.
-      if (petitionssignatureform_module_is_configured()) {
-        $form['privacy_policy_legend'] = array(
-          '#type' => 'container',
-          '#attributes' => array('class' => array('privacy-legend')),
-        );
-        $form['privacy_policy_legend']['privacy_policy'] = array(
-          '#markup' => t('By signing this petition you agree to our <a href="!tos">terms of participation</a> and <a href="!privacy_policy">privacy policy</a>.', array(
-            '!tos' => url('how-why/terms-participation'),
-            '!privacy_policy' => 'http://www.whitehouse.gov/privacy',
-          )),
-        );
-      }
-      break;
-  }
-}
-
-
 /**************** MONGO HELPER FUNCTIONS ******************/
 
 /**
