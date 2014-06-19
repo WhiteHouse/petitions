@@ -242,8 +242,6 @@ function petitions_maintenance_update_7011() {
     }
   }
 }
-<<<<<<< HEAD
-=======
 
 /**
  * Activate the petitions and signature module.
@@ -263,4 +261,4 @@ function petitions_maintenance_update_7013() {
   variable_set('petitionssignatureform_form_petition_id_argument_location', 0);
   variable_set('petitionssignatureform_form_petition_id_argument_type', 2);
 }
->>>>>>> 884b42e... PT-1400: Set vars and turned on petitionssignature module for updates
+
