@@ -1913,7 +1913,8 @@ h2.active {
 }
 
 #petition-inner .block-petitionssignatureform form label,
-#petition-inner .block-petitionssignatureform form .privacy-legend {
+#petition-inner .block-petitionssignatureform form .privacy-container,
+#petition-inner .block-petitionssignatureform form .note-container {
   padding: 0;
   color: #7a7a7a;
 }
@@ -1922,21 +1923,27 @@ h2.active {
   margin: 0;
 }
 
-#petition-inner .block-petitionssignatureform form .privacy-legend {
+#petition-inner .block-petitionssignatureform form .privacy-container {
+  margin: 0 0 0 0;
+}
+
+#petition-inner .block-petitionssignatureform form .note-container {
   margin: 1em 0 0 0;
 }
 
-#petition-inner .block-petitionssignatureform form .privacy-legend a {
+#petition-inner .block-petitionssignatureform form .privacy-legend a,
+#petition-inner .block-petitionssignatureform form .note-container a {
   color: #004990;
 }
 
 #petition-inner .block-petitionssignatureform form .form-type-checkbox label {
   display: inline;
   font-weight: normal;
+  line-height: 1.5;
 }
 
 #petition-inner .block-petitionssignatureform form .form-text {
-  max-width: 100%;
+  max-width: 201px;
   border: 1px solid #cbcbcb;
   height: 2em;
 }
@@ -1968,6 +1975,7 @@ h2.active {
 
 #petition-inner .block-petitionssignatureform .toggle-container {
   background: none;
+  padding: 0px 15px 10px 15px;
 }
 
 #petition-inner .block-petitionssignatureform h2,
@@ -1978,6 +1986,7 @@ h2.active {
 
 #petition-inner .block-petitionssignatureform h2.trigger {
   border-bottom: none;
+  padding-top: 6px;
 }
 
 #petition-inner .block-petitionssignatureform h2 a,
