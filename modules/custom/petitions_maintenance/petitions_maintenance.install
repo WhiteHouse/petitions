@@ -6,8 +6,6 @@
  */
 
 /**
- * Implements hook_update_N().
- *
  * Enable these:
  *  - Petitions User Menu module, creates petitions-user-menu and makes it the secondary menu
  *  - Front Class module, adds a "front" class to the <front> page main menu list item
@@ -50,8 +48,6 @@ function petitions_maintenance_update_7001() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Enable petitions_homepage module.
  */
 function petitions_maintenance_update_7002() {
@@ -60,8 +56,6 @@ function petitions_maintenance_update_7002() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Enable conditional_styles module.
  */
 function petitions_maintenance_update_7003() {
@@ -70,8 +64,6 @@ function petitions_maintenance_update_7003() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Enable textcaptcha module. Replace recaptcha with textcaptcha.
  */
 function petitions_maintenance_update_7004() {
@@ -115,8 +107,6 @@ function petitions_maintenance_update_7004() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Clean up variables table from old textcaptcha cache variables.
  */
 function petitions_maintenance_update_7005() {

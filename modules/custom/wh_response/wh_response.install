@@ -16,7 +16,7 @@ function wh_response_install() {
 }
 
 /**
- * Implements hook_update_N().
+ * Update system module weight.
  */
 function wh_response_update_7001() {
   // Set the weight to 2 (must be after pathauto)

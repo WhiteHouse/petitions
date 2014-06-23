@@ -15,8 +15,6 @@ function petitions_signatures_display_uninstall() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Update module weight.
  */
 function petitions_signatures_display_update_7001() {

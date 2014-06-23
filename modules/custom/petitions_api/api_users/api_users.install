@@ -13,8 +13,6 @@ function api_users_uninstall() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Sets the initial variable of users.
  */
 function api_users_update_7001() {

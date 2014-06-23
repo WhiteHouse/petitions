@@ -30,7 +30,7 @@ function wh_core_install() {
 }
 
 /**
- * Implements hook_update().
+ * No update.
  */
 function wh_core_update_7000() {
   // This function contained legacy HTML that was manually added to the database
@@ -112,8 +112,6 @@ function _enable_recaptcha_user_reg() {
 }
 
 /**
- * Implements hook_update_n().
- *
  * This update fixes internal links on all the pages on petition site.
  */
 function wh_core_update_7001() {
@@ -123,8 +121,6 @@ function wh_core_update_7001() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Fixes a hardcoded links in a content variable.
  */
 function wh_core_update_7002() {
@@ -149,8 +145,6 @@ function wh_core_update_7002() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Create the blank_users_roles table for role blackholing.
  */
 function wh_core_update_7003() {
@@ -158,8 +152,6 @@ function wh_core_update_7003() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Delete crufty wh_petitions_homepage_content variable.
  */
 function wh_core_update_7005() {
@@ -167,8 +159,6 @@ function wh_core_update_7005() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Enable petitions_maintenance module and run
  * petitions_maintenance_update_7001(). (petitions_maintenance won't run this
  * update on it's own. Update hooks don't fire until modules are enabled, at
@@ -201,8 +191,6 @@ function wh_core_update_7006() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Set petitions_data variables to implement petitions_signatures_display.
  */
 function wh_core_update_7007() {
