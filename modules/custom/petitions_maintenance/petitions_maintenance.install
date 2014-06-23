@@ -1,6 +1,8 @@
 <?php
+
 /**
- * @file petitions_maintenance.install
+ * @file
+ * Install, update and uninstall functions for the Petitions Maintenance module.
  */
 
 /**
@@ -244,21 +246,13 @@ function petitions_maintenance_update_7011() {
 }
 
 /**
- * Activate the petitions and signature module.
+ * Enable and configure the Petitions Signature Form module.
  */
 function petitions_maintenance_update_7012() {
-  // Enable new modules.
-  $modules = array('petition', 'signature_mail', 'petition_pages', 'migrate_mongo2mysql_petsig');
-  module_enable($modules);
-}
-
-/**
- * Set petitionssignatureform module variables.
- */
-function petitions_maintenance_update_7013() {
+  global $base_url;
+  module_enable(array('petitionssignatureform'));
   variable_set('petitionssignatureform_api_endpoint', $base_url . '/v1/signatures');
   variable_set('petitionssignatureform_petitions_website_url ', $base_url . '/v1/petitions');
   variable_set('petitionssignatureform_form_petition_id_argument_location', 0);
   variable_set('petitionssignatureform_form_petition_id_argument_type', 2);
 }
-

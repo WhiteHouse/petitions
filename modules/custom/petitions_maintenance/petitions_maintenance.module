@@ -1,14 +1,9 @@
 <?php
-/**
- * @file petitions_maintenance.module
- */
-// This file is required by Drupal. But right now, this module is only used for implementing updates in the .install file.
 
 /**
- * Enable petitionssignatureform module.
+ * @file
+ * Manages Petitions application maintenance tasks.
+ *
+ * Even though it's empty, this file is required for Drupal to recognize the
+ * module.
  */
-function petitions_maintenance_update_7101(&$sandbox) {
-  $modules = array('petitionssignatureform');
-  $enable_dependencies = TRUE;
-  module_enable($modules, $enable_dependencies);
-}
