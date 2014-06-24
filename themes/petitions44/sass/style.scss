@@ -1990,14 +1990,18 @@ h2.active {
 }
 
 #petition-inner .block-petitionssignatureform h2 a,
-#petition-inner .block-petitionssignatureform h2.active a,
-#petition-inner .block-petitionssignatureform .thank-you h2, {
+#petition-inner .block-petitionssignatureform h2.active a{
   color: #323232;
   font-size: 1.5em;
 }
 
+#petition-inner .block-petitionssignatureform .thank-you h2, {
+  color: red;
+  font-size: 1.5em;
+}
+
 #petition-inner .block-petitionssignatureform .thank-you h3 {
-  color: #8C0402;
+  color: red;
   font-size: 105%;
   font-weight: normal;
 }
