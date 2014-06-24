@@ -27,8 +27,8 @@ function petitions_install() {
 
   // Enable and configure the Petitions Signature Form module.
   global $base_url;
-  variable_set('petitionssignatureform_api_endpoint', $base_url . '/v1/signatures');
-  variable_set('petitionssignatureform_petitions_website_url ', $base_url . '/v1/petitions');
+  variable_set('petitionssignatureform_api_endpoint', $base_url . '/v1');
+  variable_set('petitionssignatureform_petitions_website_url ', $base_url);
   variable_set('petitionssignatureform_form_petition_id_argument_location', 0);
   variable_set('petitionssignatureform_form_petition_id_argument_type', 2);
 
