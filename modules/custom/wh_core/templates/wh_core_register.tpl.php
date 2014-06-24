@@ -16,7 +16,7 @@
     <ol>
       <li><b>Create an Account.</b> Fill out the form below to create an account.</li>
       <li><b>Verify Your Account.</b> Within a few minutes and email will be sent to you.  You must click on the link in that email in order to verify your account</li>
-      <li><b>Create or Sign a Petition.</b> Once you've verified your account you can create petitions.</li>
+      <li><b>Create a Petition.</b> Once you've verified your account you can create petitions.</li>
     </ol>
   </div><!--/web form description-->
 </div><!--/user register form wrapper -->
