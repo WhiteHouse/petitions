@@ -600,6 +600,14 @@ class Petition {
       throw new Exception("Can't determine if petition is signable if petition status is not set.");
     }
 
+    // If the signature threshold has been passed and the petition has not
+    // received a response.
+    $signatures_passed_threshold = $this->getSignaturesNeeded() == 0;
+    $pending_response = $this->getStatus() == WH_PETITION_STATUS_UNDER_REVIEW;
+    if ($signatures_passed_threshold && $pending_response) {
+      return TRUE;
+    }
+
     // Has the petition passed its deadline for accepting signatures?
     if ($this->deadline < time()) {
       return FALSE;
