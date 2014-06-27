@@ -256,3 +256,12 @@ function petitions_maintenance_update_7300() {
   $modules = array('petition', 'signature_mail', 'petition_pages', 'migrate_mongo2mysql_petsig');
   module_enable($modules);
 }
+
+/**
+ * Enable formatforlog module.
+ */
+function petitions_maintenance_update_7301() {
+  // Enable new modules.
+  $modules = array('formatforlog');
+  module_enable($modules);
+}
