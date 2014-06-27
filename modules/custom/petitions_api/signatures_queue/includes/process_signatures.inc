@@ -85,7 +85,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     $new_signature = (!$item['signature_id']) ? TRUE : FALSE;
     if ($new_signature) {
       // If this is a new signature, create new signature record.
-      $signature_id  = _signatures_queue_process_signatures_save_signature($item, $user);
+      $signature_id  = _signatures_queue_process_signatures_save_signature($item, $user, $debug);
     }
 
     // If a new signature was created...
@@ -545,10 +545,13 @@ function _signatures_queue_process_signatures_get_signature_id($petition_id, $ui
  * @param obj $user
  *   Drupal user, owner of this signature.
  *
+ * @param bool $debug
+ *   Enable debugging.
+ *
  * @return string
  *   $signature_id The ID of the signature created
  */
-function _signatures_queue_process_signatures_save_signature($item, $user) {
+function _signatures_queue_process_signatures_save_signature($item, $user, $debug) {
   // Save to mongo?
   if (function_exists('wh_petitions_mongo2mysql_create_new_signature') && !shunt_is_enabled('wh_petitions_signature_create')) {
     $client_ip = 'not available';
@@ -562,6 +565,19 @@ function _signatures_queue_process_signatures_save_signature($item, $user) {
 
     // Save. Get legacy mongo petition ID.
     $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item['petition_id'], $user, $client_ip);
+
+    // If there's no ID here, saving the signature to mongo failed. Log failure.
+    if (!$legacy_signature_id) {
+      watchdog('signatures_queue', 'Error: Attempt to save signature to mongo failed.', array(), WATCHDOG_ERROR);
+    }
+
+    // Debugging? Print success result to log.
+    if ($debug && $legacy_signature_id) {
+      // Signature was successfully saved to mongo.
+      watchdog('signatures_queue', 'DEBUG ENABLED: Signature successfully saved to mongo. Legacy mongo signature id: @id', array(
+        '@id' => $legacy_signature_id,
+      ), WATCHDOG_DEBUG);
+    }
   }
 
   // Save to mysql?
@@ -619,6 +635,13 @@ function _signatures_queue_process_signatures_save_signature($item, $user) {
 
     // Save it!
     $signature->save();
+
+    // Debugging? Print result to log.
+    if ($debug) {
+      watchdog('signatures_queue', 'DEBUG ENABLED: Signature has been saved to mysql. Signature entity: @signature', array(
+        '@signature' => formatforlog($signature),
+      ), WATCHDOG_DEBUG);
+    }
   }
 
   // @TODO Refactor. Return mysql-based id if available.
