@@ -58,18 +58,19 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   db_set_active();
 
   $count = 0;
-  $count_illegitimate = 0;
+  $count_skipped = 0;
 
   // Process the batch.
   while ($item = $result->fetchAssoc()) {
+
     // Make sure timestamps are valid and petition IDs match.
     if (!_signatures_queue_process_signatures_assert_legitimate($item) || !_signatures_queue_process_signatures_valid_petition($item['petition_id'])) {
       // Skip processing illegitimate item.
-      $item['signature_id'] = 'illegitimate';
+      $item['signature_id'] = 'invalid';
       _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix);
       // Keep track of how many invalid matches are skipped and considered
       // "processed".
-      $count_illegitimate++;
+      $count_skipped++;
       continue;
     }
 
@@ -141,10 +142,10 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   ), WATCHDOG_INFO);
 
   // Log failures.
-  if ($count_illegitimate) {
+  if ($count_skipped) {
     $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
     watchdog('signatures_queue', 'Warning: @number records from the validations table were matched to corresponding records in signatures_pending_validation, but were NOT counted because the records are not valid. This may indicate that someone has tampered with a validation link (changing the petition_id or validation_close_timestamp) or logic in the codes base has changed somewhere.  @suffix', array(
-      '@number' => $count_illegitimate,
+      '@number' => $count_skipped,
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_WARNING);
   }
@@ -205,10 +206,14 @@ function _signatures_queue_process_signatures_assert_legitimate($item) {
  * @param string $petition_id
  *   The petition ID.
  *
+ * @param bool $debug
+ *   Switch to enable debugging.
+ *
  * @return bool
  *   Returns TRUE if petition is valid, FALSE if not.
  */
-function _signatures_queue_process_signatures_valid_petition($petition_id) {
+function _signatures_queue_process_signatures_valid_petition($petition_id, $debug = FALSE) {
+  // Make sure petition exists and is signable.
   // @todo This should really use the logic in Petition::isSignable(). And
   // Petition::isSignable should really be updated to honor the signatures
   // queue grace period if passed in as a param. But getting that to work
@@ -216,10 +221,29 @@ function _signatures_queue_process_signatures_valid_petition($petition_id) {
   // you can't load it, you shouldn't be able to sign it. It was likely
   // been removed/unpublished by an administrator because it violates terms of
   // service.
-  $petition = petitions_data_get_petition($petition_id);
-  if (!$petition) {
-    return FALSE;
+  if (!shunt_is_enabled('signature_mail_mysql_save')) {
+    // MySQL is the authoritative data store. Check petition node to confirm
+    // validity.
+    $nid = petition_get_nid($petition_id);
+    $node = node_load($nid);
+    if (!$node->status) {
+      // Node is unpublished.
+      return FALSE;
+    }
   }
+  else {
+    // If mongo2mysql switch is not complete or the mysql shunt is tripped, use
+    // the legacy petitions_data module to try and load the petition being
+    // signed. If it can't be loaded, it can't be signed either.
+    if (module_exists('petitions_data')) {
+      $petition = petitions_data_mongo2mysql_get_petition($item['petition_id']);
+      if (!$petition) {
+        return FALSE;
+      }
+    }
+  }
+
+  // If not found to be invalid, it's valid.
   return TRUE;
 }
 
