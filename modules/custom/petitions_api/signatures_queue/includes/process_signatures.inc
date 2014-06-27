@@ -37,6 +37,7 @@
 function _signatures_queue_process_signatures($job_id, $server_name, $worker_name, $options) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
   $limit = signatures_queue_get_queue_batch_size('process_signatures');
+  $debug = variable_get('signatures_queue_enable_debugging', FALSE);
 
   // Set the active database to the signatures_processing db.
   signatures_queue_set_db();
@@ -119,6 +120,14 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
         '@timestamp_validated' => $item['timestamp_validated'],
         '@suffix' => $watchdog_suffix,
       ), WATCHDOG_NOTICE);
+
+      // Debug. Log signature item processed.
+      if ($debug) {
+        watchdog('signatures_queue', 'DEBUG ENABLED: Signature item processed: @item', array(
+          '@batch' => formatforlog($item),
+        ), WATCHDOG_DEBUG);
+      }
+
     }
 
     // Add signature ID and API key to signatures_validations table.

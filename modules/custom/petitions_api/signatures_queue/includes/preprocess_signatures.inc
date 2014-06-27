@@ -36,12 +36,13 @@
  */
 function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_name, array $options = array()) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('preprocess_signatures', $job_id, $server_name, $worker_name);
+  $debug = variable_get('signatures_queue_enable_debugging', FALSE);
 
   // Preprocess signatures pending validation.
-  _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog_suffix);
+  _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog_suffix, $debug);
 
   // Preprocess validations.
-  _signatures_queue_preprocess_signatures_preprocess_validations($watchdog_suffix);
+  _signatures_queue_preprocess_signatures_preprocess_validations($watchdog_suffix, $debug);
 }
 
 /**
@@ -53,10 +54,20 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
  *
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
+ *
+ * @param bool $debug
+ *   Enable debugging for verbose logging.
  */
-function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog_suffix) {
+function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog_suffix, $debug = FALSE) {
   // Claim a batch of signatures from signatures_pending_validation_queue.
   $batch = _signatures_queue_preprocess_signatures_claim_batch('signatures_pending_validation_queue', $watchdog_suffix);
+
+  // Debug. Print batch to log.
+  if ($debug) {
+    watchdog('signatures_queue', 'DEBUG ENABLED: Batch of signatures to be preprocessed: @batch', array(
+      '@batch' => formatforlog($batch),
+    ), WATCHDOG_DEBUG);
+  }
 
   // Return early if the batch is empty.
   if (empty($batch)) {
@@ -80,11 +91,21 @@ function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog
  *
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
+ *
+ * @param bool $debug
+ *   Enable debugging for verbose logging.
  */
-function _signatures_queue_preprocess_signatures_preprocess_validations($watchdog_suffix) {
+function _signatures_queue_preprocess_signatures_preprocess_validations($watchdog_suffix, $debug = FALSE) {
 
   // Claim a batch of signatures from validations_queue.
   $batch = _signatures_queue_preprocess_signatures_claim_batch('validations_queue', $watchdog_suffix);
+
+  // Debug. Print batch to log.
+  if ($debug) {
+    watchdog('signatures_queue', 'DEBUG ENABLED: Batch of validations to be preprocessed: @batch', array(
+      '@batch' => formatforlog($batch),
+    ), WATCHDOG_DEBUG);
+  }
 
   // Return early if the batch is empty.
   if (empty($batch)) {

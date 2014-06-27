@@ -34,7 +34,7 @@
 function _signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
 
-  $debug = variable_get('signatures_queue_debug', FALSE);
+  $debug = variable_get('signatures_queue_enable_debugging', FALSE);
 
   // Retrieve and delete signatures from the signatures_submitted_queue.
   $signatures = _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, 0, $debug);
@@ -109,6 +109,14 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
     }
 
     $signatures[] = $item;
+  }
+
+  // Debugging.
+  if ($debug) {
+    watchdog('signatures_queue', 'DEBUG ENABLED: Records retrieved from signatures_submitted_queue: @signatures', array(
+      '@signatures' => formatforlog($signatures),
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_DEBUG);
   }
 
   if ($i) {

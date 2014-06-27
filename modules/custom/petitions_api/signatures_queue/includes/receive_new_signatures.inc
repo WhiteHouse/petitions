@@ -38,6 +38,13 @@
 function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker_name, array $options = array()) {
   $signature = (array) $options['signature'];
 
+  // Debugging. Log signature data received.
+  if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
+    watchdog('signatures_queue', 'DEBUG ENABLED: New signature received: @signature', array(
+      '@signature' => formatforlog($signature),
+    ), WATCHDOG_DEBUG);
+  }
+
   // Make sure the signature argument is valid. This is done first because it's
   // cheapest.
   if (!_signatures_queue_validate_signature($signature)) {
