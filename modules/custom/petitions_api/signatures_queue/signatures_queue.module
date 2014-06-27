@@ -486,34 +486,3 @@ function signatures_queue_check_empty($name = NULL) {
   module_load_include('inc', 'signatures_queue');
   return _signatures_queue_check_empty($name);
 }
-
-/**
- * Formats data for logging via watchdog.
- *
- * Prints data structure on one line for log files. Prints them prettier for
- * dblog.
- *
- * @param mixed $data
- *   An arbitrary array or object to be formatted readably for logging.
- *
- * @return string
- *   The data formatted to send to watchdog.
- *
- * @see watchdog()
- */
-function signatures_queue_format_for_logging($data) {
-  // Use pretty printing if dblog is enabled.
-  if (module_exists('dblog')) {
-    // JSON_PRETTY_PRINT is only available since PHP 5.4.0.
-    if (defined('JSON_PRETTY_PRINT')) {
-      return json_encode($data, JSON_PRETTY_PRINT);
-    }
-    else {
-      return print_r($data, TRUE);
-    }
-  }
-  // Otherwise, use (compressed) JSON to get it all on a single line.
-  else {
-    return json_encode($data);
-  }
-}
