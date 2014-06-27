@@ -120,12 +120,20 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
   $queue->createQueue();
 
   // Log and return early if the queue is empty.
-  if (!$queue->numberOfItems()) {
+  $number_of_items = $queue->numberOfItems();
+  if (!$number_of_items) {
     watchdog('signatures_queue', '@queue is empty. No items will be preprocessed. @suffix', array(
       '@queue' => $queue_name,
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
     return array();
+  }
+  else {
+    watchdog('signatures_queue', '@number items retrieved from @queue queue for preprocessing. @suffix', array(
+      '@number' => $number_of_items,
+      '@queue' => $queue_name,
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_INFO);
   }
 
   // Build the batch.
