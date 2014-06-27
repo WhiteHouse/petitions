@@ -552,6 +552,15 @@ function _signatures_queue_process_signatures_save_signature($item, $user) {
   // Save to mongo?
   if (function_exists('wh_petitions_mongo2mysql_create_new_signature') && !shunt_is_enabled('wh_petitions_signature_create')) {
     $client_ip = 'not available';
+
+    // Debug? Print to log.
+    if ($debug) {
+      watchdog('signatures_queue', 'DEBUG ENABLED: Saving signature to monogo: @item', array(
+        '@item' => formatforlog($item),
+      ), WATCHDOG_DEBUG);
+    }
+
+    // Save. Get legacy mongo petition ID.
     $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item['petition_id'], $user, $client_ip);
   }
 
@@ -621,8 +630,11 @@ function _signatures_queue_process_signatures_save_signature($item, $user) {
  *
  * @param string $petition_id
  *   Unique ID for a petition.
+ *
+ * @param bool $debug
+ *   Enable debugging.
  */
-function _signatures_queue_process_signatures_increment_count($petition_id) {
+function _signatures_queue_process_signatures_increment_count($petition_id, $debug = FALSE) {
   // Increment count in petition stored in mongo?
   $mongo2mysql_function = 'wh_petitions_mongo2mysql_increment_count';
   if (function_exists($mongo2mysql_function) && !shunt_is_enabled('wh_petitions_signature_create')) {
@@ -631,6 +643,6 @@ function _signatures_queue_process_signatures_increment_count($petition_id) {
 
   // Increment count in petition node?
   if (!shunt_is_enabled('signature_mail_mysql_save')) {
-    petition_increment_count($petition_id);
+    petition_increment_count($petition_id, $debug);
   }
 }

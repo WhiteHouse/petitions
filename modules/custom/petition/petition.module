@@ -153,16 +153,31 @@ function petition_publish($node) {
  * @return bool
  *   True for success. False for fail.
  */
-function petition_increment_count($petition_id, $increment = 1) {
+function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) {
   // Legacy petition IDs are mongo IDs, not node IDs. Get nid.
   $nid = petition_get_nid($petition_id);
 
   // Load the node, increment the signature count, save.
   $node = node_load($nid);
-  $signature_count = $node->field_petition_signature_count['und'][0]['value'];
-  $signature_count = $signature_count + $increment;
-  $node->field_petition_signature_count['und'][0]['value'] = $signature_count;
+  $signature_count_before = $node->field_petition_signature_count['und'][0]['value'];
+  $signature_count_after = $signature_count_before + $increment;
+  $node->field_petition_signature_count['und'][0]['value'] = $signature_count_after;
   node_save($node);
+
+  // Debug. Log everything.
+  if ($debug) {
+    watchdog('petition', 'petition_increment_count() received the following params: petition_id = @petition_id, increment = @increment', array(
+      '@petiton_id' => $petition_id,
+      '@increment' => $increment,
+    ), WATCHDOG_DEBUG);
+    watchdog('petition', 'petition_increment_count() increased the signature count from @before to @after', array(
+      '@before' => $signature_count_before,
+      '@after' => $signature_count_after,
+    ), WATCHDOG_DEBUG);
+    watchdog('petition', 'petition_increment_count() saved this petition node:', array(
+      '@node' => formatforlog($node),
+    ), WATCHDOG_DEBUG);
+  }
 }
 
 /**
