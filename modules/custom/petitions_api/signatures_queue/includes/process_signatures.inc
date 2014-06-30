@@ -204,7 +204,7 @@ function _signatures_queue_process_signatures_create_user($item) {
   $user = (object) array(
     'is_new' => TRUE,
     'mail' => trim($item['email']),
-    'name' => preg_replace("/[^\x80-\xF7 [:alnum:]@]/", '_', trim($item['email'])),
+    'name' => _signatures_queue_process_signatures_get_unused_username($item['email']),
     'status' => 1,
   );
   $new_user = user_save($user);
@@ -353,4 +353,29 @@ function _signatures_queue_process_signatures_move_to_processed($item) {
 
   // Set the active database back to default.
   db_set_active();
+}
+
+/**
+ * Get an unused username to correspond with a given email address.
+ *
+ * @param string $email
+ *   The email address.
+ *
+ * @return string
+ *   The unused username.
+ */
+function _signatures_queue_process_signatures_get_unused_username($email) {
+  $base_username = preg_replace("/[^\x80-\xF7 [:alnum:]@]/", '_', trim($email));
+  $index = 0;
+  do {
+    $index++;
+    $candidate_username = "{$base_username}{$index}";
+    $query = new EntityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'user')
+      ->propertyCondition('name', $candidate_username)
+      ->execute();
+    // Repeat until we find a username that's not taken and return it.
+  } while (!empty($result['user']));
+  return $candidate_username;
 }
