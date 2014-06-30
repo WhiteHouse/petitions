@@ -62,7 +62,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   // Process the batch.
   while ($item = $result->fetchAssoc()) {
     // Make sure timestamps are valid and petition IDs match.
-    if (!_signatures_queue_process_signatures_assert_legitimate($item)) {
+    if (!_signatures_queue_process_signatures_assert_legitimate($item) || !_signatures_queue_process_signatures_valid_petition($item['petition_id'])) {
       // Skip processing illegitimate item.
       $item['signature_id'] = 'illegitimate';
       _signatures_queue_process_signatures_move_to_processed($item);
@@ -184,6 +184,34 @@ function _signatures_queue_process_signatures_assert_legitimate($item) {
     $legitimate = FALSE;
   }
   return $legitimate;
+}
+
+/**
+ * Determine whether a given petition ID is valid.
+ *
+ * If petition IDs in the two records from validations and
+ * signatures_pending_validation do NOT match, this is suspicious behavior
+ * indicating someone potentially gaming the system. Alert and notify people.
+ *
+ * @param string $petition_id
+ *   The petition ID.
+ *
+ * @return bool
+ *   Returns TRUE if petition is valid, FALSE if not.
+ */
+function _signatures_queue_process_signatures_valid_petition($petition_id) {
+  // @todo This should really use the logic in Petition::isSignable(). And
+  // Petition::isSignable should really be updated to honor the signatures
+  // queue grace period if passed in as a param. But getting that to work
+  // will take some refactoring. For now, just try to load the petition. If
+  // you can't load it, you shouldn't be able to sign it. It was likely
+  // been removed/unpublished by an administrator because it violates terms of
+  // service.
+  $petition = petitions_data_get_petition($petition_id);
+  if (!$petition) {
+    return FALSE;
+  }
+  return TRUE;
 }
 
 /**
