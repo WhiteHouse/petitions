@@ -1933,10 +1933,21 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
  *   ID of created signature or FALSE on failure.
  */
 function wh_petitions_create_signature($petition, $user, $signature_collection_connection, $ip_address = '', $user_agent = '') {
-  // Can only sign petitions that are open - private, public, under review.
-  if ($petition['petition_status'] != WH_PETITION_STATUS_PRIVATE && $petition['petition_status'] != WH_PETITION_STATUS_PUBLIC && $petition['petition_status'] != WH_PETITION_STATUS_UNDER_REVIEW) {
-    watchdog('wh_petitions', 'unable to create signature on @petition because of invliad petition status (@status)', array('@petition' => $petition['_id'], '@status' => $petition['petition_status']));
-    return FALSE;
+  // If petition is being signed through simplified signing, skip validation
+  // checks confirming petition is signable, defer to signatures_queue module's
+  // preprocess and process checks.
+  $active_signing_method = variable_get('petitions_signing_method', NULL);
+  if ($active_signing_method != WH_PETITIONS_SIGNING_METHOD_SIMPLIFIED_SIGNING) {
+    // Simplified signing is not enabled. Perform legacy validation checks
+    // before counting signature. Can only sign petitions that are open--that
+    // is, private, public, or under review.
+    if ($petition['petition_status'] != WH_PETITION_STATUS_PRIVATE && $petition['petition_status'] != WH_PETITION_STATUS_PUBLIC && $petition['petition_status'] != WH_PETITION_STATUS_UNDER_REVIEW) {
+      watchdog('wh_petitions', 'Unable to create signature on @petition due to invalid petition status (@status).', array(
+        '@petition' => $petition['_id'],
+        '@status' => $petition['petition_status'],
+      ));
+      return FALSE;
+    }
   }
 
   // Check if signature_id exists.
