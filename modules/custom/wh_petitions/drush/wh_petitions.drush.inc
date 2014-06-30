@@ -102,7 +102,6 @@ function wh_petitions_signatures_report($petition_id, $name) {
   // Retrieve an array of uids.
   $uids = _wh_petitions_get_signature_uids($petition_id);
 
-
   // Print the count of a petition's signatures.
   $signatures_count = count($uids);
 

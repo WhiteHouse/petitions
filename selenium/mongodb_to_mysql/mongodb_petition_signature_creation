@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="/" />
+<title>mongo_petition_signature_test</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">mongo_petition_signature_test</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Create a Petition</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=button-sign-in</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=edit-name</td>
+	<td>user1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=edit-pass</td>
+	<td>user1</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=edit-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=edit-petition-title</td>
+	<td>This is a petition</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=edit-petition-issues-5</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=edit-petition-issues-4</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=edit-petition-issues-1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=continue-to-step-2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=continue-to-step-3</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=edit-petition-description</td>
+	<td>This is the description of my petition</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=continue-to-final-step</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=button-publish-my-petition</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>xpath=(//div[@id='petition-thankyou']/p[2]/a)</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=h1.title</td>
+	<td>This is a petition</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.petition-detail.petition-detail-margin-right &gt; p</td>
+	<td>This is the description of my petition</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>link=Agriculture</td>
+	<td>Agriculture</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>link=Civil Rights and Liberties</td>
+	<td>Civil Rights and Liberties</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>link=Climate Change</td>
+	<td>Climate Change</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.num-block.num-block1</td>
+	<td>499</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.num-block.num-block2</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>storeLocation</td>
+	<td>url</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>null</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Log out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>${url}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=button-sign-in</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=edit-name</td>
+	<td>user2</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=edit-pass</td>
+	<td>user2</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=edit-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=button-sign-this-petition</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=div.close-button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>refreshAndWait</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.num-block.num-block1</td>
+	<td>498</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.num-block.num-block2</td>
+	<td>2</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.title</td>
+	<td>creator</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.name</td>
+	<td>User 1.</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.entry.entry-you-signed&nbsp;&nbsp;&gt; div.name</td>
+	<td>User 2.</td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>null</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=report-inappropriate-link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=button-report-this-petition</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Log out</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

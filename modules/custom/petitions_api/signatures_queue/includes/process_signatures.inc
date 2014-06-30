@@ -62,7 +62,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   // Process the batch.
   while ($item = $result->fetchAssoc()) {
     // Make sure timestamps are valid and petition IDs match.
-    if (!_signatures_queue_process_signatures_assert_legitimate($item)) {
+    if (!_signatures_queue_process_signatures_assert_legitimate($item) || !_signatures_queue_process_signatures_valid_petition($item['petition_id'])) {
       // Skip processing illegitimate item.
       $item['signature_id'] = 'illegitimate';
       _signatures_queue_process_signatures_move_to_processed($item);
@@ -75,13 +75,17 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     // Create user if a user with this email does not exist yet.
     $user = _signatures_queue_process_signatures_create_user($item);
 
-    // Get signature_id, if this user has already signed.
-    $item['signature_id'] = wh_petitions_get_signature_id($item['petition_id'], $user->uid);
+    // Confirm wh_petitions module is enabled before calling it's functions.
+    // Only save signatures into mongodb if that shunt is not enabled, see
+    // wh_petitions_shunt() for further details.
+    if (module_exists('wh_petitions') && !shunt_is_enabled('wh_petitions_signature_create')) {
+      // Get signature_id, if this user has already signed.
+      $item['signature_id'] = wh_petitions_get_signature_id($item['petition_id'], $user->uid);
 
-    // If this is a new signature...
-    if (!$item['signature_id']) {
-      // Create new record in petition_signatures.
-      if ($item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user)) {
+      // If this is a new signature...
+      if (!$item['signature_id']) {
+        // Create new record in petition_signatures.
+        $item['signature_id'] = _signatures_queue_process_signatures_create_record($item, $user);
         // New signature was created successfully. Increment signature count.
         wh_petitions_increment_count($item['petition_id']);
       }
@@ -100,8 +104,15 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       }
     }
 
-    // Invoke hook_save_signature. @@?
-    // module_invoke_all('save_signature', $item);
+    // Also save signature into MySQL if the shunt is not enabled. Note that
+    // the interim mongo2mysql function needs an existing signature_id, so we
+    // check for that also.
+    // @todo: Once MongoDB has been disabled, refactor the $item data structure
+    // to create and populate a signature object, then call $signature->save.
+    // This will replace the interim mongo2mysql wrapper below.
+    if (!shunt_is_enabled('signature_mail_mysql_save') && !empty($item['signature_id'])) {
+      signature_mail_mongo2mysql_save($item);
+    }
 
     // Add signature ID and API key to signatures_validations table.
     _signatures_queue_process_signatures_add_to_signatures_validations($item);
@@ -187,6 +198,34 @@ function _signatures_queue_process_signatures_assert_legitimate($item) {
 }
 
 /**
+ * Determine whether a given petition ID is valid.
+ *
+ * If petition IDs in the two records from validations and
+ * signatures_pending_validation do NOT match, this is suspicious behavior
+ * indicating someone potentially gaming the system. Alert and notify people.
+ *
+ * @param string $petition_id
+ *   The petition ID.
+ *
+ * @return bool
+ *   Returns TRUE if petition is valid, FALSE if not.
+ */
+function _signatures_queue_process_signatures_valid_petition($petition_id) {
+  // @todo This should really use the logic in Petition::isSignable(). And
+  // Petition::isSignable should really be updated to honor the signatures
+  // queue grace period if passed in as a param. But getting that to work
+  // will take some refactoring. For now, just try to load the petition. If
+  // you can't load it, you shouldn't be able to sign it. It was likely
+  // been removed/unpublished by an administrator because it violates terms of
+  // service.
+  $petition = petitions_data_get_petition($petition_id);
+  if (!$petition) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+/**
  * If user with this email does not exist, create one.
  *
  * @param string $item
@@ -204,7 +243,7 @@ function _signatures_queue_process_signatures_create_user($item) {
   $user = (object) array(
     'is_new' => TRUE,
     'mail' => trim($item['email']),
-    'name' => preg_replace("/[^\x80-\xF7 [:alnum:]@]/", '_', trim($item['email'])),
+    'name' => _signatures_queue_process_signatures_get_unused_username($item['email']),
     'status' => 1,
   );
   $new_user = user_save($user);
@@ -259,7 +298,7 @@ function _signatures_queue_process_signatures_create_user($item) {
  *   Drupal user object for checking petition_signatures.
  *
  * @return string
- *   A signature ID.
+ *   $signature_id The ID of the signature created
  */
 function _signatures_queue_process_signatures_create_record($item, $user) {
   // The wh_petitions_create_signature function called by
@@ -353,4 +392,29 @@ function _signatures_queue_process_signatures_move_to_processed($item) {
 
   // Set the active database back to default.
   db_set_active();
+}
+
+/**
+ * Get an unused username to correspond with a given email address.
+ *
+ * @param string $email
+ *   The email address.
+ *
+ * @return string
+ *   The unused username.
+ */
+function _signatures_queue_process_signatures_get_unused_username($email) {
+  $base_username = preg_replace("/[^\x80-\xF7 [:alnum:]@]/", '_', trim($email));
+  $index = 0;
+  do {
+    $index++;
+    $candidate_username = "{$base_username}{$index}";
+    $query = new EntityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'user')
+      ->propertyCondition('name', $candidate_username)
+      ->execute();
+    // Repeat until we find a username that's not taken and return it.
+  } while (!empty($result['user']));
+  return $candidate_username;
 }

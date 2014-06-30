@@ -1,0 +1,110 @@
+<?php
+/**
+ * @file
+ * Functionality for events that are triggered in relation to petitions.
+ */
+
+module_load_include('inc', 'petitionevents', 'petitionevents_vboactions');
+
+/**
+ * Builds a remove petitions settings form.
+ *
+ * @param array $form
+ *   Form object to add the remove petition form to.
+ */
+function petitionevents_remove_email_settings_form(&$form) {
+  $form['remove_email'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Notification: Petition Remove'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t("The default email sent to a user when their petition is taken down by an administrator."),
+  );
+
+  $form['remove_email']['petitionevents_remove_email_from_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('From name'),
+    '#default_value' => variable_get('petitionevents_remove_email_from_name'),
+    '#required' => TRUE,
+  );
+
+  $form['remove_email']['petitionevents_remove_email_from_address'] = array(
+    '#type' => 'textfield',
+    '#title' => t('From address'),
+    '#default_value' => variable_get('petitionevents_remove_email_from_address'),
+    '#required' => TRUE,
+  );
+
+  $form['remove_email']['petitionevents_remove_email_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject'),
+    '#default_value' => variable_get('petitionevents_remove_email_subject'),
+    '#required' => TRUE,
+  );
+
+  $form['remove_email']['petitionevents_remove_email_bcc'] = array(
+    '#type' => 'textarea',
+    '#title' => t('BCC'),
+    '#default_value' => variable_get('petitionevents_remove_email_bcc'),
+    '#description' => t("Enter multiple BCC email addresses, separated by comma."),
+    '#required' => FALSE,
+  );
+
+  $form['remove_email']['petitionevents_remove_email_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Body'),
+    '#default_value' => variable_get('petitionevents_remove_email_body'),
+    '#required' => FALSE,
+  );
+}
+
+/**
+ * Implements tokens for mysql petitions in emails.
+ *
+ * @param array $message
+ *   Representation of the email to be sent.
+ *
+ * @param array $legacy_id
+ *   Legacy MonggoID to be passed into the email via tokens.
+ */
+function petitionevents_mail_additions(&$message, $legacy_id) {
+  if (shunt_is_enabled('petition_mysql_save')) {
+    return;
+  }
+  $node = petition_load_from_legacy_id($legacy_id);
+  $message['body'][0] = str_replace('!petition_nid', $node->nid, $message['body'][0]);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function petitionevents_form_wh_petitions_admin_petition_email_settings_alter(&$form, &$form_state, $form_id) {
+  petitionevents_remove_email_settings_form($form);
+}
+
+
+/**
+ * Extract mongo id from short url, then grab corresponding node id.
+ */
+function petitionevents_get_administer_link() {
+  if (arg(0) == 'petition') {
+    $mongo_id = petition_load_mongo2mysql_from_url(current_path());
+    $node = petition_load_from_legacy_id($mongo_id['_id']);
+  }
+
+  if (arg(0) == 'node') {
+    $node = node_load(arg(1));
+  }
+
+  $is_node_loaded = $node != NULL;
+  if ($is_node_loaded) {
+    $node_id = $node->nid;
+  }
+
+  else {
+    watchdog('petitionevents', "Unable to locate a MySQL Petition for current page.");
+    $node_id = 0;
+  }
+
+  return l(t('Administer This Petition'), 'admin/moderation-tools', array('query' => array('nid' => $node_id)));
+}

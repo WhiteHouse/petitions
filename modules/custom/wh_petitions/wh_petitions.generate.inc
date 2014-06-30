@@ -124,7 +124,6 @@ function create_petitions($num, $uid='', $status='') {
       'hidden'            => 0,
     );
 
-
     wh_petitions_generate_nice_url($petition);
     
     $petition_id = wh_petitions_save_petition($conn, $petition);

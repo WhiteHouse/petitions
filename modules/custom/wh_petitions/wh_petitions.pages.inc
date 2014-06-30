@@ -461,8 +461,15 @@ function wh_petitions_petition_detail($petition_id) {
     if ($petition['reached_ready']) {
       $reached_ready = date('M d, Y', $petition['reached_ready']);
     }
-    $admin_link = l(t('Administer This Petition'), 'admin/petitions/' . check_plain($petition_id), array('attributes' => array('classes' => array('no-follow'))));
-  }
+
+    if(function_exists("petitionevents_get_administer_link")) {
+      $admin_link = petitionevents_get_administer_link();
+    }
+
+    else{
+      $admin_link = l(t('Administer This Petition'), 'admin/petitions/' . check_plain($petition_id), array('attributes' => array('classes' => array('no-follow'))));
+    }
+   }
 
   $flagged_text = '';
   $flagged_text_owner = '';

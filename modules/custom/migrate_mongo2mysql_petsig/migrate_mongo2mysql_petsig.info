@@ -1,0 +1,11 @@
+name = "Migrate MongoDB to MySQL Petitions and Signatures"
+description = "This migrates any petiton and signature data from Mongo DB to MySQL tables within Drupal."
+package = "Migration"
+core = 7.x
+dependencies[] = migrate
+dependencies[] = petition
+dependencies[] = signature_mail
+
+files[] = petsig.inc
+files[] = plugins/destinations/signature.inc
+files[] = plugins/destinations/node_modified.inc

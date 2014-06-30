@@ -1,0 +1,17 @@
+name = Petition Pages
+description = Pagers roughly replicating current pages but with the data stored in mysql
+core = 7.x
+package = Features
+php = 5.2.4
+version = 7.x-1.1
+project = petition_pages
+dependencies[] = ctools
+dependencies[] = eva
+dependencies[] = petition
+dependencies[] = signature_mail
+dependencies[] = views
+dependencies[] = views_infinite_scroll
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = petitions_listing
+features[views_view][] = signature_mail_listings

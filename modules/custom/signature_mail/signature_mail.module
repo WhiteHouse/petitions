@@ -1,0 +1,136 @@
+<?php
+/**
+ * @file
+ * Definition of the signature mail entity, and some helper functions.
+ */
+
+// Load file containing functions relating to MongoDB to MySQL migration.
+// @todo Remove this line and associated file once MongoDB is depreciated.
+include_once 'signature_mail.mongo2mysql.inc';
+
+/**
+ * Implements hook_signature_info().
+ */
+function signature_mail_signature_info() {
+  $info = array();
+
+  $info['mail'] = array(
+    'module' => "signature_mail",
+    'file' => array('php', "signature_mail", "SignatureMail"),
+    'class' => "SignatureMail",
+  );
+
+  return $info;
+}
+
+/**
+ * Delete all signatures.
+ */
+function signature_mail_delete_all() {
+  $query = new EntityFieldQuery();
+  $query->entityCondition("entity_type", "signature_mail");
+  $results = $query->execute();
+
+  if (!empty($results)) {
+    foreach ($results['signature_mail'] as $id => $info) {
+      entity_delete("signature_mail", $id);
+    }
+  }
+}
+
+/**
+ * Generates a sample signature.
+ */
+function signature_mail_generate_sample() {
+  $signature = entity_create('signature_mail', array());
+  $signature->legacy_id = "alLlslkfj76dklasljkfas";
+  $signature->petition_id = 1;
+  $signature->legacy_petition_id = "alLlslkfj76dklasljkfas";
+  $signature->uid = 1;
+  $signature->timestamp = time();
+  $signature->ip_address = "0.0.0.0";
+  $signature->user_agent = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:26.0) Gecko/20100101 Firefox/26.0";
+  $signature->number = 0;
+  $signature->user_first_name = "Alakzim";
+  $signature->user_last_name = "Baladim";
+  $signature->user_city = "Orlando";
+  $signature->user_state = "Florida";
+  $signature->user_zip = "74455";
+  $signature->user_username = "abaladim";
+  $signature->user_country = "United States of America";
+
+  $signature->save();
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function signature_mail_entity_info_alter(&$info) {
+
+  $fieldable = variable_get("signature_fieldable", 0);
+
+  if ($fieldable) {
+    $info['signature_mail']['fieldable'] = TRUE;
+    $info['signature_mail']['bundles']['signature']['label'] = "Signature Mail";
+    $info['signature_mail']['bundles']['signature']['admin'] = array(
+      'path' => 'admin/config/content/signature_mail',
+      'access arguments' => array('access administration pages'),
+    );
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function signature_mail_menu() {
+  $menu_items = array();
+
+  $menu_items['admin/config/content/signature_mail'] = array(
+    'title' => "Signature Mail Fieldability Toggle",
+    'page callback' => "drupal_get_form",
+    'page arguments' => array("signature_mail_configuration_page"),
+    'access arguments' => array('access administration pages'),
+  );
+
+  $menu_items['admin/config/content/signature_mail/settings'] = array(
+    'title' => "Settings",
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  return $menu_items;
+}
+
+/**
+ * The page to toggle signature fieldability.
+ *
+ * @param array $form
+ *   form array
+ * @param array $form_state
+ *   form_state array
+ *
+ * @return array
+ *   $form array
+ */
+function signature_mail_configuration_page($form, &$form_state) {
+
+  $fieldable = variable_get("signature_fieldable", 0);
+
+  $form['signature_fieldable'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Make the signature entity fieldable?'),
+    '#default_value' => $fieldable,
+  );
+
+  $form = system_settings_form($form);
+  $form['#submit'][] = "signature_mail_config_form_submit";
+
+  return $form;
+}
+
+/**
+ * Submit handler to clear the cache after fieldable toggling configuration.
+ */
+function signature_mail_config_form_submit() {
+  // @todo implement a more targeted flushing.
+  drupal_flush_all_caches();
+}

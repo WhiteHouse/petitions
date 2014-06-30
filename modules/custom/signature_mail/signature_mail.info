@@ -1,0 +1,6 @@
+name = Signature Mail
+description = An entity type to store signatures
+core = 7.x
+
+dependencies[] = signature
+dependencies[] = shunt

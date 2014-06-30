@@ -134,10 +134,12 @@ function _signatures_queue_build_new_queue_item(array $signature) {
 
   // Add application data to the item.
   $petition = petitions_data_get_petition($signature['petition_id']);
-  $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 0);
+  $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 2);
   $item['timestamp_submitted'] = time();
   $item['timestamp_petition_close'] = $petition['deadline'];
-  $item['timestamp_validation_close'] = $petition['deadline'] + $validation_grace_period;
+  // The validation link is valid for today plus grace period (converted from
+  // days to unix time).
+  $item['timestamp_validation_close'] = time() + $validation_grace_period * 24 * 60 * 60;
   $item['secret_validation_key'] = '';
 
   return $item;

@@ -195,12 +195,6 @@ function petitions_maintenance_update_7009() {
   );
 
   module_enable($modules);
-
-  // Set AWS vars.
-  variable_set('aws_sqs_claimtimeout', '300');
-  variable_set('aws_sqs_region', 'us-east-1');
-  variable_set('aws_sqs_waittimeseconds', '20');
-  variable_set('queue_default_class', 'AwsSqsQueue');
 }
 
 /**
@@ -245,4 +239,20 @@ function petitions_maintenance_update_7012() {
   variable_set('petitionssignatureform_petitions_website_url ', $base_url);
   variable_set('petitionssignatureform_form_petition_id_argument_location', 0);
   variable_set('petitionssignatureform_form_petition_id_argument_type', 2);
+}
+
+/**
+ * 7.x-3.x updates go below here. ==============================================
+ */
+
+/**
+ * Activate the petitions and signature module.
+ *
+ * Note: This makes petition and signature storage in mysql possible. But you'll
+ * need to disable mysql shunt trips to actually activate this.
+ */
+function petitions_maintenance_update_7300() {
+  // Enable new modules.
+  $modules = array('petition', 'signature_mail', 'petition_pages', 'migrate_mongo2mysql_petsig');
+  module_enable($modules);
 }

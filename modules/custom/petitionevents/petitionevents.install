@@ -1,0 +1,25 @@
+<?php
+/**
+ * @file
+ * Install hook for petitionevents.
+ */
+
+/**
+ * Implements hook install.
+ */
+function petitionevents_install() {
+  variable_set('wh_petitions_review_threshold_passed_text', "The petition titled \"!petition_title\" has passed the number of signatures necessary for compliance review.
+  You can review at the following URL: !petition_edit_link
+
+  You can remove the petition here:<br /><a href= \"!baseurl/admin/moderation-tools?nid=!petition_nid\" >!baseurl/admin/moderation-tools?nid=!petition_nid</a>
+
+  =================
+
+  TITLE:
+  !petition_title
+
+  BODY:
+  !petition_body
+
+  =================");
+}

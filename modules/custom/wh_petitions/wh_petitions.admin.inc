@@ -395,10 +395,21 @@ function wh_petitions_admin_petition_settings() {
     '#type' => 'textarea',
     '#title' => t('Text for the email sent when a petition receives enough signatures to pass the compliance review threshold.'),
     '#description' => '',
-    '#default_value' => variable_get('wh_petitions_review_threshold_passed_text', 'The petition titled "!petition_title" has passed the number of signatures necessary for compliance review.
+    '#default_value' => variable_get('wh_petitions_review_threshold_passed_text', "The petition titled \"!petition_title\" has passed the number of signatures necessary for compliance review.
 
-You can review and, if necessary, remove this petition at the following URL: !petition_edit_link
-    '),
+You can review at the following URL: !petition_edit_link
+
+You can remove the petition here:<br /><a href= \"!baseurl/admin/moderation-tools?nid=!petition_nid\" >!baseurl/admin/moderation-tools?nid=!petition_nid</a>
+
+=================
+
+TITLE:
+!petition_title
+
+BODY:
+!petition_body
+
+================="),
     '#required' => TRUE,
   );
   $form['petition_admin']['wh_petitions_admin_removal_notification_emails'] = array(
@@ -407,6 +418,19 @@ You can review and, if necessary, remove this petition at the following URL: !pe
     '#description' => t('Enter a comma-separated list of email addresses which should received notices when a petition is removed.'),
     '#default_value' => variable_get('wh_petitions_admin_removal_notification_emails', ''),
     '#required' => FALSE,
+  );
+
+  // Settings related to petition administration.
+  $form['mongo2mysql'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('MongoDB to MySQL Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['mongo2mysql']['wh_petitions_mysql_toggle'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow data to be saved to MySQL as well as MongoDB'),
+    '#default_value' => variable_get('wh_petitions_mysql_toggle', 0),
   );
 
   $form['#validate'][] = 'wh_petitions_admin_petition_settings_validate';
@@ -1354,40 +1378,21 @@ function wh_petitions_remove_lists($petition_id) {
     $conn = wh_petitions_mongo_petition_connection();
     $petition = array();
     $petition = wh_petitions_load_petition($conn, $petition_id);
+
+    // Don't love this logic for determining if something should be published/unpublished.
+    // However, since it will go away with mongo we can tolerate it for now.
+
     if ($petition['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
-      // Check to see what Status it should have.
-      $timestamp = strtotime('- ' . $petition['review_timeframe'] . ' days');
-
-      if ($petition['published'] < $timestamp) {
-        $petition['petition_status'] = WH_PETITION_STATUS_CLOSED;
-      }
-      elseif ($petition['signature_count'] < $petition['public_signatures']) {
-        $petition['petition_status'] = WH_PETITION_STATUS_PRIVATE;
-      }
-      elseif ($petition['signature_count'] < $petition['response_signatures']) {
-        $petition['petition_status'] = WH_PETITION_STATUS_PUBLIC;
-      }
-      elseif ($petition['signature_count'] >= $petition['response_signatures']) {
-        $petition['petition_status'] = WH_PETITION_STATUS_UNDER_REVIEW;
-        $petition['response_status'] = WH_PETITION_RESPONSE_STATUS_PENDING;
-      }
-
-      wh_petitions_save_petition($conn, $petition);
+      $petition = wh_petitions_mongo2mysql_publish($petition_id);
       $text = t('Remove from Site');
     }
+
     else {
       // Set the status on the object to match what we're about
       // to set in the database record.
-      $petition['petition_status'] = WH_PETITION_STATUS_FLAGGED;
-
-      wh_petitions_save_petition($conn, $petition);
+      $petition = wh_petitions_mongo2mysql_unpublish($petition_id);
       $text = t('Enable on Site');
     }
-    // Log the activity to the admin_log collection.
-    wh_petitions_admin_log($user, 'petition', $petition);
-
-    // Send removal notification.
-    wh_petitions_removal_notification($user, $petition);
 
     // Now that PHP is done with the petition, convert some
     // of the attribute values to text so JS can display them easier.
@@ -1434,7 +1439,6 @@ function wh_petitions_response_autocomplete($string = '') {
 
   drupal_json_output($matches);
 }
-
 
 /**
  * Generate a csv list of signatures on the given petition.

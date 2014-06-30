@@ -324,9 +324,19 @@ function wh_petitions_create_petition_step_1_validate($form, &$form_state) {
 
 /**
  * Submit handler for step 1 of the create a petition form.
+ *
  * Create a draft petition object and rebuild the form to go to step 2.
+ * @TODO: Agnosticize this submit handler so multiple storage systems can act
+ * on the data.
  */
 function wh_petitions_create_petition_step_1_submit($form, &$form_state) {
+
+  // If the shunt on petition creation is active, we don't need to do anything.
+  // See wh_petitions_shunt() for details.
+  if (shunt_is_enabled('wh_petitions_petition_create')) {
+    return;
+  }
+
   // Save the petition as a draft and add the id to the form state
   global $user;
   $conn = wh_petitions_mongo_petition_connection();
@@ -375,8 +385,7 @@ function wh_petitions_create_petition_step_1_submit($form, &$form_state) {
       $petition['nice_url'] = "petition/detail/$id";
       wh_petitions_save_petition($conn, $petition);
     }
-
-
+    
     // Go to the next page
     $form_state['create_page'] = 2;
     $form_state['rebuild'] = TRUE;
@@ -625,7 +634,11 @@ function wh_petitions_create_petition_step_3_validate($form, &$form_state) {
 }
 
 /**
- * Submit handler for step 3 of the create a petition form.  Save the the description and keywords to the petition
+ * Submit handler for step 3 of the create a petition form.
+ *
+ * Save the the description and keywords to the petition.
+ * @TODO: Agnosticize this submit handler so multiple storage systems can act
+ * on the data.
  */
 function wh_petitions_create_petition_step_3_submit($form, &$form_state) {
   global $user;
@@ -643,6 +656,9 @@ function wh_petitions_create_petition_step_3_submit($form, &$form_state) {
       array('$set' => array('user_tags' => $petition['user_tags'], 'body' => $petition['body'], 'body_keywords' => $petition['body_keywords']))
     );
     $form_state['petition'] = $petition;
+
+    module_invoke_all("wh_petitions_petition_body_update", $form_state['petition_id'],
+            $petition['body']);
   }
 
   // Go to the next page
@@ -652,6 +668,9 @@ function wh_petitions_create_petition_step_3_submit($form, &$form_state) {
 
 /**
  * Fourth page of the create a petition form - preview + submit/save/delete
+ *
+ * @TODO: Agnosticize this submit handler so multiple storage systems
+ * can act on the data.
  */
 function wh_petitions_create_petition_step_4($form, &$form_state) {
   global $user;
@@ -769,7 +788,11 @@ function wh_petitions_create_petition_step_4($form, &$form_state) {
 }
 
 /**
- * Submit handler for step 4 of the create a petition form.  Publish the petition.
+ * Submit handler for step 4 of the create a petition form.
+ *
+ * Publish the petition.
+ * @TODO: Agnosticize this submit handler so multiple storage systems can act
+ * on the data.
  */
 function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
   global $user;
@@ -789,7 +812,6 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
 
     // By default, a user signs their own petition
     $user_load = user_load($user->uid);
-
 
     $petition['signature_count'] = 1;
 
@@ -1353,6 +1375,9 @@ function wh_petitions_inappropriate_modal($petition_id) {
         array('$set' => array('abuse_flags' => $petition['abuse_flags'], 'abuse_count' => sizeof($petition['abuse_flags'])))
       );
     }
+
+    module_invoke_all("wh_petitions_petition_inappropriate", $petition_id);
+
   }
 
   // Redirect to the main site or the petition tool site, depending on where this request came from
@@ -1376,6 +1401,8 @@ function wh_petitions_delete_modal($petition_id) {
     }
   }
 
+  // MongoDB/MySQL conversion @todo How are we archiving nodes?
+  
   $redirect_page = 'dashboard';
   if (!empty($_GET['process'])) {
     if ($_GET['process'] == 'create_form') {

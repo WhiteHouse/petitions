@@ -1,0 +1,144 @@
+<?php
+/**
+ * @file
+ * Hooks and code for the Petition module.
+ */
+
+
+require_once 'includes/petition.inc';
+require_once 'includes/petition.field.inc';
+
+// Load file containing functions relating to MongoDB to MySQL migration.
+// @todo Remove these lines and associated file once MongoDB is depreciated.
+require_once 'includes/petition.mongo2mysql.inc';
+
+
+/**
+ * Implements hook_entity_view().
+ */
+function petition_node_view($node, $view_mode, $langcode) {
+  if ($node->type == "petition" && $view_mode == "full") {
+    $content = $node->content;
+
+    // Let's add the title before the body.
+    $title = array("#markup" => "<h1>{$node->title}</h1>");
+    $content = _petition_array_pre_insert("body", "title", $title, $content);
+
+    // Let's add signatures needed before signature count.
+    // The number of signatures still needed.
+    $signature_deficit = 0;
+    // The date for when the signature window closes.
+    // @todo calculate the date  (date published) + (days to reach) - (today).
+    $due_date = 'date not calculated yet';
+
+    // @todo Looping logic and math to calculate signature_deficit is flawed.
+    //   These should both be single values not needing loops.
+    // @todo Verify that this display is supposed to use the count to response
+    //   rather than the count to reach public. Or perhaps it is supposed to
+    //   display both.
+    $items = field_get_items("node", $node, "field_petition_response_sign");
+    if ($items) {
+      foreach ($items as $item) {
+        $signature_deficit = (int) $item['value'];
+      }
+    }
+
+    $items = field_get_items("node", $node, "field_petition_signature_count");
+    if ($items) {
+      // @todo Again this looping needs fixing
+      foreach ($items as $item) {
+        $signature_deficit -= (int) $item['value'];
+      }
+    }
+
+    // Determine if it stilll needs signatures (has a positive deficit) or not.
+    if ($signature_deficit > 0) {
+      // Petition still needs more signatures.
+      $signatures_needed = array(
+        "#markup" =>
+        "<div id='signatures_needed'><label>Signatures needed by {$due_date} </label><p>{$signature_deficit}</p></div>",
+      );
+    }
+    else {
+      // Petition has enough signatures.
+      // @todo  signature goal message needs work.
+      $signatures_needed = array(
+        "#markup" =>
+        "<div id='signatures_needed'><label><p>Achieved signature goal.</p></div>",
+      );
+    }
+
+    $content = _petition_array_pre_insert("field_petition_signature_count",
+            "signatures_needed", $signatures_needed, $content);
+
+    $node->content = $content;
+  }
+}
+
+
+/**
+ * Implements hook_entity_view_alter().
+ */
+function petition_entity_view_alter(&$build, $type) {
+  if ($type == "node") {
+    $node = $build['#node'];
+    if ($node->type == "petition") {
+      // Attempting to move the EVA signatures field to be displayed last
+      // without luck.
+      $build['signature_mail_listings_entity_view_1']['#weight'] = 10;
+    }
+  }
+}
+
+
+/**
+ * Implements hook_node_info().
+ */
+function petition_node_info() {
+  $items = array(
+    'petition' => array(
+      'name' => t('Petition'),
+      'base' => 'node_content',
+      'description' => t('A petition can be created and upon receiving enough signatures can be eligible for display and gets set-up for response.'),
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
+  );
+  return $items;
+}
+
+
+/**
+ * Unpublish a single node from Drupal/MySql.
+ *
+ * @param array $node
+ *   Actual node to update.
+ */
+function petition_unpublish($node) {
+  $node->status = NODE_NOT_PUBLISHED;
+  node_save($node);
+  $legacy_id = $node->field_legacy_id['und'][0]['value'];
+
+  $mongo2mysql_function = 'wh_petitions_mongo2mysql_unpublish';
+  if (function_exists($mongo2mysql_function) && !shunt_is_enabled('petition_mysql_save')) {
+    $mongo2mysql_function($legacy_id);
+  }
+}
+
+/**
+ * Publish a single node in Drupal/MySql.
+ *
+ * @param array $node
+ *   Actual node to update.
+ */
+function petition_publish($node) {
+  $node->status = NODE_PUBLISHED;
+  node_save($node);
+  $legacy_id = $node->field_legacy_id['und'][0]['value'];
+
+  $mongo2mysql_function = 'wh_petitions_mongo2mysql_publish';
+  if (function_exists($mongo2mysql_function) && !shunt_is_enabled('petition_mysql_save')) {
+    $mongo2mysql_function($legacy_id);
+  }
+}

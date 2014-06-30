@@ -1,0 +1,10 @@
+name = "Generate MongoDB and MySQL, Petitions and Signatures"
+description = "Generate petitions and signature in MongoDB and MySQL"
+package = "Petitions"
+core = 7.x
+
+files[] = PetitionContenGenerator.php
+files[] = generate_mongo2mysql_petsig.drush.inc
+
+dependencies[] = petition
+dependencies[] = signature_mail

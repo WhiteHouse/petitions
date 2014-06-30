@@ -43,6 +43,9 @@ function signatures_queue_install() {
 
   // Warn users about two week limit on archiving.
   drupal_set_message($t('IMPORTANT! The archiving workflow assumes you are processing signatures regularly. The default assumption is that all queues will be cleared within any given two week period.  If you intend to NOT process signatures regularly, make the necessary adjustments to $queues_last_emptied in includes/archive_signatures.inc.'), 'warning');
+
+  // Start with a validation grace period of 2 days (48 hours).
+  signatures_queue_update_7001();
 }
 
 /**
@@ -427,4 +430,12 @@ function signatures_queue_uninstall() {
     ->condition('name', db_like('signatures_queue') . '%', 'LIKE')
     ->execute();
   cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Set default grace period to 2 days (48 hours).
+ */
+function signatures_queue_update_7001() {
+  variable_set('signatures_queue_validation_grace_period', 2);
+  drupal_set_message(t('Setting default signatures_queue_validation_grace_period to 2 days (48 hours).'));
 }

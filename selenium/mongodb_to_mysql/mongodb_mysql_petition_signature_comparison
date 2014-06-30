@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://petitions.local/" />
+<title>mongodb _mysql_petition_signature_comparison</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">mongodb _mysql_petition_signature_comparison</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/dashboard</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>2</td>
+	<td>petition</td>
+</tr>
+<tr>
+	<td>storeCssCount</td>
+	<td>css=div#petitions-you-created &gt; div</td>
+	<td>petition_limit</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['petition_limit']++</td>
+	<td></td>
+</tr>
+<tr>
+	<td>while</td>
+	<td>${petition} &lt;= ${petition_limit}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${petition}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${petition_limit}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeAttribute</td>
+	<td>css=div#petitions-you-created *:nth-child(${petition})@id</td>
+	<td>id</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${id}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['id'].split(&quot;-&quot;)</td>
+	<td>pieces</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['pieces'][1]</td>
+	<td>processed</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${processed}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['petition']++</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/admin/reports/mongo-mysql-petition/compare/${processed}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_user_id</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_title</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_legacy_id</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=comp_nice_url</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_body</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_response_id</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_petition_status</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=comp_response_status</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_timestamp_published</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_timestamp_reached_public</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_timestamp_reached_ready</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_timestamp_responded</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=comp_signature_count</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=comp_abuse_count</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_review_timeframe</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_signatures_to_reach_response</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_signatures_to_reach_public</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=comp_short_url</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_timestamp_created</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_issues</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_related_petitions</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_abuse_flags</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_signatures_loaded_count</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>1</td>
+	<td>signature</td>
+</tr>
+<tr>
+	<td>storeCssCount</td>
+	<td>css=tr#row_signatures&nbsp;&nbsp;td#mysql_signatures&nbsp;&nbsp;ol&nbsp;&nbsp;li</td>
+	<td>signature_limit</td>
+</tr>
+<tr>
+	<td>while</td>
+	<td>${signature} &lt;= ${signature_limit}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${signature}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${signature_limit}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=tr#row_signatures td#mysql_signatures ol li:nth-child(${signature}) a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['signature']++</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_petition_id</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_timestamp</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_ip_address</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_user_agent</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_uid</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_user_first_name</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_user_last_name</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_user_city</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_user_state</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_user_zip</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=comp_username</td>
+	<td>=</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/admin/reports/mongo-mysql-petition/compare/${processed}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>endWhile</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/dashboard</td>
+	<td></td>
+</tr>
+<tr>
+	<td>endWhile</td>
+	<td></td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

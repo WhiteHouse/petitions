@@ -116,7 +116,7 @@ function signatures_queue_configure() {
     '#default_value' => variable_get('signatures_queue_validation_grace_period', 0),
     '#size' => 12,
     '#maxlength' => 12,
-    '#description' => t('Number of days after we stop accepting new signature submissions that a signature can still be validated.'),
+    '#description' => t('Number of days a signature validation link is valid.'),
     '#required' => TRUE,
   );
 

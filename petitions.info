@@ -60,12 +60,16 @@ dependencies[] = api_validations
 dependencies[] = front_class
 dependencies[] = is_not_cached
 dependencies[] = is_profane
+dependencies[] = migrate_mongo2mysql_petsig
+dependencies[] = petition
+dependencies[] = petition_pages
 dependencies[] = petitions_api
 dependencies[] = petitions_homepage
 dependencies[] = petitions_maintenance
 dependencies[] = petitions_profanity
 dependencies[] = petitions_signatures_display
 dependencies[] = petitions_usermenu
+dependencies[] = signature_mail
 dependencies[] = signatures_queue
 
 ; files
