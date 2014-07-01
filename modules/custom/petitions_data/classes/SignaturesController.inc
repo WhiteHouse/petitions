@@ -29,7 +29,7 @@ class SignaturesController {
       throw new InvalidArgumentException('The $this->petitionId and $this->uid or $this->user properties must be set before saving a signature.');
     }
 
-    $signature_id = wh_petitions_create_new_signature($signature->getPetitionId(), $signature->getUser(), ip_address());
+    $signature_id = wh_petitions_mongo2mysql_create_new_signature($signature->getPetitionId(), $signature->getUser(), ip_address());
     $signature->setId($signature_id);
 
     return $signature;
