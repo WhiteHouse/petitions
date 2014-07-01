@@ -232,7 +232,7 @@ function _signatures_queue_process_signatures_create_user($item) {
   $user = (object) array(
     'is_new' => TRUE,
     'mail' => trim($item['email']),
-    'name' => _signatures_queue_process_signatures_get_unused_username($item['email']),
+    'name' => _signatures_queue_process_signatures_get_unique_username($item['email']),
     'status' => 1,
   );
   $new_user = user_save($user);
@@ -419,26 +419,30 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
 }
 
 /**
- * Get an unused username to correspond with a given email address.
+ * Get a unique username to correspond with a given email address.
  *
  * @param string $email
  *   The email address.
  *
  * @return string
- *   The unused username.
+ *   A unique username.
  */
-function _signatures_queue_process_signatures_get_unused_username($email) {
-  $base_username = preg_replace("/[^\x80-\xF7 [:alnum:]@]/", '_', trim($email));
-  $index = 0;
-  do {
-    $index++;
-    $candidate_username = "{$base_username}{$index}";
-    $query = new EntityFieldQuery();
-    $result = $query
-      ->entityCondition('entity_type', 'user')
-      ->propertyCondition('name', $candidate_username)
-      ->execute();
-    // Repeat until we find a username that's not taken and return it.
-  } while (!empty($result['user']));
-  return $candidate_username;
+function _signatures_queue_process_signatures_get_unique_username($email) {
+  // uniqid() gets a prefixed unique identifier based on the current time in
+  // microseconds, so it should never create a duplicate, even in a
+  // multithreaded processing scenario.
+  $prefix = '';
+  $more_entropy = TRUE;
+  $unique_id = uniqid($prefix, $more_entropy);
+  $unique_id_length = strlen($unique_id);
+
+  // The user "name" column in the database cannot exceed 60 characters, so the
+  // "safe email" value is truncated accordingly.
+  // @see user_schema()
+  $sanitized_email = preg_replace("/[^\x80-\xF7 [:alnum:]@]/", '_', trim($email));
+  $max_username_length = 60;
+  $max_email_length = $max_username_length - $unique_id_length;
+  $safe_email = substr($sanitized_email, 0, $max_email_length);
+
+  return "{$safe_email}{$unique_id}";
 }
