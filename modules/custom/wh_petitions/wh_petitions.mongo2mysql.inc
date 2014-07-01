@@ -99,3 +99,38 @@ function wh_petitions_mongo2mysql_create_new_signature($petition_id, $user, $cli
 function wh_petitions_create_new_signature($petition_id, $user, $client_ip) {
   throw new Exception(t('wh_petitions_create_new_signature() is deprecated. Use wh_petitions_mongo2mysql_create_new_signature().'));
 }
+
+/**
+ * Wrapper around wh_petitions_increment_signature_count().
+ *
+ * This function takes care of creating a mongo connection and looking up the
+ * properly formatted $petition object.
+ *
+ * @param string $petition_id
+ *   The unique identifier of the petition.
+ */
+function wh_petitions_mongo2mysql_increment_count($petition_id) {
+    // Create connection.
+    $connection = wh_petitions_mongo_petition_connection();
+    $connection->setSlaveOkay(FALSE);
+
+    $slim_petition_elements = array(
+        'petition_status',
+        'signature_count',
+        'response_signatures',
+        'public_signatures',
+    );
+
+    // Load the petition.
+    $petition = wh_petitions_load_slim_petition($connection, $petition_id, $slim_petition_elements);
+
+    // Increment signature count.
+    wh_petitions_increment_signature_count($petition, $connection);
+}
+
+/**
+ * @see wh_petitions_mongo2mysql_increment_count()
+ */
+function wh_petitions_increment_count($petition_id) {
+  throw new Exception(t('wh_petitions_increment_count() is deprecated. Use wh_petitions_mongo2mysql_increment_count().'));
+}

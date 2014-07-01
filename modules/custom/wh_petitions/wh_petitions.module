@@ -1935,34 +1935,6 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
 }
 
 /**
- * Wrapper around wh_petitions_increment_signature_count().
- *
- * This function takes care of creating a mongo connection and looking up the
- * properly formatted $petition object.
- *
- * @param string $petition_id
- *   The unique identifier of the petition.
- */
-function wh_petitions_increment_count($petition_id) {
-  // Create connection.
-  $connection = wh_petitions_mongo_petition_connection();
-  $connection->setSlaveOkay(FALSE);
-
-  $slim_petition_elements = array(
-    'petition_status',
-    'signature_count',
-    'response_signatures',
-    'public_signatures',
-  );
-
-  // Load the petition.
-  $petition = wh_petitions_load_slim_petition($connection, $petition_id, $slim_petition_elements);
-
-  // Increment signature count.
-  wh_petitions_increment_signature_count($petition, $connection);
-}
-
-/**
  * Increment signature_count of a petition.
  *
  * Increment the signature_count of a petition and check to see
