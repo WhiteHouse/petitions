@@ -44,7 +44,7 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
     return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
   }
 
-  $petition = petitions_data_get_petition($signature['petition_id']);
+  $petition = petitions_data_mongo2mysql_get_petition($signature['petition_id']);
 
   // Make sure the petition exists.
   if (empty($petition)) {
@@ -133,7 +133,7 @@ function _signatures_queue_build_new_queue_item(array $signature) {
   $item = array_merge($expected_fields, $signature_trimmed);
 
   // Add application data to the item.
-  $petition = petitions_data_get_petition($signature['petition_id']);
+  $petition = petitions_data_mongo2mysql_get_petition($signature['petition_id']);
   $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 2);
   $item['timestamp_submitted'] = time();
   $item['timestamp_petition_close'] = $petition['deadline'];
