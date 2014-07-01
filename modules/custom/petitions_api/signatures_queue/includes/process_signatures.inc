@@ -35,6 +35,7 @@
  * @see signatures_queue_invoke_workflow()
  */
 function _signatures_queue_process_signatures($job_id, $server_name, $worker_name, $options) {
+  $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
   $limit = signatures_queue_get_queue_batch_size('process_signatures');
 
   // Set the active database to the signatures_processing db.
@@ -65,7 +66,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     if (!_signatures_queue_process_signatures_assert_legitimate($item) || !_signatures_queue_process_signatures_valid_petition($item['petition_id'])) {
       // Skip processing illegitimate item.
       $item['signature_id'] = 'illegitimate';
-      _signatures_queue_process_signatures_move_to_processed($item);
+      _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix);
       // Keep track of how many invalid matches are skipped and considered
       // "processed".
       $count_illegitimate++;
@@ -91,7 +92,6 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       }
       else {
         // Log failure.
-        $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
         watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_validated: @timestamp_validated. @suffix', array(
           '@secret_validation_key' => $item['secret_validation_key'],
           '@vid' => $item['vid'],
@@ -115,10 +115,10 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     }
 
     // Add signature ID and API key to signatures_validations table.
-    _signatures_queue_process_signatures_add_to_signatures_validations($item);
+    _signatures_queue_process_signatures_add_to_signatures_validations($item, $watchdog_suffix);
 
     // Move item to processed tables and delete from pre-process tables.
-    _signatures_queue_process_signatures_move_to_processed($item);
+    _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix);
 
     // Subscribe to list if requested.
     if ((bool) $item['signup']) {
@@ -318,26 +318,37 @@ function _signatures_queue_process_signatures_create_record($item, $user) {
  *
  * @param string $item
  *   The item from the database query.
+ * @param string $watchdog_suffix
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  *
  * @return bool
  *   Returns TRUE on success.
  */
-function _signatures_queue_process_signatures_add_to_signatures_validations($item) {
+function _signatures_queue_process_signatures_add_to_signatures_validations($item, $watchdog_suffix) {
   // Save to database.
-  $id = db_insert('signature_validations')
-    ->fields(array(
-      'secret_validation_key' => $item['secret_validation_key'],
-      'signature_id' => $item['signature_id'],
-      'petition_id' => $item['petition_id'],
-      'signature_source_api_key' => $item['signature_source_api_key'],
-      'email' => $item['email'],
-      'timestamp_processed' => time(),
-    ))
-    ->execute();
+  try {
+    db_insert('signature_validations')
+      ->fields(array(
+        'secret_validation_key' => $item['secret_validation_key'],
+        'signature_id' => $item['signature_id'],
+        'petition_id' => $item['petition_id'],
+        'signature_source_api_key' => $item['signature_source_api_key'],
+        'email' => $item['email'],
+        'timestamp_processed' => time(),
+      ))
+      ->execute();
+  }
+  catch (PDOException $exception) {
+    // @todo Abuse detection.
+    watchdog('signatures_queue', 'An item could not be added due to a database error: item: !item, exception: !exception. @suffix', array(
+      '!item' => signatures_queue_format_for_logging($item),
+      '!exception' => signatures_queue_format_for_logging($exception),
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_CRITICAL);
+  }
 
   return TRUE;
 }
-
 
 /**
  * Move items to processed tables.
@@ -347,46 +358,70 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
  *
  * @param string $item
  *   The item from the database query.
+ * @param string $watchdog_suffix
+ *   A string of job details as created by _signatures_queue_watchdog_suffix().
  *
  * @return bool
  *   Returns TRUE on success.
  */
-function _signatures_queue_process_signatures_move_to_processed($item) {
+function _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
   signatures_queue_set_db();
 
   // Add to processed tables.
-  $id = db_insert('signatures_processed')
-    ->fields(array(
-      'signature_source_api_key' => $item['signature_source_api_key'],
-      'timestamp_petition_close' => $item['timestamp_petition_close'],
-      'timestamp_validation_close' => $item['timestamp_validation_close'],
-      'petition_id' => $item['petition_id'],
-      'first_name' => $item['first_name'],
-      'last_name' => $item['last_name'],
-      'zip' => $item['zip'],
-      'email' => $item['email'],
-      'signup' => $item['signup'],
-      'timestamp_validation_email_sent' => $item['timestamp_validation_email_sent'],
-      'timestamp_submitted' => $item['timestamp_submitted'],
-      'secret_validation_key' => $item['secret_validation_key'],
-    ))
-    ->execute();
-  $id = db_insert('validations_processed')
-    ->fields(array(
-      'secret_validation_key' => $item['secret_validation_key'],
-      'timestamp_validated' => $item['timestamp_validated'],
-      'timestamp_validation_close' => $item['timestamp_validation_close'],
-      'client_ip' => $item['client_ip'],
-      'petition_id' => $item['petition_id'],
-    ))
-    ->execute();
+  $erred = FALSE;
+  $exception = NULL;
+  try {
+    db_insert('signatures_processed')
+      ->fields(array(
+        'signature_source_api_key' => $item['signature_source_api_key'],
+        'timestamp_petition_close' => $item['timestamp_petition_close'],
+        'timestamp_validation_close' => $item['timestamp_validation_close'],
+        'petition_id' => $item['petition_id'],
+        'first_name' => $item['first_name'],
+        'last_name' => $item['last_name'],
+        'zip' => $item['zip'],
+        'email' => $item['email'],
+        'signup' => $item['signup'],
+        'timestamp_validation_email_sent' => $item['timestamp_validation_email_sent'],
+        'timestamp_submitted' => $item['timestamp_submitted'],
+        'secret_validation_key' => $item['secret_validation_key'],
+      ))
+      ->execute();
+  }
+  catch (PDOException $exception) {
+    $erred = TRUE;
+  }
+  try {
+    db_insert('validations_processed')
+      ->fields(array(
+        'secret_validation_key' => $item['secret_validation_key'],
+        'timestamp_validated' => $item['timestamp_validated'],
+        'timestamp_validation_close' => $item['timestamp_validation_close'],
+        'client_ip' => $item['client_ip'],
+        'petition_id' => $item['petition_id'],
+      ))
+      ->execute();
+  }
+  catch (PDOException $exception) {
+    $erred = TRUE;
+  }
+
+  // Log errors.
+  if ($erred) {
+    // @todo Abuse detection.
+    watchdog('signatures_queue', 'An item could not be moved to processed due to a database error: item: !item, exception: !exception. @suffix', array(
+      '!item' => signatures_queue_format_for_logging($item),
+      '!exception' => signatures_queue_format_for_logging($exception),
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_CRITICAL);
+  }
 
   // Delete from pre-process tables.
-  $deleted = db_delete('signatures_pending_validation')
+  db_delete('signatures_pending_validation')
     ->condition('sid', $item['sid'])
     ->execute();
-  $deleted = db_delete('validations')
+  db_delete('validations')
     ->condition('vid', $item['vid'])
     ->execute();
 
