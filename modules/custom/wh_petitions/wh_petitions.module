@@ -7,6 +7,10 @@
  * WARNING: THIS MODULE IS GOING TO BE REMOVED BEFORE 7.x-3.0.
  */
 
+// @todo Move legacy functions into here as they are flagged, renamed, or
+// refactored throughout the code base.
+require_once __DIR__ . '/wh_petitions.mongo2mysql.inc';
+
 /**
  * @todo: Note: Trending used to be a link on the /petitions page.
  * This has been commented out, but the code is still here because we're
@@ -1911,38 +1915,6 @@ function wh_petitions_create_new_signature($petition_id, $user, $client_ip) {
 }
 
 /**
- * Check to see if signature exists already.
- *
- * @param string $petition_id
- *   The unique identifier of the petition.
- * @param int $uid
- *   A user ID.
- *
- * @return string|false
- *   Signature ID or FALSE if it doesn't exist yet.
- */
-function wh_petitions_get_signature_id($petition_id, $uid) {
-  $signature_id = FALSE;
-
-  // Create connection.
-  $sig_connection = wh_petitions_mongo_petition_signatures_connection();
-  $sig_connection->setSlaveOkay(FALSE);
-
-  // Determine if this user has already signed the petition.
-  $query = array(
-    'uid' => (int) $uid,
-    'petition_id' => (string) $petition_id,
-  );
-  $result = $sig_connection->findOne($query);
-  if (!empty($result)) {
-    $signature_id = $result['_id']->__toString();
-    // TODO make sure this ^^ works.
-  }
-
-  return $signature_id;
-}
-
-/**
  * Create and save a signature object for the given user and petition.
  *
  * @param object $petition
@@ -1978,7 +1950,7 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
   }
 
   // Check if signature_id exists.
-  if ($signature_id = wh_petitions_get_signature_id($petition['_id'], $user->uid)) {
+  if ($signature_id = wh_petitions_mongo2mysql_get_signature_id($petition['_id'], $user->uid)) {
     watchdog('wh_petitions', 'unable to create signature, user @user has already signed @petition', array('@petition' => $petition['_id'], '@user' => $user->uid));
     return FALSE;
   }
