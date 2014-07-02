@@ -133,7 +133,11 @@ function _signatures_queue_build_new_queue_item(array $signature) {
   $item = array_merge($expected_fields, $signature_trimmed);
 
   // Add application data to the item.
+<<<<<<< HEAD
   $petition = petitions_data_mongo2mysql_get_petition($signature['petition_id']);
+=======
+  $petition = petitions_data_get_petition($signature['petition_id']);
+>>>>>>> Changed signatures_queue_validation_grace_period variable_get() to default to two days.
   $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 2);
   $item['timestamp_submitted'] = time();
   $item['timestamp_petition_close'] = $petition['deadline'];
