@@ -65,7 +65,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   while ($item = $result->fetchAssoc()) {
 
     // Make sure timestamps are valid and petition IDs match.
-    if (!_signatures_queue_process_signatures_assert_legitimate($item) || !_signatures_queue_process_signatures_valid_petition($item['petition_id'])) {
+    if (!_signatures_queue_process_signatures_assert_legitimate($item, $debug) || !_signatures_queue_process_signatures_valid_petition($item['petition_id'], $debug)) {
       // Skip processing illegitimate item.
       $item['signature_id'] = 'invalid';
       _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix);
@@ -153,7 +153,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
 
   // Log successes.
   $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
-  watchdog('signatures_queue', '@number valid signatures have been counted. (Records from validations table were matched to signatures_pending_validation table, processed, and counted.) @suffix', array(
+  watchdog('signatures_queue', '@number valid signatures have been recorded. (Records from validations table were matched to signatures_pending_validation table, processed, and counted.) @suffix', array(
     '@number' => $count,
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);
@@ -182,10 +182,13 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
  * @param string $item
  *   The item from the database query.
  *
+ * @param bool $debug
+ *   Switch to enable debugging with verbose logging.
+ *
  * @return bool
  *   Returns TRUE if item is legitimate.
  */
-function _signatures_queue_process_signatures_assert_legitimate($item) {
+function _signatures_queue_process_signatures_assert_legitimate($item, $debug = FALSE) {
   // Innocent until proven guilty.
   $legitimate = TRUE;
 
@@ -210,6 +213,14 @@ function _signatures_queue_process_signatures_assert_legitimate($item) {
     _signatures_queue_notify_admin($params);
     $legitimate = FALSE;
   }
+
+  // Debug?
+  if ($debug && !$legitimate) {
+    watchdog('signatures_queue', 'DEBUG ENABLED: Signature flagged illegitimate: @info', array(
+      '@info' => formatforlog($params),
+    ), WATCHDOG_DEBUG);
+  }
+
   return $legitimate;
 }
 
@@ -244,6 +255,12 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
     $nid = petition_get_nid($petition_id);
     $node = node_load($nid);
     if (!$node->status) {
+      // Debug?
+      if ($debug) {
+        watchdog('signatures_queue', 'DEBUG ENABLED: Invalid petition, not published: @node', array(
+          '@node' => formatforlog($node),
+        ), WATCHDOG_DEBUG);
+      }
       // Node is unpublished.
       return FALSE;
     }
@@ -255,6 +272,12 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
     if (module_exists('petitions_data')) {
       $petition = petitions_data_mongo2mysql_get_petition($petition_id);
       if (!$petition) {
+        // Debug?
+        if ($debug) {
+          watchdog('signatures_queue', 'Invalid petition, cannot load petition_id from mongo: @id', array(
+            '@id' => $petition_id,
+          ), WATCHDOG_DEBUG);
+        }
         return FALSE;
       }
     }
