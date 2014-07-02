@@ -101,7 +101,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
         _process_signatures_increment_count($item['petition_id']);
       }
       // If it's a new signature, but no new signature was created...
-      else if ($new_signature && empty($signature_id)) {
+      elseif ($new_signature && empty($signature_id)) {
         // Log failure.
         watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_validated: @timestamp_validated. @suffix', array(
           '@secret_validation_key' => $item['secret_validation_key'],
@@ -252,7 +252,7 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
     // the legacy petitions_data module to try and load the petition being
     // signed. If it can't be loaded, it can't be signed either.
     if (module_exists('petitions_data')) {
-      $petition = petitions_data_mongo2mysql_get_petition($item['petition_id']);
+      $petition = petitions_data_mongo2mysql_get_petition($petition_id);
       if (!$petition) {
         return FALSE;
       }
@@ -550,7 +550,8 @@ function _process_signatures_get_signature_id($petition_id, $uid) {
 function _process_signatures_save_signature($item, $user) {
   // Save to mongo?
   if (function_exists('wh_petitions_mongo2mysql_create_new_signature') && !shunt_is_enabled('wh_petitions_signature_create')) {
-    $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item, $user);
+    $client_ip = 'not available';
+    $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item['petition_id'], $user, $client_ip);
   }
 
   // Save to mysql?
@@ -561,7 +562,8 @@ function _process_signatures_save_signature($item, $user) {
     // If there's a corresponding mongo signature ID, save it as legacy_id.
     $signature['legacy_id'] = (isset($legacy_signature_id)) ? $legacy_signature_id : '';
 
-    // Is petition_id from the item in the queue a mongo id? If so, store as legacy_petition_id.
+    // Is petition_id from the item in the queue a mongo id? If so, store as
+    // legacy_petition_id.
     if (petition_is_legacy_id($item['petition_id'])) {
       $signature['legacy_petition_id'] = $item['petition_id'];
     }
