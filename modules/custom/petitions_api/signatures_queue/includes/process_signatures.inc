@@ -378,8 +378,8 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
   catch (PDOException $exception) {
     // @todo Abuse detection.
     watchdog('signatures_queue', 'An item could not be added due to a database error: item: !item, exception: !exception. @suffix', array(
-      '!item' => signatures_queue_format_for_logging($item),
-      '!exception' => signatures_queue_format_for_logging($exception),
+      '!item' => formatforlog($item),
+      '!exception' => formatforlog($exception),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_CRITICAL);
   }
@@ -448,8 +448,8 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
   if ($erred) {
     // @todo Abuse detection.
     watchdog('signatures_queue', 'An item could not be moved to processed due to a database error: item: !item, exception: !exception. @suffix', array(
-      '!item' => signatures_queue_format_for_logging($item),
-      '!exception' => signatures_queue_format_for_logging($exception),
+      '!item' => formatforlog($item),
+      '!exception' => formatforlog($exception),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_CRITICAL);
   }
