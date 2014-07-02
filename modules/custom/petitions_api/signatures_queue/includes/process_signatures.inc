@@ -77,56 +77,48 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     // Create user if a user with this email does not exist yet.
     $user = _signatures_queue_process_signatures_create_user($item);
 
-    // Confirm wh_petitions module is enabled before calling it's functions.
-    // Only save signatures into mongodb if that shunt is not enabled, see
-    // wh_petitions_shunt() for further details.
-    if (module_exists('wh_petitions') && !shunt_is_enabled('wh_petitions_signature_create')) {
+    // Get signature_id, if this user has already signed.
+    $item['signature_id'] = _signatures_queue_process_signatures_get_signature_id($item['petition_id'], $user->uid);
 
-      // Get signature_id, if this user has already signed.
-      $item['signature_id'] = wh_petitions_get_signature_id($item['petition_id'], $user->uid);
+    // Determine if this is a new signature.
+    $new_signature = (!$item['signature_id']) ? TRUE : FALSE;
+    if ($new_signature) {
+      // If this is a new signature, create new signature record.
+      $signature_id  = _signatures_queue_process_signatures_save_signature($item, $user);
+    }
 
-      // Determine if this is a new signature.
-      $new_signature = (!$item['signature_id']) ? TRUE : FALSE;
-
-      if ($new_signature) {
-        // If this is a new signature, create new signature record.
-        $signature_id  = _process_signatures_save_signature($item, $user);
-      }
-
-      // If a new signature was created...
-      if ($new_signature && isset($signature_id)) {
-        // Set ID.
-        $item['signature_id'] = $signature_id;
-        // Increment signature count.
-        _process_signatures_increment_count($item['petition_id']);
-      }
-      // If it's a new signature, but no new signature was created...
-      elseif ($new_signature && empty($signature_id)) {
-        // Log failure.
-        watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_validated: @timestamp_validated. @suffix', array(
-          '@secret_validation_key' => $item['secret_validation_key'],
-          '@vid' => $item['vid'],
-          '@petition_id' => $item['petition_id'],
-          '@timestamp_validated' => $item['timestamp_validated'],
-          '@suffix' => $watchdog_suffix,
-        ), WATCHDOG_CRITICAL);
-        // Do NOT move items to processed table or remove from preprocess table.
-        continue;
-      }
-      // Otherwise, it's an existing signature. No new signature needs to be
-      // created or counted.
-      else {
-        $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
-        watchdog('signatures_queue', 'This user already signed this petition. No new signature record will be created or counted. uid: @uid, petition_id: @petition_id, secret_validation_key: @secret_validation_key, vid: @vid,  timestamp_validated: @timestamp_validated. @suffix', array(
-          '@uid' => $user->uid,
-          '@petition_id' => $item['petition_id'],
-          '@secret_validation_key' => $item['secret_validation_key'],
-          '@vid' => $item['vid'],
-          '@timestamp_validated' => $item['timestamp_validated'],
-          '@suffix' => $watchdog_suffix,
-        ), WATCHDOG_NOTICE);
-      }
-
+    // If a new signature was created...
+    if ($new_signature && isset($signature_id)) {
+      // Set ID.
+      $item['signature_id'] = $signature_id;
+      // Increment signature count.
+      _process_signatures_increment_count($item['petition_id']);
+    }
+    // If it's a new signature, but no new signature was created...
+    elseif ($new_signature && empty($signature_id)) {
+      // Log failure.
+      watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_validated: @timestamp_validated. @suffix', array(
+        '@secret_validation_key' => $item['secret_validation_key'],
+        '@vid' => $item['vid'],
+        '@petition_id' => $item['petition_id'],
+        '@timestamp_validated' => $item['timestamp_validated'],
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_CRITICAL);
+      // Do NOT move items to processed table or remove from preprocess table.
+      continue;
+    }
+    // Otherwise, it's an existing signature. No new signature needs to be
+    // created or counted.
+    else {
+      $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
+      watchdog('signatures_queue', 'This user already signed this petition. No new signature record will be created or counted. uid: @uid, petition_id: @petition_id, secret_validation_key: @secret_validation_key, vid: @vid,  timestamp_validated: @timestamp_validated. @suffix', array(
+        '@uid' => $user->uid,
+        '@petition_id' => $item['petition_id'],
+        '@secret_validation_key' => $item['secret_validation_key'],
+        '@vid' => $item['vid'],
+        '@timestamp_validated' => $item['timestamp_validated'],
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_NOTICE);
     }
 
     // Add signature ID and API key to signatures_validations table.
@@ -489,7 +481,7 @@ function _signatures_queue_process_signatures_get_unique_username($email) {
  *   Legacy ids are mongo IDs. New mysql based IDs are serial IDs assigned by
  *   mysql.
  */
-function _process_signatures_get_signature_id($petition_id, $uid) {
+function _signatures_queue_process_signatures_get_signature_id($petition_id, $uid) {
   $signature_id = '';
 
   // Use deprecated mongo2mysql lookup?
@@ -547,7 +539,7 @@ function _process_signatures_get_signature_id($petition_id, $uid) {
  * @return string
  *   $signature_id The ID of the signature created
  */
-function _process_signatures_save_signature($item, $user) {
+function _signatures_queue_process_signatures_save_signature($item, $user) {
   // Save to mongo?
   if (function_exists('wh_petitions_mongo2mysql_create_new_signature') && !shunt_is_enabled('wh_petitions_signature_create')) {
     $client_ip = 'not available';
