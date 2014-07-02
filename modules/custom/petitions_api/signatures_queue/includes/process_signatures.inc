@@ -92,7 +92,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       // Set ID.
       $item['signature_id'] = $signature_id;
       // Increment signature count.
-      _process_signatures_increment_count($item['petition_id']);
+      _signatures_queue_process_signatures_increment_count($item['petition_id']);
     }
     // If it's a new signature, but no new signature was created...
     elseif ($new_signature && empty($signature_id)) {
@@ -613,7 +613,7 @@ function _signatures_queue_process_signatures_save_signature($item, $user) {
  * @param string $petition_id
  *   Unique ID for a petition.
  */
-function _process_signatures_increment_count($petition_id) {
+function _signatures_queue_process_signatures_increment_count($petition_id) {
   // Increment count in petition stored in mongo?
   $mongo2mysql_function = 'wh_petitions_mongo2mysql_increment_count';
   if (function_exists($mongo2mysql_function) && !shunt_is_enabled('wh_petitions_signature_create')) {
