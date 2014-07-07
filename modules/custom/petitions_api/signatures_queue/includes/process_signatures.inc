@@ -89,7 +89,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     }
 
     // If a new signature was created...
-    if ($new_signature && isset($signature_id)) {
+    if ($new_signature && !empty($signature_id)) {
       // Set ID.
       $item['signature_id'] = $signature_id;
       // Increment signature count.
@@ -604,12 +604,12 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
   }
 
   // Save to mysql?
-  if (!shunt_is_enabled('signature_mail_mysql_save') && isset($legacy_signature_id)) {
+  if (!shunt_is_enabled('signature_mail_mysql_save')) {
     // Build up $signature array to save via Entity::save().
     $signature = array();
 
     // If there's a corresponding mongo signature ID, save it as legacy_id.
-    $signature['legacy_id'] = (isset($legacy_signature_id)) ? $legacy_signature_id : '';
+    $signature['legacy_id'] = (!empty($legacy_signature_id)) ? $legacy_signature_id : '';
 
     // Is petition_id from the item in the queue a mongo id? If so, store as
     // legacy_petition_id.

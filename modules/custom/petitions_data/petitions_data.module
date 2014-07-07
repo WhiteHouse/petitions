@@ -5,7 +5,7 @@
  */
 
 // @todo Remove this after mongo is turned off before version 7.x-3.0 release.
-require_once __DIR__ . '/petitions_data.mongo2mysql.inc';
+require_once dirname(__FILE__) . '/petitions_data.mongo2mysql.inc';
 
 /**
  * Implements hook_menu().

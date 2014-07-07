@@ -54,7 +54,7 @@
  */
 function petitions_data_mongo2mysql_get_petition($petition_id) {
   $petition = &drupal_static(__FUNCTION__ . $petition_id);
-  if (!isset($petition)) {
+  if (empty($petition)) {
     if ($cache = cache_get("petition:{$petition_id}", 'cache_petitions_petitions')) {
       $petition = $cache->data;
     }

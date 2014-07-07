@@ -9,7 +9,7 @@
 
 // @todo Move legacy functions into here as they are flagged, renamed, or
 // refactored throughout the code base.
-require_once __DIR__ . '/wh_petitions.mongo2mysql.inc';
+require_once dirname(__FILE__) . '/wh_petitions.mongo2mysql.inc';
 
 /**
  * @todo: Note: Trending used to be a link on the /petitions page.

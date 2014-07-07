@@ -207,16 +207,43 @@ function petition_is_legacy_id($id) {
 }
 
 /**
+ * Wrapper around _petition_get_nid() for central exception handling.
+ *
+ * @param string $petition_id
+ *   Legacy mongo-based petition id.
+ *
+ * @return int|bool
+ *   Returns node id for petition. 0 for not found. FALSE in case of error.
+ */
+function petition_get_nid($petition_id) {
+  $nid = FALSE;
+
+  try {
+    $nid = _petition_get_nid($petition_id);
+  }
+  catch (Exception $e) {
+    watchdog('petition', "Error in workflow. @suffix\n\n@exception", array(
+      '@exception' => print_r($e, TRUE),
+    ), WATCHDOG_ERROR);
+  }
+
+  return $nid;
+}
+
+/**
  * Look up node ID for a petition based on legacy id.
  *
  * @param string $petition_id
  *   Legacy mongo-based petition id.
  *
- * @return int
+ * @return int|bool
  *   Petition node id.
+ *
+ * @throws Exception
+ *   Throws an exception when the petition ID is neither a valid nid or legacy id.
  */
-function petition_get_nid($petition_id) {
-  $nid = '';
+function _petition_get_nid($petition_id) {
+  $nid = FALSE;
 
   if (petition_is_legacy_id($petition_id)) {
     $query = new EntityFieldQuery();
