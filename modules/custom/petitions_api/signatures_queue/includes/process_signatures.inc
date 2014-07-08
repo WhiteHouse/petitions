@@ -531,7 +531,7 @@ function _signatures_queue_process_signatures_get_signature_id($petition_id, $ui
 
     // Get signature id from signature_mail table in mysql.
     $query = db_select('signature_mail', 'sm')
-      ->fields('id')
+      ->fields('sm', array('id'))
       ->condition('uid', $uid, '=')
       ->condition('petition_id', $petition_id, '=');
 
@@ -543,10 +543,10 @@ function _signatures_queue_process_signatures_get_signature_id($petition_id, $ui
     else {
       $query->condition('legacy_petition_id', $petition_id, '=');
     }
-    $query->execute();
+    $result = $query->execute();
 
     // Get it.
-    while ($row = $query->fetchAssoc()) {
+    while ($row = $result->fetchAssoc()) {
       $signature_id = $row['id'];
     }
 
