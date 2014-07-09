@@ -92,7 +92,6 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
  *
  * @param string $secret_validation_key
  *   The validated secret validation key.
- *
  * @param string $petition_id
  *   The petition ID associated with the signature.
  *

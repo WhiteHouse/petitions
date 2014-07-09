@@ -123,8 +123,9 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
 
       // Debug. Log signature item processed.
       if ($debug) {
-        watchdog('signatures_queue', 'DEBUG ENABLED: Signature item processed: @item', array(
+        watchdog('signatures_queue', 'DEBUG ENABLED: Signature item processed: @item. @suffix', array(
           '@batch' => formatforlog($item),
+          '@suffix' => $watchdog_suffix,
         ), WATCHDOG_DEBUG);
       }
 
@@ -181,7 +182,6 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
  *
  * @param string $item
  *   The item from the database query.
- *
  * @param bool $debug
  *   Switch to enable debugging with verbose logging.
  *
@@ -216,7 +216,7 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
 
   // Debug?
   if ($debug && !$legitimate) {
-    watchdog('signatures_queue', 'DEBUG ENABLED: Signature flagged illegitimate: @info', array(
+    watchdog('signatures_queue', 'DEBUG ENABLED: Signature flagged illegitimate: info = @info', array(
       '@info' => formatforlog($params),
     ), WATCHDOG_DEBUG);
   }
@@ -233,7 +233,6 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
  *
  * @param string $petition_id
  *   The petition ID.
- *
  * @param bool $debug
  *   Switch to enable debugging.
  *
@@ -272,7 +271,7 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
     if (!$node->status) {
       // Debug?
       if ($debug) {
-        watchdog('signatures_queue', 'DEBUG ENABLED: Invalid petition, not published: @node', array(
+        watchdog('signatures_queue', 'DEBUG ENABLED: Invalid petition, not published: node = @node', array(
           '@node' => formatforlog($node),
         ), WATCHDOG_DEBUG);
       }
@@ -289,7 +288,7 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
       if (!$petition) {
         // Debug?
         if ($debug) {
-          watchdog('signatures_queue', 'Invalid petition, cannot load petition_id from mongo: @id', array(
+          watchdog('signatures_queue', 'Invalid petition, cannot load petition_id from mongo: id = @id', array(
             '@id' => $petition_id,
           ), WATCHDOG_DEBUG);
         }
@@ -520,7 +519,6 @@ function _signatures_queue_process_signatures_get_unique_username($email) {
  *
  * @param string $petition_id
  *   Petition id.
- *
  * @param int $uid
  *   User id
  *
@@ -579,10 +577,8 @@ function _signatures_queue_process_signatures_get_signature_id($petition_id, $ui
  * @param array $item
  *   Signature data that has worked its way down the pipeline through the
  *   signature queue.
- *
  * @param obj $user
  *   Drupal user, owner of this signature.
- *
  * @param bool $debug
  *   Enable debugging.
  *
@@ -606,7 +602,9 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
 
     // If there's no ID here, saving the signature to mongo failed. Log failure.
     if (!$legacy_signature_id) {
-      watchdog('signatures_queue', 'Error: Attempt to save signature to mongo failed.', array(), WATCHDOG_ERROR);
+      watchdog('signatures_queue', 'Error: Attempt to save signature to mongo failed. Queue item = @item', array(
+        '@item' => formatforlog($item),
+      ), WATCHDOG_ERROR);
     }
 
     // Debugging? Print success result to log.
@@ -691,7 +689,6 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
  *
  * @param string $petition_id
  *   Unique ID for a petition.
- *
  * @param bool $debug
  *   Enable debugging.
  */

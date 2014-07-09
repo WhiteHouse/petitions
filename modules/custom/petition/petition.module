@@ -174,7 +174,7 @@ function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) 
       '@before' => $signature_count_before,
       '@after' => $signature_count_after,
     ), WATCHDOG_DEBUG);
-    watchdog('petition', 'petition_increment_count() saved this petition node:', array(
+    watchdog('petition', 'petition_increment_count() saved this petition node: node = @node', array(
       '@node' => formatforlog($node),
     ), WATCHDOG_DEBUG);
   }
@@ -212,7 +212,7 @@ function petition_is_legacy_id($id) {
  * @param string $petition_id
  *   Legacy mongo-based petition id.
  *
- * @return int|bool
+ * @return int|false
  *   Returns node id for petition. 0 for not found. FALSE in case of error.
  */
 function petition_get_nid($petition_id) {
@@ -236,8 +236,8 @@ function petition_get_nid($petition_id) {
  * @param string $petition_id
  *   Legacy mongo-based petition id.
  *
- * @return int|bool
- *   Petition node id.
+ * @return int|false
+ *   Returns node id for petition. 0 for not found. FALSE in case of error.
  *
  * @throws Exception
  *   Throws an exception when the petition ID is neither a valid nid or legacy id.

@@ -54,7 +54,6 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
  *
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
- *
  * @param bool $debug
  *   Enable debugging for verbose logging.
  */
@@ -64,8 +63,9 @@ function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog
 
   // Debug. Print batch to log.
   if ($debug) {
-    watchdog('signatures_queue', 'DEBUG ENABLED: Batch of signatures to be preprocessed: @batch', array(
+    watchdog('signatures_queue', 'DEBUG ENABLED: Batch of signatures to be preprocessed: @batch. @suffix', array(
       '@batch' => formatforlog($batch),
+      '@suffix' => $watchdog_suffix,
     ), WATCHDOG_DEBUG);
   }
 
@@ -91,7 +91,6 @@ function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog
  *
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
- *
  * @param bool $debug
  *   Enable debugging for verbose logging.
  */
@@ -102,8 +101,9 @@ function _signatures_queue_preprocess_signatures_preprocess_validations($watchdo
 
   // Debug. Print batch to log.
   if ($debug) {
-    watchdog('signatures_queue', 'DEBUG ENABLED: Batch of validations to be preprocessed: @batch', array(
+    watchdog('signatures_queue', 'DEBUG ENABLED: Batch of validations to be preprocessed: @batch. @suffix', array(
       '@batch' => formatforlog($batch),
+      '@suffix' => $watchdog_suffix,
     ), WATCHDOG_DEBUG);
   }
 
@@ -310,11 +310,9 @@ function _signatures_queue_preprocess_signatures_insert_batch_fields($table_name
  *
  * @param string $table_name
  *   The name of the table into which signatures will be inserted.
- *
  * @param array $submitted_signatures
  *   An associative array of submitted signatures, keyed by
  *   secret_validation_key.
- *
  * @param int $chunk_size
  *   The size of chunks to be deduped. This will be used to spilt the SELECT
  *   query into multiple, smaller queries.
