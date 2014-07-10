@@ -254,6 +254,21 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
     // validity.
     $nid = petition_get_nid($petition_id);
     $node = node_load($nid);
+    // Edge case from PT-1423 hit here. Mongo to mysql migration has happened,
+    // but we have somehow managed to create a mongo based petition without a
+    // node counterpart (maybe by switching shunts after the initial migration).
+    // A good way to address this is by trying to create the node on the fly,
+    // instead of just erroring out and dropping the signature.
+    if (!$node) {
+      // Debug?
+      if ($debug) {
+        watchdog('signatures_queue', 'DEBUG ENABLED: Petition id @petition_id does not seem to have a petition node.', array(
+          '@petition_id' => $petition_id,
+        ), WATCHDOG_DEBUG);
+      }
+      // Node doesn't exist.
+      return FALSE;
+    }
     if (!$node->status) {
       // Debug?
       if ($debug) {
