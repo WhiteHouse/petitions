@@ -558,7 +558,7 @@ function _signatures_queue_process_signatures_get_signature_id($petition_id, $ui
     }
     $result = $query->execute();
 
-    // Get it.
+    // Get the signature ID.
     while ($row = $result->fetchAssoc()) {
       $signature_id = $row['id'];
     }
