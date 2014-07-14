@@ -198,6 +198,8 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
   // against data in the database.
   $new_signatures = _signatures_queue_preprocess_signatures_dedupe_signatures($table_name, $batch);
 
+  $sanitized_signatures = _signatures_queue_preprocess_signatures_sanitize_batch($table_name, $new_signatures);
+
   // Build insert query.
   $fields = _signatures_queue_preprocess_signatures_insert_batch_fields($table_name);
   signatures_queue_set_db();
@@ -205,12 +207,7 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
   $query->fields(array_values($fields));
 
   // Add values.
-  foreach ($new_signatures as $item) {
-    // Typecast the "signup" value for database type compatibility.
-    if (array_key_exists('signup', $item->data)) {
-      $item->data['signup'] = (int) $item->data['signup'];
-    }
-
+  foreach ($sanitized_signatures as $item) {
     // Restrict values to those that correspond to database fields.
     $values = array_intersect_key((array) $item->data, $fields);
 
@@ -235,6 +232,67 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
   db_set_active();
 
   return TRUE;
+}
+
+/**
+ * Sanitizes a batch of items for safe database insertion.
+ *
+ * Prevents database errors from type, length, and character encoding issues.
+ *
+ * @param string $table_name
+ *   The name of the table the batch will be inserted into.
+ * @param array $batch
+ *   A batch of items as returned by
+ *   _signatures_queue_preprocess_signatures_claim_batch().
+ *
+ * @throws Exception
+ *   Throws an exception in case of an invalid table name argument.
+ *
+ * @return array
+ *   Returns the sanitized batch of items.
+ */
+function _signatures_queue_preprocess_signatures_sanitize_batch($table_name, $batch) {
+  // Get the schema for the table the batch will be inserted into.
+  module_load_install('signatures_queue');
+  if ($table_name == 'signatures_pending_validation') {
+    $schema = _signatures_queue_get_signatures_schema();
+  }
+  elseif ($table_name = 'validations') {
+    $schema = _signatures_queue_get_validations_schema();
+  }
+  else {
+    throw new Exception(t('Invalid table name.'));
+  }
+
+  // Loop through batch items.
+  foreach ($batch as $item) {
+    // Loop through item values.
+    foreach ($item->data as $key => $value) {
+      if (isset($schema['fields'][$key]['type'])) {
+
+        // Sanitize VARCHAR fields.
+        if ($schema['fields'][$key]['type'] == 'varchar') {
+          // Prevent PDO exceptions from unsupported characters like this guy:
+          // http://www.fileformat.info/info/unicode/char/1F600/index.htm. (Not
+          // kidding.)
+          $plain_value = utf8_encode($value);
+
+          // Truncate value to the maximum length of its target database column.
+          $trimmed_value = drupal_substr($plain_value, 0, $schema['fields'][$key]['length']);
+
+          $item->data[$key] = $trimmed_value;
+        }
+
+        // Sanitize INT fields.
+        elseif ($schema['fields'][$key]['type'] == 'int') {
+          // Make sure INTs come through as actual INTs!
+          $item->data[$key] = (int) $item->data[$key];
+        }
+      }
+    }
+  }
+
+  return $batch;
 }
 
 /**
