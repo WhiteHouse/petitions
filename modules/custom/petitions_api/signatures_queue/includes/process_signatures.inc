@@ -598,7 +598,7 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
     }
 
     // Save. Get legacy mongo petition ID.
-    $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item['petition_id'], $user, $client_ip);
+    $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item['petition_id'], $user, $client_ip, $item['timestamp_submitted']);
 
     // If there's no ID here, saving the signature to mongo failed. Log failure.
     if (!$legacy_signature_id) {

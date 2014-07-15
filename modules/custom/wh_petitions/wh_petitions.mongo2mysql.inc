@@ -55,6 +55,8 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
  *   A Drupal user object.
  * @param string $client_ip
  *   The IP address of the signatory.
+ * @param int $timestamp
+ *   Time when signature was signed. If 0, defaults to time().
  *
  * @return string|false
  *   The ID of the created signature record if one is created, or FALSE if not.
@@ -62,7 +64,7 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
  * @todo Replace usages of this function with method call to
  *   SignaturesQueryFactory::create->save().
  */
-function wh_petitions_mongo2mysql_create_new_signature($petition_id, $user, $client_ip) {
+function wh_petitions_mongo2mysql_create_new_signature($petition_id, $user, $client_ip, $timestamp = 0) {
     // Setup connections for signatures and petitions.
     $connection = wh_petitions_mongo_petition_connection();
     $connection->setSlaveOkay(FALSE);
@@ -84,7 +86,7 @@ function wh_petitions_mongo2mysql_create_new_signature($petition_id, $user, $cli
         return FALSE;
     }
 
-    $signature_id = wh_petitions_create_signature($petition, $user, $sig_connection, $client_ip);
+    $signature_id = wh_petitions_create_signature($petition, $user, $sig_connection, $client_ip, '', $timestamp);
     if (!$signature_id) {
         watchdog('wh_petitions', 'Failed to create signature for @user on @petition', array('@user' => $user->uid, '@petition' => $petition['_id']));
         return FALSE;

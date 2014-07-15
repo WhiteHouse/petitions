@@ -1877,11 +1877,13 @@ function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $u
  *   (optional) The IP address from which the user is signing the petition.
  * @param string $user_agent
  *   (optional) The user agent string of the signer's browser.
+ * @param int $timestamp
+ *   Time when signature was signed. If 0, defaults to time().
  *
  * @return string
  *   ID of created signature or FALSE on failure.
  */
-function wh_petitions_create_signature($petition, $user, $signature_collection_connection, $ip_address = '', $user_agent = '') {
+function wh_petitions_create_signature($petition, $user, $signature_collection_connection, $ip_address = '', $user_agent = '', $timestamp = 0) {
   // If petition is being signed through simplified signing, skip validation
   // checks confirming petition is signable, defer to signatures_queue module's
   // preprocess and process checks.
@@ -1920,7 +1922,7 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
   $signature_count = $petition['signature_count'] + 1;
   $signature = array(
     'petition_id' => (string) $petition['_id'],
-    'timestamp'   => (int) time(),
+    'timestamp'   => ($timestamp) ? $timestamp : (int) time(),
     'ip_address'  => (string) $ip_address,
     'user_agent'  => (string) $user_agent,
     'comment'     => '',
