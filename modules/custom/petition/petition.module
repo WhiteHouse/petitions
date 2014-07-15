@@ -140,6 +140,7 @@ function petition_publish($node) {
   if (function_exists($mongo2mysql_function) && !shunt_is_enabled('petition_mysql_save')) {
     $mongo2mysql_function($legacy_id);
   }
+}
 
 /**
  * Increment petition count.
