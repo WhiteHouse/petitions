@@ -141,7 +141,7 @@ function petitionevents_mandrill_mail_alter(&$mandrill_params, $message) {
         );
       }
 
-      else {
+      elseif (!empty($bcc_email)) {
         $mandrill_params['message']['to'][] = array(
           'email' => $bcc_email,
           'type' => 'bcc',
