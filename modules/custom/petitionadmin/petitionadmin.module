@@ -20,3 +20,8 @@ function petitionadmin_menu_alter(&$items) {
     unset($items['admin/moderation-tools']);
   }
 }
+
+function petitionadmin_form_views_form_petitions_moderation_tools_alter(&$form, &$form_state, $form_id){
+  $form['select']['submit']['#value'] = t('Next');
+}
+
