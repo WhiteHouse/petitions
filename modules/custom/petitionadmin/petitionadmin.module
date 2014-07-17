@@ -12,3 +12,11 @@ module_load_include('inc', 'petitionadmin', 'petitionadmin.views_default');
 function petitionadmin_views_api() {
   return array("version" => "3.0");
 }
+
+// Implements hook_menu_alter();
+function petitionadmin_menu_alter(&$items) {
+  $deny_access = shunt_is_enabled('petition_mysql_save');
+  if($deny_access){
+    unset($items['admin/moderation-tools']);
+  }
+}
