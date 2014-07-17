@@ -46,7 +46,7 @@ function petitionevents_unpublish_petition_action(&$node, $context) {
   }
 
   if (!$context['skip_notification']) {
-    petitionevents_send_remove_email($node, $context);
+    petitionevents_send_remove_email($node->uid, $context);
   }
 
   else {
@@ -87,7 +87,6 @@ function petitionevents_publish_petition_action(&$node, $context) {
 
 /*
  * Sends a takedown email to a petition owner.
->>>>>>> PT-1411: Added petition publish as a VBO action.
  *
  * @param array $node
  *   Array representing a petition node.
@@ -96,9 +95,9 @@ function petitionevents_publish_petition_action(&$node, $context) {
  *   Contextual information passed into the action.  Values set in a VBO form
  *   would be present here.
  */
-function petitionevents_send_remove_email($node, $context) {
+function petitionevents_send_remove_email($uid, $context) {
   // If an address was given, send a test email message.
-  $user = user_load($node->uid);
+  $user = user_load($uid);
 
   $petition_owner_email = $user->mail;
   $petition_owner_name = $user->name;
