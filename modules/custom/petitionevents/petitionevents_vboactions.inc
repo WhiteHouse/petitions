@@ -167,6 +167,8 @@ function petitionevents_unpublish_petition_action_form($settings) {
     '#required' => FALSE,
   );
   petitionevents_remove_email_settings_form($form);
+  $form['remove_email']['#description'] = t("The following message will be sent to the petitions you’ve selected for removal.");
+
 
   $form['remove_email']['#collapsible'] = FALSE;
   $form['remove_email']['#states'] = array(

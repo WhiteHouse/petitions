@@ -36,6 +36,7 @@ function wh_petitions_removal_form($form, &$form_state) {
     $form['remove_email']['#description'] = t("The following message will be sent to the petitions you’ve selected for removal.");
     drupal_set_title('Petitions Moderation');
 
+
     // Add confirmation button to the form.
     $form['confirm'] = array(
       '#type' => 'submit',
