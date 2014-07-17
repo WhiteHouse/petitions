@@ -56,7 +56,7 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
  * @param string $client_ip
  *   The IP address of the signatory.
  * @param int $timestamp
- *   Time when signature was signed. If 0, defaults to time().
+ *   Time when signature was signed. If FALSE, defaults to time().
  *
  * @return string|false
  *   The ID of the created signature record if one is created, or FALSE if not.
@@ -64,7 +64,7 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
  * @todo Replace usages of this function with method call to
  *   SignaturesQueryFactory::create->save().
  */
-function wh_petitions_mongo2mysql_create_new_signature($petition_id, $user, $client_ip, $timestamp = 0) {
+function wh_petitions_mongo2mysql_create_new_signature($petition_id, $user, $client_ip, $timestamp = FALSE) {
     // Setup connections for signatures and petitions.
     $connection = wh_petitions_mongo_petition_connection();
     $connection->setSlaveOkay(FALSE);
