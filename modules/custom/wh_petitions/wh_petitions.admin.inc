@@ -997,7 +997,7 @@ function wh_petitions_admin_petitions() {
     }
 
     // Flag ( Remove from Site )
-    $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a>' . t('Remove from Site') . '</a></div>';
+    $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a href="/remove-mongo-petition?petition_id='.$id.'">' . t('Remove from Site') . '</a></div>';
     if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
       $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a>' . t('Enable on Site') . '</a></div>';
     }
@@ -1384,14 +1384,12 @@ function wh_petitions_remove_lists($petition_id) {
 
     if ($petition['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
       $petition = wh_petitions_mongo2mysql_publish($petition_id);
-      $text = t('Remove from Site');
+      $link = '<a href="/remove-mongo-petition?petition_id='.$petition_id.'">' . t('Remove from Site') . '</a>';
+      $text = t('Enable on Site');
     }
 
     else {
-      // Set the status on the object to match what we're about
-      // to set in the database record.
-      $petition = wh_petitions_mongo2mysql_unpublish($petition_id);
-      $text = t('Enable on Site');
+      drupal_goto("/remove-mongo-petition?petition_id=$petition_id");
     }
 
     // Now that PHP is done with the petition, convert some
@@ -1405,7 +1403,7 @@ function wh_petitions_remove_lists($petition_id) {
       array(
 
         // The text of the link for the remove-lists div.
-        'link' => '<a>' . $text . '</a>',
+        'link' => $link,
 
         // A representation of the petition for JS to display.
         'petition' => $petition,
