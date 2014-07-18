@@ -26,7 +26,7 @@ function wh_petitions_removal_form($form, &$form_state) {
   $form_state['storage']['petition_uid'] = $petition['uid'];;
 
 
-  $path = '/admin/petitions'; // path to return to if "cancel" is pressed
+  $path = 'admin/petitions'; // path to return to if "cancel" is pressed
 
   // create a form with a "confirm" step.
   // Initial form first:
@@ -88,7 +88,7 @@ function wh_petitions_form_submit($form, &$form_state) {
   }
   else {
     $petition_id = $form_state['storage']['petition_id'];
-    $petition_uid = $form_state['storage']['petition_id'];
+    $petition_uid = $form_state['storage']['petition_uid'];
 
     $context = $form_state['storage']['context'];
     wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $context);
@@ -125,7 +125,7 @@ function wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $co
   }
 
   if (!$context['skip_notification']) {
-    petitionevents_send_remove_email($petition_id['uid'], $context);
+    petitionevents_send_remove_email($petition_uid, $context);
   }
 
   else {

@@ -1109,7 +1109,7 @@ function wh_petitions_admin_petitions() {
 
 
   if(!shunt_is_enabled('petition_mysql_save')){
-    $link = l("here", "/admin/moderation-tools");
+    $link = l("here", "admin/moderation-tools");
     $msg = "Mysql based petitions are enabled and using this page will introduce inconsistencies between mongo and mysql based petitions. <br /> We recommend that you use the new mysql based petitions moderation tools $link to keep petitions in sync.";
     drupal_set_message($msg, 'warning');
   }
