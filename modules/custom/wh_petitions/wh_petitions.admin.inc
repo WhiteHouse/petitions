@@ -399,7 +399,7 @@ function wh_petitions_admin_petition_settings() {
 
 You can review at the following URL: !petition_edit_link
 
-You can remove the petition here:<br /><a href= \"!baseurl/admin/moderation-tools?nid=!petition_nid\" >!baseurl/admin/moderation-tools?nid=!petition_nid</a>
+You can remove the petition here:<br /> !petition_remove_link
 
 =================
 

@@ -1235,6 +1235,8 @@ function wh_petitions_mail($key, &$message, $params) {
   $legacy_id = "";
 
 
+
+
   switch ($key) {
     case 'published':
       $langcode = $message['language']->language;
@@ -1291,10 +1293,19 @@ function wh_petitions_mail($key, &$message, $params) {
       $legacy_id = check_plain($petition['_id']);
 
       if (!empty($petition)) {
+
+        if(function_exists('petitionevents_mail_additions')){
+          petitionevents_mail_additions($message, $legacy_id);
+        }
+
         $message['body'][0] = str_replace('!petition_id', check_plain($legacy_id), $message['body'][0]);
         $message['body'][0] = str_replace('!petition_edit_link', variable_get('petitions_edit_url', $base_url) . '/admin/petitions/' . check_plain($petition['_id']), $message['body'][0]);
         $message['body'][0] = str_replace('!petition_title', check_plain($petition['title']), $message['body'][0]);
         $message['body'][0] = str_replace('!petition_body', check_plain($petition['body']), $message['body'][0]);
+
+        $link_path = "$base_url/remove-mongo-petition?petition_id=$legacy_id";
+        $link= l($link_path,$link_path);
+        $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
       }
       else {
         unset($message);
@@ -1335,17 +1346,12 @@ function wh_petitions_mail($key, &$message, $params) {
 
       }
 
-      if(function_exists('petitionevents_mail_additions')){
-        petitionevents_mail_additions($message, $legacy_id);
-      }
+
       // We're only sending mail for removals, so don't do anything else.
       return FALSE;
   }
 
   $message['body'][0] = str_replace('!baseurl', check_plain($base_url), $message['body'][0]);
-  if(function_exists('petitionevents_mail_additions')){
-    petitionevents_mail_additions($message, $legacy_id);
-  }
 }
 
 /**************** MONGO HELPER FUNCTIONS ******************/
