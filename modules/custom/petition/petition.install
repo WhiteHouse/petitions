@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Install file for the petition module.
@@ -23,7 +24,6 @@ function petition_disable() {
   drupal_set_message($message = $t('The Petition  module has been disabled.'), $type = 'status');
 }
 
-
 /**
  * Implements hook_install().
  */
@@ -41,7 +41,6 @@ function petition_install() {
   shunt_enable_shunt('petition_mysql_save');
 
 }
-
 
 /**
  * Implements hook_uninstall().
@@ -61,16 +60,20 @@ function petition_uninstall() {
 }
 
 /**
- * Implements hook_update_N().
- *
+ * Implements hook_update_last_removed().
+ */
+function petition_update_last_removed() {
+  return 7000;
+}
+
+/**
  * Updates fields from fields array if it changed.
  */
-function petition_update_7000(&$sandbox) {
+function petition_update_7300(&$sandbox) {
   require_once 'includes/petition.field.inc';
   // Update the fields and add their instances to the petition content type.
   petition_build_fields(petition_fields());
 }
-
 
 /**
  * Creates fields and adds field instances to petition content type.

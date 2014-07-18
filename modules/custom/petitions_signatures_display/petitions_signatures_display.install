@@ -15,8 +15,15 @@ function petitions_signatures_display_uninstall() {
 }
 
 /**
- * Update module weight.
+ * Implements hook_install().
  */
-function petitions_signatures_display_update_7001() {
+function petitions_signatures_display_install() {
   db_query("UPDATE {system} SET weight = 100 WHERE name = 'petitions_signatures_display'");
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function petitions_signatures_display_update_last_removed() {
+  return 7001;
 }
