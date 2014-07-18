@@ -462,7 +462,7 @@ function wh_petitions_petition_detail($petition_id) {
       $reached_ready = date('M d, Y', $petition['reached_ready']);
     }
 
-    if(function_exists("petitionevents_get_administer_link")) {
+    if(!shunt_is_enabled('petition_mysql_save')  && function_exists("petitionevents_get_administer_link")) {
       $admin_link = petitionevents_get_administer_link();
     }
 
