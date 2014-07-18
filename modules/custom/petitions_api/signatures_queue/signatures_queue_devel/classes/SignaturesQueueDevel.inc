@@ -47,7 +47,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
     $item = array();
     switch ($name) {
       case 'signatures_submitted_queue':
-        $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
+        $grace_period = variable_get('signatures_queue_validation_grace_period', 2);
         $item['first_name'] = ($first_name) ? $first_name : self::generateRandomString(6);
         $item['last_name'] = ($last_name) ? $last_name : self::generateRandomString(8);
         $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
@@ -67,7 +67,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
 
       case 'signatures_pending_validation_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
-        $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
+        $grace_period = variable_get('signatures_queue_validation_grace_period', 2);
         $item['first_name'] = ($first_name) ? $first_name : self::generateRandomString(6);
         $item['last_name'] = ($last_name) ? $last_name : self::generateRandomString(8);
         $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
@@ -85,7 +85,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
 
       case 'validations_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
-        $grace_period = variable_get('signatures_queue_validation_grace_period', 0);
+        $grace_period = variable_get('signatures_queue_validation_grace_period', 2);
         $email = self::generateRandomString(10) . '@mailinator.com';
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1(self::generateRandomString(25));

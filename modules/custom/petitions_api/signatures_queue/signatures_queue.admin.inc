@@ -113,7 +113,7 @@ function signatures_queue_configure() {
   $form['archive_signatures']['signatures_queue_validation_grace_period'] = array(
     '#type' => 'textfield',
     '#title' => t('Validation Grace Period (in Days)'),
-    '#default_value' => variable_get('signatures_queue_validation_grace_period', 0),
+    '#default_value' => variable_get('signatures_queue_validation_grace_period', 2),
     '#size' => 12,
     '#maxlength' => 12,
     '#description' => t('Number of days a signature validation link is valid.'),
