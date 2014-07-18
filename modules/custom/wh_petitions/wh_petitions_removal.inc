@@ -96,7 +96,7 @@ function wh_petitions_form_submit($form, &$form_state) {
     // This message is designed to mimic the current VBO message.
     drupal_set_message('Performed Remove petitions on 1 item.');
 
-    $path = "/admin/petitions/$petition_id";
+    $path = "admin/petitions/$petition_id";
     drupal_goto($path);
   }
 }
