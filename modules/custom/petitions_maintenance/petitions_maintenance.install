@@ -246,22 +246,29 @@ function petitions_maintenance_update_7012() {
  */
 
 /**
- * Activate the petitions and signature module.
+ * Prepare the site to run Petitions 7.x-3.*.
  *
- * Note: This makes petition and signature storage in mysql possible. But you'll
- * need to disable mysql shunt trips to actually activate this.
+ * Note: This makes petition and signature storage in MySQL possible, but you'll
+ * need to disable MySQL shunt trips to actually activate it.
  */
-function petitions_maintenance_update_7300() {
+function petitions_maintenance_update_7300(&$sandbox) {
   // Enable new modules.
-  $modules = array('petition', 'signature_mail', 'petition_pages', 'migrate_mongo2mysql_petsig');
+  $modules = array(
+    'formatforlog',
+    'migrate_mongo2mysql_petsig',
+    'petition',
+    'petitionadmin',
+    'petitionevents',
+    'petition_pages',
+    'petitionsmongo2mysqlintegrity',
+    'signature',
+    'signature_mail',
+  );
   module_enable($modules);
-}
 
-/**
- * Enable formatforlog module.
- */
-function petitions_maintenance_update_7301() {
-  // Enable new modules.
-  $modules = array('formatforlog');
-  module_enable($modules);
+  // Trip shunts.
+  $shunts = array('petition_mysql_save', 'signature_mail_mysql_save');
+  foreach ($shunts as $shunt) {
+    shunt_enable_shunt($shunt);
+  }
 }

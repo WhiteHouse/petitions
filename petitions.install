@@ -56,3 +56,4 @@ function petitions_install() {
     taxonomy_term_save($term);
   }
 }
+
