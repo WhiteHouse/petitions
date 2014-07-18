@@ -78,7 +78,6 @@ function wh_petitions_removal_form($form, &$form_state) {
 // (Name of the submit function has to be the name of above function + "_submit"!)
 
 function wh_petitions_form_submit($form, &$form_state) {
-  drupal_set_message("wh_petitions_form_submit");
 
   if(empty($form_state['storage']['confirm'] )) {
     // NOTE: The variable is no longer in $form_state['values']['your-field'] by the time I'm printing out the final confirmation message. I'm

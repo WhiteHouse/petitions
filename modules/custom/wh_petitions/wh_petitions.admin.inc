@@ -562,6 +562,9 @@ function wh_petitions_admin_petitions() {
   global $user;
   drupal_add_js(drupal_get_path('module', 'wh_petitions') . "/wh_petitions.admin.js", array('scope' => 'header', 'weight' => 50));
 
+
+
+
   // Retrieve filter settings.
   $session_settings = isset($_SESSION['petition_overview_filter']) ? $_SESSION['petition_overview_filter'] : array();
   $submitted = isset($_GET['submitted']) && is_numeric($_GET['submitted']) && $_GET['submitted'] == 1;
@@ -996,11 +999,34 @@ function wh_petitions_admin_petitions() {
       $featured = '<div id="featured-' . check_plain($id) . '" class="featured" style="display:inline;cursor:pointer;"><a>' . t('Un-Feature') . '</a></div>';
     }
 
-    // Flag ( Remove from Site )
-    $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a href="/remove-mongo-petition?petition_id='.$id.'">' . t('Remove from Site') . '</a></div>';
-    if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
-      $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a>' . t('Enable on Site') . '</a></div>';
+
+    if(shunt_is_enabled('petition_mysql_save')){
+      // Flag ( Remove from Site )
+      $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a href="/remove-mongo-petition?petition_id='.$id.'">' . t('Remove from Site') . '</a></div>';
+      if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
+        $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a>' . t('Enable on Site') . '</a></div>';
+      }
     }
+
+    else{
+      // Flag ( Remove from Site )
+      $node = petition_load_from_legacy_id ($id);
+
+      $nid ="";
+      if(!empty($node)) {
+        $nid = $node -> nid;
+      }
+      $link = l("Disable via mysql" , "admin/moderation-tools/$nid");
+      $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;">'.$link.'</div>';
+
+      if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
+        $link = l("Enable via mysql" , "admin/moderation-tools/$nid");
+        $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;">'.$link.'</div>';
+      }
+    }
+
+
+
 
     $action_string = $bookmark . ' | ' . $featured . ' | ' . $hidden_link;
     $action_string .= ' | ' . l(t('Download Signature Email CSV'), 'admin/petitions/download_signatures/' . check_plain($id) . '/email_csv', array('attributes' => array('target' => '_blank')));
@@ -1080,6 +1106,14 @@ function wh_petitions_admin_petitions() {
       '#markup' => $markup,
     );
   }
+
+
+  if(!shunt_is_enabled('petition_mysql_save')){
+    $link = l("here", "/admin/moderation-tools");
+    $msg = "Mysql based petitions are enabled and using this page will introduce inconsistencies between mongo and mysql based petitions. <br /> We recommend that you use the new mysql based petitions moderation tools $link to keep petitions in sync.";
+    drupal_set_message($msg, 'warning');
+  }
+
 
   $form['#submit'][] = 'wh_petitions_admin_petitions_submit';
   return $form;
