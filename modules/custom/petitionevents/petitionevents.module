@@ -75,12 +75,11 @@ function petitionevents_mail_additions(&$message, $legacy_id) {
   }
   $node = petition_load_from_legacy_id($legacy_id);
   $message['body'][0] = str_replace('!petition_nid', $node->nid, $message['body'][0]);
-  //<a href= \"!baseurl/admin/moderation-tools?nid=!petition_nid\" >!</a>
 
   // Replacement for petition_remove_link.
   $nid = $node->nid;
   $link_path = "$base_url/admin/moderation-tools?nid=$nid";
-  $link= l($link_path,$link_path);
+  $link = l($link_path, $link_path);
   $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
 }
 

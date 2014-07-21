@@ -56,19 +56,15 @@ function petitionevents_unpublish_petition_action(&$node, $context) {
 }
 
 /**
- * Sends a removal email to a petition owner.
-=======
-
-/**
  * Custom action to publish a petition.
  *
  * @param array $node
- *  Array representing a petition node.
+ *   Array representing a petition node.
  *
  * @param array $context
- *  Contextual information passed into the action.  Values set in a VBO form
- *  would be present here.
- * */
+ *   Contextual information passed into the action.  Values set in a VBO form
+ *   would be present here.
+ */
 function petitionevents_publish_petition_action(&$node, $context) {
   try{
     petition_publish($node);
@@ -82,14 +78,14 @@ function petitionevents_publish_petition_action(&$node, $context) {
     return;
   }
 
-  watchdog("petition_publish", "Publishing petition: " . $node->title . " nid:" . $node->nid );
+  watchdog("petition_publish", "Publishing petition: " . $node->title . " nid:" . $node->nid);
 }
 
-/*
+/**
  * Sends a takedown email to a petition owner.
  *
- * @param array $node
- *   Array representing a petition node.
+ * @param array $uid
+ *   Drupal UID.
  *
  * @param array $context
  *   Contextual information passed into the action.  Values set in a VBO form
@@ -168,7 +164,6 @@ function petitionevents_unpublish_petition_action_form($settings) {
   );
   petitionevents_remove_email_settings_form($form);
   $form['remove_email']['#description'] = t("The following message will be sent to the petitions you’ve selected for removal.");
-
 
   $form['remove_email']['#collapsible'] = FALSE;
   $form['remove_email']['#states'] = array(

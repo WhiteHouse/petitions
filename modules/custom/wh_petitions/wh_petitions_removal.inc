@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * @file
  * Contains forms to replicate the streamlined petition workflow form for an
  * individual petition from MySql VBO for Mongo based petitions.
@@ -8,7 +8,7 @@
 
 
 /**
- *  Form with confirmation step
+ * Form with confirmation step.
  */
 function wh_petitions_removal_form($form, &$form_state) {
   $query_parameters = drupal_get_query_parameters();
@@ -16,8 +16,7 @@ function wh_petitions_removal_form($form, &$form_state) {
     $petition_id = $query_parameters['petition_id'];
   }
 
-
-  // Load the petition
+  // Load the petition.
   $conn = wh_petitions_mongo_petition_connection();
   $petition = wh_petitions_load_petition($conn, $petition_id);
 
@@ -25,17 +24,15 @@ function wh_petitions_removal_form($form, &$form_state) {
   $form_state['storage']['petition_title'] = $petition['title'];
   $form_state['storage']['petition_uid'] = $petition['uid'];;
 
+  // Path to return to if "cancel" is pressed.
+  $path = 'admin/petitions';
 
-  $path = 'admin/petitions'; // path to return to if "cancel" is pressed
-
-  // create a form with a "confirm" step.
-  // Initial form first:
-  if(!isset( $form_state['storage']['confirm'])) {
+  // Initial form first.
+  if (!isset($form_state['storage']['confirm'])) {
     $form = petitionevents_unpublish_petition_action_form(NULL);
     $form['#validate'][] = 'petitionevents_unpublish_petition_action_validate';
     $form['remove_email']['#description'] = t("The following message will be sent to the petitions you’ve selected for removal.");
     drupal_set_title('Petitions Moderation');
-
 
     // Add confirmation button to the form.
     $form['confirm'] = array(
@@ -44,19 +41,16 @@ function wh_petitions_removal_form($form, &$form_state) {
       '#submit' => array('wh_petitions_form_submit'),
     );
 
-
     return $form;
   }
 
   else {
     // The form shown during the confirmation step:
-
-
-      // Normally don't like this much HTML outside a template but this is a
-      // temporary measure that will ensure a smooth transition to the mysql
-      // VBO.
-      $petition_title = $form_state['storage']['petition_title'];
-      $confirmation_msg = "<div id=\"edit-description\" class=\"form-item form-type-item\">
+    // Normally don't like this much HTML outside a template but this is a
+    // temporary measure that will ensure a smooth transition to the mysql
+    // VBO.
+    $petition_title = $form_state['storage']['petition_title'];
+    $confirmation_msg = "<div id=\"edit-description\" class=\"form-item form-type-item\">
         <div class=\"item-list\">
             <h3>You selected the following <strong>item</strong>:</h3>
             <ul>
@@ -68,21 +62,22 @@ function wh_petitions_removal_form($form, &$form_state) {
     $form['#title'] = 'Petitions Moderation';
     $form['#submit'][] = 'wh_petitions_form_submit';
 
-    return confirm_form($form, $question="Petitions Moderation", $path , $confirmation_msg, $yes = "Confirm");
+    return confirm_form($form, "Petitions Moderation", $path, $confirmation_msg, $yes = "Confirm");
   }
 
-
   return $form;
-} // end of function
-// Our submit function
-// (Name of the submit function has to be the name of above function + "_submit"!)
+}
 
+/**
+ * Form submit callback for form submission.
+ */
 function wh_petitions_form_submit($form, &$form_state) {
 
-  if(empty($form_state['storage']['confirm'] )) {
-    // NOTE: The variable is no longer in $form_state['values']['your-field'] by the time I'm printing out the final confirmation message. I'm
-    // not sure session variables are the best solution, but this worked for me.
-    $form_state['storage']['confirm'] = TRUE; // this will cause the form to be rebuilt, entering the confirm part of the form
+  if (empty($form_state['storage']['confirm'])) {
+
+    // This will cause the form to be rebuilt, entering the confirm part of
+    // the form.
+    $form_state['storage']['confirm'] = TRUE;
     $form_state['rebuild'] = TRUE;
     $form_state['storage']['context']  = petitionevents_unpublish_petition_action_submit($form, $form_state);
   }
@@ -104,8 +99,11 @@ function wh_petitions_form_submit($form, &$form_state) {
 /**
  * Custom action to unpublish a petition.
  *
- * @param array $node
- *   Array representing a petition node.
+ * @param array $petition_id
+ *   Mongo petition id.
+ *
+ * @param array $petition_uid
+ *   uid of the petition's owner.
  *
  * @param array $context
  *   Contextual information passed into the action.  Values set in a VBO form
@@ -133,4 +131,3 @@ function wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $co
     watchdog("petition_removal", $msg);
   }
 }
-
