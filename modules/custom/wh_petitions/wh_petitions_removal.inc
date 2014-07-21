@@ -125,8 +125,11 @@ function wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $co
     return;
   }
 
+  $context['petition_title'] = $petition['title'];
+  $context['petition_uid'] = $petition_uid;
+
   if (!$context['skip_notification']) {
-    petitionevents_send_remove_email($petition_uid, $context);
+    petitionevents_send_remove_email($context);
   }
 
   watchdog("petition_removal", "Removing petition: @title mongo_petition_id: @nid", array('@title' => $petition['title'], '@nid' => $petition_id));

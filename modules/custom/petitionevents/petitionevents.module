@@ -55,6 +55,7 @@ function petitionevents_remove_email_settings_form(&$form) {
     '#title' => t('Body'),
     '#default_value' => variable_get('petitionevents_remove_email_body'),
     '#required' => FALSE,
+    '#description' => t("Supports the !petition_title token."),
   );
 }
 
@@ -63,15 +64,28 @@ function petitionevents_remove_email_settings_form(&$form) {
  *
  * @param array $message
  *   Representation of the email to be sent.
- *
- * @param array $legacy_id
- *   Legacy MonggoID to be passed into the email via tokens.
+ * @param array $context
+ *   Items available for token substitution.
  */
-function petitionevents_mail_additions(&$message, $legacy_id) {
-  if (shunt_is_enabled('petition_mysql_save')) {
-    return;
+function petitionevents_mail_additions(&$message, $context) {
+  $is_mongo_petition = !empty($context['legacy_id']);
+  $is_mysql_petition = !empty($context['nid']);
+
+  $title = $context['petition_title'];
+
+  if ($is_mysql_petition) {
+    $message = str_replace('!petition_nid', $context['nid'], $message);
+    $nid = $context['nid'];
+
+    // Replacement for petition_remove_link.
+    $path = url('admin/moderation-tools', array(
+      'query' => array('nid' => $nid),
+      'absolute' => TRUE,
+    ));
+    $link = l($path, $path);
+    $message = str_replace('!petition_remove_link', $link, $message);
   }
-  $node = petition_load_from_legacy_id($legacy_id);
+  $node = petition_load_from_legacy_id($context['legacy_id']);
   $message['body'][0] = str_replace('!petition_nid', $node->nid, $message['body'][0]);
 
   // Replacement for petition_remove_link.
@@ -81,6 +95,7 @@ function petitionevents_mail_additions(&$message, $legacy_id) {
   ));
   $link = l($path, $path);
   $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
+  $message = str_replace('!petition_title', $title, $message);
 }
 
 /**

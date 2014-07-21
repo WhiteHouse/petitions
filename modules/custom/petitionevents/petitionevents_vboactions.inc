@@ -46,7 +46,9 @@ function petitionevents_unpublish_petition_action(&$node, $context) {
   }
 
   if (!$context['skip_notification']) {
-    petitionevents_send_remove_email($node->uid, $context);
+    $context['petition_title'] = $node->title;
+    $context['petition_uid'] = $node->uid;
+    petitionevents_send_remove_email($context);
   }
 
 
@@ -89,24 +91,25 @@ function petitionevents_publish_petition_action(&$node, $context) {
 /**
  * Sends a takedown email to a petition owner.
  *
- * @param int $uid
- *   A user UID.
- *
  * @param array $context
  *   Contextual information passed into the action.  Values set in a VBO form
  *   would be present here.
  */
-function petitionevents_send_remove_email($uid, $context) {
+function petitionevents_send_remove_email($context) {
   // If an address was given, send a test email message.
-  $user = user_load($uid);
+  $user = user_load($context['petition_uid']);
 
   $petition_owner_email = $user->mail;
   $petition_owner_name = $user->name;
   $petition_owner_full_email = "$petition_owner_name <$petition_owner_email>";
 
   global $language;
+  $message_body = filter_xss_admin($context['body']);
+
+  petitionevents_mail_additions($message_body, $context);
+
   $params['subject'] = check_plain($context['subject']);
-  $params['body'] = filter_xss_admin($context['body']);
+  $params['body'] = $message_body;
   $params['bcc'] = check_plain($context['bcc']);
   $result = drupal_mail('petitionevents', 'send_remove_email', $petition_owner_full_email, $language, $params);
 }

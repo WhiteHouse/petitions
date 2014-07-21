@@ -1263,6 +1263,14 @@ function wh_petitions_mail($key, &$message, $params) {
           $petition['short_url'] = $full_link;
         }
 
+        if(function_exists('petitionevents_mail_additions')){
+          $context = array();
+          $context["petition_title"] = $petition['title'];
+          $context["petition_uid"] = $petition['uid'];
+          $context["legacy_id"] = $legacy_id;
+          petitionevents_mail_additions($message['body'][0], $context);
+        }
+
         $time = $petition['published'];
         $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
         $end_date = date("F d, Y", $end_date);
@@ -1292,7 +1300,11 @@ function wh_petitions_mail($key, &$message, $params) {
       if (!empty($petition)) {
 
         if(function_exists('petitionevents_mail_additions')){
-          petitionevents_mail_additions($message, $legacy_id);
+          $context = array();
+          $context["petition_title"] = $petition['title'];
+          $context["petition_uid"] = $petition['uid'];
+          $context["legacy_id"] = $legacy_id;
+          petitionevents_mail_additions($message, $context);
         }
 
         $message['body'][0] = str_replace('!petition_id', check_plain($legacy_id), $message['body'][0]);
