@@ -1263,14 +1263,6 @@ function wh_petitions_mail($key, &$message, $params) {
           $petition['short_url'] = $full_link;
         }
 
-        if(function_exists('petitionevents_mail_additions')){
-          $context = array();
-          $context["petition_title"] = $petition['title'];
-          $context["petition_uid"] = $petition['uid'];
-          $context["legacy_id"] = $legacy_id;
-          petitionevents_mail_additions($message['body'][0], $context);
-        }
-
         $time = $petition['published'];
         $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
         $end_date = date("F d, Y", $end_date);
@@ -1298,13 +1290,22 @@ function wh_petitions_mail($key, &$message, $params) {
       $legacy_id = check_plain($petition['_id']);
 
       if (!empty($petition)) {
-
         if(function_exists('petitionevents_mail_additions')){
           $context = array();
           $context["petition_title"] = $petition['title'];
-          $context["petition_uid"] = $petition['uid'];
+          $context["petition_uid"] = $petition['_uid'];
           $context["legacy_id"] = $legacy_id;
-          petitionevents_mail_additions($message, $context);
+
+          // Mongo2MySql code that can eventually be removed.
+          $is_mysql_enabled = !shunt_is_enabled("petition_mysql_save");
+
+          if ($is_mysql_enabled) {
+            $context["nid"] = petition_get_nid($legacy_id);
+          }
+
+          $message_body = $message['body'][0];
+          petitionevents_mail_additions($message_body, $context);
+          $message['body'][0] = $message_body;
         }
 
         $message['body'][0] = str_replace('!petition_id', check_plain($legacy_id), $message['body'][0]);
@@ -1312,7 +1313,7 @@ function wh_petitions_mail($key, &$message, $params) {
         $message['body'][0] = str_replace('!petition_title', check_plain($petition['title']), $message['body'][0]);
         $message['body'][0] = str_replace('!petition_body', check_plain($petition['body']), $message['body'][0]);
 
-        $link_path = "$base_url/remove-mongo-petition?petition_id=$legacy_id";
+        $link_path = "$base_url/admin/petitions/$legacy_id";
         $link= l($link_path,$link_path);
         $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
       }

@@ -60,6 +60,13 @@ function petitionevents_remove_email_settings_form(&$form) {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function petitionevents_form_wh_petitions_admin_petition_email_settings_alter(&$form, &$form_state, $form_id) {
+  petitionevents_remove_email_settings_form($form);
+}
+
+/**
  * Implements tokens for mysql petitions in emails.
  *
  * @param array $message
@@ -68,12 +75,14 @@ function petitionevents_remove_email_settings_form(&$form) {
  *   Items available for token substitution.
  */
 function petitionevents_mail_additions(&$message, $context) {
-  $is_mongo_petition = !empty($context['legacy_id']);
+  // Leaving the line below commented just in case there is a strong reason to
+  // process mongo info here.
+  // $is_mongo_petition = !empty($context['legacy_id']);
   $is_mysql_petition = !empty($context['nid']);
-
+  $is_mysql_enabled = !shunt_is_enabled('petition_mysql_save');
   $title = $context['petition_title'];
 
-  if ($is_mysql_petition) {
+  if ($is_mysql_petition && $is_mysql_enabled) {
     $message = str_replace('!petition_nid', $context['nid'], $message);
     $nid = $context['nid'];
 
@@ -84,27 +93,11 @@ function petitionevents_mail_additions(&$message, $context) {
     ));
     $link = l($path, $path);
     $message = str_replace('!petition_remove_link', $link, $message);
+    $message = str_replace('!petition_nid', $nid, $message);
   }
-  $node = petition_load_from_legacy_id($context['legacy_id']);
-  $message['body'][0] = str_replace('!petition_nid', $node->nid, $message['body'][0]);
 
-  // Replacement for petition_remove_link.
-  $path = url('admin/moderation-tools', array(
-    'query' => array('nid' => $node->nid),
-    'absolute' => TRUE,
-  ));
-  $link = l($path, $path);
-  $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
   $message = str_replace('!petition_title', $title, $message);
 }
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function petitionevents_form_wh_petitions_admin_petition_email_settings_alter(&$form, &$form_state, $form_id) {
-  petitionevents_remove_email_settings_form($form);
-}
-
 
 /**
  * Extract mongo id from short url, then grab corresponding node id.

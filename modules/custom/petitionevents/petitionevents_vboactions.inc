@@ -51,7 +51,6 @@ function petitionevents_unpublish_petition_action(&$node, $context) {
     petitionevents_send_remove_email($context);
   }
 
-
   watchdog('petition_removal', 'Unpublishing petition: @title nid: @nid', array(
     '@title' => $node->title,
     '@nid' => $node->nid,
