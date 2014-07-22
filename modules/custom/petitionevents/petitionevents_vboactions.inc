@@ -49,10 +49,9 @@ function petitionevents_unpublish_petition_action(&$node, $context) {
     petitionevents_send_remove_email($node->uid, $context);
   }
 
-  else {
-    $msg = strtr("Removing petition: @title nid: @nid", array('@title' => $node->title, '@nid' => $node->nid));
-    watchdog("petition_removal", $msg);
-  }
+
+  $msg = strtr("Removing petition: @title nid: @nid", array('@title' => $node->title, '@nid' => $node->nid));
+  watchdog("petition_removal", $msg);
 }
 
 /**

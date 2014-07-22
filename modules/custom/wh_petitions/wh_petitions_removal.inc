@@ -126,8 +126,8 @@ function wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $co
     petitionevents_send_remove_email($petition_uid, $context);
   }
 
-  else {
-    $msg = strtr("Removing petition: @title nid: @nid", array('@title' => $petition['title'], '@nid' => $petition_id));
-    watchdog("petition_removal", $msg);
-  }
+
+  $msg = strtr("Removing petition: @title mongo_petition_id: @nid", array('@title' => $petition['title'], '@nid' => $petition_id));
+  watchdog("petition_removal", $msg);
+
 }
