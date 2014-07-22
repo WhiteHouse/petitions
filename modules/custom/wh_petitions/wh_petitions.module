@@ -398,7 +398,7 @@ function wh_petitions_menu() {
     'access arguments' => array('administer petitions'),
     'weight' => 10,
     'file' => 'wh_petitions_removal.inc',
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_CALLBACK,
   );
 
   // Admin - AJAX callbacks.
@@ -2100,7 +2100,9 @@ function wh_petitions_mongo2mysql_publish($legacy_id) {
   return $petition;
 }
 
-// Implements hook_admin_paths
+/**
+* Implements hook_admin_paths().
+*/
 function wh_petitions_admin_paths() {
   $paths = array(
     'remove-mongo-petition' => TRUE,

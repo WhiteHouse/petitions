@@ -20,6 +20,13 @@ function wh_petitions_removal_form($form, &$form_state) {
   $conn = wh_petitions_mongo_petition_connection();
   $petition = wh_petitions_load_petition($conn, $petition_id);
 
+  if (isEmpty($petition)) {
+      watchdog("petition_remove", t("An admin  attempted to remove an invalid mongo based petition id."));
+      drupal_set_message(t("The Petition ID passed in for removal appears to be invalid.  Please contact an administrator."), 'warning');
+    return;
+  }
+
+
   $form_state['storage']['petition_id'] = $petition_id;
   $form_state['storage']['petition_title'] = $petition['title'];
   $form_state['storage']['petition_uid'] = $petition['uid'];;
@@ -89,7 +96,7 @@ function wh_petitions_form_submit($form, &$form_state) {
     wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $context);
 
     // This message is designed to mimic the current VBO message.
-    drupal_set_message('Performed Remove petitions on 1 item.');
+    drupal_set_message(t('Performed Remove petitions on 1 item.'));
 
     $path = "admin/petitions/$petition_id";
     drupal_goto($path);
@@ -126,8 +133,5 @@ function wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $co
     petitionevents_send_remove_email($petition_uid, $context);
   }
 
-
-  $msg = strtr("Removing petition: @title mongo_petition_id: @nid", array('@title' => $petition['title'], '@nid' => $petition_id));
-  watchdog("petition_removal", $msg);
-
+  watchdog("petition_removal", "Removing petition: @title mongo_petition_id: @nid", array('@title' => $petition['title'], '@nid' => $petition_id));
 }

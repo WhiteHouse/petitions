@@ -1411,7 +1411,6 @@ function wh_petitions_remove_lists($petition_id) {
     if ($petition['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
       $petition = wh_petitions_mongo2mysql_publish($petition_id);
       $link = '<a href="/remove-mongo-petition?petition_id=' . $petition_id . '">' . t('Remove from Site') . '</a>';
-      $text = t('Enable on Site');
     }
 
     else {
