@@ -20,13 +20,12 @@ function wh_petitions_removal_form($form, &$form_state) {
   $conn = wh_petitions_mongo_petition_connection();
   $petition = wh_petitions_load_petition($conn, $petition_id);
 
-  if (isEmpty($petition)) {
-      watchdog("petition_remove", t("An admin  attempted to remove an invalid mongo based petition id."));
-      drupal_set_message(t("The Petition ID passed in for removal appears to be invalid.  Please contact an administrator."), 'warning');
-    return;
+  if (empty($petition)) {
+    watchdog('petition_remove', t('Attempted to remove non-existent petition @petition_id.', array(
+      '@petition_id' => $petition_id,
+    )));
+    return drupal_not_found();
   }
-
-
   $form_state['storage']['petition_id'] = $petition_id;
   $form_state['storage']['petition_title'] = $petition['title'];
   $form_state['storage']['petition_uid'] = $petition['uid'];;
@@ -50,7 +49,6 @@ function wh_petitions_removal_form($form, &$form_state) {
 
     return $form;
   }
-
   else {
     // The form shown during the confirmation step:
     // Normally don't like this much HTML outside a template but this is a

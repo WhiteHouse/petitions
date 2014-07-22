@@ -1101,9 +1101,9 @@ function wh_petitions_admin_petitions() {
   }
 
   if (!shunt_is_enabled('petition_mysql_save')) {
-    $link = l(t("here"), "admin/moderation-tools");
-    $msg = "Mysql based petitions are enabled and using this page will introduce inconsistencies between mongo and mysql based petitions. <br /> We recommend that you use the new mysql based petitions moderation tools $link to keep petitions in sync.";
-    drupal_set_message($msg, 'warning');
+    drupal_set_message(t('MySQL based petitions are enabled, and using this page will introduce inconsistencies between Mongo- and MySQL-based petitions.<br />We recommend that you use the new <a href="@link">MySQL-based petitions moderation tools</a> to keep petitions in sync.', array(
+      '@link' => url('admin/moderation-tools'),
+    )), 'warning');
   }
 
   $form['#submit'][] = 'wh_petitions_admin_petitions_submit';
@@ -1410,7 +1410,7 @@ function wh_petitions_remove_lists($petition_id) {
 
     if ($petition['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
       $petition = wh_petitions_mongo2mysql_publish($petition_id);
-      $link = '<a href="/remove-mongo-petition?petition_id=' . $petition_id . '">' . t('Remove from Site') . '</a>';
+      $link = l("'Remove from Site')","<a href='/remove-mongo-petition?petition_id=$petition_id'");
     }
 
     else {
