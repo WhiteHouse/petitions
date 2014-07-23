@@ -1234,9 +1234,6 @@ function wh_petitions_mail($key, &$message, $params) {
   $options['language'] = $message['language'];
   $legacy_id = "";
 
-
-
-
   switch ($key) {
     case 'published':
       $langcode = $message['language']->language;

@@ -1071,8 +1071,8 @@ function wh_petitions_admin_petitions() {
     $markup .= '<fieldset class="container-inline fieldset titled">';
     $markup .= '<legend><span class="fieldset-title fieldset-legend">' . t('Petition Creator') . '</span></legend>';
     $markup .= '<div class="fieldset-content fieldset-wrapper clearfix">';
-    $markup .= '<p>' . t('Name (UID): ') . l($creator_name_id, 'user/' . $creator->uid) . '</p>';
-    $markup .= '<p>' . t("Email: ") . $creator->mail . '</p>';
+    $markup .= '<p>' . t('Name (UID): !link', array('!link' => l($creator_name_id, "user/{$creator->uid}"))) . '</p>';
+    $markup .= '<p>' . t("Email: @email", array('@email' => $creator->mail)) . '</p>';
     $markup .= '</div>';
     $markup .= '</fieldset>';
 
