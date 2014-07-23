@@ -69,8 +69,6 @@ function wh_petitions_removal_form($form, &$form_state) {
 
     return confirm_form($form, "Petitions Moderation", $path, $confirmation_msg, $yes = "Confirm");
   }
-
-  return $form;
 }
 
 /**
