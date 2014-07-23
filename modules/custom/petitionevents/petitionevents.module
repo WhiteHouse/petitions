@@ -68,8 +68,6 @@ function petitionevents_remove_email_settings_form(&$form) {
  *   Legacy MonggoID to be passed into the email via tokens.
  */
 function petitionevents_mail_additions(&$message, $legacy_id) {
-  global $base_url;
-
   if (shunt_is_enabled('petition_mysql_save')) {
     return;
   }
@@ -77,9 +75,11 @@ function petitionevents_mail_additions(&$message, $legacy_id) {
   $message['body'][0] = str_replace('!petition_nid', $node->nid, $message['body'][0]);
 
   // Replacement for petition_remove_link.
-  $nid = $node->nid;
-  $link_path = "$base_url/admin/moderation-tools?nid=$nid";
-  $link = l($link_path, $link_path);
+  $path = url('admin/moderation-tools', array(
+    'query' => array('nid' => $node->nid),
+    'absolute' => TRUE,
+  ));
+  $link = l($path, $path);
   $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
 }
 
