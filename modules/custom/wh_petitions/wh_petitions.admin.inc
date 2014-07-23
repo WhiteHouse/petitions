@@ -1410,11 +1410,14 @@ function wh_petitions_remove_lists($petition_id) {
 
     if ($petition['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
       $petition = wh_petitions_mongo2mysql_publish($petition_id);
-      $link = l("'Remove from Site')","<a href='/remove-mongo-petition?petition_id=$petition_id'");
+      $link = l(t('Remove from site'), 'remove-mongo-petition', array(
+        'query' => array('petition_id' => $petition_id),
+      ));
     }
-
     else {
-      drupal_goto("/remove-mongo-petition?petition_id=$petition_id");
+      drupal_goto('remove-mongo-petition', array(
+        'query' => array('petition_id' => $petition_id),
+      ));
     }
 
     // Now that PHP is done with the petition, convert some
