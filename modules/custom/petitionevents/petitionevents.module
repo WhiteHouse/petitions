@@ -72,7 +72,10 @@ function petitionevents_form_wh_petitions_admin_petition_email_settings_alter(&$
  * @param array $message
  *   Representation of the email to be sent.
  * @param array $context
- *   Items available for token substitution.
+ *   An associative array of petition details.
+ *   - petition_title: The petition title.
+ *   - nid: (optional) The petition node ID, if applicable.
+ *   - legacy_id: (optional) The petition Mongo ID, if applicable.
  */
 function petitionevents_mail_additions(&$message, $context) {
   // Leaving the line below commented just in case there is a strong reason to
