@@ -18,7 +18,7 @@ function petition_load_from_legacy_id($legacy_id) {
   if ($nid = petition_get_nid($legacy_id)) {
     $node = node_load($nid);
   }
-  return (is_object($node)) ? $node : NULL;
+  return (isset($node) && is_object($node)) ? $node : NULL;
 }
 
 
