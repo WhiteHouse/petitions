@@ -412,13 +412,6 @@ BODY:
 ================="),
     '#required' => TRUE,
   );
-  $form['petition_admin']['wh_petitions_admin_removal_notification_emails'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Petition Removal Notification Email Addresses'),
-    '#description' => t('Enter a comma-separated list of email addresses which should received notices when a petition is removed.'),
-    '#default_value' => variable_get('wh_petitions_admin_removal_notification_emails', ''),
-    '#required' => FALSE,
-  );
 
   // Settings related to petition administration.
   $form['mongo2mysql'] = array(

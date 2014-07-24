@@ -1804,32 +1804,6 @@ function wh_petitions_admin_log($acting_user, $entity_type, $entity_acted_upon) 
 }
 
 /**
- * Prepare and send a notification when a petition is removed or re-enabled.
- *
- * @param object $user
- *   The drupal user object
- * @param array $petition
- *   The petition result
- */
-function wh_petitions_removal_notification($user, $petition) {
-  $to_email = variable_get('wh_petitions_admin_removal_notification_emails');
-
-  if (!$to_email) {
-    // We can't send mail without a to address, but
-    // this may be deliberate, so just end.
-    return;
-  }
-  $creator = user_load($petition['uid']);
-  $params = array(
-    'creator_email' => $creator->mail,
-    'remover' => $user->mail,
-    'petition' => $petition,
-  );
-  $from = variable_get('wh_petitions_email_address', '');
-  drupal_mail('wh_petitions', 'status_change', $to_email, language_default(), $params, $from);
-}
-
-/**
  * Invoke petition signature observer.
  *
  * Wrapper for invoking all the functionality that needs to be triggered
