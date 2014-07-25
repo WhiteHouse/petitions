@@ -397,9 +397,7 @@ function wh_petitions_admin_petition_settings() {
     '#description' => '',
     '#default_value' => variable_get('wh_petitions_review_threshold_passed_text', "The petition titled \"!petition_title\" has passed the number of signatures necessary for compliance review.
 
-You can review at the following URL: !petition_edit_link
-
-You can remove the petition here:<br /> !petition_remove_link
+You can review the petition here:<br />!petition_remove_link
 
 =================
 
