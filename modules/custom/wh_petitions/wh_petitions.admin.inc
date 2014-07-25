@@ -1006,15 +1006,11 @@ function wh_petitions_admin_petitions() {
         $nid = $node->nid;
       }
 
-      $link_path = "/admin/moderation-tools?nid=$nid";
-      $link = t('<a href="@link">Disable via mysql</a>', array('@link' => $link_path));
+      $text = ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) ? t('Enable via MySQL') : t('Disable via MySQL');
+      $link = l($text, 'admin/moderation-tools', array(
+        'query' => array('nid' => $nid),
+      ));
       $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;">' . $link . '</div>';
-
-      if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
-        $link_path = "/admin/moderation-tools?nid=$nid";
-        $link = t('<a href="@link">Enable via mysql</a>', array('@link' => $link_path));
-        $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;">' . $link . '</div>';
-      }
     }
 
     $action_string = $bookmark . ' | ' . $featured . ' | ' . $hidden_link;
