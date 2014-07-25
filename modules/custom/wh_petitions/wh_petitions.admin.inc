@@ -1005,11 +1005,14 @@ function wh_petitions_admin_petitions() {
       if (!empty($node)) {
         $nid = $node->nid;
       }
-      $link = l(t("Disable via mysql"), "admin/moderation-tools/$nid");
+
+      $link_path = "/admin/moderation-tools?nid=$nid";
+      $link = t('<a href="@link">Disable via mysql</a>', array('@link' => $link_path));
       $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;">' . $link . '</div>';
 
       if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
-        $link = l(t("Enable via mysql"), "admin/moderation-tools/$nid");
+        $link_path = "/admin/moderation-tools?nid=$nid";
+        $link = t('<a href="@link">Enable via mysql</a>', array('@link' => $link_path));
         $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;">' . $link . '</div>';
       }
     }
