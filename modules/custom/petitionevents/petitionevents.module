@@ -23,14 +23,14 @@ function petitionevents_remove_email_settings_form(&$form) {
 
   $form['remove_email']['petitionevents_remove_email_from_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('From name'),
+    '#title' => t('Reply To name'),
     '#default_value' => variable_get('petitionevents_remove_email_from_name'),
     '#required' => TRUE,
   );
 
   $form['remove_email']['petitionevents_remove_email_from_address'] = array(
     '#type' => 'textfield',
-    '#title' => t('From address'),
+    '#title' => t('Reply To address'),
     '#default_value' => variable_get('petitionevents_remove_email_from_address'),
     '#required' => TRUE,
   );
