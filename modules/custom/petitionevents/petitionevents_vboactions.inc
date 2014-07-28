@@ -102,6 +102,10 @@ function petitionevents_send_remove_email($context) {
   $petition_owner_name = $user->name;
   $petition_owner_full_email = "$petition_owner_name <$petition_owner_email>";
 
+  $from_email = check_plain($context['from_email']);
+  $from_name = check_plain($context['from_name']);
+  $from_full_email = "$from_name <$from_email>";
+
   global $language;
   $message_body = filter_xss_admin($context['body']);
 
@@ -110,6 +114,7 @@ function petitionevents_send_remove_email($context) {
   $params['subject'] = check_plain($context['subject']);
   $params['body'] = $message_body;
   $params['bcc'] = check_plain($context['bcc']);
+  $params['from'] = $from_full_email;
   $result = drupal_mail('petitionevents', 'send_remove_email', $petition_owner_full_email, $language, $params);
 }
 
@@ -122,6 +127,7 @@ function petitionevents_mail($key, &$message, $params) {
     $message['subject'] = $params['subject'];
     $message['body'] = $params['body'];
     $message['bcc'] = $params['bcc'];
+    $message['from'] = $params['from'];
   }
 }
 
@@ -129,6 +135,7 @@ function petitionevents_mail($key, &$message, $params) {
  * Implements mandrill_mail().
  */
 function petitionevents_mandrill_mail_alter(&$mandrill_params, $message) {
+  $mandrill_params['message']['from'] = $message['from'];
 
   // This code enables BCC for petitionevents_send_remove_email().
   if ($message['key'] == 'send_remove_email') {
@@ -226,8 +233,8 @@ function petitionevents_unpublish_petition_action_validate($form, &$form_state) 
 function petitionevents_unpublish_petition_action_submit($form, $form_state) {
   $action_context = array();
   $action_context['skip_notification'] = $form_state['values']['petitionevents_remove_email_skip_notification'];
-  $action_context['name'] = $form_state['values']['petitionevents_remove_email_from_name'];
-  $action_context['email'] = $form_state['values']['petitionevents_remove_email_from_address'];
+  $action_context['from_name'] = $form_state['values']['petitionevents_remove_email_from_name'];
+  $action_context['from_email'] = $form_state['values']['petitionevents_remove_email_from_address'];
   $action_context['subject'] = $form_state['values']['petitionevents_remove_email_subject'];
   $action_context['bcc'] = $form_state['values']['petitionevents_remove_email_bcc'];
   $action_context['body'] = $form_state['values']['petitionevents_remove_email_body'];
