@@ -163,16 +163,12 @@ class Signature {
    * @throws InvalidArgumentException.
    */
   public function getName() {
-    // I'm intentionally not passing in $this->user->name because it would
-    // require an unnecessary user_load() per signature.
-    return $this->formatName('', $this->getFirstName(), $this->getLastName());
+    return $this->formatName($this->getFirstName(), $this->getLastName());
   }
 
   /**
    * Helper function to format first and last name.
    *
-   * @param string $username
-   *   Username of petition signer.
    * @param string $first_name
    *   First name of petition signer.
    * @param string $last_name
@@ -181,11 +177,10 @@ class Signature {
    * @return string
    *   Formatted name.
    */
-  protected function formatName($username, $first_name, $last_name) {
+  protected function formatName($first_name, $last_name) {
     if (module_exists('petitions_signatures_display')) {
       if (variable_get('petitions_data_signatures_display_names', 0)) {
-        $function = 'petitions_signatures_display_style';
-        $name = petitions_data_sanitize_output($function($username, $first_name, $last_name));
+        $name = petitions_data_sanitize_output(petitions_signatures_display_style($first_name, $last_name));
       }
     }
     else {

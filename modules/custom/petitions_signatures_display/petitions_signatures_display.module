@@ -36,8 +36,6 @@ function petitions_signatures_display_menu() {
 /**
  * Returns a signatory's name formatted for public display on petitions.
  *
- * @param string $username
- *   A signatory's Drupal username.
  * @param string $first_name
  *   A signatory's first name.
  * @param string $last_name
@@ -46,7 +44,7 @@ function petitions_signatures_display_menu() {
  * @return string
  *   A name formatted for public display as a signatory.
  */
-function petitions_signatures_display_style($username, $first_name, $last_name) {
+function petitions_signatures_display_style($first_name, $last_name) {
   $normalized_first_name = ucfirst(trim($first_name));
   $first_initial = drupal_substr($normalized_first_name, 0, 1);
   $normalized_last_name = ucfirst(trim($last_name));
