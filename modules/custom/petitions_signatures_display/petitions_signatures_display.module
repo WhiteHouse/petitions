@@ -6,6 +6,16 @@
  */
 
 /**
+ * Display signatures using signatory's first name, last initial.
+ */
+define('PETITIONS_SIGNATURES_DISPLAY_MODE_FIRST_NAME_LAST_INITIAL', 1);
+
+/**
+ * Display signatures using signatory's first and last initials only.
+ */
+define('PETITIONS_SIGNATURES_DISPLAY_MODE_INITIALS_ONLY', 2);
+
+/**
  * Implements hook_menu().
  */
 function petitions_signatures_display_menu() {
@@ -24,59 +34,35 @@ function petitions_signatures_display_menu() {
 }
 
 /**
- * Returns [first name] [last initial].
+ * Returns a signatory's name formatted for public display on petitions.
+ *
+ * @param string $username
+ *   A signatory's Drupal username.
+ * @param string $first_name
+ *   A signatory's first name.
+ * @param string $last_name
+ *   A signatory's last name.
+ *
+ * @return string
+ *   A name formatted for public display as a signatory.
  */
-function petitions_signatures_display_fname_linitial($first_name = '', $last_name = '') {
-  if ($first_name) {
-    $name = ucfirst($first_name);
+function petitions_signatures_display_style($username, $first_name, $last_name) {
+  $normalized_first_name = ucfirst(trim($first_name));
+  $first_initial = drupal_substr($normalized_first_name, 0, 1);
+  $normalized_last_name = ucfirst(trim($last_name));
+  $last_initial = drupal_substr($normalized_last_name, 0, 1);
+
+  $display_mode = variable_get('petitions_signatures_display_mode', PETITIONS_SIGNATURES_DISPLAY_MODE_FIRST_NAME_LAST_INITIAL);
+  switch ($display_mode) {
+    case PETITIONS_SIGNATURES_DISPLAY_MODE_INITIALS_ONLY:
+      // Initials only.
+      return "{$first_initial}. {$last_initial}.";
+
+    case PETITIONS_SIGNATURES_DISPLAY_MODE_FIRST_NAME_LAST_INITIAL:
+    default:
+      // First name, last initial.
+      return "{$normalized_first_name} {$last_initial}.";
   }
-
-  if ($last_name) {
-    if ($name) {
-      $name .= ' ' . ucfirst(mb_substr(trim($last_name), 0, 1)) . '.';
-    }
-    else {
-      $name = ucfirst(mb_substr(trim($last_name), 0, 1)) . '.';
-    }
-  }
-
-  return $name;
-}
-
-/**
- * Returns [first initial] [last initial].
- */
-function petitions_signatures_display_finitial_linitial($first_name = '', $last_name = '') {
-  if ($first_name) {
-    $name = ucfirst(mb_substr(trim($first_name), 0, 1)) . '.';
-  }
-
-  if ($last_name) {
-    if ($name) {
-      $name .= ' ' . ucfirst(mb_substr(trim($last_name), 0, 1)) . '.';
-    }
-    else {
-      $name = ucfirst(mb_substr(trim($last_name), 0, 1)) . '.';
-    }
-  }
-
-  return $name;
-}
-
-/**
- * Returns formatted name.
- */
-function petitions_signatures_display_style($username, $first_name = '', $last_name = '') {
-  $function = variable_get('petitions_signatures_display_initials', 'petitions_signatures_display_fname_linitial');
-
-  if ($first_name || $last_name) {
-    $name = $function($first_name, $last_name);
-  }
-  else {
-    $name = $username;
-  }
-
-  return $name;
 }
 
 /**

@@ -27,3 +27,26 @@ function petitions_signatures_display_install() {
 function petitions_signatures_display_update_last_removed() {
   return 7001;
 }
+
+/**
+ * Replace the old petitions_signatures_display_initials variable.
+ */
+function petitions_signatures_display_update_7300() {
+  // Set the new variable based on the value of the old one.
+  $signature_display_mode = variable_get('petitions_signatures_display_initials');
+  switch ($signature_display_mode) {
+    case 'petitions_signatures_display_fname_linitial':
+      // First name, last initial.
+      variable_set('petitions_signatures_display_mode', PETITIONS_SIGNATURES_DISPLAY_MODE_FIRST_NAME_LAST_INITIAL);
+      break;
+    case 'petitions_signatures_display_finitial_linitial':
+      // Initials only.
+      variable_set('petitions_signatures_display_mode', PETITIONS_SIGNATURES_DISPLAY_MODE_INITIALS_ONLY);
+      break;
+    default:
+      // The variable wasn't stored in the database. There's nothing to update.
+  }
+
+  // Delete the old variable.
+  variable_del('petitions_signatures_display_initials');
+}

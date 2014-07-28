@@ -10,8 +10,8 @@
  */
 function petitions_signatures_display_configure() {
   $display = array(
-    'petitions_signatures_display_fname_linitial' => t('First Name, Last Initial'),
-    'petitions_signatures_display_finitial_linitial' => t('First Initial, Last Initial'),
+    PETITIONS_SIGNATURES_DISPLAY_MODE_FIRST_NAME_LAST_INITIAL => t('First name, last initial'),
+    PETITIONS_SIGNATURES_DISPLAY_MODE_INITIALS_ONLY => t('First and last initials only'),
   );
 
   $account_location = array(
@@ -30,13 +30,13 @@ function petitions_signatures_display_configure() {
     'petitions_signatures_display_signature_user_city_state' => t('Display user-defined city and state fields'),
   );
 
-  $form['petitions_signatures_display_initials'] = array(
+  $form['petitions_signatures_display_mode'] = array(
     '#type' => 'radios',
-    '#title' => t('Signature display options'),
+    '#title' => t('Signature display mode'),
     '#description' => t('Select the manner in which to display names on all
       lists of signatures. <em>Applies to all Petitions</em>.'),
     '#options' => $display,
-    '#default_value' => variable_get('petitions_signatures_display_initials', 'petitions_signatures_display_fname_linitial'),
+    '#default_value' => variable_get('petitions_signatures_display_mode', PETITIONS_SIGNATURES_DISPLAY_MODE_FIRST_NAME_LAST_INITIAL),
   );
 
   $form['petitions_signatures_display_account_location'] = array(
