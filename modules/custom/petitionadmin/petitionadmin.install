@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * One-time installation code for petitionadmin.
+ */
+
+/**
+ * Run user role and module setup scripts on installation.
+ *
+ * Implements hook_install().
+ */
+function petitionadmin_install() {
+  // Set module weight of petitionadmin to 100.
+  db_update('system')
+    ->fields(array('weight' => 100))
+    ->condition('name', 'petitionadmin', '=')
+    ->execute();
+}
