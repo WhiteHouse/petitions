@@ -92,7 +92,7 @@ function drush_signatures_queue_queue_list() {
     }
 
     // Make sure the queue exists before trying to interact with it.
-    $queue = DrupalQueue::get($queue_name);
+    $queue = SignaturesQueue::get($queue_name);
     $queue->createQueue();
 
     drush_print(dt('@queue_name..@count', array(

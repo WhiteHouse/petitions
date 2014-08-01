@@ -242,7 +242,7 @@ function _signatures_queue_check_empty($name = NULL) {
   foreach ($queue_names as $queue_name) {
     // Make sure every queue exists. There is no harm in trying to recreate an
     // existing queue.
-    $queue = DrupalQueue::get($queue_name);
+    $queue = SignaturesQueue::get($queue_name);
     $queue->createQueue();
 
     $now = time();
