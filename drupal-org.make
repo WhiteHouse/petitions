@@ -170,14 +170,6 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 
 ; Contrib themes
 ; -----------------
-projects[tao][type] = theme
-projects[tao][subdir] = ""
-projects[tao][version] = 3.0-beta4
-
-projects[rubik][type] = theme
-projects[rubik][subdir] = ""
-projects[rubik][version] = 4.0-beta9
-
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
 projects[fortyfour][version] = 1.0-alpha8
