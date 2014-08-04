@@ -70,6 +70,7 @@ dependencies[] = petitions_maintenance
 dependencies[] = petitions_profanity
 dependencies[] = petitions_signatures_display
 dependencies[] = petitions_usermenu
+dependencies[] = petitionslog
 dependencies[] = signature_mail
 dependencies[] = signatures_queue
 

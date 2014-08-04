@@ -1,0 +1,4 @@
+name = Petitions Log
+description = Logging facilities for Petitions.
+core = 7.x
+package = Petitions
