@@ -50,12 +50,6 @@ function signatures_queue_overview() {
  * message to the user.
  */
 function _signatures_queue_validation_page_callback() {
-  // Get parameters submitted via URL.
-  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p']) || empty($_GET['d']) || !is_numeric($_GET['d'])) {
-    // Parameters are missing. Return error.
-    drupal_not_found();
-  }
-
   // Sanitize data coming in through URL.
   $validation_key = check_plain($_GET['k']);
   $md5 = check_plain($_GET['m']);
@@ -80,6 +74,7 @@ function _signatures_queue_validation_page_callback() {
       drupal_goto("thank-you/{$petition_id}", array(), 301);
       break;
 
+    case SIGNATURES_QUEUE_STATUS_BAD_REQUEST:
     case SIGNATURES_QUEUE_STATUS_NOT_FOUND:
       drupal_not_found();
       break;

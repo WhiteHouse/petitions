@@ -42,6 +42,11 @@
  * @see signatures_queue_invoke_workflow()
  */
 function _signatures_queue_receive_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
+  // Make sure required URL arguments are present.
+  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p']) || empty($_GET['d']) || !is_numeric($_GET['d'])) {
+    return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+  }
+
   $is_valid = FALSE;
   $return = '';
 
