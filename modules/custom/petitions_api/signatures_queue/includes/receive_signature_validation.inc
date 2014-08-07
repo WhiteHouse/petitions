@@ -31,11 +31,13 @@
  *   - secret_validation_key: A secret key for validating a signature via email.
  *   - md5: An MD5 hash of the secret validation key.
  *
- * @return string
- *   Returns "thank-you/{$petition_id}" if hashes match or "error" if they
- *   don't. @todo Since signatures_queue_invoke_workflow() expects an integer
- *   return, this is actually a violation of its interface and suggests that
- *   something somewhere needs to be refactored.
+ * @return int
+ *   Returns one of the following status codes indicating the workflow outcome:
+ *     - SIGNATURES_QUEUE_STATUS_OK
+ *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
+ *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
+ *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
+ *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
@@ -67,11 +69,10 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
     $queue->createQueue();
     $queue->createItem($signature_data);
 
-    // Build redirect path where thank you message will be displayed.
-    $return = 'thank-you/' . $options['petition_id'];
+    $return = SIGNATURES_QUEUE_STATUS_OK;
   }
   elseif (empty($return)) {
-    $return = 'error';
+    $return = SIGNATURES_QUEUE_STATUS_NOT_FOUND;
   }
 
   // Debugging. Log options and signature data.
