@@ -243,65 +243,6 @@ function _signatures_queue_schema_tables() {
   $schema['signatures_processed'] = _signatures_queue_get_signatures_schema();
   $schema['signatures_processed']['description'] = 'Processed signatures are pending signature records matched to corresponding validation records and counted.';
 
-  // Workflow log schema.
-  $schema['signatures_queue_log'] = array(
-    'description' => 'The event log for signature queue processing.',
-    'fields' => array(
-      'lid' => array(
-        'type' => 'serial',
-        'not null' => TRUE,
-        'description' => 'Primary Key: Unique {signatures_queue_log} row ID.',
-      ),
-      'job_id' => array(
-        'description' => 'A unique identifier for a job.',
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'workflow' => array(
-        'description' => 'The workflow the job is processing.',
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'server_name' => array(
-        'description' => 'The server name.',
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-        'default' => SIGNATURES_QUEUE_SERVER_NAME_DEFAULT,
-      ),
-      'worker_name' => array(
-        'description' => 'The worker name.',
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-        'default' => SIGNATURES_QUEUE_WORKER_NAME_DEFAULT,
-      ),
-      'timestamp' => array(
-        'description' => 'The timestamp when the status changed.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'status' => array(
-        'description' => 'The status of the job.',
-        'type' => 'varchar',
-        'length' => 16,
-        'not null' => TRUE,
-        'default' => 'started',
-      ),
-    ),
-    'primary key' => array('lid'),
-    'indexes' => array(
-      'job_id' => array('job_id'),
-    ),
-    'mysql_engine' => 'InnoDB',
-  );
-
   return $schema;
 }
 
@@ -434,4 +375,14 @@ function signatures_queue_uninstall() {
  */
 function signatures_queue_update_last_removed() {
   return 7001;
+}
+
+/**
+ * Remove obsolete signatures_queue_log.
+ */
+function signatures_queue_update_7300() {
+  signatures_queue_set_db();
+  db_drop_table('signatures_queue_log');
+  db_set_active();
+  variable_del('signatures_queue_log_events');
 }

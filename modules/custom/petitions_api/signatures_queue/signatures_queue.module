@@ -14,11 +14,6 @@
 define('SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT', 10);
 
 /**
- * The default value for the signatures_queue_log_events variable.
- */
-define('SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT', TRUE);
-
-/**
  * The default value for the server-name event logging value.
  */
 define('SIGNATURES_QUEUE_SERVER_NAME_DEFAULT', 'default');
@@ -357,14 +352,8 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
       throw new Exception($message);
     }
 
-    // Log job start.
-    _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'started');
-
     // Dispatch the worker.
     $status = call_user_func($function_name, $job_id, $server_name, $worker_name, $options);
-
-    // Log job completion.
-    _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'completed');
   }
   catch (Exception $e) {
     $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
