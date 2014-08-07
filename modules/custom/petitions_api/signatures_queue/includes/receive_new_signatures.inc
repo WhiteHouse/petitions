@@ -69,9 +69,6 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
   // Enqueue it.
   _signatures_queue_enqueue_item($item);
 
-  // Log statistical event.
-  petitionslog_event('new_signature_received');
-
   return SIGNATURES_QUEUE_STATUS_OK;
 }
 

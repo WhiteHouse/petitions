@@ -335,6 +335,7 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
   // Detect a shunt trip.
   $shunt_name = "shunt_signatures_queue_{$workflow}";
   if (shunt_is_enabled($shunt_name)) {
+    petitionslog_event("signatures_queue.workflow.{$workflow}.status.shunted");
     return SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
   }
 
@@ -352,10 +353,22 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
       throw new Exception($message);
     }
 
+    // Log workflow invocation.
+    petitionslog_event("signatures_queue.workflow.{$workflow}.invoked");
+
     // Dispatch the worker.
+    timer_start('signatures_queue_workflow');
     $status = call_user_func($function_name, $job_id, $server_name, $worker_name, $options);
+    timer_stop('signatures_queue_workflow');
+
+    // Log workflow completion details.
+    petitionslog_event("signatures_queue.workflow.{$workflow}.completed");
+    petitionslog_event("signatures_queue.workflow.{$workflow}.processing_time", 'time', (int) timer_read('signatures_queue_workflow'));
+    $log_status = _signatures_queue_get_loggable_workflow_status($workflow, $status);
+    petitionslog_event("signatures_queue.workflow.{$workflow}.status.{$log_status}");
   }
   catch (Exception $e) {
+    petitionslog_event("signatures_queue.workflow.{$workflow}.status.server_error");
     $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
     watchdog('signatures_queue', "Fatal error in workflow. @suffix\n\n@exception", array(
       '@suffix' => $watchdog_suffix,
@@ -365,6 +378,39 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
   }
 
   return $status;
+}
+
+/**
+ * Gets a status string usable for logging from a workflow status return value.
+ *
+ * @param string $workflow
+ *   The name of the workflow to invoke, as defined in
+ *   signatures_queue_get_workflow_names().
+ * @param int $status
+ *   The status value returned from a workflow function.
+ *
+ * @return string
+ *   A string usable as a status code in logging, e.g., "ok" or "bad_request".
+ */
+function _signatures_queue_get_loggable_workflow_status($workflow, $status) {
+  $status_mappings = array(
+    SIGNATURES_QUEUE_STATUS_OK => 'ok',
+    SIGNATURES_QUEUE_STATUS_BAD_REQUEST => 'bad_request',
+    SIGNATURES_QUEUE_STATUS_FORBIDDEN => 'forbidden',
+    SIGNATURES_QUEUE_STATUS_NOT_FOUND => 'not_found',
+    SIGNATURES_QUEUE_STATUS_SERVER_ERROR => 'server_error',
+  );
+  if (array_key_exists($status, $status_mappings)) {
+    $log_status = $status_mappings[$status];
+  }
+  else {
+    $log_status = 'unknown';
+    watchdog('signatures_queue', 'Workflow "@workflow" returned unknown status code: @status.', array(
+      '@workflow' => $workflow,
+      '@status' => $status,
+    ));
+  }
+  return $log_status;
 }
 
 /**
