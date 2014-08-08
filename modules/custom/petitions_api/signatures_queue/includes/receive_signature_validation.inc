@@ -61,7 +61,7 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
   // Confirm the petition is still open for signature confirmations. If not,
   // send user to the petition-error page.
   if ($options['validation_expiration'] < time()) {
-    $return = 'petition-error';
+    $return = SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
   }
 
   // If request is valid, process it.

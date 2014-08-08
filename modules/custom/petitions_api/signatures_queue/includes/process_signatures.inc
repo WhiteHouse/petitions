@@ -29,8 +29,13 @@
  *   (optional) An array of options. Defaults to an empty array. It is currently
  *   unused by this workflow.
  *
- * @return bool
- *   Returns TRUE if the workflow executes successfully or FALSE if not.
+ * @return int
+ *   Returns one of the following status codes indicating the workflow outcome:
+ *     - SIGNATURES_QUEUE_STATUS_OK
+ *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
+ *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
+ *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
+ *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
@@ -168,7 +173,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     ), WATCHDOG_WARNING);
   }
 
-  return TRUE;
+  return SIGNATURES_QUEUE_STATUS_OK;
 }
 
 /**
