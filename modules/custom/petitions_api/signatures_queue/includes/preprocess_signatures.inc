@@ -119,7 +119,7 @@ function _signatures_queue_preprocess_signatures_preprocess_validations($watchdo
     return FALSE;
   }
 
-  // Dedupe the batch and isnert into the validations table.
+  // Dedupe the batch and insert into the validations table.
   $inserted = _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($batch, 'validations', $watchdog_suffix);
 
   if ($inserted) {
@@ -203,6 +203,14 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
   $batch = array();
   foreach ($submitted_signatures as $item) {
     if (!empty($item->data['secret_validation_key'])) {
+      // Add timestamp.
+      if ($queue_name == 'signatures_pending_validation_queue') {
+        $item->data['timestamp_preprocessed_signature'] = time();
+      }
+      elseif ($queue_name == 'validations_queue') {
+        $item->data['timestamp_preprocessed_validation'] = time();
+      }
+
       $key = $item->data['secret_validation_key'];
       $batch[$key] = $item;
     }

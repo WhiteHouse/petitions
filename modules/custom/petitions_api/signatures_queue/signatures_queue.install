@@ -90,6 +90,16 @@ function _signatures_queue_get_validations_schema() {
         'type' => 'int',
         'not null' => FALSE,
       ),
+      'timestamp_preprocessed_signature' => array(
+        'description' => 'The time the signature passed through the "preprocess signatures" workflow.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'timestamp_preprocessed_validation' => array(
+        'description' => 'The time the validation passed through the "preprocess signatures" workflow.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
       'timestamp_processed_signature' => array(
         'description' => 'The time the signature passed through the "process signatures" workflow.',
         'type' => 'int',
@@ -195,6 +205,16 @@ function _signatures_queue_get_signatures_schema() {
       ),
       'timestamp_initiated_signature_validation' => array(
         'description' => 'The time the signature passed through the "initiate signature validation" workflow.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'timestamp_preprocessed_signature' => array(
+        'description' => 'The time the signature passed through the "preprocess signatures" workflow.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'timestamp_preprocessed_validation' => array(
+        'description' => 'The time the validation passed through the "preprocess signatures" workflow.',
         'type' => 'int',
         'not null' => FALSE,
       ),
@@ -324,6 +344,11 @@ function signatures_queue_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'timestamp_preprocessed_signature' => array(
+        'description' => 'The time the signature passed through the "preprocess signatures" workflow.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
       'timestamp_processed_signature' => array(
         'description' => 'The time the signature passed through the "process signatures" workflow.',
         'type' => 'int',
@@ -387,8 +412,9 @@ function signatures_queue_update_7300() {
   db_set_active();
   variable_del('signatures_queue_log_events');
 
-  // Rename signature timestamp database fields.
   signatures_queue_set_db();
+
+  // Update signature tables.
   $signature_tables = array(
     'signatures_not_validated_archive',
     'signatures_pending_validation',
@@ -397,19 +423,30 @@ function signatures_queue_update_7300() {
   );
   $signatures_schema = _signatures_queue_get_signatures_schema();
   foreach ($signature_tables as $table) {
-    $signature_fields = array(
+    // Rename signature timestamp database fields.
+    $renamed_signature_fields = array(
       'timestamp_submitted' => 'timestamp_received_new_signature',
       'timestamp_validation_email_sent' => 'timestamp_initiated_signature_validation',
       'timestamp_processed' => 'timestamp_processed_signature',
     );
-    foreach ($signature_fields as $old_name => $new_name) {
+    foreach ($renamed_signature_fields as $old_name => $new_name) {
       if (db_field_exists($table, $old_name)) {
         db_change_field($table, $old_name, $new_name, $signatures_schema['fields'][$new_name]);
       }
     }
+    // Add new signature timestamp database fields.
+    $new_signature_fields = array(
+      'timestamp_preprocessed_signature',
+      'timestamp_preprocessed_validation',
+    );
+    foreach ($new_signature_fields as $name) {
+      if (!db_field_exists($table, $name)) {
+        db_add_field($table, $name, $signatures_schema['fields'][$name]);
+      }
+    }
   }
 
-  // Rename validation timestamp database fields.
+  // Update validation tables.
   $validation_tables = array(
     'signature_validations',
     'validations',
@@ -419,13 +456,24 @@ function signatures_queue_update_7300() {
   );
   $validations_schema = _signatures_queue_get_validations_schema();
   foreach ($validation_tables as $table) {
-    $validation_fields = array(
+    // Rename validation timestamp database fields.
+    $renamed_validation_fields = array(
       'timestamp_validated' => 'timestamp_received_signature_validation',
       'timestamp_processed' => 'timestamp_processed_signature',
     );
-    foreach ($validation_fields as $old_name => $new_name) {
+    foreach ($renamed_validation_fields as $old_name => $new_name) {
       if (db_field_exists($table, $old_name)) {
         db_change_field($table, $old_name, $new_name, $validations_schema['fields'][$new_name]);
+      }
+    }
+    // Add new validation timestamp database fields.
+    $new_validation_fields = array(
+      'timestamp_preprocessed_signature',
+      'timestamp_preprocessed_validation',
+    );
+    foreach ($new_validation_fields as $name) {
+      if (!db_field_exists($table, $name)) {
+        db_add_field($table, $name, $validations_schema['fields'][$name]);
       }
     }
   }

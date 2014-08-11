@@ -56,6 +56,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   $query->addField('v', 'client_ip');
   $query->addField('v', 'petition_id', 'validated_petition_id');
   $query->addField('v', 'timestamp_received_signature_validation');
+  $query->addField('v', 'timestamp_preprocessed_validation');
 
   $result = $query->execute();
 
@@ -390,6 +391,8 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
         'petition_id' => $item['petition_id'],
         'signature_source_api_key' => $item['signature_source_api_key'],
         'email' => $item['email'],
+        'timestamp_preprocessed_signature' => $item['timestamp_preprocessed_signature'],
+        'timestamp_preprocessed_validation' => $item['timestamp_preprocessed_validation'],
         'timestamp_processed_signature' => time(),
       ))
       ->execute();
@@ -442,6 +445,8 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'timestamp_validation_close' => $item['timestamp_validation_close'],
         'timestamp_received_new_signature' => $item['timestamp_received_new_signature'],
         'timestamp_initiated_signature_validation' => $item['timestamp_initiated_signature_validation'],
+        'timestamp_preprocessed_signature' => $item['timestamp_preprocessed_signature'],
+        'timestamp_preprocessed_validation' => $item['timestamp_preprocessed_validation'],
       ))
       ->execute();
   }
@@ -456,6 +461,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
         'client_ip' => $item['client_ip'],
         'petition_id' => $item['petition_id'],
+        'timestamp_preprocessed_validation' => $item['timestamp_preprocessed_validation'],
       ))
       ->execute();
   }
