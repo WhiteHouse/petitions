@@ -115,7 +115,7 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
       'zip',
       'email',
       'signup',
-      'timestamp_validation_email_sent',
+      'timestamp_initiated_signature_validation',
       'timestamp_received_new_signature'))
     ->condition('timestamp_validation_close', $queues_last_emptied, '<')
     ->execute();
@@ -355,7 +355,7 @@ function _signatures_queue_archive_processed_signatures($queues_last_emptied, $w
       'zip',
       'email',
       'signup',
-      'timestamp_validation_email_sent',
+      'timestamp_initiated_signature_validation',
       'timestamp_received_new_signature',
       'timestamp_processed'))
     ->condition('timestamp_validation_close', $queues_last_emptied, '<');

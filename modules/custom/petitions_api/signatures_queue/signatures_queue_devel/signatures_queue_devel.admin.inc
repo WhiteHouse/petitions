@@ -105,7 +105,7 @@ function _signatures_queue_devel_overrides() {
     'timestamp_petition_close',
     'timestamp_received_new_signature',
     'timestamp_validation_close',
-    'timestamp_validation_email_sent',
+    'timestamp_initiated_signature_validation',
     'zip',
     'secret_validation_key',
     'timestamp_processed',

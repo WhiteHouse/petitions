@@ -34,7 +34,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
     $timestamp_petition_close        = (!empty($overrides['timestamp_petition_close'])) ? $overrides['timestamp_petition_close'] : 0;
     $timestamp_received_new_signature = (!empty($overrides['timestamp_received_new_signature'])) ? $overrides['timestamp_received_new_signature'] : 0;
     $timestamp_validation_close      = (!empty($overrides['timestamp_validation_close'])) ? $overrides['timestamp_validation_close'] : 0;
-    $timestamp_validation_email_sent = (!empty($overrides['timestamp_validation_email_sent'])) ? $overrides['timestamp_validation_email_sent'] : 0;
+    $timestamp_initiated_signature_validation = (!empty($overrides['timestamp_initiated_signature_validation'])) ? $overrides['timestamp_initiated_signature_validation'] : 0;
     $zip                             = (!empty($overrides['zip'])) ? $overrides['zip'] : '';
     $secret_validation_key           = (!empty($overrides['secret_validation_key'])) ? $overrides['secret_validation_key'] : '';
     $timestamp_processed             = (!empty($overrides['timestamp_processed'])) ? $overrides['timestamp_processed'] : 0;
@@ -59,7 +59,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : $item['timestamp_received_new_signature'] + 864000;
         // This just adds 10 days to petition close.
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : $item['timestamp_petition_close'] + 864000;
-        $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : '';
+        $item['timestamp_initiated_signature_validation'] = ($timestamp_initiated_signature_validation) ? $timestamp_initiated_signature_validation : '';
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
         $item['secret_validation_key'] = '';
         $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
@@ -76,9 +76,9 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['signup'] = ($signup) ? $signup : (rand(0, 100) >= 50) ? TRUE : FALSE;
         $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : time() + 10 * 24 * 60 * 60;
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + $grace_period * 24 * 60 * 60;
-        $item['timestamp_validation_email_sent'] = ($timestamp_validation_email_sent) ? $timestamp_validation_email_sent : time();
+        $item['timestamp_initiated_signature_validation'] = ($timestamp_initiated_signature_validation) ? $timestamp_initiated_signature_validation : time();
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
-        $item['timestamp_received_new_signature'] = ($timestamp_received_new_signature) ? $timestamp_received_new_signature : $item['timestamp_validation_email_sent'] - 60;
+        $item['timestamp_received_new_signature'] = ($timestamp_received_new_signature) ? $timestamp_received_new_signature : $item['timestamp_initiated_signature_validation'] - 60;
         $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1(self::generateRandomString(25));
         $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
         break;

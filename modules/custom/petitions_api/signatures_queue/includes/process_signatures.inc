@@ -439,7 +439,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'zip' => $item['zip'],
         'email' => $item['email'],
         'signup' => $item['signup'],
-        'timestamp_validation_email_sent' => $item['timestamp_validation_email_sent'],
+        'timestamp_initiated_signature_validation' => $item['timestamp_initiated_signature_validation'],
         'timestamp_received_new_signature' => $item['timestamp_received_new_signature'],
         'secret_validation_key' => $item['secret_validation_key'],
       ))

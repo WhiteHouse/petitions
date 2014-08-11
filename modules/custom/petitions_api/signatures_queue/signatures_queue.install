@@ -188,8 +188,8 @@ function _signatures_queue_get_signatures_schema() {
         'not null' => FALSE,
         'default' => 0,
       ),
-      'timestamp_validation_email_sent' => array(
-        'description' => 'Time validation email was sent.',
+      'timestamp_initiated_signature_validation' => array(
+        'description' => 'The time the signature passed through the "initiate signature validation" workflow.',
         'type' => 'int',
         'not null' => FALSE,
       ),
@@ -382,11 +382,13 @@ function signatures_queue_update_last_removed() {
  */
 function signatures_queue_update_7300() {
   // Remove obsolete signatures_queue_log.
-  variable_del('signatures_queue_log_events');
   signatures_queue_set_db();
   db_drop_table('signatures_queue_log');
+  db_set_active();
+  variable_del('signatures_queue_log_events');
 
   // Rename signature timestamp database fields.
+  signatures_queue_set_db();
   $signature_tables = array(
     'signatures_not_validated_archive',
     'signatures_pending_validation',
@@ -397,6 +399,7 @@ function signatures_queue_update_7300() {
   foreach ($signature_tables as $table) {
     $fields = array(
       'timestamp_submitted' => 'timestamp_received_new_signature',
+      'timestamp_validation_email_sent' => 'timestamp_initiated_signature_validation',
     );
     foreach ($fields as $old_name => $new_name) {
       if (db_field_exists($table, $old_name)) {
@@ -404,6 +407,5 @@ function signatures_queue_update_7300() {
       }
     }
   }
-
   db_set_active();
 }

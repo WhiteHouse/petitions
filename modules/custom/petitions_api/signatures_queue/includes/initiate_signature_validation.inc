@@ -280,9 +280,9 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
     // TODO: NOTE, This is actually probably incorrect. This is, more
     // accurately, the timestamp from when the email was handed off to Mandrill
     // to be queued for sending. Normally this should effectively be the same as
-    // timestamp_validation_email_sent. But in the event that emails fail, this
-    // is a really misleading bit of data. To be revisited in PT-975.
-    $record['timestamp_validation_email_sent'] = $time;
+    // timestamp_initiated_signature_validation. But in the event that emails
+    // fail, this is a really misleading bit of data. To be revisited in PT-975.
+    $record['timestamp_initiated_signature_validation'] = $time;
     unset($record['md5_encryption_key']);
     // Add the signature to "signatures_pending_validation_queue".
     $pending_validation_queue->createItem($record);
