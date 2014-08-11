@@ -390,7 +390,7 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
         'petition_id' => $item['petition_id'],
         'signature_source_api_key' => $item['signature_source_api_key'],
         'email' => $item['email'],
-        'timestamp_processed' => time(),
+        'timestamp_processed_signature' => time(),
       ))
       ->execute();
   }

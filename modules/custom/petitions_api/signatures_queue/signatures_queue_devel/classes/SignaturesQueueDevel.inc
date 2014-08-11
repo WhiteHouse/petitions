@@ -37,7 +37,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
     $timestamp_initiated_signature_validation = (!empty($overrides['timestamp_initiated_signature_validation'])) ? $overrides['timestamp_initiated_signature_validation'] : 0;
     $zip                             = (!empty($overrides['zip'])) ? $overrides['zip'] : '';
     $secret_validation_key           = (!empty($overrides['secret_validation_key'])) ? $overrides['secret_validation_key'] : '';
-    $timestamp_processed             = (!empty($overrides['timestamp_processed'])) ? $overrides['timestamp_processed'] : 0;
+    $timestamp_processed_signature = (!empty($overrides['timestamp_processed_signature'])) ? $overrides['timestamp_processed_signature'] : 0;
 
     // Validations overrides.
     $timestamp_validated             = (!empty($overrides['timestamp_validated'])) ? $overrides['timestamp_validated'] : 0;
@@ -62,7 +62,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['timestamp_initiated_signature_validation'] = ($timestamp_initiated_signature_validation) ? $timestamp_initiated_signature_validation : '';
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
         $item['secret_validation_key'] = '';
-        $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
+        $item['timestamp_processed_signature'] = ($timestamp_processed_signature) ? $timestamp_processed_signature : 0;
         break;
 
       case 'signatures_pending_validation_queue':
@@ -80,7 +80,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['zip'] = ($zip) ? $zip : rand(10000, 99999);
         $item['timestamp_received_new_signature'] = ($timestamp_received_new_signature) ? $timestamp_received_new_signature : $item['timestamp_initiated_signature_validation'] - 60;
         $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1(self::generateRandomString(25));
-        $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
+        $item['timestamp_processed_signature'] = ($timestamp_processed_signature) ? $timestamp_processed_signature : 0;
         break;
 
       case 'validations_queue':
@@ -94,7 +94,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         // otherwise nothing gets counted.
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + 1 + $grace_period * 24 * 60 * 60;
         $item['client_ip'] = ($client_ip) ? $client_ip : ip_address();
-        $item['timestamp_processed'] = ($timestamp_processed) ? $timestamp_processed : 0;
+        $item['timestamp_processed_signature'] = ($timestamp_processed_signature) ? $timestamp_processed_signature : 0;
         break;
 
       default:

@@ -357,7 +357,7 @@ function _signatures_queue_archive_processed_signatures($queues_last_emptied, $w
       'signup',
       'timestamp_initiated_signature_validation',
       'timestamp_received_new_signature',
-      'timestamp_processed'))
+      'timestamp_processed_signature'))
     ->condition('timestamp_validation_close', $queues_last_emptied, '<');
 
   // Variable to count the results to determine how many rows will be moved.
