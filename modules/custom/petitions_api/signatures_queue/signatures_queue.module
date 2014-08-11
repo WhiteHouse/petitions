@@ -190,7 +190,7 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
     $replacements['[signature:zip]'] = $data['signature info']['zip'];
     $replacements['[signature:email]'] = $data['signature info']['email'];
     $replacements['[signature:signup]'] = $data['signature info']['signup'];
-    $replacements['[signature:timestamp-submitted]'] = $data['signature info']['timestamp_submitted'];
+    $replacements['[signature:timestamp-submitted]'] = $data['signature info']['timestamp_received_new_signature'];
     // Creating $key because it will be used several times.
     $key = $data['signature info']['secret_validation_key'];
     $replacements['[signature:secret-validation-key]'] = $key;

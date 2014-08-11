@@ -440,7 +440,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'email' => $item['email'],
         'signup' => $item['signup'],
         'timestamp_validation_email_sent' => $item['timestamp_validation_email_sent'],
-        'timestamp_submitted' => $item['timestamp_submitted'],
+        'timestamp_received_new_signature' => $item['timestamp_received_new_signature'],
         'secret_validation_key' => $item['secret_validation_key'],
       ))
       ->execute();
@@ -603,7 +603,7 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
     }
 
     // Save. Get legacy mongo petition ID.
-    $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item['petition_id'], $user, $client_ip, $item['timestamp_submitted']);
+    $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item['petition_id'], $user, $client_ip, $item['timestamp_received_new_signature']);
 
     // If there's no ID here, saving the signature to mongo failed. Log failure.
     if (!$legacy_signature_id) {
@@ -647,7 +647,7 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
       "first_name" => "user_first_name",
       "last_name" => "user_last_name",
       "zip" => "user_zip",
-      "timestamp_submitted" => "timestamp",
+      'timestamp_received_new_signature' => 'timestamp',
       "client_ip" => "ip_address",
     );
     foreach ($property_map as $item_key => $signature_key) {

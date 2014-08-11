@@ -103,7 +103,7 @@ function _signatures_queue_devel_overrides() {
     'signature_source_api_key',
     'signup',
     'timestamp_petition_close',
-    'timestamp_submitted',
+    'timestamp_received_new_signature',
     'timestamp_validation_close',
     'timestamp_validation_email_sent',
     'zip',

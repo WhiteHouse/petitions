@@ -193,8 +193,8 @@ function _signatures_queue_get_signatures_schema() {
         'type' => 'int',
         'not null' => FALSE,
       ),
-      'timestamp_submitted' => array(
-        'description' => 'Time signature was submitted.',
+      'timestamp_received_new_signature' => array(
+        'description' => 'The time the signature passed through the "receive new signatures" workflow.',
         'type' => 'int',
         'not null' => FALSE,
       ),
@@ -378,11 +378,32 @@ function signatures_queue_update_last_removed() {
 }
 
 /**
- * Remove obsolete signatures_queue_log.
+ * Prepare Signatures Queue for Petitions 7.x-3.*.
  */
 function signatures_queue_update_7300() {
+  // Remove obsolete signatures_queue_log.
+  variable_del('signatures_queue_log_events');
   signatures_queue_set_db();
   db_drop_table('signatures_queue_log');
+
+  // Rename signature timestamp database fields.
+  $signature_tables = array(
+    'signatures_not_validated_archive',
+    'signatures_pending_validation',
+    'signatures_processed',
+    'signatures_processed_archive',
+  );
+  $signatures_schema = _signatures_queue_get_signatures_schema();
+  foreach ($signature_tables as $table) {
+    $fields = array(
+      'timestamp_submitted' => 'timestamp_received_new_signature',
+    );
+    foreach ($fields as $old_name => $new_name) {
+      if (db_field_exists($table, $old_name)) {
+        db_change_field($table, $old_name, $new_name, $signatures_schema['fields'][$new_name]);
+      }
+    }
+  }
+
   db_set_active();
-  variable_del('signatures_queue_log_events');
 }

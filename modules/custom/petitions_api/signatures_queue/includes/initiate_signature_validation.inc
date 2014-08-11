@@ -155,7 +155,7 @@ function _signatures_queue_assign_validation_keys(array $signatures) {
   // Generate secret validation keys.
   foreach ($signatures as $signature) {
     $email = $signature->data['email'];
-    $timestamp = $signature->data['timestamp_submitted'];
+    $timestamp = $signature->data['timestamp_received_new_signature'];
     $petition_id = $signature->data['petition_id'];
     $salt = variable_get('signatures_queue_salt', '');
     $signature->data['secret_validation_key'] = sha1($email . $timestamp . $petition_id . $salt);

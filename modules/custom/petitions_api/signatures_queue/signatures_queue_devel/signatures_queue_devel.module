@@ -75,7 +75,7 @@ function signatures_queue_devel_generate($queue_names, $number = 10, $delete_fir
     $match_fields = array(
       'petition_id',
       'email',
-      'timestamp_submitted',
+      'timestamp_received_new_signature',
       'secret_validation_key',
       'signature_source_api_key',
     );
