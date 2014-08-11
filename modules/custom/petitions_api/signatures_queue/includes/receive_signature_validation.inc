@@ -108,7 +108,7 @@ function _signatures_queue_validated_signature_data($secret_validation_key, $pet
   $signature_data = array();
 
   $signature_data['secret_validation_key'] = $secret_validation_key;
-  $signature_data['timestamp_validated'] = time();
+  $signature_data['timestamp_received_signature_validation'] = time();
   $signature_data['client_ip'] = ip_address();
   $signature_data['petition_id'] = $petition_id;
 

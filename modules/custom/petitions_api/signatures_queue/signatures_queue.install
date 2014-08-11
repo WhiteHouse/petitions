@@ -66,8 +66,8 @@ function _signatures_queue_get_validations_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'timestamp_validated' => array(
-        'description' => 'Time of the validation.',
+      'timestamp_received_signature_validation' => array(
+        'description' => 'The time the signature passed through the "receive signature validation" workflow.',
         'type' => 'int',
         'not null' => FALSE,
       ),
@@ -420,6 +420,7 @@ function signatures_queue_update_7300() {
   $validations_schema = _signatures_queue_get_validations_schema();
   foreach ($validation_tables as $table) {
     $validation_fields = array(
+      'timestamp_validated' => 'timestamp_received_signature_validation',
       'timestamp_processed' => 'timestamp_processed_signature',
     );
     foreach ($validation_fields as $old_name => $new_name) {

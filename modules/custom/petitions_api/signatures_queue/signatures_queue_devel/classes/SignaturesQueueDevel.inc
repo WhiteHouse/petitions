@@ -40,7 +40,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
     $timestamp_processed_signature = (!empty($overrides['timestamp_processed_signature'])) ? $overrides['timestamp_processed_signature'] : 0;
 
     // Validations overrides.
-    $timestamp_validated             = (!empty($overrides['timestamp_validated'])) ? $overrides['timestamp_validated'] : 0;
+    $timestamp_received_signature_validation = (!empty($overrides['timestamp_received_signature_validation'])) ? $overrides['timestamp_received_signature_validation'] : 0;
     $timestamp_validation_close      = (!empty($overrides['timestamp_validation_close'])) ? $overrides['timestamp_validation_close'] : 0;
     $client_ip                       = (!empty($overrides['client_ip'])) ? $overrides['client_ip'] : '';
 
@@ -89,9 +89,10 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $email = self::generateRandomString(10) . '@mailinator.com';
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['secret_validation_key'] = ($secret_validation_key) ? $secret_validation_key : sha1(self::generateRandomString(25));
-        $item['timestamp_validated'] = ($timestamp_validated) ? $timestamp_validated : time();
-        // Make sure this defaults to greater than timestamp_validated,
-        // otherwise nothing gets counted.
+        $item['timestamp_received_signature_validation'] = ($timestamp_received_signature_validation) ? $timestamp_received_signature_validation : time();
+        // Make sure this defaults to greater than
+        // timestamp_received_signature_validation, otherwise nothing gets
+        // counted.
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + 1 + $grace_period * 24 * 60 * 60;
         $item['client_ip'] = ($client_ip) ? $client_ip : ip_address();
         $item['timestamp_processed_signature'] = ($timestamp_processed_signature) ? $timestamp_processed_signature : 0;

@@ -204,7 +204,7 @@ function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $w
     ->fields('a', array(
       'vid',
       'secret_validation_key',
-      'timestamp_validated',
+      'timestamp_received_signature_validation',
       'timestamp_validation_close',
       'client_ip',
       'petition_id'))
@@ -267,7 +267,7 @@ function _signatures_queue_delete_orphaned_validations($queues_last_emptied, $wa
       ->fields('a', array(
         'vid',
         'secret_validation_key',
-        'timestamp_validated',
+        'timestamp_received_signature_validation',
         'timestamp_validation_close',
         'client_ip',
         'petition_id'))

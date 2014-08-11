@@ -110,7 +110,7 @@ function _signatures_queue_devel_overrides() {
     'secret_validation_key',
     'timestamp_processed_signature',
     // Validations overrides.
-    'timestamp_validated',
+    'timestamp_received_signature_validation',
     'timestamp_validation_close',
     'client_ip',
   );

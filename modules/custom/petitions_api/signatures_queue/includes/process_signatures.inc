@@ -55,7 +55,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   $query->addField('v', 'vid');
   $query->addField('v', 'client_ip');
   $query->addField('v', 'petition_id', 'validated_petition_id');
-  $query->addField('v', 'timestamp_validated');
+  $query->addField('v', 'timestamp_received_signature_validation');
 
   $result = $query->execute();
 
@@ -103,11 +103,11 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     // If it's a new signature, but no new signature was created...
     elseif ($new_signature && empty($signature_id)) {
       // Log failure.
-      watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_validated: @timestamp_validated. @suffix', array(
+      watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_received_signature_validation: @timestamp_received_signature_validation. @suffix', array(
         '@secret_validation_key' => $item['secret_validation_key'],
         '@vid' => $item['vid'],
         '@petition_id' => $item['petition_id'],
-        '@timestamp_validated' => $item['timestamp_validated'],
+        '@timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
         '@suffix' => $watchdog_suffix,
       ), WATCHDOG_CRITICAL);
       // Do NOT move items to processed table or remove from preprocess table.
@@ -117,12 +117,12 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     // created or counted.
     else {
       $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
-      watchdog('signatures_queue', 'This user already signed this petition. No new signature record will be created or counted. uid: @uid, petition_id: @petition_id, secret_validation_key: @secret_validation_key, vid: @vid,  timestamp_validated: @timestamp_validated. @suffix', array(
+      watchdog('signatures_queue', 'This user already signed this petition. No new signature record will be created or counted. uid: @uid, petition_id: @petition_id, secret_validation_key: @secret_validation_key, vid: @vid,  timestamp_received_signature_validation: @timestamp_received_signature_validation. @suffix', array(
         '@uid' => $user->uid,
         '@petition_id' => $item['petition_id'],
         '@secret_validation_key' => $item['secret_validation_key'],
         '@vid' => $item['vid'],
-        '@timestamp_validated' => $item['timestamp_validated'],
+        '@timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
         '@suffix' => $watchdog_suffix,
       ), WATCHDOG_NOTICE);
 
@@ -198,11 +198,11 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
   $legitimate = TRUE;
 
   // Check timestamps.
-  if ($item['timestamp_validated'] > $item['timestamp_validation_close']) {
+  if ($item['timestamp_received_signature_validation'] > $item['timestamp_validation_close']) {
     // This suggests suspicious activity, notify admin.
     $params = array_merge($item, array(
       'subject' => t('Timestamp discrepancy'),
-      'notice' => t("There's something funny about this signature validation. Signatures cannot be validated (see timestamp_validated) after a petition is closed (see timestamp_validation_close, this is when we stop allowing people to sign this particular petition). Either the logic in our code has changed, or someone is tampering with validation URLs to trick us into counting validations after a petition is closed."),
+      'notice' => t("There's something funny about this signature validation. Signatures cannot be validated (see timestamp_received_signature_validation) after a petition is closed (see timestamp_validation_close, this is when we stop allowing people to sign this particular petition). Either the logic in our code has changed, or someone is tampering with validation URLs to trick us into counting validations after a petition is closed."),
     ));
     _signatures_queue_notify_admin($params);
     $legitimate = FALSE;
@@ -452,7 +452,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
     db_insert('validations_processed')
       ->fields(array(
         'secret_validation_key' => $item['secret_validation_key'],
-        'timestamp_validated' => $item['timestamp_validated'],
+        'timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
         'timestamp_validation_close' => $item['timestamp_validation_close'],
         'client_ip' => $item['client_ip'],
         'petition_id' => $item['petition_id'],
