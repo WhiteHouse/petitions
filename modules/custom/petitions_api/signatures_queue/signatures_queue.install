@@ -51,13 +51,13 @@ function signatures_queue_install() {
 function _signatures_queue_get_validations_schema() {
   // Schema for validations tables.
   $schema = array(
-    'description' => 'Validated signatures.',
+    'description' => 'Signature validations.',
     'fields' => array(
       'vid' => array(
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-        'description' => 'Primary Key: Signature ID.',
+        'description' => 'The validation ID.',
       ),
       'secret_validation_key' => array(
         'description' => 'The unique, hashed secret validation key.',
@@ -66,29 +66,29 @@ function _signatures_queue_get_validations_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'timestamp_received_signature_validation' => array(
-        'description' => 'The time the signature passed through the "receive signature validation" workflow.',
-        'type' => 'int',
-        'not null' => FALSE,
-      ),
-      'timestamp_validation_close' => array(
-        'description' => 'Time petition is no longer valid to sign.',
-        'type' => 'int',
-        'not null' => FALSE,
-      ),
       'client_ip' => array(
-        'description' => 'Client IP address',
+        'description' => "The client's IP address",
         'type' => 'varchar',
         'length' => 40,
         'not null' => FALSE,
         'default' => '',
       ),
       'petition_id' => array(
-        'description' => 'Petition ID.',
+        'description' => 'The petition ID.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
         'default' => '',
+      ),
+      'timestamp_validation_close' => array(
+        'description' => 'The time the validation is no longer valid.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'timestamp_received_signature_validation' => array(
+        'description' => 'The time the signature passed through the "receive signature validation" workflow.',
+        'type' => 'int',
+        'not null' => FALSE,
       ),
       'timestamp_processed_signature' => array(
         'description' => 'The time the signature passed through the "process signatures" workflow.',
@@ -121,7 +121,7 @@ function _signatures_queue_get_signatures_schema() {
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-        'description' => 'Primary Key: Signature ID.',
+        'description' => 'The signature ID.',
       ),
       'secret_validation_key' => array(
         'description' => 'The unique, hashed secret validation key.',
@@ -131,70 +131,70 @@ function _signatures_queue_get_signatures_schema() {
         'default' => '',
       ),
       'signature_source_api_key' => array(
-        'description' => 'The source api key.',
+        'description' => 'The source API key.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),
-      'timestamp_petition_close' => array(
-        'description' => 'Time petition closes/expires.',
-        'type' => 'int',
-        'not null' => FALSE,
-      ),
-      'timestamp_validation_close' => array(
-        'description' => 'Time petition is no longer valid to sign.',
-        'type' => 'int',
-        'not null' => FALSE,
-      ),
       'petition_id' => array(
-        'description' => 'Petition ID.',
+        'description' => 'The petition ID.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),
       'first_name' => array(
-        'description' => 'First Name.',
+        'description' => "The signatory's first name.",
         'type' => 'varchar',
         'length' => 128,
         'not null' => FALSE,
         'default' => '',
       ),
       'last_name' => array(
-        'description' => 'Last Name.',
+        'description' => "The signatory's last name.",
         'type' => 'varchar',
         'length' => 128,
         'not null' => FALSE,
         'default' => '',
       ),
       'zip' => array(
-        'description' => 'Zip code.',
+        'description' => "The signatory's ZIP code.",
         'type' => 'varchar',
         'length' => 16,
         'not null' => FALSE,
         'default' => '',
       ),
       'email' => array(
-        'description' => 'Email address.',
+        'description' => "The signatory's email address.",
         'type' => 'varchar',
         'length' => 64,
         'not null' => FALSE,
         'default' => '',
       ),
       'signup' => array(
-        'description' => 'Email list Signup.',
+        'description' => 'A boolean flag indicating whether or not the signatory opted in receive emails.',
         'type' => 'int',
         'not null' => FALSE,
         'default' => 0,
       ),
-      'timestamp_initiated_signature_validation' => array(
-        'description' => 'The time the signature passed through the "initiate signature validation" workflow.',
+      'timestamp_petition_close' => array(
+        'description' => 'The time the petition closes/expires.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'timestamp_validation_close' => array(
+        'description' => 'The time the validation is no longer valid.',
         'type' => 'int',
         'not null' => FALSE,
       ),
       'timestamp_received_new_signature' => array(
         'description' => 'The time the signature passed through the "receive new signatures" workflow.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'timestamp_initiated_signature_validation' => array(
+        'description' => 'The time the signature passed through the "initiate signature validation" workflow.',
         'type' => 'int',
         'not null' => FALSE,
       ),
@@ -287,7 +287,7 @@ function signatures_queue_schema() {
       'vid' => array(
         'type' => 'serial',
         'not null' => TRUE,
-        'description' => 'Primary Key: Validation ID.',
+        'description' => 'The validation ID.',
       ),
       'secret_validation_key' => array(
         'description' => 'The unique, hashed secret validation key.',
@@ -297,28 +297,28 @@ function signatures_queue_schema() {
         'default' => '',
       ),
       'signature_id' => array(
-        'description' => 'The Signature ID.',
+        'description' => 'The signature ID.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
         'default' => 0,
       ),
       'signature_source_api_key' => array(
-        'description' => 'The source api key.',
+        'description' => 'The source API key.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),
       'email' => array(
-        'description' => 'Email address.',
+        'description' => "The signatory's email address.",
         'type' => 'varchar',
         'length' => 64,
         'not null' => FALSE,
         'default' => '',
       ),
       'petition_id' => array(
-        'description' => 'Petition ID.',
+        'description' => 'The petition ID.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,

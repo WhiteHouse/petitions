@@ -430,18 +430,18 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
   try {
     db_insert('signatures_processed')
       ->fields(array(
+        'secret_validation_key' => $item['secret_validation_key'],
         'signature_source_api_key' => $item['signature_source_api_key'],
-        'timestamp_petition_close' => $item['timestamp_petition_close'],
-        'timestamp_validation_close' => $item['timestamp_validation_close'],
         'petition_id' => $item['petition_id'],
         'first_name' => $item['first_name'],
         'last_name' => $item['last_name'],
         'zip' => $item['zip'],
         'email' => $item['email'],
         'signup' => $item['signup'],
-        'timestamp_initiated_signature_validation' => $item['timestamp_initiated_signature_validation'],
+        'timestamp_petition_close' => $item['timestamp_petition_close'],
+        'timestamp_validation_close' => $item['timestamp_validation_close'],
         'timestamp_received_new_signature' => $item['timestamp_received_new_signature'],
-        'secret_validation_key' => $item['secret_validation_key'],
+        'timestamp_initiated_signature_validation' => $item['timestamp_initiated_signature_validation'],
       ))
       ->execute();
   }
@@ -452,8 +452,8 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
     db_insert('validations_processed')
       ->fields(array(
         'secret_validation_key' => $item['secret_validation_key'],
-        'timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
         'timestamp_validation_close' => $item['timestamp_validation_close'],
+        'timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
         'client_ip' => $item['client_ip'],
         'petition_id' => $item['petition_id'],
       ))
