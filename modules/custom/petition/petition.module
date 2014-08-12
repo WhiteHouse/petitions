@@ -175,8 +175,8 @@ function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) 
       '@before' => $signature_count_before,
       '@after' => $signature_count_after,
     ), WATCHDOG_DEBUG);
-    watchdog('petition', 'petition_increment_count() saved this petition node: node = @node', array(
-      '@node' => formatforlog($node),
+    watchdog('petition', 'petition_increment_count() saved this petition node: node = !node', array(
+      '!node' => formatforlog($node),
     ), WATCHDOG_DEBUG);
   }
 }
@@ -241,7 +241,8 @@ function petition_get_nid($petition_id) {
  *   Returns node id for petition. 0 for not found. FALSE in case of error.
  *
  * @throws Exception
- *   Throws an exception when the petition ID is neither a valid nid or legacy id.
+ *   Throws an exception when the petition ID is neither a valid nid nor legacy
+ *   ID.
  */
 function _petition_get_nid($petition_id) {
   $nid = FALSE;

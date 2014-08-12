@@ -128,8 +128,8 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
 
       // Debug. Log signature item processed.
       if ($debug) {
-        watchdog('signatures_queue', 'DEBUG ENABLED: Signature item processed: @item. @suffix', array(
-          '@batch' => formatforlog($item),
+        watchdog('signatures_queue', 'DEBUG ENABLED: Signature item processed: !item. @suffix', array(
+          '!item' => formatforlog($item),
           '@suffix' => $watchdog_suffix,
         ), WATCHDOG_DEBUG);
       }
@@ -221,8 +221,8 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
 
   // Debug?
   if ($debug && !$legitimate) {
-    watchdog('signatures_queue', 'DEBUG ENABLED: Signature flagged illegitimate: info = @info', array(
-      '@info' => formatforlog($params),
+    watchdog('signatures_queue', 'DEBUG ENABLED: Signature flagged illegitimate: info = !info', array(
+      '!info' => formatforlog($params),
     ), WATCHDOG_DEBUG);
   }
 
@@ -276,8 +276,8 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
     if (!$node->status) {
       // Debug?
       if ($debug) {
-        watchdog('signatures_queue', 'DEBUG ENABLED: Invalid petition, not published: node = @node', array(
-          '@node' => formatforlog($node),
+        watchdog('signatures_queue', 'DEBUG ENABLED: Invalid petition, not published: node = !node', array(
+          '!node' => formatforlog($node),
         ), WATCHDOG_DEBUG);
       }
       // Node is unpublished.
@@ -597,8 +597,8 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
 
     // Debug? Print to log.
     if ($debug) {
-      watchdog('signatures_queue', 'DEBUG ENABLED: Saving signature to mongo: @item', array(
-        '@item' => formatforlog($item),
+      watchdog('signatures_queue', 'DEBUG ENABLED: Saving signature to mongo: !item', array(
+        '!item' => formatforlog($item),
       ), WATCHDOG_DEBUG);
     }
 
@@ -607,8 +607,8 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
 
     // If there's no ID here, saving the signature to mongo failed. Log failure.
     if (!$legacy_signature_id) {
-      watchdog('signatures_queue', 'Error: Attempt to save signature to mongo failed. Queue item = @item', array(
-        '@item' => formatforlog($item),
+      watchdog('signatures_queue', 'Error: Attempt to save signature to mongo failed. Queue item = !item', array(
+        '!item' => formatforlog($item),
       ), WATCHDOG_ERROR);
     }
 
@@ -679,8 +679,8 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
 
     // Debugging? Print result to log.
     if ($debug) {
-      watchdog('signatures_queue', 'DEBUG ENABLED: Signature has been saved to mysql. Signature entity: @signature', array(
-        '@signature' => formatforlog($signature),
+      watchdog('signatures_queue', 'DEBUG ENABLED: Signature has been saved to mysql. Signature entity: !signature', array(
+        '!signature' => formatforlog($signature),
       ), WATCHDOG_DEBUG);
     }
   }

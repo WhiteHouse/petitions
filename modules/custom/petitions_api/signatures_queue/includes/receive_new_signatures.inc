@@ -40,8 +40,8 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
 
   // Debugging. Log signature data received.
   if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
-    watchdog('signatures_queue', 'DEBUG ENABLED: New signature received: @signature', array(
-      '@signature' => formatforlog($signature),
+    watchdog('signatures_queue', 'DEBUG ENABLED: New signature received: !signature', array(
+      '!signature' => formatforlog($signature),
     ), WATCHDOG_DEBUG);
   }
 
