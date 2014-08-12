@@ -597,7 +597,7 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
 
     // Debug? Print to log.
     if ($debug) {
-      watchdog('signatures_queue', 'DEBUG ENABLED: Saving signature to monogo: @item', array(
+      watchdog('signatures_queue', 'DEBUG ENABLED: Saving signature to mongo: @item', array(
         '@item' => formatforlog($item),
       ), WATCHDOG_DEBUG);
     }
