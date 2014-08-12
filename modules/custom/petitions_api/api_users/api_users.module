@@ -276,7 +276,7 @@ function api_users_user_login(&$edit, $account) {
 function api_users_cron() {
   // Check to see when the last time cron was run.  If it's greater then 24
   // hours, then run count check.
-  $last_cron = ($last_cron = variable_get('cron_last', FALSE)) ? $last_cront : time();
+  $last_cron = ($last_cron = variable_get('cron_last', FALSE)) ? $last_cron : time();
 
   if ((time() - $last_cron) >= 86400) {
     // Retrieve the user count by directly querying the database.
