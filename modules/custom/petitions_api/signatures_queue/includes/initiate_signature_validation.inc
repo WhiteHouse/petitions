@@ -208,6 +208,11 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
   //   that's probably more efficient here.
   foreach ($signatures as $signature) {
     $signature->data['validation_link'] = _signatures_queue_validation_link(variable_get('petitions_data_petitions_website_url', $base_url), $signature->data, FALSE);
+
+    // Log time elapsed since passing through previous workflow.
+    $elapsed = signatures_queue_get_microtime_elapsed_since($signature->data['timestamp_received_new_signature']);
+    petitionslog_event('signatures_queue.data_flow.time_elapsed.received_new_signature__to__initiated_signature_validation', 'time', $elapsed);
+
     // Send validation email.
     $to = $signature->data['email'];
     global $language;

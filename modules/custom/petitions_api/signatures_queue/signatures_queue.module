@@ -277,6 +277,25 @@ function signatures_queue_get_queue_names() {
 }
 
 /**
+ * Gets the time elapsed since a given timestamp, measured in microseconds.
+ *
+ * Because its input is in timestamps (not "micro timestamps", if you will),
+ * this function can only be accurate to the nearest second. It's value is not
+ * actually in precision but in enforcing a common unit of measure.
+ *
+ * @param int $timestamp
+ *   A timestamp, as returned from time().
+ *
+ * @return int
+ *   The number of microseconds elapsed.
+ *
+ * @see timer_read()
+ */
+function signatures_queue_get_microtime_elapsed_since($timestamp) {
+  return (int) round((time() - $timestamp) * 1000);
+}
+
+/**
  * Gets a list of workflow names.
  *
  * @return array

@@ -427,6 +427,14 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
   // Set the active database to the signatures_processing db.
   signatures_queue_set_db();
 
+  // Log time elapsed since passing through previous workflows.
+  $elapsed_since_receiving_signature_validation = signatures_queue_get_microtime_elapsed_since($item['timestamp_received_new_signature']);
+  petitionslog_event('signatures_queue.data_flow.time_elapsed.received_signature_validation__to__processed_signature', 'time', $elapsed_since_receiving_signature_validation);
+  $elapsed_since_preprocessing_signatures = signatures_queue_get_microtime_elapsed_since($item['timestamp_preprocessed_signature']);
+  petitionslog_event('signatures_queue.data_flow.time_elapsed.preprocessed_signature__to__processed_signature', 'time', $elapsed_since_preprocessing_signatures);
+  $elapsed_since_preprocessing_validation = signatures_queue_get_microtime_elapsed_since($item['timestamp_preprocessed_validation']);
+  petitionslog_event('signatures_queue.data_flow.time_elapsed.preprocessed_validation__to__processed_signature', 'time', $elapsed_since_preprocessing_validation);
+
   // Add to processed tables.
   $erred = FALSE;
   $exception = NULL;

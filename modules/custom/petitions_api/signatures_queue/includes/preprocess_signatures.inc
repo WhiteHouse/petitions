@@ -208,6 +208,10 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
         $item->data['timestamp_preprocessed_signature'] = time();
       }
       elseif ($queue_name == 'validations_queue') {
+        // Log time elapsed since passing through previous workflow.
+        $elapsed = signatures_queue_get_microtime_elapsed_since($item->data['timestamp_received_signature_validation']);
+        petitionslog_event('signatures_queue.data_flow.time_elapsed.received_signature_validation__to__preprocessed_validation', 'time', $elapsed);
+
         $item->data['timestamp_preprocessed_validation'] = time();
       }
 
