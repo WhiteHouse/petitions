@@ -447,6 +447,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'timestamp_initiated_signature_validation' => $item['timestamp_initiated_signature_validation'],
         'timestamp_preprocessed_signature' => $item['timestamp_preprocessed_signature'],
         'timestamp_preprocessed_validation' => $item['timestamp_preprocessed_validation'],
+        'timestamp_processed_signature' => time(),
       ))
       ->execute();
   }
@@ -462,6 +463,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'client_ip' => $item['client_ip'],
         'petition_id' => $item['petition_id'],
         'timestamp_preprocessed_validation' => $item['timestamp_preprocessed_validation'],
+        'timestamp_processed_signature' => time(),
       ))
       ->execute();
   }
