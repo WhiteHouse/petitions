@@ -44,5 +44,15 @@ function petitionslog_event($name, $type = 'count', $value = NULL) {
     return;
   }
 
+  // Conditionally log events to watchdog for debugging purposes.
+  // Note: This variable has no UI.
+  if (variable_get('petitionslog_debug', FALSE)) {
+    watchdog('petitionslog', 'Petitions Log Event: @name | @type | @value', array(
+      '@name' => $name,
+      '@type' => $type,
+      '@value' => is_null($value) ? 'NULL' : $value,
+    ), WATCHDOG_DEBUG);
+  }
+
   module_invoke_all('petitionslog_event', $name, $type, $value);
 }
