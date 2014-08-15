@@ -301,8 +301,11 @@ function _signatures_queue_archive_schema_tables() {
  * @see _signatures_queue_schema_tables()
  */
 function signatures_queue_schema() {
+  // The "signature_validations" table is the data source for the API
+  // "validations" endpoint, which is the reason it's the only Signatures Queue
+  // table that resides in the Drupal database.
   $schema['signature_validations'] = array(
-    'description' => 'Signature Validations.',
+    'description' => 'Signature validations for the API "validations" endpoint.',
     'fields' => array(
       'vid' => array(
         'type' => 'serial',
