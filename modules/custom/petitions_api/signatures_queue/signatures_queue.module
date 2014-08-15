@@ -433,6 +433,17 @@ function _signatures_queue_get_loggable_workflow_status($workflow, $status) {
 }
 
 /**
+ * Logs a given table or queue's 'last_emptied' and 'size'.
+ */
+function _signatures_queue_log_size($data_store_name, $record_count) {
+  $record_count = (int) $record_count;
+  petitionslog_event("signatures_queue.data_store.{$data_store_name}.size", 'gauge', $record_count);
+  if ($record_count == 0) {
+    petitionslog_event("signatures_queue.data_store.{$data_store_name}.last_emptied", 'gauge', time());
+  }
+}
+
+/**
  * Set active database according to settings.php configuration.
  *
  * Don't forget to call db_set_active() to set back to default after using this.

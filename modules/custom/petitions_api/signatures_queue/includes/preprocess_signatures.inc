@@ -149,6 +149,7 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
 
   // Log and return early if the queue is empty.
   $number_of_items = $queue->numberOfItems();
+  _signatures_queue_log_size($queue_name, $number_of_items);
   if (!$number_of_items) {
     watchdog('signatures_queue', '@queue is empty. No items will be preprocessed. @suffix', array(
       '@queue' => $queue_name,
@@ -198,6 +199,9 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
       }
     }
   }
+
+  $number_of_items = $queue->numberOfItems();
+  _signatures_queue_log_size($queue_name, $number_of_items);
 
   // Create batch keyed by unique secret validation key.
   $batch = array();
@@ -261,6 +265,7 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
 
     // Add the resulting values to the query.
     $query->values($values);
+    petitionslog_event("signatures_queue.data_store.{$table_name}.item_added");
   }
 
   // Execute the query.
@@ -276,6 +281,9 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
 
     return FALSE;
   }
+
+  $count = db_select($table_name)->countQuery()->execute()->fetchField();
+  _signatures_queue_log_size($table_name, $count);
 
   db_set_active();
 
@@ -442,13 +450,18 @@ function _signatures_queue_preprocess_signatures_delete_signatures_batch_from_qu
     $chunk_size = variable_get('signatures_queue_preprocess_delete_chunk_size', 10);
     $chunks = array_chunk($batch, $chunk_size, TRUE);
     foreach ($chunks as $chunk) {
+      $count_items = count($chunk);
       $queue->deleteItemMultiple($chunk);
+      petitionslog_event("signatures_queue.data_store.{$queue_name}.item_removed", 'count', $count_items);
     }
   }
   else {
     // Delete items.
     foreach ($batch as $item) {
       $queue->deleteItem($item);
+      petitionslog_event("signatures_queue.data_store.{$queue_name}.item_removed");
     }
   }
+  $count_queue = $queue->numberOfItems();
+  _signatures_queue_log_size($queue_name, $count_queue);
 }

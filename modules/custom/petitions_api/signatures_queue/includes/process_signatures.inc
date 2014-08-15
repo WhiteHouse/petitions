@@ -158,6 +158,18 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
     $count++;
   }
 
+  // Set the active database to the signatures_processing db.
+  signatures_queue_set_db();
+
+  $count_signatures_pending_validation = db_select('signatures_pending_validation')->countQuery()->execute()->fetchField();
+  _signatures_queue_log_size('signatures_pending_validation', $count_signatures_pending_validation);
+  $count_signatures_processed = db_select('signatures_processed')->countQuery()->execute()->fetchField();
+  _signatures_queue_log_size('signatures_processed', $count_signatures_processed);
+
+  // Set the active database back to default, in case queue backend wasn't using
+  // Drupal's database.
+  db_set_active();
+
   // Log successes.
   $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
   watchdog('signatures_queue', '@number valid signatures have been recorded. (Records from validations table were matched to signatures_pending_validation table, processed, and counted.) @suffix', array(
@@ -458,6 +470,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'timestamp_processed_signature' => time(),
       ))
       ->execute();
+    petitionslog_event("signatures_queue.data_store.signatures_processed.item_added");
   }
   catch (PDOException $exception) {
     $erred = TRUE;
@@ -474,6 +487,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'timestamp_processed_signature' => time(),
       ))
       ->execute();
+    petitionslog_event("signatures_queue.data_store.validations_processed.item_added");
   }
   catch (PDOException $exception) {
     $erred = TRUE;
@@ -493,9 +507,11 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
   db_delete('signatures_pending_validation')
     ->condition('sid', $item['sid'])
     ->execute();
+  petitionslog_event("signatures_queue.data_store.signatures_pending_validation.item_removed");
   db_delete('validations')
     ->condition('vid', $item['vid'])
     ->execute();
+  petitionslog_event("signatures_queue.data_store.validations.item_removed");
 
   // Set the active database back to default.
   db_set_active();
