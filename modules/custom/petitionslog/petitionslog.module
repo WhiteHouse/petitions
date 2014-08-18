@@ -9,7 +9,7 @@
  * Logs a system event.
  *
  * @param string $name
- *   The name of the value you want to log.
+ *   The name of the event you want to log.
  * @param string $type
  *   (optional) The type of metric to log--one of the following values
  *   corresponding to the

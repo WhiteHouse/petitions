@@ -16,7 +16,7 @@
  * This hook allows modules to log events to custom facilities, such as StatsD.
  *
  * @param string $name
- *   The name of the value to log.
+ *   The name of the event to log.
  * @param string $type
  *   The type of metric to log--one of the following values corresponding to the
  *   @link https://github.com/etsy/statsd/blob/master/docs/metric_types.md StatsD Metric Types @endlink
