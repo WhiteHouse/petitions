@@ -416,6 +416,7 @@ function signatures_queue_update_7300() {
   variable_del('signatures_queue_log_events');
 
   signatures_queue_set_db();
+  $is_archive_table = FALSE;
 
   // Update signature tables.
   $signature_tables = array(
@@ -432,6 +433,10 @@ function signatures_queue_update_7300() {
       'timestamp_validation_email_sent' => 'timestamp_initiated_signature_validation',
       'timestamp_processed' => 'timestamp_processed_signature',
     );
+    $is_archive_table = strpos($table, '_archive');
+    if ($is_archive_table) {
+      signatures_queue_set_db('signatures_archive');
+    }
     foreach ($renamed_signature_fields as $old_name => $new_name) {
       if (db_table_exists($table) && db_field_exists($table, $old_name)) {
         db_change_field($table, $old_name, $new_name, $signatures_schema['fields'][$new_name]);
@@ -447,6 +452,10 @@ function signatures_queue_update_7300() {
         db_add_field($table, $name, $signatures_schema['fields'][$name]);
       }
     }
+    if ($is_archive_table) {
+      signatures_queue_set_db();
+      $is_archive_table = FALSE;
+    }
   }
 
   // Update validation tables.
@@ -458,6 +467,10 @@ function signatures_queue_update_7300() {
   );
   $validations_schema = _signatures_queue_get_validations_schema();
   foreach ($validation_tables as $table) {
+    $is_archive_table = strpos($table, '_archive');
+    if ($is_archive_table) {
+      signatures_queue_set_db('signatures_archive');
+    }
     // Rename validation timestamp database fields.
     $renamed_validation_fields = array(
       'timestamp_validated' => 'timestamp_received_signature_validation',
@@ -477,6 +490,10 @@ function signatures_queue_update_7300() {
       if (db_table_exists($table) && !db_field_exists($table, $name)) {
         db_add_field($table, $name, $validations_schema['fields'][$name]);
       }
+    }
+    if ($is_archive_table) {
+      signatures_queue_set_db();
+      $is_archive_table = FALSE;
     }
   }
 
