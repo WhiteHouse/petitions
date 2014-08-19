@@ -153,5 +153,5 @@ function _signatures_queue_enqueue_item(array $item) {
   $queue = SignaturesQueue::get('signatures_submitted_queue');
   $queue->createQueue();
   $queue->createItem($item);
-  petitionslog_event("signatures_queue.data_store.signatures_submitted_queue.item_added");
+  petitionslog_event('signatures_queue.data_store.signatures_submitted_queue.item_added');
 }

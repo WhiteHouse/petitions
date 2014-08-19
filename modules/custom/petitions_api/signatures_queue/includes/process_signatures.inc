@@ -470,7 +470,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'timestamp_processed_signature' => time(),
       ))
       ->execute();
-    petitionslog_event("signatures_queue.data_store.signatures_processed.item_added");
+    petitionslog_event('signatures_queue.data_store.signatures_processed.item_added');
   }
   catch (PDOException $exception) {
     $erred = TRUE;
@@ -487,7 +487,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
         'timestamp_processed_signature' => time(),
       ))
       ->execute();
-    petitionslog_event("signatures_queue.data_store.validations_processed.item_added");
+    petitionslog_event('signatures_queue.data_store.validations_processed.item_added');
   }
   catch (PDOException $exception) {
     $erred = TRUE;
@@ -507,11 +507,11 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
   db_delete('signatures_pending_validation')
     ->condition('sid', $item['sid'])
     ->execute();
-  petitionslog_event("signatures_queue.data_store.signatures_pending_validation.item_removed");
+  petitionslog_event('signatures_queue.data_store.signatures_pending_validation.item_removed');
   db_delete('validations')
     ->condition('vid', $item['vid'])
     ->execute();
-  petitionslog_event("signatures_queue.data_store.validations.item_removed");
+  petitionslog_event('signatures_queue.data_store.validations.item_removed');
 
   // Set the active database back to default.
   db_set_active();

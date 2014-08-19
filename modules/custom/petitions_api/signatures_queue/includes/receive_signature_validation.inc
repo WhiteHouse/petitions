@@ -73,7 +73,7 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
     $queue = SignaturesQueue::get('validations_queue');
     $queue->createQueue();
     $queue->createItem($signature_data);
-    petitionslog_event("signatures_queue.data_store.validations_queue.item_added");
+    petitionslog_event('signatures_queue.data_store.validations_queue.item_added');
 
     $return = SIGNATURES_QUEUE_STATUS_OK;
   }

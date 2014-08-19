@@ -433,11 +433,20 @@ function _signatures_queue_get_loggable_workflow_status($workflow, $status) {
 }
 
 /**
- * Logs a given table or queue's 'last_emptied' and 'size'.
+ * Logs metrics around the size of a given data store (table or queue).
+ *
+ * @param string $data_store_name
+ *   The name of the data store.
+ * @param int $record_count
+ *   The number of items in the data store.
  */
 function _signatures_queue_data_store_size_event($data_store_name, $record_count) {
   $record_count = (int) $record_count;
+
+  // Log the size.
   petitionslog_event("signatures_queue.data_store.{$data_store_name}.size", 'gauge', $record_count);
+
+  // Log if empty.
   if ($record_count == 0) {
     petitionslog_event("signatures_queue.data_store.{$data_store_name}.last_emptied", 'gauge', time());
   }

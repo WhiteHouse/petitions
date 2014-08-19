@@ -295,11 +295,11 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
 
     // Add the signature to "signatures_pending_validation_queue".
     $pending_validation_queue->createItem($record);
-    petitionslog_event("signatures_queue.data_store.signatures_pending_validation_queue.item_added");
+    petitionslog_event('signatures_queue.data_store.signatures_pending_validation_queue.item_added');
 
     // Remove it from "signatures_submitted_queue".
     $submitted_queue->deleteItem($signature);
-    petitionslog_event("signatures_queue.data_store.signatures_submitted_queue.item_removed");
+    petitionslog_event('signatures_queue.data_store.signatures_submitted_queue.item_removed');
   }
   $count_submitted_queue = $submitted_queue->numberOfItems();
   _signatures_queue_data_store_size_event('signatures_submitted_queue', $count_submitted_queue);
