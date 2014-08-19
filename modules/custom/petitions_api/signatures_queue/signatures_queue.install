@@ -451,7 +451,6 @@ function signatures_queue_update_7300() {
 
   // Update validation tables.
   $validation_tables = array(
-    'signature_validations',
     'validations',
     'validations_processed',
     'validations_orphaned_archive',
@@ -482,4 +481,13 @@ function signatures_queue_update_7300() {
   }
 
   db_set_active();
+
+  // Update signature_validations table.
+  $table = 'signature_validations';
+  $old_name = 'timestamp_processed';
+  $new_name = 'timestamp_processed_signature';
+  $signatures_queue_schema = signatures_queue_schema();
+  if (db_table_exists($table) && db_field_exists($table, $old_name)) {
+    db_change_field($table, $old_name, $new_name, $signatures_queue_schema['signature_validations']['fields'][$new_name]);
+  }
 }
