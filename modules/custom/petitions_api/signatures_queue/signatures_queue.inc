@@ -197,7 +197,7 @@ function _signatures_queue_check_empty($name = NULL) {
 
     $now = time();
     $num_items = $queue->numberOfItems();
-    _signatures_queue_log_size($queue_name, $num_items);
+    _signatures_queue_data_store_size_event($queue_name, $num_items);
 
     // For any empty queue, updated corresponding last_emptied variable.
     if ($num_items == 0) {

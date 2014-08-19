@@ -101,7 +101,7 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
     ), WATCHDOG_INFO);
   }
 
-  _signatures_queue_log_size('signatures_submitted_queue', $number_of_items);
+  _signatures_queue_data_store_size_event('signatures_submitted_queue', $number_of_items);
 
   // Return if the queue is empty. Our work here is done.
   if (!$number_of_items) {
@@ -302,9 +302,9 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
     petitionslog_event("signatures_queue.data_store.signatures_submitted_queue.item_removed");
   }
   $count_submitted_queue = $submitted_queue->numberOfItems();
-  _signatures_queue_log_size('signatures_submitted_queue', $count_submitted_queue);
+  _signatures_queue_data_store_size_event('signatures_submitted_queue', $count_submitted_queue);
   $count_pending_validation_queue = $pending_validation_queue->numberOfItems();
-  _signatures_queue_log_size('pending_validation_queue', $count_pending_validation_queue);
+  _signatures_queue_data_store_size_event('pending_validation_queue', $count_pending_validation_queue);
 
   watchdog('signatures_queue', '@number records were added to signatures_pending_validation_queue. @suffix', array(
     '@number' => number_format(count($signatures)),

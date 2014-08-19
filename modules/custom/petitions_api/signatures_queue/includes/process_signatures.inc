@@ -162,9 +162,9 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   signatures_queue_set_db();
 
   $count_signatures_pending_validation = db_select('signatures_pending_validation')->countQuery()->execute()->fetchField();
-  _signatures_queue_log_size('signatures_pending_validation', $count_signatures_pending_validation);
+  _signatures_queue_data_store_size_event('signatures_pending_validation', $count_signatures_pending_validation);
   $count_signatures_processed = db_select('signatures_processed')->countQuery()->execute()->fetchField();
-  _signatures_queue_log_size('signatures_processed', $count_signatures_processed);
+  _signatures_queue_data_store_size_event('signatures_processed', $count_signatures_processed);
 
   // Set the active database back to default, in case queue backend wasn't using
   // Drupal's database.

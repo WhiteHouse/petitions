@@ -435,7 +435,7 @@ function _signatures_queue_get_loggable_workflow_status($workflow, $status) {
 /**
  * Logs a given table or queue's 'last_emptied' and 'size'.
  */
-function _signatures_queue_log_size($data_store_name, $record_count) {
+function _signatures_queue_data_store_size_event($data_store_name, $record_count) {
   $record_count = (int) $record_count;
   petitionslog_event("signatures_queue.data_store.{$data_store_name}.size", 'gauge', $record_count);
   if ($record_count == 0) {

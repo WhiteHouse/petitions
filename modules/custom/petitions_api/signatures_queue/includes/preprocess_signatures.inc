@@ -149,12 +149,12 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
 
   // Log and return early if the queue is empty.
   $number_of_items = $queue->numberOfItems();
-  _signatures_queue_log_size($queue_name, $number_of_items);
   if (!$number_of_items) {
     watchdog('signatures_queue', '@queue is empty. No items will be preprocessed. @suffix', array(
       '@queue' => $queue_name,
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
+    _signatures_queue_data_store_size_event($queue_name, $number_of_items);
     return array();
   }
   else {
@@ -201,7 +201,7 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
   }
 
   $number_of_items = $queue->numberOfItems();
-  _signatures_queue_log_size($queue_name, $number_of_items);
+  _signatures_queue_data_store_size_event($queue_name, $number_of_items);
 
   // Create batch keyed by unique secret validation key.
   $batch = array();
@@ -283,7 +283,7 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
   }
 
   $count = db_select($table_name)->countQuery()->execute()->fetchField();
-  _signatures_queue_log_size($table_name, $count);
+  _signatures_queue_data_store_size_event($table_name, $count);
 
   db_set_active();
 
@@ -463,5 +463,5 @@ function _signatures_queue_preprocess_signatures_delete_signatures_batch_from_qu
     }
   }
   $count_queue = $queue->numberOfItems();
-  _signatures_queue_log_size($queue_name, $count_queue);
+  _signatures_queue_data_store_size_event($queue_name, $count_queue);
 }
