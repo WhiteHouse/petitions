@@ -84,22 +84,34 @@ function drush_signatures_queue_queue_list() {
     '@space' => str_pad('', $column_width - 5),
   )));
 
+  signatures_queue_set_db();
+
   $queue_names = array_keys(signatures_queue_get_queue_names());
   foreach ($queue_names as $queue_name) {
-    // Skip "queues" that aren't literal queue system queues.
-    if (substr($queue_name, -6) !== '_queue') {
-      continue;
+    // The "queue" is a literal queue.
+    if (SignaturesQueue::isValidQueueName($queue_name)) {
+      // Make sure the queue exists before trying to interact with it.
+      $queue = SignaturesQueue::get($queue_name);
+      $queue->createQueue();
+      $count = (int) $queue->numberOfItems();
     }
+    // The "queue" is actually a database table.
+    else {
+      // Ignore tables that aren't in the "signatures_processing" database.
+      if (!db_table_exists($queue_name)) {
+        continue;
+      }
 
-    // Make sure the queue exists before trying to interact with it.
-    $queue = SignaturesQueue::get($queue_name);
-    $queue->createQueue();
+      $count = (int) db_select($queue_name)->countQuery()->execute()->fetchField();
+    }
 
     drush_print(dt('@queue_name..@count', array(
       '@queue_name' => str_pad($queue_name, $column_width, '.'),
-      '@count' => (int) $queue->numberOfItems(),
+      '@count' => $count,
     )));
   }
+
+  db_set_active();
 }
 
 /**
