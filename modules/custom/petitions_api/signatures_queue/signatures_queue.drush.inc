@@ -107,7 +107,7 @@ function drush_signatures_queue_queue_list() {
 
     drush_print(dt('@queue_name..@count', array(
       '@queue_name' => str_pad($queue_name, $column_width, '.'),
-      '@count' => $count,
+      '@count' => number_format($count),
     )));
   }
 
