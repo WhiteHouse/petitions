@@ -56,7 +56,7 @@ function _api_signatures_create_doc() {
     '#path' => '/signatures',
     '#weight' => 2,
     '#description' => t('Send an independently gathered signature to a petition.'),
-    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/signatures', array('absolute' => TRUE)),
+    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/signatures.json?api_key=asY1k9uCQY7Hg8MCBaa', array('absolute' => TRUE)),
     '#request_data' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.request.json'),
     '#response' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.response.json'),
     '#auth' => TRUE,

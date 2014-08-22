@@ -1,124 +1,162 @@
 {
   "metadata": {
+    "responseInfo": {
+      "status": 200,
+      "developerMessage": "OK",
+      "userMessage": "",
+      "errorCode": "",
+      "moreInfo": ""
+    },
     "resultset": {
-      "count": 27899,
-      "offset": 0,
-      "limit": 16
-    },
-    "executionTime": 0.040001
-  },
-  "results": {
-    "0": {
-      "id": "5017a5ca6889385944000000",
-      "type": "signature",
-      "name": "DP",
-      "zip": "94530",
-      "created": 1343727050
-    },
-    "1": {
-      "id": "5017a5ca6889385944000001",
-      "type": "signature",
-      "name": "BH",
-      "zip": "02130",
-      "created": 1343727050
-    },
-    "2": {
-      "id": "5017a5ca6889385944000002",
-      "type": "signature",
-      "name": "NH",
-      "zip": "21144",
-      "created": 1343727050
-    },
-    "3": {
-      "id": "5017a5ca6889385944000003",
-      "type": "signature",
-      "name": "NF",
-      "zip": "20814",
-      "created": 1343727050
-    },
-    "4": {
-      "id": "5017a5ca6889385944000004",
-      "type": "signature",
-      "name": "MG",
-      "zip": "20814",
-      "created": 1343727050
-    },
-    "5": {
-      "id": "5017a5ca6889385944000005",
-      "type": "signature",
-      "name": "DS",
-      "zip": "20852",
-      "created": 1343727050
-    },
-    "6": {
-      "id": "5017a5ca6889385944000006",
-      "type": "signature",
-      "name": "BB",
-      "zip": "22180",
-      "created": 1343727050
-    },
-    "7": {
-      "id": "5017a5ca6889385944000007",
-      "type": "signature",
-      "name": "AE",
-      "zip": "21043",
-      "created": 1343727050
-    },
-    "8": {
-      "id": "5017a5ca6889385944000008",
-      "type": "signature",
-      "name": "PW",
-      "zip": "20011",
-      "created": 1343727050
-    },
-    "9": {
-      "id": "5017a5ca6889385944000009",
-      "type": "signature",
-      "name": "CB",
-      "zip": "20194",
-      "created": 1343727050
-    },
-    "10": {
-      "id": "5017a5ca6889385944000010",
-      "type": "signature",
-      "name": "JS",
-      "zip": "78723",
-      "created": 1343727050
-    },
-    "11": {
-      "id": "5017a5ca6889385944000011",
-      "type": "signature",
-      "name": "MW",
-      "zip": "03842",
-      "created": 1343727050
-    },
-    "12": {
-      "id": "5017a5ca6889385944000012",
-      "type": "signature",
-      "name": "JR",
-      "zip": "20901",
-      "created": 1343727050
-    },
-    "13": {
-      "id": "5017a5ca6889385944000013",
-      "type": "signature",
-      "name": "IH",
-      "zip": "21244",
-      "created": 1343727050
-    },
-    "14": {
-      "id": "5017a5ca6889385944000014",
-      "type": "signature",
-      "name": "MT",
-      "zip": "20715",
-      "created": 1343727050
-    },
-    "15": {
-      "id": "5017966beab72a8048000015",
-      "type": "signature",
-      "name": "FT",
-      "zip": "22304",
-      "created": 1343727050
+      "count": 197073,
+      "limit": 16,
+      "offset": 0
     }
-  }
+  },
+  "results": [
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "D. S.",
+      "city": "Bethel",
+      "state": "VT",
+      "zip": "05032",
+      "created": 1356086945
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "K. J.",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98105",
+      "created": 1356086913
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "R. F.",
+      "city": "Tolland",
+      "state": "CT",
+      "zip": "06084",
+      "created": 1356086855
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "A. M.",
+      "city": "",
+      "state": "",
+      "zip": "28117",
+      "created": 1356086835
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "S. J.",
+      "city": "Danbury",
+      "state": "CT",
+      "zip": "06810",
+      "created": 1356086774
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "P. M.",
+      "city": "West Warwick",
+      "state": "RI",
+      "zip": "02893",
+      "created": 1356086662
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "G. S.",
+      "city": "Woodside",
+      "state": "NY",
+      "zip": "11377",
+      "created": 1356086587
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "E. S.",
+      "city": "Carrboro",
+      "state": "NC",
+      "zip": "27510",
+      "created": 1356086581
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "R. W.",
+      "city": "West Berlin",
+      "state": "NJ",
+      "zip": "08091",
+      "created": 1356086548
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "D. H.",
+      "city": "San Diego",
+      "state": "CA",
+      "zip": "92106",
+      "created": 1356086511
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "C. G.",
+      "city": "Webster",
+      "state": "NY",
+      "zip": "14580",
+      "created": 1356086483
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "P. C.",
+      "city": "Petaluma",
+      "state": "CA",
+      "zip": "94954",
+      "created": 1356086465
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "J. S.",
+      "city": "Ocean View",
+      "state": "DE",
+      "zip": "19970",
+      "created": 1356086451
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "J. G.",
+      "city": "",
+      "state": "",
+      "zip": "13031",
+      "created": 1356086451
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "R. M.",
+      "city": "Dearborn",
+      "state": "MI",
+      "zip": "48124",
+      "created": 1356086420
+    },
+    {
+      "id": "50cb6d2ba9a0b1c52e000017",
+      "type": "signature",
+      "name": "D. C.",
+      "city": "Cornelia",
+      "state": "GA",
+      "zip": "30531",
+      "created": 1356086402
+    }
+  ]
 }

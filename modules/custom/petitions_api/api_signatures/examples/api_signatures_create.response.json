@@ -1,3 +1,11 @@
 {
-  "status": 200
+  "metadata": {
+    "responseInfo": {
+      "status": 200,
+      "developerMessage": "OK",
+      "userMessage": "",
+      "errorCode": "",
+      "moreInfo": ""
+    }
+  }
 }

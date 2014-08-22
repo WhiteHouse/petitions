@@ -2,7 +2,10 @@
   "metadata": {
     "responseInfo": {
       "status": 200,
-      "developerMessage": "OK"
+      "developerMessage": "OK",
+      "userMessage": "",
+      "errorCode": "",
+      "moreInfo": ""
     },
     "requestInfo": {
       "apiVersion": 1,
@@ -14,9 +17,9 @@
         "createdBefore": null,
         "isPublic": 1,
         "isSignable": null,
-        "limit": 10,
-        "mock": null,
-        "offset": 0,
+        "limit": "3",
+        "mock": 0,
+        "offset": "0",
         "petitionsDefaultLimit": "1000",
         "publicThreshold": 1,
         "responseId": null,
@@ -29,92 +32,79 @@
         "status": null,
         "title": null,
         "url": null,
-        "website_url": "https://petitions.whitehouse.gov"
+        "websiteUrl": "https://petitions.whitehouse.gov"
       }
     },
     "resultset": {
-      "count": 4,
-      "limit": 10,
+      "count": 39588,
+      "limit": 3,
       "offset": 0
-    },
-    "executionTime": 0.004933119
+    }
   },
   "results": [
     {
-      "id": "50cb6d2ba9a0b1c52e000017",
+      "id": "53d7e16e362c79b01b000000",
       "type": "petition",
-      "title": "Immediately address the issue of gun control through the introduction of legislation in Congress.",
-      "body": "The goal of this petition is to force the Obama Administration to produce legislation that limits access to guns. While a national dialogue is critical, laws are the only means in which we can reduce the number of people murdered in gun related deaths. Powerful lobbying groups allow the ownership of guns to reach beyond the Constitution's intended purpose of the right to bear arms. Therefore, Congress must act on what is stated law, and face the reality that access to firearms reaches beyond what the Second Amendment intends to achieve. The signatures on this petition represent a collective demand for a bipartisan discussion resulting in a set of laws that regulates how a citizen obtains a gun.",
+      "title": "Test Petition 01",
+      "body": "Lorem ipsum, and such. More info.",
       "issues": [
         {
-          "id": "4",
-          "name": "Civil Rights and Liberties"
-        },
-        {
-          "id": "22",
-          "name": "Firearms"
+          "id": "1",
+          "name": "Agriculture"
         }
       ],
-      "signatureThreshold": 25000,
-      "signatureCount": 197073,
-      "signaturesNeeded": 0,
-      "url": "https://petitions.whitehouse.gov/petition/immediately-address-issue-gun-control-through-introduction-legislation-congress/2tgcXzQC",
-      "deadline": 1358101035,
-      "status": "responded",
-      "response": {
-        "id": "681",
-        "url": "https://petitions.whitehouse.gov/response/message-president-obama-about-your-petition-reducing-gun-violence",
-        "associationTime": "1355963976"
-      },
-      "created": 1355509035
-    },
-    {
-      "id": "alphanumericString",
-      "type": "petition",
-      "title": "Petition Title",
-      "body": "Petition Body.",
-      "issues": [
-        {
-          "id": "4",
-          "name": "Civil Rights and Liberties"
-        },
-        {
-          "id": "22",
-          "name": "Firearms"
-        }
-      ],
-      "signatureThreshold": 100000,
-      "signatureCount": 90000,
-      "signaturesNeeded": 10000,
-      "url": "https://petitions.whitehouse.gov/petition/petition-title/alphanumericString",
-      "deadline": 1363323600,
+      "signatureThreshold": 10,
+      "signatureCount": 6,
+      "signaturesNeeded": 4,
+      "url": "https://petitions.whitehouse.gov/petition/test-petition-01/LdKR0VmQ",
+      "deadline": 1422212478,
       "status": "open",
       "response": null,
-      "created": 1360908000
+      "created": 1406656878,
+      "isSignable": true,
+      "isPublic": true
     },
     {
-      "id": "alphanumericString",
+      "id": "53b1bb9bf514002b5b000000",
       "type": "petition",
-      "title": "Petition Title",
-      "body": "Petition Body.",
+      "title": "Test Petition 02",
+      "body": "This is a test.",
       "issues": [
         {
-          "id": "4",
-          "name": "Civil Rights and Liberties"
-        },
-        {
-          "id": "22",
-          "name": "Firearms"
+          "id": "21",
+          "name": "Family"
         }
       ],
-      "signatureThreshold": 100000,
-      "signatureCount": 110000,
+      "signatureThreshold": 10,
+      "signatureCount": 4,
+      "signaturesNeeded": 6,
+      "url": "https://petitions.whitehouse.gov/petition/test-petition-02/wVY36brf",
+      "deadline": 1419712427,
+      "status": "open",
+      "response": null,
+      "created": 1404156827,
+      "isSignable": true,
+      "isPublic": true
+    },
+    {
+      "id": "538792b8362c79fe2d000005",
+      "type": "petition",
+      "title": "Test Petition 03",
+      "body": "Test copy about signing this petition.",
+      "issues": [
+        {
+          "id": "21",
+          "name": "Family"
+        }
+      ],
+      "signatureThreshold": 10,
+      "signatureCount": 12,
       "signaturesNeeded": 0,
-      "url": "https://petitions.whitehouse.gov/petition/petition-title/alphanumericString",
-      "deadline": 1363323600,
+      "url": "https://petitions.whitehouse.gov/petition/test-petition-03/TL6824qf",
+      "deadline": 1416949448,
       "status": "pending response",
       "response": null,
-      "created": 1360908000,
+      "created": 1401393848,
       "isSignable": true,
       "isPublic": true
     }
