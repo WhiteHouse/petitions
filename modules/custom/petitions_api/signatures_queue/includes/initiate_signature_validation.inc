@@ -304,7 +304,7 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
   $count_submitted_queue = $submitted_queue->numberOfItems();
   _signatures_queue_data_store_size_event('signatures_submitted_queue', $count_submitted_queue);
   $count_pending_validation_queue = $pending_validation_queue->numberOfItems();
-  _signatures_queue_data_store_size_event('pending_validation_queue', $count_pending_validation_queue);
+  _signatures_queue_data_store_size_event('signatures_pending_validation_queue', $count_pending_validation_queue);
 
   watchdog('signatures_queue', '@number records were added to signatures_pending_validation_queue. @suffix', array(
     '@number' => number_format(count($signatures)),
