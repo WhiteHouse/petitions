@@ -1,6 +1,6 @@
 name = "White House Profile Migrate"
 description = "A one-time profile migration script to initially populate the profile data."
-package = "Custom Developed"
+package = White House Custom
 core = 7.x
 
 dependencies[] = migrate_extras
