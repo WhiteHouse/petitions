@@ -132,35 +132,6 @@ function petitionevents_mail($key, &$message, $params) {
 }
 
 /**
- * Implements mandrill_mail().
- */
-function petitionevents_mandrill_mail_alter(&$mandrill_params, $message) {
-  $mandrill_params['message']['from'] = $message['from'];
-
-  // This code enables BCC for petitionevents_send_remove_email().
-  if ($message['key'] == 'send_remove_email') {
-    $bcc_array = explode(',', $message['bcc']);
-
-    foreach ($bcc_array as $bcc_email) {
-      if (preg_match(MANDRILL_EMAIL_REGEX, $bcc_email, $matches)) {
-        $mandrill_params['message']['to'][] = array(
-          'email' => $matches[2],
-          'name' => $matches[1],
-          'type' => 'bcc',
-        );
-      }
-
-      elseif (!empty($bcc_email)) {
-        $mandrill_params['message']['to'][] = array(
-          'email' => $bcc_email,
-          'type' => 'bcc',
-        );
-      }
-    }
-  }
-}
-
-/**
  * Creates form for emailing removal notice to petition owner.
  *
  * @param array $settings
