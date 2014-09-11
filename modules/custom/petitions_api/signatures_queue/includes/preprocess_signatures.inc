@@ -207,15 +207,20 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
   $batch = array();
   foreach ($submitted_signatures as $item) {
     if (!empty($item->data['secret_validation_key'])) {
-      // Add timestamp.
       if ($queue_name == 'signatures_pending_validation_queue') {
+        // Log time elapsed since passing through previous workflow.
+        $elapsed_since_initiating_signature_validation = signatures_queue_get_microtime_elapsed_since($item->data['timestamp_initiated_signature_validation']);
+        petitionslog_event('signatures_queue.data_flow.time_elapsed.initiated_signature_validation__to__preprocessed_signature', 'time', $elapsed_since_initiating_signature_validation);
+
+        // Add timestamp.
         $item->data['timestamp_preprocessed_signature'] = time();
       }
       elseif ($queue_name == 'validations_queue') {
         // Log time elapsed since passing through previous workflow.
-        $elapsed = signatures_queue_get_microtime_elapsed_since($item->data['timestamp_received_signature_validation']);
-        petitionslog_event('signatures_queue.data_flow.time_elapsed.received_signature_validation__to__preprocessed_validation', 'time', $elapsed);
+        $elapsed_since_receiving_signature_validation = signatures_queue_get_microtime_elapsed_since($item->data['timestamp_received_signature_validation']);
+        petitionslog_event('signatures_queue.data_flow.time_elapsed.received_signature_validation__to__preprocessed_validation', 'time', $elapsed_since_receiving_signature_validation);
 
+        // Add timestamp.
         $item->data['timestamp_preprocessed_validation'] = time();
       }
 
