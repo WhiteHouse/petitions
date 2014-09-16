@@ -619,7 +619,7 @@ function _api_petitions_load_signatures_doc() {
     '#path' => '/petitions/{petition_id}/signatures',
     '#weight' => 3,
     '#description' => t('Display signatures attached to a petition. Unsupported non-Latin characters are replaced with an "x".'),
-    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50cb6d2ba9a0b1c52e000017/signatures.json?limit=16&offset=0', array('absolute' => TRUE)),
+    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50a3fd762f2c88cd65000015/signatures.json?limit=16&offset=0', array('absolute' => TRUE)),
     '#response' => _api_petitions_mock_response('load_signatures'),
     '#verb' => 'GET',
   );
