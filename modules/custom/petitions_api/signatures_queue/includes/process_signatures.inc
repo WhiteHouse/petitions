@@ -403,8 +403,6 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
         'petition_id' => $item['petition_id'],
         'signature_source_api_key' => $item['signature_source_api_key'],
         'email' => $item['email'],
-        'timestamp_preprocessed_signature' => $item['timestamp_preprocessed_signature'],
-        'timestamp_preprocessed_validation' => $item['timestamp_preprocessed_validation'],
         'timestamp_processed_signature' => time(),
       ))
       ->execute();
