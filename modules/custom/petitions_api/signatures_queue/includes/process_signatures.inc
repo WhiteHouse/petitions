@@ -60,6 +60,10 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
 
   $result = $query->execute();
 
+  if (!$result->rowCount()) {
+    petitionslog_event('signatures_queue.workflow.process_signatures.caught_up');
+  }
+
   // Set the active database back to default, in case queue backend wasn't using
   // Drupal's database.
   db_set_active();

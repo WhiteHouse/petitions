@@ -46,6 +46,7 @@ function _signatures_queue_initiate_signature_validation($job_id, $server_name, 
 
   // Return if there's nothing to do.
   if (empty($signatures)) {
+    petitionslog_event('signatures_queue.workflow.initiate_signature_validation.caught_up');
     return SIGNATURES_QUEUE_STATUS_OK;
   }
 

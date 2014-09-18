@@ -78,6 +78,7 @@ function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog
 
   // Return early if the batch is empty.
   if (empty($batch)) {
+    petitionslog_event('signatures_queue.workflow.preprocess_signatures.caught_up');
     return FALSE;
   }
 
@@ -116,6 +117,16 @@ function _signatures_queue_preprocess_signatures_preprocess_validations($watchdo
 
   // Return early if the batch is empty.
   if (empty($batch)) {
+    // @todo The name of this log event implies the existence of a discrete
+    //   "Preprocess Validations" workflow that does not currently exist as
+    //   such. This was done because the current "Preprocess Signatures"
+    //   workflow is actually preprocessing two things, not one, and cannot be
+    //   said to be caught up when only one of the source data stores is empty.
+    //   (And there is no guarantee that both will EVER be empty at the same
+    //   time.) This suggests an opportunity to refine the workflow design by
+    //   separating this workflow into two. Ticket #PT-1438 has been created to
+    //   do so.
+    petitionslog_event('signatures_queue.workflow.preprocess_validations.caught_up');
     return FALSE;
   }
 
