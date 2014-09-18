@@ -4770,7 +4770,9 @@ text-transform:uppercase;
                 .method-arguments .title,
                 .method-request .request-title,
                 .method-response .response-title,
-                .implementations .implementations-title {
+                .implementations .implementations-title,
+                .method-errors .title
+                {
                   background: #0F3E72;
                   padding: 5px 5px;
                   color: white;
@@ -4784,7 +4786,8 @@ text-transform:uppercase;
                 .method-request .request-url,
                 .method-request .request-body,
                 .method-response .response-body,
-                .implementations .implementation-bundle .implementation {
+                .implementations .implementation-bundle .implementation,
+                .method-errors. method-error {
                   border: 1px solid #f2f3f5;
                   padding: 5px 5px;
                 }
@@ -4829,11 +4832,26 @@ text-transform:uppercase;
 
                 // Areas expected to contain <pre> tags.
                 .method-request .request-body,
-                .method-response .response-body {
+                .method-response .response-body,
+                .method-error .method-error-response {
                   background: #F2F3F5;
                   word-wrap: normal;
                   white-space: pre;
                   overflow: auto;
+                }
+
+                // Errors.
+                .method-error {
+                  .method-error-detail {
+                    .method-error-question {
+                      h6 {
+                        margin: 0;
+                      }
+                    }
+                    .method-error-description {
+                      font-style: italic;
+                    }
+                  }
                 }
 
                 // Implementations.

@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "responseInfo": {
+      "status": "400",
+      "developerMessage:": "Missing required fields. These fields are required: signature_source_api_key, petition_id, email, first_name, last_name.",
+      "userMessage": "Missing required fields. These fields are required: signature_source_api_key, petition_id, email, first_name, last_name.",
+      "errorCode": "75",
+      "moreInfo": "See the documentation: https://petitions.whitehouse.gov/developers#signatures-create-error-400"
+    }
+  }
+}

@@ -347,7 +347,8 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     $developer_message = t("Class could not be instantiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
     $error_code = 83;
-    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-599', array('!url' => $website_url));
+    watchdog('api_petitions', $e->getMessage());
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
@@ -357,8 +358,8 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     $developer_message = t("Petition @petition_id not found.", array('@petition_id' => $petition_id));
     $user_message = t("The petition that you requested does not exist.", array('@petition_id' => $petition_id));
     $error_code = 84;
-    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
-    return api_errors_throw_error($status_code, $developer_message, $user_message);
+    $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-404', array('!url' => $website_url));
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
   $response_params = array(
@@ -501,6 +502,10 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
  * Callback for Services petitions signatures relationship method.
  */
 function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $country, $created_before, $created_after, $created_at, $limit, $offset, $mock) {
+  global $base_url;
+
+  $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
+
   // Return mock response.
   if ($mock) {
     $response = json_decode(_api_petitions_mock_response('load_signatures'));
@@ -538,7 +543,7 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
     $developer_message = t("Class could not be instantiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
     $error_code = 83;
-    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    $more_info = t('See the documentation: !url/developers#petitions-signatures-error-599', array('!url' => $website_url));
     watchdog('api_petitions', $e->getMessage());
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
@@ -556,6 +561,7 @@ function _api_petitions_retrieve_doc() {
     '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50a3fd762f2c88cd65000015.json', array('absolute' => TRUE)),
     '#response' => _api_petitions_mock_response('retrieve'),
     '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
+    '#errors' => _api_petitions_retrieve_doc_errors(),
   );
 
   return $element;
@@ -593,6 +599,26 @@ function _api_petitions_retrieve_doc_example_implementations() {
 }
 
 /**
+ * Documentation callback for errors related to the retrieve method.
+ */
+function _api_petitions_retrieve_doc_errors() {
+  $errors = array(
+    '404' => array(
+      '#question' => t("What happens when I pass an invalid petition ID with my request?"),
+      '#description' => t("I am building a web application that will communicate via the read API. If I pass an invalid petition ID with my request, will I get a response?"),
+      '#response' => _api_petitions_mock_response('retrieve404'),
+    ),
+    '599' => array (
+      '#question' => t("What happens when I make a request and the application fails?"),
+      '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to internal errors, will I get a response?"),
+      '#response' => _api_petitions_mock_response('retrieve599'),
+    ),
+  );
+
+  return $errors;
+}
+
+/**
  * Documentation callback for index method.
  */
 function _api_petitions_index_doc() {
@@ -605,9 +631,24 @@ function _api_petitions_index_doc() {
 Limits: 10 requests per second. Developers who need historic data on all public petitions should consider using our bulk data download, described above.'),
     '#request_url' => variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions.json?limit=3&offset=0&createdBefore=1352924535',
     '#response' => _api_petitions_mock_response('index'),
+    '#errors' => _api_petitions_index_doc_errors(),
   );
 
   return $element;
+}
+
+/**
+ * Documentation callback for errors related to the index method.
+ */
+function _api_petitions_index_doc_errors() {
+  // @todo Have all possible errors been captured?.
+  $errors = array(
+    '599' => array (
+      '#response' => _api_petitions_mock_response('index599'),
+    ),
+  );
+
+  return $errors;
 }
 
 /**
@@ -621,10 +662,26 @@ function _api_petitions_load_signatures_doc() {
     '#description' => t('Display signatures attached to a petition. Unsupported non-Latin characters are replaced with an "x".'),
     '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50a3fd762f2c88cd65000015/signatures.json?limit=16&offset=0', array('absolute' => TRUE)),
     '#response' => _api_petitions_mock_response('load_signatures'),
+    '#errors' => _api_petitions_load_signatures_doc_errors(),
     '#verb' => 'GET',
   );
 
   return $element;
+}
+
+/**
+ * Documentation callback for errors related to the signatures relationship.
+ */
+function _api_petitions_load_signatures_doc_errors() {
+  $errors = array(
+    '599' => array (
+      '#question' => t("What happens when I make a request and the application fails?"),
+      '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to internal errors, will I get a response?"),
+      '#response' => _api_petitions_mock_response('load_signatures599')
+    ),
+  );
+
+  return $errors;
 }
 
 /**
@@ -636,12 +693,28 @@ function _api_petitions_mock_response($method) {
       $file = 'api_petitions_index.response.json';
       break;
 
+    case 'index599':
+      $file = 'api_petitions_index.response599.json';
+      break;
+
     case 'retrieve':
       $file = 'api_petitions_retrieve.response.json';
       break;
 
+    case 'retrieve404':
+      $file = 'api_petitions_retrieve.response404.json';
+      break;
+
+    case 'retrieve599':
+      $file = 'api_petitions_retrieve.response599.json';
+      break;
+
     case 'load_signatures':
       $file = 'api_petitions_load_signatures.response.json';
+      break;
+
+    case 'load_signatures599':
+      $file = 'api_petitions_load_signatures.response599.json';
       break;
 
   }

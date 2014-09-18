@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "responseInfo": {
+      "status": "404",
+      "developerMessage:": "No such petition {petition_id}.",
+      "userMessage": "The petition you are trying to sign doesn't exist.",
+      "errorCode": "76",
+      "moreInfo": "See the documentation: https://petitions.whitehouse.gov/developers#signatures-create-error-404"
+    }
+  }
+}
