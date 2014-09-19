@@ -91,6 +91,11 @@ projects[rules][version] = 2.3
 projects[services][version] = 3.7
 
 projects[services_documentation][version] = 1.3
+projects[services_documentation][patch][] = https://www.drupal.org/files/issues/services_documentation-error_handling-2341479-1.patch
+
+; services_documentation-error_handling-2341479-1.patch
+;  - Adds support for documentation errors.
+;  - @see https://www.drupal.org/node/2341479
 
 projects[shunt][version] = 1.3
 
