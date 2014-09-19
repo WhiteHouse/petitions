@@ -347,11 +347,6 @@ function signatures_queue_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'timestamp_preprocessed_signature' => array(
-        'description' => 'The time the signature passed through the "preprocess signatures" workflow.',
-        'type' => 'int',
-        'not null' => FALSE,
-      ),
       'timestamp_processed_signature' => array(
         'description' => 'The time the signature passed through the "process signatures" workflow.',
         'type' => 'int',
