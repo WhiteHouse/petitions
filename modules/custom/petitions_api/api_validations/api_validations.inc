@@ -41,7 +41,10 @@ function _api_validations_resource_index($api_key, $petition_id, $mock, $offset,
   $count = $query->countQuery()->execute()->fetchField();
 
   // Set the limit to the smallest of: the argument, maximum, and result count.
-  $limit = min(array($limit, variable_get('api_validations_index_max_limit', API_VALIDATIONS_MAX_LIMIT_DEFAULT)));
+  $limit = min(array(
+    $limit,
+    variable_get('api_validations_index_max_limit', API_VALIDATIONS_MAX_LIMIT_DEFAULT),
+  ));
 
   // Limit and offset the query as specified maximum.
   $query->range($offset, $limit);

@@ -479,7 +479,7 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
   }
   // Throw error if resource cannot be accessed.
   catch (Exception $e) {
-    $data = (method_exists($e, 'getData')) ? $e->getData() : array() ;
+    $data = (method_exists($e, 'getData')) ? $e->getData() : array();
     if (!$e->getCode()) {
       // There is no specified status code so make one up.
       $status_code = 599;
@@ -608,7 +608,7 @@ function _api_petitions_retrieve_doc_errors() {
       '#description' => t("I am building a web application that will communicate via the read API. If I pass an invalid petition ID with my request, will I get a response?"),
       '#response' => _api_petitions_mock_response('retrieve404'),
     ),
-    '599' => array (
+    '599' => array(
       '#question' => t("What happens when I make a request and the application fails?"),
       '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to internal errors, will I get a response?"),
       '#response' => _api_petitions_mock_response('retrieve599'),
@@ -643,7 +643,7 @@ Limits: 10 requests per second. Developers who need historic data on all public 
 function _api_petitions_index_doc_errors() {
   // @todo Have all possible errors been captured?.
   $errors = array(
-    '599' => array (
+    '599' => array(
       '#question' => t("What would happen if an error that has not been declared were to occur?"),
       '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to an undocumented issue, will I get a response?"),
       '#response' => _api_petitions_mock_response('index599'),
@@ -676,10 +676,10 @@ function _api_petitions_load_signatures_doc() {
  */
 function _api_petitions_load_signatures_doc_errors() {
   $errors = array(
-    '599' => array (
+    '599' => array(
       '#question' => t("What happens when I make a request and the application fails?"),
       '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to internal errors, will I get a response?"),
-      '#response' => _api_petitions_mock_response('load_signatures599')
+      '#response' => _api_petitions_mock_response('load_signatures599'),
     ),
   );
 
