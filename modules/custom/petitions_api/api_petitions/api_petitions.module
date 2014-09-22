@@ -644,6 +644,8 @@ function _api_petitions_index_doc_errors() {
   // @todo Have all possible errors been captured?.
   $errors = array(
     '599' => array (
+      '#question' => t("What would happen if an error that has not been declared were to occur?"),
+      '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to an undocumented issue, will I get a response?"),
       '#response' => _api_petitions_mock_response('index599'),
     ),
   );
