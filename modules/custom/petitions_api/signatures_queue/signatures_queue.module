@@ -4,8 +4,8 @@
  * @file
  * The signature queue system.
  *
- * Provides SignaturesQueue class, configuration for signatures queues, and a
- * queue monitoring dashboard.
+ * Provides a queue-based backend for processing petition signatures submitted
+ * via the API.
  */
 
 /**

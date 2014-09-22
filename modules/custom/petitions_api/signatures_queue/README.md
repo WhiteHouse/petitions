@@ -1,51 +1,48 @@
-Overview:
-The signatures queue module implements and provides the infrastructure for moving signatures 
-through workflows. It provides a SignaturesQueue class, configuration for signatures queues, 
-and a queue monitoring dashboard.
+# Signatures Queue
 
-Note:
-Workflows are invoked using signatures_queue_invoke_workflow((string){workflow_name}, array $options = array())
-This function is normally invoked via Drush (i.e. `drush signatures-queue-invoke-workflow`), except for user-initiated workflows.
+- [Introduction](#introduction)
+- [Design](#design)
+- [Installation](#installation)
+- [Modification](#modification)
 
+## Introduction
+
+The Signatures Queue module provides a queue-based backend for processing
+petition signatures submitted via the API. It is composed of a series of
+"workflows" through which each signature moves, from receipt, through email
+address verification, to counting. The process is designed to 1) prevent spam
+and abuse by verifying signatory-supplied email addresses and 2) and to improve
+performance and scalability by moving expensive processing to an asynchronous
+system.
+
+## Design
+
+The system design is documented in the workflow diagrams in ./diagrams. The data
+flow diagram shows the path a signature takes through the system. The workflow
+diagrams depict the logical flow within each workflow. These diagrams should
+always be updated *before* making changes to the system.
+
+## Installation
+
+The automated Signatures Queue workflows--those that are not user-initiated--are
+invoked via Drush commands. "Installing" the queue system involves scheduling
+these commands. Following are the commands with recommended frequencies to run
+them at:
+
+| Command | Frequency |
+|---|---|
+| `drush sqiw initiate_signature_validation` | Every minute |
+| `drush sqiw preprocess_signatures` | Every minute |
+| `drush sqiw process_signatures` | Every minute |
+| `drush sqiw archive_signatures` | Every hour |
+
+## Modification
 
 To add a new workflow:
-* Create ./includes/{workflow_name}.inc
-* Within the same file, create a function which handles the specific workflow's logic. Ie:
-  function _signatures_queue_{workflow_name}($job_id, $server_name, $worker_name, $options) {
-    $queue = SignaturesQueue::get('{workflow_name}');
-    $queue->createQueue();
-  }
-* Reference the other files in ./includes/*.inc for more detail through implementation examples.
-* Add the new workflow to the array in signatures_queue_get_workflow_names()
-* Update the workflow diagram **				
-* Update the SIGNATURE SCHEMA section, found below
-
-
-Data used during the signature workflows reside in two types of data stores: tables and queues.
-The name, data store, and time stored of each workflow can be found below.
-The following diagrams are also useful in understanding the signature queue workflows.
-
-Data flow diagram:
-./diagrams/data-flow-diagram.png
-
-Workflow diagram:
-./diagrams/workflow-diagrams.png
-
-**  See ./diagrams/README.md for information on updating png diagrams
-
-SIGNATURE SCHEMA
-name                                    data store                 time stored
-signatures_submitted_queue              queue backend              upon submission (less than a day)
-signatures_pending_validation_queue     queue backend              upon validation (less than a day)
-signatures_pending_validation  table    signatures_processing db   while petition is open
-signatures_processed   table            signatures_processing db   while petition is open
-signatures_processed_archive table      signatures_archive db      forever
-signatures_not_validated_archive table  signatures_archive db      forever
-
-VALIDATION SCHEMA
-name                                    data store                 time stored
-validations_queue                       queue backend              upon validation (less than a day)
-validations  table                      signatures_processing db   while petition is open
-validations_processed  table            signatures_processing db   while petition is open
-validations_processed_archive  table    signatures_archive db  forever
-validations_orphaned_archive   table    signatures_archive db  forever
+* Update the workflow diagrams. See [diagrams/README.md](./diagrams/README.md).
+* Create `./includes/{workflow_machine_name}.inc` containing a function
+  `_signatures_queue_{workflow_machine_name}()` with a signature that conforms
+  to the invocation in `signatures_queue_invoke_workflow()`. See the other
+  includes in the same directory for examples.
+* Add the new workflow machine name to the array in
+  `signatures_queue_get_workflow_names()`.
