@@ -604,13 +604,13 @@ function _api_petitions_retrieve_doc_example_implementations() {
 function _api_petitions_retrieve_doc_errors() {
   $errors = array(
     '404' => array(
-      '#question' => t("What happens when I pass an invalid petition ID with my request?"),
-      '#description' => t("I am building a web application that will communicate via the read API. If I pass an invalid petition ID with my request, will I get a response?"),
+      '#question' => t('What happens if an invalid petition ID is requested?'),
+      '#description' => t('If the request specifies an invalid petition ID, what will the response look like?'),
       '#response' => _api_petitions_mock_response('retrieve404'),
     ),
     '599' => array(
-      '#question' => t("What happens when I make a request and the application fails?"),
-      '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to internal errors, will I get a response?"),
+      '#question' => t('What happens in case of server error?'),
+      '#description' => t('If the request fails due to a server problem, what will the response look like?'),
       '#response' => _api_petitions_mock_response('retrieve599'),
     ),
   );
@@ -644,8 +644,8 @@ function _api_petitions_index_doc_errors() {
   // @todo Have all possible errors been captured?.
   $errors = array(
     '599' => array(
-      '#question' => t("What would happen if an error that has not been declared were to occur?"),
-      '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to an undocumented issue, will I get a response?"),
+      '#question' => t('What happens in case of an unknown error?'),
+      '#description' => t('If the request fails due to an unpredicted problem, what will the response look like?'),
       '#response' => _api_petitions_mock_response('index599'),
     ),
   );
@@ -677,8 +677,8 @@ function _api_petitions_load_signatures_doc() {
 function _api_petitions_load_signatures_doc_errors() {
   $errors = array(
     '599' => array(
-      '#question' => t("What happens when I make a request and the application fails?"),
-      '#description' => t("I am building a web application that will communicate via the API. If the service fails to respond due to internal errors, will I get a response?"),
+      '#question' => t('What happens in case of server error?'),
+      '#description' => t('If the request fails due to a server problem, what will the response look like?'),
       '#response' => _api_petitions_mock_response('load_signatures599'),
     ),
   );
