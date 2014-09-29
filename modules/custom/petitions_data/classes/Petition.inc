@@ -15,6 +15,7 @@ class Petition {
   protected $title;
   protected $body;
   protected $issues;
+  protected $published;
   protected $signaturePublicThreshold;
   protected $signatureThreshold;
   protected $signatureCount;
@@ -87,7 +88,7 @@ class Petition {
    *   Returns current instance of object.
    */
   protected function setDeadline() {
-    $this->deadline = $this->calcDeadline($this->getCreated(), $this->getReviewTimeframe());
+    $this->deadline = $this->calcDeadline($this->getPublished(), $this->getReviewTimeframe());
 
     return $this;
   }
@@ -156,6 +157,31 @@ class Petition {
    */
   public function getIssues() {
     return $this->issues;
+  }
+
+  /**
+   * Sets $this->published.
+   *
+   * @param int $published
+   *   The UNIX timestamp when this petition was published.
+   *
+   * @return Petition
+   *   Returns current instance of object.
+   */
+  public function setPublished($published) {
+    $this->published = $published;
+
+    return $this;
+  }
+
+  /**
+   * Gets $this->published.
+   *
+   * @return int
+   *   The UNIX timestamp when this petition was published.
+   */
+  public function getPublished() {
+    return $this->published;
   }
 
   /**
@@ -569,17 +595,17 @@ class Petition {
   /**
    * Helper function to calculate deadline.
    *
-   * @param int $created
+   * @param int $published
    *   Epoch (UNIX style) time stamp.
    *
    * @param int $days
-   *   Number of days from creation that the Petition will remain open.
+   *   Number of days from publication that the Petition will remain open.
    *
    * @return int
    *   Epoch (UNIX style) time stamp.
    */
-  public static function calcDeadline($created, $days) {
-    return strtotime("+{$days} days", $created);
+  public static function calcDeadline($published, $days) {
+    return strtotime("+{$days} days", $published);
   }
 
   /**
