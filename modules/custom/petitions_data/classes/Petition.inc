@@ -689,7 +689,7 @@ class Petition {
       'deadline' => $this->getDeadline(),
       'status' => $this->formatStatus($this->getStatus()),
       'response' => $this->getResponse(),
-      'created' => $this->getCreated(),
+      'published' => $this->getPublished(),
       'isSignable' => $this->isSignable(),
       'isPublic' => $this->isPublic(),
     );
