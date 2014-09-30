@@ -380,8 +380,8 @@ function wh_petitions_petition_detail($petition_id) {
     $signatures_needed = 0;
   }
   $signatures = $petition['signature_count'];
-  $time = $petition['published'];
-  $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
+  $published = $petition['published'];
+  $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $published);
   $end_date = date("F d, Y", $end_date);
 
   // Set a flag for archived petitions
@@ -493,7 +493,7 @@ function wh_petitions_petition_detail($petition_id) {
     'body' => wh_petitions_format_description($petition['body']),
     'created' => check_plain($created),
     'issues' => $issues,
-    'published' => check_plain($published),
+    'published' => date("M j, Y",$published),
     'total_needed' => wh_petitions_format_number($total_needed),
     'signatures_needed' => wh_petitions_format_number($signatures_needed),
     'signatures' => wh_petitions_format_number($signatures),
