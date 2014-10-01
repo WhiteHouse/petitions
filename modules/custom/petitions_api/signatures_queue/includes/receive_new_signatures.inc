@@ -37,39 +37,63 @@
  */
 function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker_name, array $options = array()) {
   $signature = (array) $options['signature'];
+  $api_key = $signature['signature_source_api_key'];
+  $petition_id = $signature['petition_id'];
 
-  // Debugging. Log signature data received.
-  if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
-    watchdog('signatures_queue', 'DEBUG ENABLED: New signature received: !signature', array(
-      '!signature' => petitionslog_format_for_watchdog($signature),
-    ), WATCHDOG_DEBUG);
+  try {
+    petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.invoked");
+    petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.invoked");
+
+    // Debugging. Log signature data received.
+    if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
+      watchdog('signatures_queue', 'DEBUG ENABLED: New signature received: !signature', array(
+        '!signature' => formatforlog($signature),
+      ), WATCHDOG_DEBUG);
+    }
+
+    // Debugging. Log signature data received.
+    if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
+      watchdog('signatures_queue', 'DEBUG ENABLED: New signature received: !signature', array(
+        '!signature' => petitionslog_format_for_watchdog($signature),
+      ), WATCHDOG_DEBUG);
+    }
+
+    // Make sure the signature argument is valid. This is done first because it's
+    // cheapest.
+    if (!_signatures_queue_validate_signature($signature)) {
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.bad_request");
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.bad_request");
+      return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+    }
+
+    $petition = petitions_data_mongo2mysql_get_petition($petition_id);
+
+    // Make sure the petition exists.
+    if (empty($petition)) {
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.not_found");
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.not_found");
+      return SIGNATURES_QUEUE_STATUS_NOT_FOUND;
+    }
+
+    // Make sure the petition is "signable".
+    if (!$petition['isSignable']) {
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.forbidden");
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.forbidden");
+      return SIGNATURES_QUEUE_STATUS_FORBIDDEN;
+    }
+
+    // Input is all valid. Build the queue item.
+    $item = _signatures_queue_build_new_queue_item($signature);
+
+    // Enqueue it.
+    _signatures_queue_enqueue_item($item);
+    petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.status.ok");
+    petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.status.ok");
+    return SIGNATURES_QUEUE_STATUS_OK;
   }
-
-  // Make sure the signature argument is valid. This is done first because it's
-  // cheapest.
-  if (!_signatures_queue_validate_signature($signature)) {
-    return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+  catch (Exception $e) {
+    throw $e;
   }
-
-  $petition = petitions_data_mongo2mysql_get_petition($signature['petition_id']);
-
-  // Make sure the petition exists.
-  if (empty($petition)) {
-    return SIGNATURES_QUEUE_STATUS_NOT_FOUND;
-  }
-
-  // Make sure the petition is "signable".
-  if (!$petition['isSignable']) {
-    return SIGNATURES_QUEUE_STATUS_FORBIDDEN;
-  }
-
-  // Input is all valid. Build the queue item.
-  $item = _signatures_queue_build_new_queue_item($signature);
-
-  // Enqueue it.
-  _signatures_queue_enqueue_item($item);
-
-  return SIGNATURES_QUEUE_STATUS_OK;
 }
 
 /**
@@ -150,8 +174,14 @@ function _signatures_queue_build_new_queue_item(array $signature) {
  *   _signatures_queue_build_new_queue_item().
  */
 function _signatures_queue_enqueue_item(array $item) {
+  $api_key = $item['signature_source_api_key'];
+  $petition_id = $item['petition_id'];
+
   $queue = SignaturesQueue::get('signatures_submitted_queue');
   $queue->createQueue();
   $queue->createItem($item);
+
   petitionslog_event('signatures_queue.data_store.signatures_submitted_queue.item_added');
+  petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.completed");
+  petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.completed");
 }
