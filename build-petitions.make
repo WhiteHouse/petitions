@@ -8,7 +8,7 @@ core = 7.x
 ;    @see http://drupal.org/node/972536
 ;
 ; --------------------------------------
-projects[drupal][version] = 7.28
+projects[drupal][version] = 7.29
 projects[drupal][patch][] = http://drupal.org/files/drupal-menu-int-972536-83-D7.patch
 
 ;  Patch correcting database switching within a Simpletest run.
