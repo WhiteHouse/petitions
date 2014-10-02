@@ -22,7 +22,9 @@
     <h4><?php print t('we petition the obama administration to:'); ?></h4>
     <h1 class="title"><?php print $title; ?></h1>
     <?php print $body; ?>
-    <div class="date"><strong><?php print t("Published:"); ?></strong> <?php print $published; ?></div>
+    <?php if(!empty($published)): ?>
+    <div class="date"><strong><?php print t("Published:"); ?></strong> <?php print $published; ?>
+    <?php endif; ?>
     <div class="issues"><strong><?php print t("Issues:"); ?></strong> <?php print $issues; ?></div>
 
     <?php if($admin): ?>
