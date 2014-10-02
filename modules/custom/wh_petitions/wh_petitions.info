@@ -12,7 +12,6 @@ dependencies[] = "taxonomy_sync"
 dependencies[] = "wh_response"
 dependencies[] = "wh_user_profile"
 dependencies[] = "petitions_signatures_display"
-dependencies[] = "shunt"
 dependencies[] = "petition"
 dependencies[] = "petitionevents"
 

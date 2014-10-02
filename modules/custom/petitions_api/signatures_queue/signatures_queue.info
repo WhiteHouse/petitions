@@ -3,7 +3,6 @@ description = Provides a queue-based backend for processing petition signatures 
 core = 7.x
 package = Petitions
 dependencies[] = api_petitions
-dependencies[] = shunt
 dependencies[] = wh_petitions
 configure = admin/config/system/petitions/signatures-queue
 files[] = classes/SignaturesQueue.inc

@@ -8,7 +8,6 @@ project = petition
 
 files[] = petition.mongo2mysql.inc
 
-
 dependencies[] = date
 dependencies[] = entityreference
 dependencies[] = list
@@ -16,4 +15,3 @@ dependencies[] = number
 dependencies[] = options
 dependencies[] = taxonomy
 dependencies[] = wh_response_feature
-dependencies[] = shunt
