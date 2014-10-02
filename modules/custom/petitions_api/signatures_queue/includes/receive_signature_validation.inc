@@ -88,10 +88,10 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
   // Debugging. Log options and signature data.
   if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Options passed to receive_signature_validation workflow: !options', array(
-      '!options' => formatforlog($options),
+      '!options' => petitionslog_format_for_watchdog($options),
     ), WATCHDOG_DEBUG);
     watchdog('signatures_queue', 'DEBUG ENABLED: Validation data added to validations_queue: !validation', array(
-      '!validation' => formatforlog($signature_data),
+      '!validation' => petitionslog_format_for_watchdog($signature_data),
     ), WATCHDOG_DEBUG);
   }
 

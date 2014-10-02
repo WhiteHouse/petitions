@@ -176,7 +176,7 @@ function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) 
       '@after' => $signature_count_after,
     ), WATCHDOG_DEBUG);
     watchdog('petition', 'petition_increment_count() saved this petition node: node = !node', array(
-      '!node' => formatforlog($node),
+      '!node' => petitionslog_format_for_watchdog($node),
     ), WATCHDOG_DEBUG);
   }
 }

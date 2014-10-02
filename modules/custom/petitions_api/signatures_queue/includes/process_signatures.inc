@@ -134,7 +134,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       // Debug. Log signature item processed.
       if ($debug) {
         watchdog('signatures_queue', 'DEBUG ENABLED: Signature item processed: !item. @suffix', array(
-          '!item' => formatforlog($item),
+          '!item' => petitionslog_format_for_watchdog($item),
           '@suffix' => $watchdog_suffix,
         ), WATCHDOG_DEBUG);
       }
@@ -239,7 +239,7 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
   // Debug?
   if ($debug && !$legitimate) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Signature flagged illegitimate: info = !info', array(
-      '!info' => formatforlog($params),
+      '!info' => petitionslog_format_for_watchdog($params),
     ), WATCHDOG_DEBUG);
   }
 
@@ -294,7 +294,7 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
       // Debug?
       if ($debug) {
         watchdog('signatures_queue', 'DEBUG ENABLED: Invalid petition, not published: node = !node', array(
-          '!node' => formatforlog($node),
+          '!node' => petitionslog_format_for_watchdog($node),
         ), WATCHDOG_DEBUG);
       }
       // Node is unpublished.
@@ -414,8 +414,8 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
   catch (PDOException $exception) {
     // @todo Abuse detection.
     watchdog('signatures_queue', 'An item could not be added due to a database error: item: !item, exception: !exception. @suffix', array(
-      '!item' => formatforlog($item),
-      '!exception' => formatforlog($exception),
+      '!item' => petitionslog_format_for_watchdog($item),
+      '!exception' => petitionslog_format_for_watchdog($exception),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_CRITICAL);
   }
@@ -499,8 +499,8 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
   if ($erred) {
     // @todo Abuse detection.
     watchdog('signatures_queue', 'An item could not be moved to processed due to a database error: item: !item, exception: !exception. @suffix', array(
-      '!item' => formatforlog($item),
-      '!exception' => formatforlog($exception),
+      '!item' => petitionslog_format_for_watchdog($item),
+      '!exception' => petitionslog_format_for_watchdog($exception),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_CRITICAL);
   }
@@ -632,7 +632,7 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
     // Debug? Print to log.
     if ($debug) {
       watchdog('signatures_queue', 'DEBUG ENABLED: Saving signature to mongo: !item', array(
-        '!item' => formatforlog($item),
+        '!item' => petitionslog_format_for_watchdog($item),
       ), WATCHDOG_DEBUG);
     }
 
@@ -642,7 +642,7 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
     // If there's no ID here, saving the signature to mongo failed. Log failure.
     if (!$legacy_signature_id) {
       watchdog('signatures_queue', 'Error: Attempt to save signature to mongo failed. Queue item = !item', array(
-        '!item' => formatforlog($item),
+        '!item' => petitionslog_format_for_watchdog($item),
       ), WATCHDOG_ERROR);
     }
 
@@ -714,7 +714,7 @@ function _signatures_queue_process_signatures_save_signature($item, $user, $debu
     // Debugging? Print result to log.
     if ($debug) {
       watchdog('signatures_queue', 'DEBUG ENABLED: Signature has been saved to mysql. Signature entity: !signature', array(
-        '!signature' => formatforlog($signature),
+        '!signature' => petitionslog_format_for_watchdog($signature),
       ), WATCHDOG_DEBUG);
     }
   }

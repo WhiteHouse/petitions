@@ -27,7 +27,7 @@ function _api_signatures_resource_create($api_key, array $signature) {
       '@api_key' => $api_key,
     ));
     watchdog('api_signatures', 'DEBUG ENABLED: _api_signatures_resource_create() param $signature: !signature', array(
-       '!signature' => formatforlog($signature),
+       '!signature' => petitionslog_format_for_watchdog($signature),
     ));
   }
 

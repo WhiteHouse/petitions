@@ -71,7 +71,7 @@ function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog
   // Debug. Print batch to log.
   if ($debug) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Batch of signatures to be preprocessed: !batch. @suffix', array(
-      '!batch' => formatforlog($batch),
+      '!batch' => petitionslog_format_for_watchdog($batch),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_DEBUG);
   }
@@ -110,7 +110,7 @@ function _signatures_queue_preprocess_signatures_preprocess_validations($watchdo
   // Debug. Print batch to log.
   if ($debug) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Batch of validations to be preprocessed: !batch. @suffix', array(
-      '!batch' => formatforlog($batch),
+      '!batch' => petitionslog_format_for_watchdog($batch),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_DEBUG);
   }

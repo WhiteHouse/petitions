@@ -20,7 +20,6 @@ function petitions_maintenance_update_last_removed() {
 function petitions_maintenance_update_7300(&$sandbox) {
   // Enable new modules.
   $modules = array(
-    'formatforlog',
     'migrate_mongo2mysql_petsig',
     'petition',
     'petitionadmin',
@@ -52,4 +51,13 @@ function petitions_maintenance_update_7301(&$sandbox) {
 
   // Change admin theme to Seven.
   variable_set('admin_theme', 'seven');
+}
+
+/**
+ * Remove formatforlog module.
+ */
+function petitions_maintenance_update_7302(&$sandbox) {
+  db_delete('system')
+    ->condition('name', -'formatforlog')
+    ->execute();
 }

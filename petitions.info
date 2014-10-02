@@ -58,7 +58,6 @@ dependencies[] = api_signatures
 dependencies[] = api_users
 dependencies[] = api_validations
 dependencies[] = front_class
-dependencies[] = formatforlog
 dependencies[] = is_not_cached
 dependencies[] = is_profane
 dependencies[] = migrate_mongo2mysql_petsig

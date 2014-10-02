@@ -123,7 +123,7 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
   // Debugging.
   if ($debug) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Records retrieved from signatures_submitted_queue: !signatures. @suffix', array(
-      '!signatures' => formatforlog($signatures),
+      '!signatures' => petitionslog_format_for_watchdog($signatures),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_DEBUG);
   }

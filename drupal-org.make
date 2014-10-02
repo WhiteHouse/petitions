@@ -45,8 +45,6 @@ projects[features][version] = 1.0
 
 projects[feeds][version] = 2.0-alpha8
 
-;projects[formatforlog][version] = 1.0
-
 projects[forward][version] = 1.4
 
 projects[globalredirect][version] = 1.5
