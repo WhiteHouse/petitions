@@ -280,7 +280,7 @@ abstract class PetitionsDataBaseTestCase extends DrupalWebTestCase {
         'petition_id' => $petition_id,
         'signature_source_api_key' => $api_key,
         'email' => $this->randomName() . '@mailinator.com',
-        'timestamp_processed' => time() - 360,
+        'timestamp_processed_signature' => time() - 360,
       ))
       ->execute();
   }

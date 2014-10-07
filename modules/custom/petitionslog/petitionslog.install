@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Petitions Log module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function petitionslog_uninstall() {
+  // Delete persistent variables.
+  db_delete('variable')
+    ->condition('name', db_like('petitionslog_') . '%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}

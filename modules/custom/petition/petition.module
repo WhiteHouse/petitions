@@ -9,8 +9,9 @@ require_once 'includes/petition.inc';
 require_once 'includes/petition.field.inc';
 
 // Load file containing functions relating to MongoDB to MySQL migration.
-// @todo Remove this line and associated file once MongoDB is depreciated.
+// @todo Remove these lines and associated file once MongoDB is depreciated.
 require_once 'includes/petition.mongo2mysql.inc';
+
 
 /**
  * Implements hook_entity_view().
@@ -105,4 +106,169 @@ function petition_node_info() {
     ),
   );
   return $items;
+}
+
+/**
+ * Unpublish a single node from Drupal/MySql.
+ *
+ * @param array $node
+ *   Actual node to update.
+ */
+function petition_unpublish($node) {
+  $node->status = NODE_NOT_PUBLISHED;
+  node_save($node);
+  $legacy_id = $node->field_legacy_id['und'][0]['value'];
+
+  $mongo2mysql_function = 'wh_petitions_mongo2mysql_unpublish';
+  if (function_exists($mongo2mysql_function) && !shunt_is_enabled('petition_mysql_save')) {
+    $mongo2mysql_function($legacy_id);
+  }
+}
+
+/**
+ * Publish a single node in Drupal/MySql.
+ *
+ * @param array $node
+ *   Actual node to update.
+ */
+function petition_publish($node) {
+  $node->status = NODE_PUBLISHED;
+  node_save($node);
+  $legacy_id = $node->field_legacy_id['und'][0]['value'];
+
+  $mongo2mysql_function = 'wh_petitions_mongo2mysql_publish';
+  if (function_exists($mongo2mysql_function) && !shunt_is_enabled('petition_mysql_save')) {
+    $mongo2mysql_function($legacy_id);
+  }
+}
+
+/**
+ * Increment petition count.
+ *
+ * @param string $petition_id
+ *   Node id or legacy mongo id for a petition.
+ *
+ * @param int $increment
+ *   Optional amount to increment by. Defaults to 1.
+ *
+ * @return bool
+ *   True for success. False for fail.
+ */
+function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) {
+  // Legacy petition IDs are mongo IDs, not node IDs. Get nid.
+  $nid = petition_get_nid($petition_id);
+
+  // Load the node, increment the signature count, save.
+  $node = node_load($nid);
+  $signature_count_before = $node->field_petition_signature_count['und'][0]['value'];
+  $signature_count_after = $signature_count_before + $increment;
+  $node->field_petition_signature_count['und'][0]['value'] = $signature_count_after;
+  node_save($node);
+
+  // Debug. Log everything.
+  if ($debug) {
+    watchdog('petition', 'petition_increment_count() received the following params: petition_id = @petition_id, increment = @increment', array(
+      '@petiton_id' => $petition_id,
+      '@increment' => $increment,
+    ), WATCHDOG_DEBUG);
+    watchdog('petition', 'petition_increment_count() increased the signature count from @before to @after', array(
+      '@before' => $signature_count_before,
+      '@after' => $signature_count_after,
+    ), WATCHDOG_DEBUG);
+    watchdog('petition', 'petition_increment_count() saved this petition node: node = !node', array(
+      '!node' => petitionslog_format_for_watchdog($node),
+    ), WATCHDOG_DEBUG);
+  }
+}
+
+/**
+ * Determine if ID is a legacy mongo id.
+ *
+ * @param string $id
+ *   Some id to test.
+ *
+ * @return bool
+ *   True for success. False for fail.
+ */
+function petition_is_legacy_id($id) {
+  // Assume it's not a legacy id unless it has some distinguising
+  // characteristics of a legacy mongo id.
+  // (Note: A more rigorous check would look in the db to see if the legacy id
+  // exists. Let's avoid that for now just because it may be an unnecessary db
+  // hit during high traffic events. Revisit if we need to make this more robust
+  // later.)
+  $is_legacy = FALSE;
+
+  // Mongo IDs are: alpha numeric (not numeric) and 24 characters long.
+  if (!is_numeric($id) && strlen($id) == 24) {
+    $is_legacy = TRUE;
+  }
+
+  return $is_legacy;
+}
+
+/**
+ * Wrapper around _petition_get_nid() for central exception handling.
+ *
+ * @param string $petition_id
+ *   Legacy mongo-based petition id.
+ *
+ * @return int|false
+ *   Returns node id for petition. 0 for not found. FALSE in case of error.
+ */
+function petition_get_nid($petition_id) {
+  $nid = FALSE;
+
+  try {
+    $nid = _petition_get_nid($petition_id);
+  }
+  catch (Exception $e) {
+    watchdog('petition', "Error in workflow.\n\n@exception", array(
+      '@exception' => print_r($e, TRUE),
+    ), WATCHDOG_ERROR);
+  }
+
+  return $nid;
+}
+
+/**
+ * Look up node ID for a petition based on legacy id.
+ *
+ * @param string $petition_id
+ *   Legacy mongo-based petition id.
+ *
+ * @return int|false
+ *   Returns node id for petition. 0 for not found. FALSE in case of error.
+ *
+ * @throws Exception
+ *   Throws an exception when the petition ID is neither a valid nid nor legacy
+ *   ID.
+ */
+function _petition_get_nid($petition_id) {
+  $nid = FALSE;
+
+  if (petition_is_legacy_id($petition_id)) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition("entity_type", "node");
+    $query->entityCondition("bundle", "petition");
+    $query->fieldCondition("field_legacy_id", "value", $petition_id, "=");
+    $results = $query->execute();
+
+    if (!empty($results)) {
+      $info = array_shift($results['node']);
+      $nid = $info->nid;
+    }
+  }
+  elseif (is_numeric($petition_id)) {
+    // Assume if it's numeric, it's a legit nid. (This would be a good place to
+    // make logic more robust if bad IDs start creeping in here somehow.)
+    $nid = $petition_id;
+  }
+  else {
+    throw new Exception(t('This petition ID is neither a valid legacy mongo ID nor a valid node ID for a petition node: !petition_id',
+      array('!petition_id' => $petition_id)
+    ));
+  }
+
+  return $nid;
 }

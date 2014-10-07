@@ -1,0 +1,24 @@
+<?php
+/**
+ * @file
+ * Install hook for petitionevents.
+ */
+
+/**
+ * Implements hook install.
+ */
+function petitionevents_install() {
+  variable_set('wh_petitions_review_threshold_passed_text', "The petition titled \"!petition_title\" has passed the number of signatures necessary for compliance review.
+
+  You can review the petition here:<br />!petition_remove_link
+
+  =================
+
+  TITLE:
+  !petition_title
+
+  BODY:
+  !petition_body
+
+  =================");
+}

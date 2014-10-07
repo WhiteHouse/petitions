@@ -1552,9 +1552,9 @@ h2.trigger:hover {
   background: #a3a3a3;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a3a3a3', endColorstr='#696969');
   /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgray));
+  background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgrey));
   /* for webkit browsers */
-  background: -moz-linear-gradient(top, #a3a3a3, dimgray);
+  background: -moz-linear-gradient(top, #a3a3a3, dimgrey);
   /* for firefox 3.6+ */ }
 
 #qa-content h2.trigger.active a, #qa-content h2.trigger.active a:hover {
@@ -1624,9 +1624,9 @@ h2.active {
   background: #a3a3a3;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a3a3a3', endColorstr='#696969');
   /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgray));
+  background: -webkit-gradient(linear, left top, left bottom, from(#a3a3a3), to(dimgrey));
   /* for webkit browsers */
-  background: -moz-linear-gradient(top, #a3a3a3, dimgray);
+  background: -moz-linear-gradient(top, #a3a3a3, dimgrey);
   /* for firefox 3.6+ */ }
 
 #petition-inner .block-petitionssignatureform {
@@ -1640,25 +1640,31 @@ h2.active {
   margin-top: 0; }
 
 #petition-inner .block-petitionssignatureform form label,
-#petition-inner .block-petitionssignatureform form .privacy-legend {
+#petition-inner .block-petitionssignatureform form .privacy-container,
+#petition-inner .block-petitionssignatureform form .note-container {
   padding: 0;
   color: #7a7a7a; }
 
 #petition-inner .block-petitionssignatureform form label {
   margin: 0; }
 
-#petition-inner .block-petitionssignatureform form .privacy-legend {
+#petition-inner .block-petitionssignatureform form .privacy-container {
+  margin: 0 0 0 0; }
+
+#petition-inner .block-petitionssignatureform form .note-container {
   margin: 1em 0 0 0; }
 
-#petition-inner .block-petitionssignatureform form .privacy-legend a {
+#petition-inner .block-petitionssignatureform form .privacy-legend a,
+#petition-inner .block-petitionssignatureform form .note-container a {
   color: #004990; }
 
 #petition-inner .block-petitionssignatureform form .form-type-checkbox label {
   display: inline;
-  font-weight: normal; }
+  font-weight: normal;
+  line-height: 1.5; }
 
 #petition-inner .block-petitionssignatureform form .form-text {
-  max-width: 100%;
+  max-width: 201px;
   border: 1px solid #cbcbcb;
   height: 2em; }
 
@@ -1686,7 +1692,8 @@ h2.active {
   background: linear-gradient(#af0208, darkred); }
 
 #petition-inner .block-petitionssignatureform .toggle-container {
-  background: none; }
+  background: none;
+  padding: 0px 15px 10px 15px; }
 
 #petition-inner .block-petitionssignatureform h2,
 #petition-inner .block-petitionssignatureform h2.top-trigger {
@@ -1694,18 +1701,22 @@ h2.active {
   background: none; }
 
 #petition-inner .block-petitionssignatureform h2.trigger {
-  border-bottom: none; }
+  border-bottom: none;
+  padding-top: 6px; }
 
 #petition-inner .block-petitionssignatureform h2 a,
 #petition-inner .block-petitionssignatureform h2.active a {
   color: #323232;
   font-size: 1.5em; }
 
+#petition-inner .block-petitionssignatureform .thank-you h2 {
+  color: #8C0402;
+  font-size: 1.5em; }
+
 #petition-inner .block-petitionssignatureform .thank-you h3 {
   color: #8C0402;
   font-size: 105%;
-  font-weight: normal;
-  text-transform: uppercase; }
+  font-weight: normal; }
 
 /****** Individual Petition Page ******/
 a#button-sign-this-petition {
@@ -4093,7 +4104,8 @@ body.full-white #right-rail {
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments .title,
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-title,
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-title,
-      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementations-title {
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementations-title,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-errors .title {
         background: #0F3E72;
         padding: 5px 5px;
         color: white;
@@ -4104,7 +4116,8 @@ body.full-white #right-rail {
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-url,
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-body,
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body,
-      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation {
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-errors .method-error {
         border: 1px solid #f2f3f5;
         padding: 5px 5px; }
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-arguments ul {
@@ -4129,11 +4142,16 @@ body.full-white #right-rail {
             display: table-cell;
             width: 58%; }
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-request .request-body,
-      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body {
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-response .response-body,
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-error .method-error-response {
         background: #F2F3F5;
         word-wrap: normal;
         white-space: pre;
         overflow: auto; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-error .method-error-detail .method-error-question h6 {
+        margin: 0; }
+      .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .method-error .method-error-detail .method-error-description {
+        font-style: italic; }
       .section-developers #petition-inner #main-content-wrapper .services-documentation-version .services-documentation-resources .services-documentation-resource .resource-method-bundle .resource-method .implementations .implementation-bundle .implementation-bundle-language {
         background: #F2F3F5;
         padding: 5px;

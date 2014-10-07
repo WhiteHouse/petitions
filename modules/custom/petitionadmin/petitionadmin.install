@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Petition Admin module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function petitionadmin_install() {
+  // Increase module weight so it runs late enough to have access to shunt
+  // module functions.
+  db_update('system')
+    ->fields(array('weight' => 100))
+    ->condition('name', 'petitionadmin', '=')
+    ->execute();
+}

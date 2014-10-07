@@ -38,13 +38,20 @@
 function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker_name, array $options = array()) {
   $signature = (array) $options['signature'];
 
+  // Debugging. Log signature data received.
+  if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
+    watchdog('signatures_queue', 'DEBUG ENABLED: New signature received: !signature', array(
+      '!signature' => petitionslog_format_for_watchdog($signature),
+    ), WATCHDOG_DEBUG);
+  }
+
   // Make sure the signature argument is valid. This is done first because it's
   // cheapest.
   if (!_signatures_queue_validate_signature($signature)) {
     return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
   }
 
-  $petition = petitions_data_get_petition($signature['petition_id']);
+  $petition = petitions_data_mongo2mysql_get_petition($signature['petition_id']);
 
   // Make sure the petition exists.
   if (empty($petition)) {
@@ -61,16 +68,6 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
 
   // Enqueue it.
   _signatures_queue_enqueue_item($item);
-
-  // Log statistical event.
-  watchdog('petitions_api', 'Received a new signature for petition @petition', array(
-    '@petition' => $signature['petition_id'],
-    '_WHSTATS' => array(
-      'app' => 'petitions_api',
-      'metric' => 'new_signature_received',
-      'type' => 'increment',
-    ),
-  ), WATCHDOG_INFO);
 
   return SIGNATURES_QUEUE_STATUS_OK;
 }
@@ -133,11 +130,13 @@ function _signatures_queue_build_new_queue_item(array $signature) {
   $item = array_merge($expected_fields, $signature_trimmed);
 
   // Add application data to the item.
-  $petition = petitions_data_get_petition($signature['petition_id']);
-  $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 0);
-  $item['timestamp_submitted'] = time();
+  $petition = petitions_data_mongo2mysql_get_petition($signature['petition_id']);
+  $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 2);
+  $item['timestamp_received_new_signature'] = time();
   $item['timestamp_petition_close'] = $petition['deadline'];
-  $item['timestamp_validation_close'] = $petition['deadline'] + $validation_grace_period;
+  // The validation link is valid for today plus grace period (converted from
+  // days to unix time).
+  $item['timestamp_validation_close'] = time() + $validation_grace_period * 24 * 60 * 60;
   $item['secret_validation_key'] = '';
 
   return $item;
@@ -154,4 +153,5 @@ function _signatures_queue_enqueue_item(array $item) {
   $queue = SignaturesQueue::get('signatures_submitted_queue');
   $queue->createQueue();
   $queue->createItem($item);
+  petitionslog_event('signatures_queue.data_store.signatures_submitted_queue.item_added');
 }

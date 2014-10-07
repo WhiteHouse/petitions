@@ -26,22 +26,28 @@
  *   (optional) An array of options. Defaults to an empty array. It is currently
  *   unused by this workflow.
  *
- * @return bool
- *   Returns TRUE if the workflow executes successfully or FALSE if not.
+ * @return int
+ *   Returns one of the following status codes indicating the workflow outcome:
+ *     - SIGNATURES_QUEUE_STATUS_OK
+ *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
+ *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
+ *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
+ *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
 function _signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
 
-  $debug = variable_get('signatures_queue_debug', FALSE);
+  $debug = variable_get('signatures_queue_enable_debugging', FALSE);
 
   // Retrieve and delete signatures from the signatures_submitted_queue.
   $signatures = _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, 0, $debug);
 
   // Return if there's nothing to do.
   if (empty($signatures)) {
-    return TRUE;
+    petitionslog_event('signatures_queue.workflow.initiate_signature_validation.caught_up');
+    return SIGNATURES_QUEUE_STATUS_OK;
   }
 
   // Assign secret validation keys to each signature.
@@ -59,7 +65,7 @@ function _signatures_queue_initiate_signature_validation($job_id, $server_name, 
   // Leave failed signatures in the queue for re-processing.
   _signatures_queue_leave_failed_signatures($signatures['not sent'], $watchdog_suffix);
 
-  return TRUE;
+  return SIGNATURES_QUEUE_STATUS_OK;
 }
 
 /**
@@ -95,6 +101,9 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
   }
+
+  _signatures_queue_data_store_size_event('signatures_submitted_queue', $number_of_items);
+
   // Return if the queue is empty. Our work here is done.
   if (!$number_of_items) {
     return $signatures;
@@ -109,6 +118,14 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
     }
 
     $signatures[] = $item;
+  }
+
+  // Debugging.
+  if ($debug) {
+    watchdog('signatures_queue', 'DEBUG ENABLED: Records retrieved from signatures_submitted_queue: !signatures. @suffix', array(
+      '!signatures' => petitionslog_format_for_watchdog($signatures),
+      '@suffix' => $watchdog_suffix,
+    ), WATCHDOG_DEBUG);
   }
 
   if ($i) {
@@ -142,7 +159,7 @@ function _signatures_queue_assign_validation_keys(array $signatures) {
   // Generate secret validation keys.
   foreach ($signatures as $signature) {
     $email = $signature->data['email'];
-    $timestamp = $signature->data['timestamp_submitted'];
+    $timestamp = $signature->data['timestamp_received_new_signature'];
     $petition_id = $signature->data['petition_id'];
     $salt = variable_get('signatures_queue_salt', '');
     $signature->data['secret_validation_key'] = sha1($email . $timestamp . $petition_id . $salt);
@@ -195,6 +212,11 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
   //   that's probably more efficient here.
   foreach ($signatures as $signature) {
     $signature->data['validation_link'] = _signatures_queue_validation_link(variable_get('petitions_data_petitions_website_url', $base_url), $signature->data, FALSE);
+
+    // Log time elapsed since passing through previous workflow.
+    $elapsed = signatures_queue_get_microtime_elapsed_since($signature->data['timestamp_received_new_signature']);
+    petitionslog_event('signatures_queue.data_flow.time_elapsed.received_new_signature__to__initiated_signature_validation', 'time', $elapsed);
+
     // Send validation email.
     $to = $signature->data['email'];
     global $language;
@@ -267,15 +289,23 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
     // TODO: NOTE, This is actually probably incorrect. This is, more
     // accurately, the timestamp from when the email was handed off to Mandrill
     // to be queued for sending. Normally this should effectively be the same as
-    // timestamp_validation_email_sent. But in the event that emails fail, this
-    // is a really misleading bit of data. To be revisited in PT-975.
-    $record['timestamp_validation_email_sent'] = $time;
+    // timestamp_initiated_signature_validation. But in the event that emails
+    // fail, this is a really misleading bit of data. To be revisited in PT-975.
+    $record['timestamp_initiated_signature_validation'] = $time;
     unset($record['md5_encryption_key']);
+
     // Add the signature to "signatures_pending_validation_queue".
     $pending_validation_queue->createItem($record);
+    petitionslog_event('signatures_queue.data_store.signatures_pending_validation_queue.item_added');
+
     // Remove it from "signatures_submitted_queue".
     $submitted_queue->deleteItem($signature);
+    petitionslog_event('signatures_queue.data_store.signatures_submitted_queue.item_removed');
   }
+  $count_submitted_queue = $submitted_queue->numberOfItems();
+  _signatures_queue_data_store_size_event('signatures_submitted_queue', $count_submitted_queue);
+  $count_pending_validation_queue = $pending_validation_queue->numberOfItems();
+  _signatures_queue_data_store_size_event('signatures_pending_validation_queue', $count_pending_validation_queue);
 
   watchdog('signatures_queue', '@number records were added to signatures_pending_validation_queue. @suffix', array(
     '@number' => number_format(count($signatures)),

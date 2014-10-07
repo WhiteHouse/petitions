@@ -24,60 +24,6 @@ function _signatures_queue_create_job_id($workflow, $server_name, $worker_name) 
 }
 
 /**
- * Logs signature processing events to the database.
- *
- * @param string $job_id
- *   A unique identifier for the job, as created by
- *   _signatures_queue_create_job_id().
- * @param string $workflow
- *   The name of the workflow to invoke, as defined in
- *   signatures_queue_get_workflow_names().
- * @param string $server_name
- *   An arbitrary identifier for the server processing the workflow.
- * @param string $worker_name
- *   An arbitrary identifier for the invoking process (e.g., cron job).
- * @param string $status
- *   Either "started" or "completed".
- */
-function _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, $status) {
-  // Ignore if $status is invalid.
-  if (!in_array($status, array('started', 'completed'))) {
-    return;
-  }
-
-  // Log to watchdog regardless of whether event logging is enabled or not.
-  $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
-  db_set_active();
-  watchdog('signatures_queue', '@status job. Memory usage: @memory. @suffix', array(
-    '@status' => ucfirst($status),
-    '@job_id' => $job_id,
-    '@memory' => memory_get_usage(),
-    '@suffix' => $watchdog_suffix,
-  ), WATCHDOG_INFO);
-
-  // Return if event logging is disabled.
-  $logging_enabled = variable_get('signatures_queue_log_events', SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT);
-  if (!$logging_enabled) {
-    return;
-  }
-
-  // Log to database.
-  signatures_queue_set_db();
-  db_insert('signatures_queue_log')
-    ->fields(array(
-      'job_id' => $job_id,
-      'workflow' => $workflow,
-      'server_name' => $server_name,
-      'worker_name' => $worker_name,
-      'timestamp' => time(),
-      'status' => $status,
-    ))
-    ->execute();
-  // Switch back to default db (if signatures_processing is separate).
-  db_set_active();
-}
-
-/**
  * Builds a string of job details for use in watchdog messages.
  *
  * This ensures consistency in the formatting of the job details appended to
@@ -240,13 +186,18 @@ function _signatures_queue_check_empty($name = NULL) {
   }
 
   foreach ($queue_names as $queue_name) {
+    if (!SignaturesQueue::isValidQueueName($queue_name)) {
+      continue;
+    }
+
     // Make sure every queue exists. There is no harm in trying to recreate an
     // existing queue.
-    $queue = DrupalQueue::get($queue_name);
+    $queue = SignaturesQueue::get($queue_name);
     $queue->createQueue();
 
     $now = time();
     $num_items = $queue->numberOfItems();
+    _signatures_queue_data_store_size_event($queue_name, $num_items);
 
     // For any empty queue, updated corresponding last_emptied variable.
     if ($num_items == 0) {

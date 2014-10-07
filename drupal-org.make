@@ -74,7 +74,7 @@ projects[pathauto][version] = 1.2
 projects[petitionssignatureform][type] = module
 projects[petitionssignatureform][download][type] = git
 projects[petitionssignatureform][download][url] = http://git.drupal.org/sandbox/whitehouse/2283727.git
-projects[petitionssignatureform][download][revision] = 212fb88e21a0deabd7a6831be6a8913b3d8fc554
+projects[petitionssignatureform][download][revision] = d855b200d2c9fadfb2bf22f901d679f1c3724d50
 
 projects[profile2][version] = 1.3
 
@@ -89,6 +89,11 @@ projects[rules][version] = 2.3
 projects[services][version] = 3.7
 
 projects[services_documentation][version] = 1.3
+projects[services_documentation][patch][] = https://www.drupal.org/files/issues/services_documentation-error_handling-2341479-1.patch
+
+; services_documentation-error_handling-2341479-1.patch
+;  - Adds support for documentation errors.
+;  - @see https://www.drupal.org/node/2341479
 
 projects[shunt][version] = 1.3
 
@@ -168,17 +173,9 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 
 ; Contrib themes
 ; -----------------
-projects[tao][type] = theme
-projects[tao][subdir] = ""
-projects[tao][version] = 3.0-beta4
-
-projects[rubik][type] = theme
-projects[rubik][subdir] = ""
-projects[rubik][version] = 4.0-beta9
-
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
-projects[fortyfour][version] = 1.0-alpha8
+projects[fortyfour][revision] = 027674985
 
 ; External libraries
 ; -----------------

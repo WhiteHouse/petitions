@@ -461,8 +461,15 @@ function wh_petitions_petition_detail($petition_id) {
     if ($petition['reached_ready']) {
       $reached_ready = date('M d, Y', $petition['reached_ready']);
     }
-    $admin_link = l(t('Administer This Petition'), 'admin/petitions/' . check_plain($petition_id), array('attributes' => array('classes' => array('no-follow'))));
-  }
+
+    if (!shunt_is_enabled('petition_mysql_save') && function_exists("petitionevents_get_administer_link")) {
+      $admin_link = petitionevents_get_administer_link();
+    }
+
+    else {
+      $admin_link = l(t('Administer This Petition'), 'admin/petitions/' . check_plain($petition_id), array('attributes' => array('classes' => array('no-follow'))));
+    }
+   }
 
   $flagged_text = '';
   $flagged_text_owner = '';
@@ -836,10 +843,9 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
     $signatures[$i]['comment'] = check_plain($signatures[$i]['comment']);
     $signatures[$i]['number'] = wh_petitions_format_number($signatures[$i]['number']);
 
-    $username = (!empty($signatures[$i]['user']['username'])) ? $signatures[$i]['user']['username'] : '';
     $first_name = (!empty($signatures[$i]['user']['first_name'])) ? $signatures[$i]['user']['first_name'] : '';
     $last_name = (!empty($signatures[$i]['user']['last_name'])) ? $signatures[$i]['user']['last_name'] : '';
-    $name = petitions_signatures_display_style($username, $first_name, $last_name);
+    $name = petitions_signatures_display_style($first_name, $last_name);
 
     $zipcode = (!empty($signatures[$i]['user']['zip'])) ? $signatures[$i]['user']['zip'] : '';
     $city = (!empty($signatures[$i]['user']['city'])) ? $signatures[$i]['user']['city'] : '';

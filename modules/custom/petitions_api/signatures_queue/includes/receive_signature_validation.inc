@@ -31,15 +31,22 @@
  *   - secret_validation_key: A secret key for validating a signature via email.
  *   - md5: An MD5 hash of the secret validation key.
  *
- * @return string
- *   Returns "thank-you/{$petition_id}" if hashes match or "error" if they
- *   don't. @todo Since signatures_queue_invoke_workflow() expects an integer
- *   return, this is actually a violation of its interface and suggests that
- *   something somewhere needs to be refactored.
+ * @return int
+ *   Returns one of the following status codes indicating the workflow outcome:
+ *     - SIGNATURES_QUEUE_STATUS_OK
+ *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
+ *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
+ *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
+ *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
 function _signatures_queue_receive_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
+  // Make sure required URL arguments are present.
+  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p']) || empty($_GET['d']) || !is_numeric($_GET['d'])) {
+    return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+  }
+
   $is_valid = FALSE;
   $return = '';
 
@@ -54,7 +61,7 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
   // Confirm the petition is still open for signature confirmations. If not,
   // send user to the petition-error page.
   if ($options['validation_expiration'] < time()) {
-    $return = 'petition-error';
+    $return = SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
   }
 
   // If request is valid, process it.
@@ -62,16 +69,30 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
     // Construct the validated signature data array  for validations_queue.
     $signature_data = _signatures_queue_validated_signature_data($options['secret_validation_key'], $options['petition_id']);
 
+    // Log time elapsed since passing through previous workflow.
+    $elapsed_since_initiating_signature_validation = signatures_queue_get_microtime_elapsed_since($signature_data['timestamp_initiated_signature_validation']);
+    petitionslog_event('signatures_queue.data_flow.time_elapsed.initiated_signature_validation__to__received_signature_validation', 'time', $elapsed_since_initiating_signature_validation);
+
     // Queue validated signatures for next step.
     $queue = SignaturesQueue::get('validations_queue');
     $queue->createQueue();
     $queue->createItem($signature_data);
+    petitionslog_event('signatures_queue.data_store.validations_queue.item_added');
 
-    // Build redirect path where thank you message will be displayed.
-    $return = 'thank-you/' . $options['petition_id'];
+    $return = SIGNATURES_QUEUE_STATUS_OK;
   }
   elseif (empty($return)) {
-    $return = 'error';
+    $return = SIGNATURES_QUEUE_STATUS_NOT_FOUND;
+  }
+
+  // Debugging. Log options and signature data.
+  if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
+    watchdog('signatures_queue', 'DEBUG ENABLED: Options passed to receive_signature_validation workflow: !options', array(
+      '!options' => petitionslog_format_for_watchdog($options),
+    ), WATCHDOG_DEBUG);
+    watchdog('signatures_queue', 'DEBUG ENABLED: Validation data added to validations_queue: !validation', array(
+      '!validation' => petitionslog_format_for_watchdog($signature_data),
+    ), WATCHDOG_DEBUG);
   }
 
   return $return;
@@ -82,7 +103,6 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
  *
  * @param string $secret_validation_key
  *   The validated secret validation key.
- *
  * @param string $petition_id
  *   The petition ID associated with the signature.
  *
@@ -93,7 +113,7 @@ function _signatures_queue_validated_signature_data($secret_validation_key, $pet
   $signature_data = array();
 
   $signature_data['secret_validation_key'] = $secret_validation_key;
-  $signature_data['timestamp_validated'] = time();
+  $signature_data['timestamp_received_signature_validation'] = time();
   $signature_data['client_ip'] = ip_address();
   $signature_data['petition_id'] = $petition_id;
 

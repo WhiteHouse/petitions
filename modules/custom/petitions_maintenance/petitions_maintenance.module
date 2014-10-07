@@ -1,5 +1,9 @@
 <?php
+
 /**
- * @file petitions_maintenance.module
+ * @file
+ * Manages Petitions application maintenance tasks.
+ *
+ * Even though it's empty, this file is required for Drupal to recognize the
+ * module.
  */
-// This file is required by Drupal. But right now, this module is only used for implementing updates in the .install file.

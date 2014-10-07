@@ -233,23 +233,8 @@ function _wh_petitions_set_as_primary_menu() {
 }
 
 /**
- * Implements hook_update_N().
- *
- * Create Petition Menu and make it the site's Main Menu.
+ * Implements hook_update_last_removed().
  */
-function wh_petitions_update_7104(&$sandbox) {
-  // A number of menu items are newly being associated with the menu
-  // named petitions-menu. Rebuild menus to drupal knows this.
-  menu_rebuild();
-  // Now save new.
-  wh_petitions_install();
-}
-
-/**
- * Implements hook_update_N().
- *
- * Set variable textcaptcha_cron to 1.
- */
-function wh_petitions_update_7105(&$sandbox) {
-  variable_set('textcaptcha_cron', 1);
+function wh_petitions_update_last_removed() {
+  return 7105;
 }

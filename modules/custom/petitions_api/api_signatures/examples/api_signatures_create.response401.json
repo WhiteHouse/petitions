@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "responseInfo": {
+      "status": "401",
+      "developerMessage:": "Invalid key.",
+      "userMessage": "The key provided is not valid.",
+      "errorCode": "85",
+      "moreInfo": "See the documentation: https://petitions.whitehouse.gov/developers#signatures-create-error-401"
+    }
+  }
+}

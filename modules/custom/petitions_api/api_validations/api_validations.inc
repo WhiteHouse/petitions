@@ -11,6 +11,8 @@
 function _api_validations_resource_index($api_key, $petition_id, $mock, $offset, $limit) {
   global $base_url;
 
+  $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
+
   // Return mock response.
   if ($mock) {
     $response = drupal_json_decode(_api_validations_mock_response('index'));
@@ -23,7 +25,7 @@ function _api_validations_resource_index($api_key, $petition_id, $mock, $offset,
     $developer_message = t("Invalid key.");
     $user_message = t("The key provided is not valid.");
     $error_code = 85;
-    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    $more_info = t('See the documentation: !url/developers#validations-index-error-401', array('!url' => $website_url));
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
@@ -39,7 +41,10 @@ function _api_validations_resource_index($api_key, $petition_id, $mock, $offset,
   $count = $query->countQuery()->execute()->fetchField();
 
   // Set the limit to the smallest of: the argument, maximum, and result count.
-  $limit = min(array($limit, variable_get('api_validations_index_max_limit', API_VALIDATIONS_MAX_LIMIT_DEFAULT)));
+  $limit = min(array(
+    $limit,
+    variable_get('api_validations_index_max_limit', API_VALIDATIONS_MAX_LIMIT_DEFAULT),
+  ));
 
   // Limit and offset the query as specified maximum.
   $query->range($offset, $limit);
@@ -61,6 +66,10 @@ function _api_validations_mock_response($method) {
   switch ($method) {
     case 'index':
       $file = 'api_validations_index.response.json';
+      break;
+
+    case 'index401':
+      $file = 'api_validations_index.response401.json';
       break;
 
   }

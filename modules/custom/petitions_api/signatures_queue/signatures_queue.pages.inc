@@ -50,12 +50,6 @@ function signatures_queue_overview() {
  * message to the user.
  */
 function _signatures_queue_validation_page_callback() {
-  // Get parameters submitted via URL.
-  if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p']) || empty($_GET['d']) || !is_numeric($_GET['d'])) {
-    // Parameters are missing. Return error.
-    drupal_not_found();
-  }
-
   // Sanitize data coming in through URL.
   $validation_key = check_plain($_GET['k']);
   $md5 = check_plain($_GET['m']);
@@ -71,25 +65,26 @@ function _signatures_queue_validation_page_callback() {
     'validation_expiration' => $validation_expiration,
   );
 
-  // Invoke the workflow signatures_queue_receive_signature_validation.
-  // If this is successful, this should return a URL for a thank you page that
-  // we will redirect the user to, to thank them and let them know their
-  // signature will be counted.
+  // Invoke the workflow.
   $response = signatures_queue_invoke_workflow('receive_signature_validation', $options);
 
-  // Typically signatures_queue_invoke_workflow() returns boolean.
-  // If the workflow fails (shunt is tripped), the response will be
-  // SIGNATURES_QUEUE_STATUS_SERVER_ERROR. In this case, drupal_goto() apology
-  // page.
-  if ($response == SIGNATURES_QUEUE_STATUS_SERVER_ERROR) {
-    drupal_goto('validation-error', array(), 307);
-  }
-  elseif ($response == 'error') {
-    drupal_not_found();
-  }
+  // Redirect the user according to the status response.
+  switch ($response) {
+    case SIGNATURES_QUEUE_STATUS_OK:
+      drupal_goto("thank-you/{$petition_id}", array(), 301);
+      break;
 
-  // If we get here, $response is a URL for a thank you page.
-  drupal_goto($response, array(), 301);
+    case SIGNATURES_QUEUE_STATUS_BAD_REQUEST:
+    case SIGNATURES_QUEUE_STATUS_NOT_FOUND:
+      drupal_not_found();
+      break;
+
+    case SIGNATURES_QUEUE_STATUS_SERVER_ERROR:
+    default:
+      // Use HTTP 307 Temporary Redirect since a server error should have only
+      // an "accidental" and temporary relationship with a given validation URL.
+      drupal_goto('validation-error', array(), 307);
+  }
 }
 
 /**

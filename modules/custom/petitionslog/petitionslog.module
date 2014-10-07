@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * @file
+ * Logging facilities for Petitions.
+ */
+
+/**
+ * Logs a system event.
+ *
+ * @param string $name
+ *   The name of the event you want to log.
+ * @param string $type
+ *   (optional) The type of metric to log--one of the following values
+ *   corresponding to the
+ *   @link https://github.com/etsy/statsd/blob/master/docs/metric_types.md StatsD Metric Types @endlink
+ *   :
+ *   - count: The corresponding value is a number by which to increment (or
+ *     decrement, if negative) a simple counter.
+ *   - gauge: The corresponding value is a single datum, which remains constant
+ *     until explicitly changed.
+ *   - set: The corresponding value is a value to add to a set of unique values.
+ *   - time: The corresponding value is a duration in milliseconds.
+ * @param int|null $value
+ *   (optional) The numeric value you wish to log. Defaults to NULL.
+ *
+ * @see hook_petitionslog_event()
+ */
+function petitionslog_event($name, $type = 'count', $value = NULL) {
+  // Assert valid event type.
+  $valid_types = array('count', 'gauge', 'set', 'time');
+  if (!in_array($type, $valid_types)) {
+    watchdog('petitionslog', 'Invalid event type: %type.', array(
+      '%type' => $type,
+    ), WATCHDOG_WARNING);
+    return;
+  }
+
+  // Assert valid event value.
+  if (!is_null($value) && !is_int($value)) {
+    watchdog('petitionslog', 'Invalid event value: %value.', array(
+      '%value' => $value,
+    ), WATCHDOG_WARNING);
+    return;
+  }
+
+  // Conditionally log events to watchdog for debugging purposes.
+  // Note: This variable has no UI.
+  if (variable_get('petitionslog_debug', FALSE)) {
+    watchdog('petitionslog', 'Petitions Log Event: @name | @type | @value', array(
+      '@name' => $name,
+      '@type' => $type,
+      '@value' => is_null($value) ? 'NULL' : $value,
+    ), WATCHDOG_DEBUG);
+  }
+
+  module_invoke_all('petitionslog_event', $name, $type, $value);
+}
+
+/**
+ * Formats data for logging via watchdog.
+ *
+ * This function tries to determine where data will be logged and formats it
+ * accordingly--collapsing data structures to a single line for log files (which
+ * truncate multiline output) but expanding them for easier reading with
+ * (multiline-capable) dblog.
+ *
+ * @param mixed $data
+ *   An arbitrary array or object to be formatted readably for logging.
+ *
+ * @return string
+ *   The data formatted to send to watchdog.
+ *
+ * @see watchdog()
+ */
+function petitionslog_format_for_watchdog($data) {
+  // Use pretty printing if dblog is enabled.
+  if (module_exists('dblog')) {
+    // JSON_PRETTY_PRINT is only available since PHP 5.4.0.
+    if (defined('JSON_PRETTY_PRINT')) {
+      return json_encode($data, JSON_PRETTY_PRINT);
+    }
+    else {
+      return print_r($data, TRUE);
+    }
+  }
+  // Otherwise, use (compressed) JSON to get it all on a single line.
+  else {
+    return json_encode($data);
+  }
+}

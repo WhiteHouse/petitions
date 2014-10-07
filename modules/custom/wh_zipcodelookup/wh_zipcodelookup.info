@@ -2,6 +2,6 @@
 name = "White House Zip Code Lookup"
 description = "For petitions, when user registers lookup their city and state based on the supplied zip"
 core = 7.x
-package = "Custom Developed"
+package = White House Custom
 
 dependencies[] = wh_user_profile

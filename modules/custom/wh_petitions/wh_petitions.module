@@ -7,6 +7,10 @@
  * WARNING: THIS MODULE IS GOING TO BE REMOVED BEFORE 7.x-3.0.
  */
 
+// @todo Move legacy functions into here as they are flagged, renamed, or
+// refactored throughout the code base.
+require_once dirname(__FILE__) . '/wh_petitions.mongo2mysql.inc';
+
 /**
  * @todo: Note: Trending used to be a link on the /petitions page.
  * This has been commented out, but the code is still here because we're
@@ -148,6 +152,19 @@ function wh_petitions_public_statuses() {
     WH_PETITION_STATUS_UNDER_REVIEW,
     WH_PETITION_STATUS_REVIEWED,
     WH_PETITION_STATUS_CLOSED,
+  );
+}
+
+/**
+ * Returns an array of status id's that are to be treated as unpublished.
+ *
+ * @return array
+ *   Array of petition status id's considered unpublished.
+ */
+function wh_petitions_unpublished_statuses() {
+  return array(
+    WH_PETITION_STATUS_FLAGGED,
+    WH_PETITION_STATUS_DRAFT
   );
 }
 
@@ -370,6 +387,18 @@ function wh_petitions_menu() {
     'weight' => 10,
     'file' => 'wh_petitions.admin.inc',
     'type' => MENU_LOCAL_TASK,
+  );
+
+  // Admin - Petition Removal.
+  $items['remove-mongo-petition'] = array(
+    'title' => 'Petition Removal',
+    'description' => 'Form to remove petitions',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wh_petitions_removal_form'),
+    'access arguments' => array('administer petitions'),
+    'weight' => 10,
+    'file' => 'wh_petitions_removal.inc',
+    'type' => MENU_CALLBACK,
   );
 
   // Admin - AJAX callbacks.
@@ -1203,12 +1232,14 @@ function wh_petitions_email_receive_response($petition_id, $uid) {
 function wh_petitions_mail($key, &$message, $params) {
   global $base_url;
   $options['language'] = $message['language'];
+  $legacy_id = "";
 
   switch ($key) {
     case 'published':
       $langcode = $message['language']->language;
       $message['subject'] = variable_get('wh_petitions_email_published_subject', '');
       $message['body'][] = variable_get('wh_petitions_email_published_text', '');
+      $legacy_id = $params['petition_id'];
 
       $conn = wh_petitions_mongo_petition_connection();
       $petition = wh_petitions_load_slim_petition($conn, $params['petition_id'],
@@ -1231,6 +1262,7 @@ function wh_petitions_mail($key, &$message, $params) {
         if (empty($petition['short_url'])) {
           $petition['short_url'] = $full_link;
         }
+
         $time = $petition['published'];
         $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
         $end_date = date("F d, Y", $end_date);
@@ -1255,12 +1287,35 @@ function wh_petitions_mail($key, &$message, $params) {
       $message['body'][] = variable_get('wh_petitions_review_threshold_passed_text', '');
 
       $petition  = $params['petition'];
+      $legacy_id = check_plain($petition['_id']);
 
       if (!empty($petition)) {
-        $message['body'][0] = str_replace('!petition_id', check_plain($petition['_id']), $message['body'][0]);
+        if(function_exists('petitionevents_mail_additions')){
+          $context = array();
+          $context["petition_title"] = $petition['title'];
+          $context["petition_uid"] = $petition['_uid'];
+          $context["legacy_id"] = $legacy_id;
+
+          // Mongo2MySql code that can eventually be removed.
+          $is_mysql_enabled = !shunt_is_enabled("petition_mysql_save");
+
+          if ($is_mysql_enabled) {
+            $context["nid"] = petition_get_nid($legacy_id);
+          }
+
+          $message_body = $message['body'][0];
+          petitionevents_mail_additions($message_body, $context);
+          $message['body'][0] = $message_body;
+        }
+
+        $message['body'][0] = str_replace('!petition_id', check_plain($legacy_id), $message['body'][0]);
         $message['body'][0] = str_replace('!petition_edit_link', variable_get('petitions_edit_url', $base_url) . '/admin/petitions/' . check_plain($petition['_id']), $message['body'][0]);
         $message['body'][0] = str_replace('!petition_title', check_plain($petition['title']), $message['body'][0]);
         $message['body'][0] = str_replace('!petition_body', check_plain($petition['body']), $message['body'][0]);
+
+        $link_path = "$base_url/admin/petitions/$legacy_id";
+        $link= l($link_path,$link_path);
+        $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
       }
       else {
         unset($message);
@@ -1268,18 +1323,21 @@ function wh_petitions_mail($key, &$message, $params) {
       break;
 
     case 'ready_response':
+      $legacy_id = $params['petition_id'];
       $langcode = $message['language']->language;
       $message['subject'] = variable_get('wh_petitions_email_ready_response_subject', '');
       $message['body'][] = variable_get('wh_petitions_email_ready_response_text', '');
       break;
 
     case 'receive_response':
+      $legacy_id = $params['petition_id'];
       $langcode = $message['language']->language;
       $message['subject'] = variable_get('wh_petitions_email_receive_response_subject', '');
       $message['body'][] = variable_get('wh_petitions_email_receive_response_text', '');
       break;
 
     case 'status_change':
+      $legacy_id = $params['petition']['_id'];
       if ($params['petition']['petition_status'] == 6) {
         $message['subject'] = t('Petition Removal');
         $message['body'][] = t('Petition @title (@id), has been removed by @remover',
@@ -1297,35 +1355,14 @@ function wh_petitions_mail($key, &$message, $params) {
         break;
 
       }
+
+
       // We're only sending mail for removals, so don't do anything else.
       return FALSE;
   }
-}
 
-/**
- * Implements hook_form_alter().
- */
-function wh_petitions_form_alter(&$form, &$form_state, $form_id) {
-  switch ($form_id) {
-    case 'petitionssignatureform_signature_form':
-      // Add the privacy policy and terms of participation links to the bottom
-      // of the simplified signing form, but only if the form itself is present.
-      if (petitionssignatureform_module_is_configured()) {
-        $form['privacy_policy_legend'] = array(
-          '#type' => 'container',
-          '#attributes' => array('class' => array('privacy-legend')),
-        );
-        $form['privacy_policy_legend']['privacy_policy'] = array(
-          '#markup' => t('By signing this petition you agree to our <a href="!tos">terms of participation</a> and <a href="!privacy_policy">privacy policy</a>.', array(
-            '!tos' => url('how-why/terms-participation'),
-            '!privacy_policy' => 'http://www.whitehouse.gov/privacy',
-          )),
-        );
-      }
-      break;
-  }
+  $message['body'][0] = str_replace('!baseurl', check_plain($base_url), $message['body'][0]);
 }
-
 
 /**************** MONGO HELPER FUNCTIONS ******************/
 
@@ -1767,32 +1804,6 @@ function wh_petitions_admin_log($acting_user, $entity_type, $entity_acted_upon) 
 }
 
 /**
- * Prepare and send a notification when a petition is removed or re-enabled.
- *
- * @param object $user
- *   The drupal user object
- * @param array $petition
- *   The petition result
- */
-function wh_petitions_removal_notification($user, $petition) {
-  $to_email = variable_get('wh_petitions_admin_removal_notification_emails');
-
-  if (!$to_email) {
-    // We can't send mail without a to address, but
-    // this may be deliberate, so just end.
-    return;
-  }
-  $creator = user_load($petition['uid']);
-  $params = array(
-    'creator_email' => $creator->mail,
-    'remover' => $user->mail,
-    'petition' => $petition,
-  );
-  $from = variable_get('wh_petitions_email_address', '');
-  drupal_mail('wh_petitions', 'status_change', $to_email, language_default(), $params, $from);
-}
-
-/**
  * Invoke petition signature observer.
  *
  * Wrapper for invoking all the functionality that needs to be triggered
@@ -1856,88 +1867,6 @@ function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $u
 }
 
 /**
- * Creates a signature record.
- *
- * Wrapper around wh_petitions_create_signature(). This can be called by modules
- * who don't know anything about mongo.
- *
- * @param string $petition_id
- *   The unique identifier of the petition to create a signature for.
- * @param object $user
- *   A Drupal user object.
- * @param string $client_ip
- *   The IP address of the signatory.
- *
- * @return string|false
- *   The ID of the created signature record if one is created, or FALSE if not.
- *
- * @todo Replace usages of this function with method call to
- *   SignaturesQueryFactory::create->save().
- */
-function wh_petitions_create_new_signature($petition_id, $user, $client_ip) {
-  // Setup connections for signatures and petitions.
-  $connection = wh_petitions_mongo_petition_connection();
-  $connection->setSlaveOkay(FALSE);
-  $sig_connection = wh_petitions_mongo_petition_signatures_connection();
-  $sig_connection->setSlaveOkay(FALSE);
-
-  $slim_petition_elements = array(
-    'petition_status',
-    'signature_count',
-    'response_signatures',
-    'public_signatures',
-  );
-
-  // Load the petition.
-  $petition = wh_petitions_load_slim_petition($connection, $petition_id, $slim_petition_elements);
-
-  // If it wasn't a valid petition id, exit.
-  if (empty($petition)) {
-    return FALSE;
-  }
-
-  $signature_id = wh_petitions_create_signature($petition, $user, $sig_connection, $client_ip);
-  if (!$signature_id) {
-    watchdog('wh_petitions', 'Failed to create signature for @user on @petition', array('@user' => $user->uid, '@petition' => $petition['_id']));
-    return FALSE;
-  };
-
-  return $signature_id;
-}
-
-/**
- * Check to see if signature exists already.
- *
- * @param string $petition_id
- *   The unique identifier of the petition.
- * @param int $uid
- *   A user ID.
- *
- * @return string|false
- *   Signature ID or FALSE if it doesn't exist yet.
- */
-function wh_petitions_get_signature_id($petition_id, $uid) {
-  $signature_id = FALSE;
-
-  // Create connection.
-  $sig_connection = wh_petitions_mongo_petition_signatures_connection();
-  $sig_connection->setSlaveOkay(FALSE);
-
-  // Determine if this user has already signed the petition.
-  $query = array(
-    'uid' => (int) $uid,
-    'petition_id' => (string) $petition_id,
-  );
-  $result = $sig_connection->findOne($query);
-  if (!empty($result)) {
-    $signature_id = $result['_id']->__toString();
-    // TODO make sure this ^^ works.
-  }
-
-  return $signature_id;
-}
-
-/**
  * Create and save a signature object for the given user and petition.
  *
  * @param object $petition
@@ -1950,19 +1879,32 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
  *   (optional) The IP address from which the user is signing the petition.
  * @param string $user_agent
  *   (optional) The user agent string of the signer's browser.
+ * @param int $timestamp
+ *   Time when signature was signed. If FALSE, defaults to time().
  *
  * @return string
  *   ID of created signature or FALSE on failure.
  */
-function wh_petitions_create_signature($petition, $user, $signature_collection_connection, $ip_address = '', $user_agent = '') {
-  // Can only sign petitions that are open - private, public, under review.
-  if ($petition['petition_status'] != WH_PETITION_STATUS_PRIVATE && $petition['petition_status'] != WH_PETITION_STATUS_PUBLIC && $petition['petition_status'] != WH_PETITION_STATUS_UNDER_REVIEW) {
-    watchdog('wh_petitions', 'unable to create signature on @petition because of invliad petition status (@status)', array('@petition' => $petition['_id'], '@status' => $petition['petition_status']));
-    return FALSE;
+function wh_petitions_create_signature($petition, $user, $signature_collection_connection, $ip_address = '', $user_agent = '', $timestamp = FALSE) {
+  // If petition is being signed through simplified signing, skip validation
+  // checks confirming petition is signable, defer to signatures_queue module's
+  // preprocess and process checks.
+  $active_signing_method = variable_get('petitions_signing_method', NULL);
+  if ($active_signing_method != WH_PETITIONS_SIGNING_METHOD_SIMPLIFIED_SIGNING) {
+    // Simplified signing is not enabled. Perform legacy validation checks
+    // before counting signature. Can only sign petitions that are open--that
+    // is, private, public, or under review.
+    if ($petition['petition_status'] != WH_PETITION_STATUS_PRIVATE && $petition['petition_status'] != WH_PETITION_STATUS_PUBLIC && $petition['petition_status'] != WH_PETITION_STATUS_UNDER_REVIEW) {
+      watchdog('wh_petitions', 'Unable to create signature on @petition due to invalid petition status (@status).', array(
+        '@petition' => $petition['_id'],
+        '@status' => $petition['petition_status'],
+      ));
+      return FALSE;
+    }
   }
 
   // Check if signature_id exists.
-  if ($signature_id = wh_petitions_get_signature_id($petition['_id'], $user->uid)) {
+  if ($signature_id = wh_petitions_mongo2mysql_get_signature_id($petition['_id'], $user->uid)) {
     watchdog('wh_petitions', 'unable to create signature, user @user has already signed @petition', array('@petition' => $petition['_id'], '@user' => $user->uid));
     return FALSE;
   }
@@ -1982,7 +1924,7 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
   $signature_count = $petition['signature_count'] + 1;
   $signature = array(
     'petition_id' => (string) $petition['_id'],
-    'timestamp'   => (int) time(),
+    'timestamp'   => ($timestamp) ? $timestamp : (int) time(),
     'ip_address'  => (string) $ip_address,
     'user_agent'  => (string) $user_agent,
     'comment'     => '',
@@ -1994,34 +1936,6 @@ function wh_petitions_create_signature($petition, $user, $signature_collection_c
   );
 
   return wh_petitions_save_signature($signature);
-}
-
-/**
- * Wrapper around wh_petitions_increment_signature_count().
- *
- * This function takes care of creating a mongo connection and looking up the
- * properly formatted $petition object.
- *
- * @param string $petition_id
- *   The unique identifier of the petition.
- */
-function wh_petitions_increment_count($petition_id) {
-  // Create connection.
-  $connection = wh_petitions_mongo_petition_connection();
-  $connection->setSlaveOkay(FALSE);
-
-  $slim_petition_elements = array(
-    'petition_status',
-    'signature_count',
-    'response_signatures',
-    'public_signatures',
-  );
-
-  // Load the petition.
-  $petition = wh_petitions_load_slim_petition($connection, $petition_id, $slim_petition_elements);
-
-  // Increment signature count.
-  wh_petitions_increment_signature_count($petition, $connection);
 }
 
 /**
@@ -2104,4 +2018,78 @@ function wh_petitions_shunt() {
   $shunts['wh_petitions_signature_create'] = t('Disable creation of new signatures by the signature write API.');
 
   return $shunts;
+}
+
+
+/**
+ * Unpublish a single node from Mongo.
+ *
+ * @param array $node
+ *   Actual node to update.
+ */
+function wh_petitions_mongo2mysql_unpublish($legacy_id) {
+  global $user;
+  $petition = NULL;
+  if (!empty($legacy_id)) {
+    $conn = wh_petitions_mongo_petition_connection();
+    $petition = wh_petitions_load_petition($conn, $legacy_id);
+    $petition['petition_status'] = WH_PETITION_STATUS_FLAGGED;
+
+    wh_petitions_save_petition($conn, $petition);
+    // Log the activity to the admin_log collection.
+    wh_petitions_admin_log($user, 'petition', $petition);
+  }
+
+  return $petition;
+}
+
+/**
+ * Publish a single node from Mongo.
+ *
+ * @param array $node
+ *   Actual node to update.
+ */
+function wh_petitions_mongo2mysql_publish($legacy_id) {
+  global $user;
+  $petition = NULL;
+
+  if (!empty($legacy_id)) {
+    $conn = wh_petitions_mongo_petition_connection();
+    $petition = wh_petitions_load_petition($conn, $legacy_id);
+
+    // Check to see what Status it should have.
+    $timestamp = strtotime('- ' . $petition['review_timeframe'] . ' days');
+
+    if ($petition['published'] < $timestamp) {
+      $petition['petition_status'] = WH_PETITION_STATUS_CLOSED;
+    }
+    elseif ($petition['signature_count'] < $petition['public_signatures']) {
+      $petition['petition_status'] = WH_PETITION_STATUS_PRIVATE;
+    }
+    elseif ($petition['signature_count'] < $petition['response_signatures']) {
+      $petition['petition_status'] = WH_PETITION_STATUS_PUBLIC;
+    }
+    elseif ($petition['signature_count'] >= $petition['response_signatures']) {
+      $petition['petition_status'] = WH_PETITION_STATUS_UNDER_REVIEW;
+      $petition['response_status'] = WH_PETITION_RESPONSE_STATUS_PENDING;
+    }
+
+    wh_petitions_save_petition($conn, $petition);
+    $text = t('Remove from Site');
+
+    // Log the activity to the admin_log collection.
+    wh_petitions_admin_log($user, 'petition', $petition);
+  }
+
+  return $petition;
+}
+
+/**
+* Implements hook_admin_paths().
+*/
+function wh_petitions_admin_paths() {
+  $paths = array(
+    'remove-mongo-petition' => TRUE,
+  );
+  return $paths;
 }

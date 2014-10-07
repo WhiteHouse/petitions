@@ -1,0 +1,129 @@
+<?php
+/**
+ * @file
+ * Functionality for events that are triggered in relation to petitions.
+ */
+
+module_load_include('inc', 'petitionevents', 'petitionevents_vboactions');
+
+/**
+ * Builds a remove petitions settings form.
+ *
+ * @param array $form
+ *   Form object to add the remove petition form to.
+ */
+function petitionevents_remove_email_settings_form(&$form) {
+  $form['remove_email'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Notification: Petition Remove'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t("The default email sent to a user when their petition is taken down by an administrator."),
+  );
+
+  $form['remove_email']['petitionevents_remove_email_from_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reply To name'),
+    '#default_value' => variable_get('petitionevents_remove_email_from_name'),
+    '#required' => TRUE,
+  );
+
+  $form['remove_email']['petitionevents_remove_email_from_address'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reply To address'),
+    '#default_value' => variable_get('petitionevents_remove_email_from_address'),
+    '#required' => TRUE,
+  );
+
+  $form['remove_email']['petitionevents_remove_email_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject'),
+    '#default_value' => variable_get('petitionevents_remove_email_subject'),
+    '#required' => TRUE,
+  );
+
+  $form['remove_email']['petitionevents_remove_email_bcc'] = array(
+    '#type' => 'textarea',
+    '#title' => t('BCC'),
+    '#default_value' => variable_get('petitionevents_remove_email_bcc'),
+    '#description' => t("Enter multiple BCC email addresses, separated by comma."),
+    '#required' => FALSE,
+  );
+
+  $form['remove_email']['petitionevents_remove_email_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Body'),
+    '#default_value' => variable_get('petitionevents_remove_email_body'),
+    '#required' => FALSE,
+    '#description' => t("Supports the !petition_title token."),
+  );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function petitionevents_form_wh_petitions_admin_petition_email_settings_alter(&$form, &$form_state, $form_id) {
+  petitionevents_remove_email_settings_form($form);
+}
+
+/**
+ * Implements tokens for mysql petitions in emails.
+ *
+ * @param array $message
+ *   Representation of the email to be sent.
+ * @param array $context
+ *   An associative array of petition details.
+ *   - petition_title: The petition title.
+ *   - nid: (optional) The petition node ID, if applicable.
+ *   - legacy_id: (optional) The petition Mongo ID, if applicable.
+ */
+function petitionevents_mail_additions(&$message, $context) {
+  // Leaving the line below commented just in case there is a strong reason to
+  // process mongo info here.
+  // $is_mongo_petition = !empty($context['legacy_id']);
+  $is_mysql_petition = !empty($context['nid']);
+  $is_mysql_enabled = !shunt_is_enabled('petition_mysql_save');
+  $title = $context['petition_title'];
+
+  if ($is_mysql_petition && $is_mysql_enabled) {
+    $message = str_replace('!petition_nid', $context['nid'], $message);
+    $nid = $context['nid'];
+
+    // Replacement for petition_remove_link.
+    $path = url('admin/moderation-tools', array(
+      'query' => array('nid' => $nid),
+      'absolute' => TRUE,
+    ));
+    $link = l($path, $path);
+    $message = str_replace('!petition_remove_link', $link, $message);
+    $message = str_replace('!petition_nid', $nid, $message);
+  }
+
+  $message = str_replace('!petition_title', $title, $message);
+}
+
+/**
+ * Extract mongo id from short url, then grab corresponding node id.
+ */
+function petitionevents_get_administer_link() {
+  if (arg(0) == 'petition') {
+    $mongo_id = petition_load_mongo2mysql_from_url(current_path());
+    $node = petition_load_from_legacy_id($mongo_id['_id']);
+  }
+
+  if (arg(0) == 'node') {
+    $node = node_load(arg(1));
+  }
+
+  $is_node_loaded = $node != NULL;
+  if ($is_node_loaded) {
+    $node_id = $node->nid;
+  }
+
+  else {
+    watchdog('petitionevents', "Unable to locate a MySQL Petition for current page.");
+    $node_id = 0;
+  }
+
+  return l(t('Administer This Petition'), 'admin/moderation-tools', array('query' => array('nid' => $node_id)));
+}

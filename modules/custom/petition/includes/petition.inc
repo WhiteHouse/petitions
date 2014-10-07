@@ -15,20 +15,10 @@
  *   object : A fully populated node object.
  */
 function petition_load_from_legacy_id($legacy_id) {
-  $query = new EntityFieldQuery();
-  $query->entityCondition("entity_type", "node");
-  $query->entityCondition("bundle", "petition");
-  $query->fieldCondition("field_legacy_id", "value", $legacy_id, "=");
-
-  $results = $query->execute();
-  if (empty($results)) {
-    return NULL;
+  if ($nid = petition_get_nid($legacy_id)) {
+    $node = node_load($nid);
   }
-  else {
-    $info = array_shift($results['node']);
-    $nid = $info->nid;
-    return node_load($nid);
-  }
+  return (isset($node) && is_object($node)) ? $node : NULL;
 }
 
 

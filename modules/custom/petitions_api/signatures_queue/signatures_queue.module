@@ -4,19 +4,14 @@
  * @file
  * The signature queue system.
  *
- * Provides SignaturesQueue class, configuration for signatures queues, and a
- * queue monitoring dashboard.
+ * Provides a queue-based backend for processing petition signatures submitted
+ * via the API.
  */
 
 /**
  * The default workflow batch size.
  */
 define('SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT', 10);
-
-/**
- * The default value for the signatures_queue_log_events variable.
- */
-define('SIGNATURES_QUEUE_LOG_EVENTS_DEFAULT', TRUE);
 
 /**
  * The default value for the server-name event logging value.
@@ -195,7 +190,7 @@ function signatures_queue_validation_email_tokens(&$replacements, $data, $option
     $replacements['[signature:zip]'] = $data['signature info']['zip'];
     $replacements['[signature:email]'] = $data['signature info']['email'];
     $replacements['[signature:signup]'] = $data['signature info']['signup'];
-    $replacements['[signature:timestamp-submitted]'] = $data['signature info']['timestamp_submitted'];
+    $replacements['[signature:timestamp-submitted]'] = $data['signature info']['timestamp_received_new_signature'];
     // Creating $key because it will be used several times.
     $key = $data['signature info']['secret_validation_key'];
     $replacements['[signature:secret-validation-key]'] = $key;
@@ -282,6 +277,25 @@ function signatures_queue_get_queue_names() {
 }
 
 /**
+ * Gets the time elapsed since a given timestamp, measured in microseconds.
+ *
+ * Because its input is in timestamps (not "micro timestamps", if you will),
+ * this function can only be accurate to the nearest second. It's value is not
+ * actually in precision but in enforcing a common unit of measure.
+ *
+ * @param int $timestamp
+ *   A timestamp, as returned from time().
+ *
+ * @return int
+ *   The number of microseconds elapsed.
+ *
+ * @see timer_read()
+ */
+function signatures_queue_get_microtime_elapsed_since($timestamp) {
+  return (int) round((time() - $timestamp) * 1000);
+}
+
+/**
  * Gets a list of workflow names.
  *
  * @return array
@@ -340,6 +354,7 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
   // Detect a shunt trip.
   $shunt_name = "shunt_signatures_queue_{$workflow}";
   if (shunt_is_enabled($shunt_name)) {
+    petitionslog_event("signatures_queue.workflow.{$workflow}.status.shunted");
     return SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
   }
 
@@ -357,16 +372,22 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
       throw new Exception($message);
     }
 
-    // Log job start.
-    _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'started');
+    // Log workflow invocation.
+    petitionslog_event("signatures_queue.workflow.{$workflow}.invoked");
 
     // Dispatch the worker.
+    timer_start('signatures_queue_workflow');
     $status = call_user_func($function_name, $job_id, $server_name, $worker_name, $options);
+    timer_stop('signatures_queue_workflow');
 
-    // Log job completion.
-    _signatures_queue_log_event($job_id, $workflow, $server_name, $worker_name, 'completed');
+    // Log workflow completion details.
+    petitionslog_event("signatures_queue.workflow.{$workflow}.completed");
+    petitionslog_event("signatures_queue.workflow.{$workflow}.processing_time", 'time', (int) timer_read('signatures_queue_workflow'));
+    $log_status = _signatures_queue_get_loggable_workflow_status($workflow, $status);
+    petitionslog_event("signatures_queue.workflow.{$workflow}.status.{$log_status}");
   }
   catch (Exception $e) {
+    petitionslog_event("signatures_queue.workflow.{$workflow}.status.server_error");
     $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
     watchdog('signatures_queue', "Fatal error in workflow. @suffix\n\n@exception", array(
       '@suffix' => $watchdog_suffix,
@@ -376,6 +397,59 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
   }
 
   return $status;
+}
+
+/**
+ * Gets a status string usable for logging from a workflow status return value.
+ *
+ * @param string $workflow
+ *   The name of the workflow to invoke, as defined in
+ *   signatures_queue_get_workflow_names().
+ * @param int $status
+ *   The status value returned from a workflow function.
+ *
+ * @return string
+ *   A string usable as a status code in logging, e.g., "ok" or "bad_request".
+ */
+function _signatures_queue_get_loggable_workflow_status($workflow, $status) {
+  $status_mappings = array(
+    SIGNATURES_QUEUE_STATUS_OK => 'ok',
+    SIGNATURES_QUEUE_STATUS_BAD_REQUEST => 'bad_request',
+    SIGNATURES_QUEUE_STATUS_FORBIDDEN => 'forbidden',
+    SIGNATURES_QUEUE_STATUS_NOT_FOUND => 'not_found',
+    SIGNATURES_QUEUE_STATUS_SERVER_ERROR => 'server_error',
+  );
+  if (array_key_exists($status, $status_mappings)) {
+    $log_status = $status_mappings[$status];
+  }
+  else {
+    $log_status = 'unknown';
+    watchdog('signatures_queue', 'Workflow "@workflow" returned unknown status code: @status.', array(
+      '@workflow' => $workflow,
+      '@status' => $status,
+    ));
+  }
+  return $log_status;
+}
+
+/**
+ * Logs metrics around the size of a given data store (table or queue).
+ *
+ * @param string $data_store_name
+ *   The name of the data store.
+ * @param int $record_count
+ *   The number of items in the data store.
+ */
+function _signatures_queue_data_store_size_event($data_store_name, $record_count) {
+  $record_count = (int) $record_count;
+
+  // Log the size.
+  petitionslog_event("signatures_queue.data_store.{$data_store_name}.size", 'gauge', $record_count);
+
+  // Log if empty.
+  if ($record_count == 0) {
+    petitionslog_event("signatures_queue.data_store.{$data_store_name}.emptied");
+  }
 }
 
 /**
@@ -485,35 +559,4 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
 function signatures_queue_check_empty($name = NULL) {
   module_load_include('inc', 'signatures_queue');
   return _signatures_queue_check_empty($name);
-}
-
-/**
- * Formats data for logging via watchdog.
- *
- * Prints data structure on one line for log files. Prints them prettier for
- * dblog.
- *
- * @param mixed $data
- *   An arbitrary array or object to be formatted readably for logging.
- *
- * @return string
- *   The data formatted to send to watchdog.
- *
- * @see watchdog()
- */
-function signatures_queue_format_for_logging($data) {
-  // Use pretty printing if dblog is enabled.
-  if (module_exists('dblog')) {
-    // JSON_PRETTY_PRINT is only available since PHP 5.4.0.
-    if (defined('JSON_PRETTY_PRINT')) {
-      return json_encode($data, JSON_PRETTY_PRINT);
-    }
-    else {
-      return print_r($data, TRUE);
-    }
-  }
-  // Otherwise, use (compressed) JSON to get it all on a single line.
-  else {
-    return json_encode($data);
-  }
 }

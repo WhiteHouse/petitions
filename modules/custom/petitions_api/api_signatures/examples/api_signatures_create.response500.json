@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "responseInfo": {
+      "status": "500",
+      "developerMessage:": "Sorry. Service is not available right now.",
+      "userMessage": "Sorry. We are unable to process your signature right now.",
+      "errorCode": "73",
+      "moreInfo": "See the documentation: https://petitions.whitehouse.gov/developers#signatures-create-error-500"
+    }
+  }
+}

@@ -26,8 +26,13 @@
  *   (optional) An array of options. Defaults to an empty array. It is currently
  *   unused by this workflow.
  *
- * @return bool
- *   Returns TRUE if the workflow executes successfully or FALSE if not.
+ * @return int
+ *   Returns one of the following status codes indicating the workflow outcome:
+ *     - SIGNATURES_QUEUE_STATUS_OK
+ *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
+ *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
+ *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
+ *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
@@ -78,7 +83,7 @@ function _signatures_queue_archive_signatures($job_id, $server_name, $worker_nam
   // Delete processed validations from processing table after petition closes.
   _signatures_queue_delete_processed_validations($queues_last_emptied, $watchdog_suffix);
 
-  return TRUE;
+  return SIGNATURES_QUEUE_STATUS_OK;
 }
 
 /**
@@ -110,8 +115,8 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
       'zip',
       'email',
       'signup',
-      'timestamp_validation_email_sent',
-      'timestamp_submitted'))
+      'timestamp_initiated_signature_validation',
+      'timestamp_received_new_signature'))
     ->condition('timestamp_validation_close', $queues_last_emptied, '<')
     ->execute();
 
@@ -129,6 +134,8 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
       ->execute();
     $archived_count++;
   }
+  $count_signatures_not_validated_archive = db_select('signatures_not_validated_archive')->countQuery()->execute()->fetchField();
+  _signatures_queue_data_store_size_event('signatures_not_validated_archive', $count_signatures_not_validated_archive);
 
   // Log the number of successfully archived signatures.
   if ($archived_count) {
@@ -136,6 +143,7 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
       '@number' => $archived_count,
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
+    petitionslog_event('signatures_queue.data_store.signatures_not_validated_archive.item_added', 'count', $archived_count);
 
     // Set the active database back to default.
     db_set_active();
@@ -199,7 +207,7 @@ function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $w
     ->fields('a', array(
       'vid',
       'secret_validation_key',
-      'timestamp_validated',
+      'timestamp_received_signature_validation',
       'timestamp_validation_close',
       'client_ip',
       'petition_id'))
@@ -230,7 +238,10 @@ function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $w
         '@number' => $orphaned_count,
         '@suffix' => $watchdog_suffix,
       ), WATCHDOG_ALERT);
+    petitionslog_event("signatures_queue.data_store.validations_orphaned_archive.item_added", 'count', $orphaned_count);
   }
+  $count_total = db_select('validations_orphaned_archive')->countQuery()->execute()->fetchField();
+  _signatures_queue_data_store_size_event('validations_orphaned_archive', $count_total);
 
   // Set the active database back to default.
   db_set_active();
@@ -262,7 +273,7 @@ function _signatures_queue_delete_orphaned_validations($queues_last_emptied, $wa
       ->fields('a', array(
         'vid',
         'secret_validation_key',
-        'timestamp_validated',
+        'timestamp_received_signature_validation',
         'timestamp_validation_close',
         'client_ip',
         'petition_id'))
@@ -350,9 +361,9 @@ function _signatures_queue_archive_processed_signatures($queues_last_emptied, $w
       'zip',
       'email',
       'signup',
-      'timestamp_validation_email_sent',
-      'timestamp_submitted',
-      'timestamp_processed'))
+      'timestamp_initiated_signature_validation',
+      'timestamp_received_new_signature',
+      'timestamp_processed_signature'))
     ->condition('timestamp_validation_close', $queues_last_emptied, '<');
 
   // Variable to count the results to determine how many rows will be moved.
@@ -371,11 +382,15 @@ function _signatures_queue_archive_processed_signatures($queues_last_emptied, $w
     $archived_count++;
   }
 
+  $count_signatures_processed_archive = db_select('signatures_processed_archive')->countQuery()->execute()->fetchField();
+  _signatures_queue_data_store_size_event('signatures_processed_archive', $count_signatures_processed_archive);
+
   // Log the number of successfully archived signatures.
   watchdog('signatures_queue', '@number records from signatures_processed table archived in signatures_processed_archive. These records represent either signatures correctly validated and counted before their corresponding petitions closed, or illegitimate submissions that were deliberately never. @suffix', array(
     '@number' => $archived_count,
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);
+  petitionslog_event('signatures_queue.data_store.signatures_processed_archive.item_added', 'count', $archived_count);
 
   // Set the active database back to default.
   db_set_active();
@@ -394,15 +409,18 @@ function _signatures_queue_delete_processed_signatures($queues_last_emptied, $wa
   signatures_queue_set_db();
 
   // Delete signatures that are no longer valid from the pending table.
-  $deleted_signatures = db_delete('signatures_processed')
+  $deleted_signatures = (int) db_delete('signatures_processed')
     ->condition('timestamp_validation_close', $queues_last_emptied, '<')
     ->execute();
+  $count_signatures_processed = db_select('signatures_processed')->countQuery()->execute()->fetchField();
+  _signatures_queue_data_store_size_event('signatures_processed', $count_signatures_processed);
 
   // Log the number of signatures deleted from signatures_processed.
   watchdog('signatures_queue', '@number records retrieved and deleted from signatures_processed. @suffix', array(
       '@number' => number_format($deleted_signatures),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
+  petitionslog_event('signatures_queue.data_store.signatures_processed.item_removed', 'count', $deleted_signatures);
 
   // Set the active database back to default.
   db_set_active();
@@ -444,11 +462,15 @@ function _signatures_queue_archive_processed_validations($queues_last_emptied, $
     $archived_count++;
   }
 
+  $count = db_select('validations_processed_archive')->countQuery()->execute()->fetchField();
+  _signatures_queue_data_store_size_event('validations_processed_archive', $count);
+
   // Log the number of successfully archived validations.
   watchdog('signatures_queue', '@number records archived in validations_processed_archive. These records represent either validations correctly matched to pending signatures and counted before their corresponding petitions closed, or illegitimate submissions that were deliberately never counted. @suffix', array(
     '@number' => $archived_count,
     '@suffix' => $watchdog_suffix,
   ), WATCHDOG_INFO);
+  petitionslog_event('signatures_queue.data_store.validations_processed_archive.item_added', 'count', $archived_count);
 
   // Set the active database back to default.
   db_set_active();
@@ -467,15 +489,19 @@ function _signatures_queue_delete_processed_validations($queues_last_emptied, $w
   signatures_queue_set_db();
 
   // Delete signatures that are no longer valid from the pending table.
-  $deleted_validations = db_delete('validations_processed')
+  $deleted_validations = (int) db_delete('validations_processed')
     ->condition('timestamp_validation_close', $queues_last_emptied, '<')
     ->execute();
+
+  $count = db_select('validations_processed')->countQuery()->execute()->fetchField();
+  _signatures_queue_data_store_size_event('validations_processed', $count);
 
   // Log the number of validations deleted from validations_processed.
   watchdog('signatures_queue', '@number records retrieved and deleted from validations_processed. These validations were correctly matched before their corresponding petitions closed. @suffix', array(
       '@number' => number_format($deleted_validations),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_INFO);
+  petitionslog_event('signatures_queue.data_store.validations_processed.item_removed', 'count', $deleted_validations);
 
   // Set the active database back to default.
   db_set_active();

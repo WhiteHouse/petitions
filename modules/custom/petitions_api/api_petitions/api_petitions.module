@@ -61,35 +61,36 @@ function api_petitions_services_resources() {
             'name' => 'created_before',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created before specified time. Accepts '
-                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
-                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
+            'description' => t('Filters results to display items created before specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
+              '@here' => 'http://www.unixtimestamp.com/',
+            )),
             'source' => array('param' => 'createdBefore'),
           ),
           array(
             'name' => 'created_after',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created after specified time. Accepts '
-                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
-                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
+            'description' => t('Filters results to display items created after specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
+              '@here' => 'http://www.unixtimestamp.com/',
+            )),
             'source' => array('param' => 'createdAfter'),
           ),
           array(
             'name' => 'created_at',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created at specified time. Accepts '
-                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
-                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
+            'description' => t('Filters results to display items created at specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
+              '@here' => 'http://www.unixtimestamp.com/',
+            )),
             'source' => array('param' => 'createdAt'),
           ),
           array(
             'name' => 'limit',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is @petitions_default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.',
-              array('@petitions_default_limit' => variable_get('api_petitions_index_max_limit', 1000))),
+            'description' => t('The maximum number of results that may be returned. E.g., to return results 10-20, an offset of 10 and limit of 10 would be passed. Maximum limit is @petitions_default_limit; developers who need historic data on all public petitions should consider using our bulk data download, described above.', array(
+              '@petitions_default_limit' => variable_get('api_petitions_index_max_limit', 1000),
+            )),
             'default value' => 10,
             'source' => array('param' => 'limit'),
           ),
@@ -264,27 +265,27 @@ function api_petitions_services_resources() {
             'name' => 'created_before',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created before specified time. Accepts '
-                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
-                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
+            'description' => t('Filters results to display items created before specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
+              '@here' => 'http://www.unixtimestamp.com/',
+            )),
             'source' => array('param' => 'createdBefore'),
           ),
           array(
             'name' => 'created_after',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created after specified time. Accepts '
-                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
-                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
+            'description' => t('Filters results to display items created after specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
+              '@here' => 'http://www.unixtimestamp.com/',
+            )),
             'source' => array('param' => 'createdAfter'),
           ),
           array(
             'name' => 'created_at',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created before specified time. Accepts '
-                             . 'Unix timestamp. (There\'s a handy unix timestamp converter '
-                             . '<a href="@here">here</a>.)', array('@here' => 'http://www.unixtimestamp.com/index.php')),
+            'description' => t('Filters results to display items created before specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
+              '@here' => 'http://www.unixtimestamp.com/',
+            )),
             'source' => array('param' => 'createdAt'),
           ),
           array(
@@ -347,7 +348,8 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     $developer_message = t("Class could not be instantiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
     $error_code = 83;
-    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-599', array('!url' => $website_url));
+    watchdog('api_petitions', $e->getMessage());
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
@@ -357,8 +359,8 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     $developer_message = t("Petition @petition_id not found.", array('@petition_id' => $petition_id));
     $user_message = t("The petition that you requested does not exist.", array('@petition_id' => $petition_id));
     $error_code = 84;
-    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
-    return api_errors_throw_error($status_code, $developer_message, $user_message);
+    $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-404', array('!url' => $website_url));
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
   $response_params = array(
@@ -373,7 +375,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 /**
  * Callback for Services petitions index method.
  */
-function _api_petitions_resource_index($is_public, $is_signable, $created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $responseAssociationTimeBefore, $mock) {
+function _api_petitions_resource_index($is_public, $is_signable, $created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $response_association_time_before, $mock) {
   global $base_url;
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
@@ -478,7 +480,7 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
   }
   // Throw error if resource cannot be accessed.
   catch (Exception $e) {
-    $data = (method_exists($e, 'getData')) ? $e->getData() : array() ;
+    $data = (method_exists($e, 'getData')) ? $e->getData() : array();
     if (!$e->getCode()) {
       // There is no specified status code so make one up.
       $status_code = 599;
@@ -501,6 +503,10 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
  * Callback for Services petitions signatures relationship method.
  */
 function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $country, $created_before, $created_after, $created_at, $limit, $offset, $mock) {
+  global $base_url;
+
+  $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
+
   // Return mock response.
   if ($mock) {
     $response = json_decode(_api_petitions_mock_response('load_signatures'));
@@ -538,7 +544,7 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
     $developer_message = t("Class could not be instantiated.");
     $user_message = t("The resource that you requested is temporarily unavailable.");
     $error_code = 83;
-    $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
+    $more_info = t('See the documentation: !url/developers#petitions-signatures-error-599', array('!url' => $website_url));
     watchdog('api_petitions', $e->getMessage());
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
@@ -553,9 +559,10 @@ function _api_petitions_retrieve_doc() {
     '#path' => '/petitions/{petition_id}',
     '#weight' => 2,
     '#description' => t('Returns a petition matching the petition id.'),
-    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50cb6d2ba9a0b1c52e000017.json', array('absolute' => TRUE)),
+    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50a3fd762f2c88cd65000015.json', array('absolute' => TRUE)),
     '#response' => _api_petitions_mock_response('retrieve'),
     '#example_implementations_bundles' => _api_petitions_retrieve_doc_example_implementations_bundles(),
+    '#errors' => _api_petitions_retrieve_doc_errors(),
   );
 
   return $element;
@@ -593,6 +600,26 @@ function _api_petitions_retrieve_doc_example_implementations() {
 }
 
 /**
+ * Documentation callback for errors related to the retrieve method.
+ */
+function _api_petitions_retrieve_doc_errors() {
+  $errors = array(
+    '404' => array(
+      '#question' => t('What happens if an invalid petition ID is requested?'),
+      '#description' => t('If the request specifies an invalid petition ID, what will the response look like?'),
+      '#response' => _api_petitions_mock_response('retrieve404'),
+    ),
+    '599' => array(
+      '#question' => t('What happens in case of server error?'),
+      '#description' => t('If the request fails due to a server problem, what will the response look like?'),
+      '#response' => _api_petitions_mock_response('retrieve599'),
+    ),
+  );
+
+  return $errors;
+}
+
+/**
  * Documentation callback for index method.
  */
 function _api_petitions_index_doc() {
@@ -603,11 +630,28 @@ function _api_petitions_index_doc() {
     '#description' => t('Returns a list of petitions, individual petitions, and signatures attached to an individual petition. Unsupported non-Latin characters are replaced with an "x".
 
 Limits: 10 requests per second. Developers who need historic data on all public petitions should consider using our bulk data download, described above.'),
-    '#request_url' => variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions.json?limit=3&offset=0',
+    '#request_url' => variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions.json?limit=3&offset=0&createdBefore=1352924535',
     '#response' => _api_petitions_mock_response('index'),
+    '#errors' => _api_petitions_index_doc_errors(),
   );
 
   return $element;
+}
+
+/**
+ * Documentation callback for errors related to the index method.
+ */
+function _api_petitions_index_doc_errors() {
+  // @todo Have all possible errors been captured?.
+  $errors = array(
+    '599' => array(
+      '#question' => t('What happens in case of an unknown error?'),
+      '#description' => t('If the request fails due to an unpredicted problem, what will the response look like?'),
+      '#response' => _api_petitions_mock_response('index599'),
+    ),
+  );
+
+  return $errors;
 }
 
 /**
@@ -619,12 +663,28 @@ function _api_petitions_load_signatures_doc() {
     '#path' => '/petitions/{petition_id}/signatures',
     '#weight' => 3,
     '#description' => t('Display signatures attached to a petition. Unsupported non-Latin characters are replaced with an "x".'),
-    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50cb6d2ba9a0b1c52e000017/signatures.json?limit=16&offset=0', array('absolute' => TRUE)),
+    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions/50a3fd762f2c88cd65000015/signatures.json?limit=16&offset=0', array('absolute' => TRUE)),
     '#response' => _api_petitions_mock_response('load_signatures'),
+    '#errors' => _api_petitions_load_signatures_doc_errors(),
     '#verb' => 'GET',
   );
 
   return $element;
+}
+
+/**
+ * Documentation callback for errors related to the signatures relationship.
+ */
+function _api_petitions_load_signatures_doc_errors() {
+  $errors = array(
+    '599' => array(
+      '#question' => t('What happens in case of server error?'),
+      '#description' => t('If the request fails due to a server problem, what will the response look like?'),
+      '#response' => _api_petitions_mock_response('load_signatures599'),
+    ),
+  );
+
+  return $errors;
 }
 
 /**
@@ -636,12 +696,28 @@ function _api_petitions_mock_response($method) {
       $file = 'api_petitions_index.response.json';
       break;
 
+    case 'index599':
+      $file = 'api_petitions_index.response599.json';
+      break;
+
     case 'retrieve':
       $file = 'api_petitions_retrieve.response.json';
       break;
 
+    case 'retrieve404':
+      $file = 'api_petitions_retrieve.response404.json';
+      break;
+
+    case 'retrieve599':
+      $file = 'api_petitions_retrieve.response599.json';
+      break;
+
     case 'load_signatures':
       $file = 'api_petitions_load_signatures.response.json';
+      break;
+
+    case 'load_signatures599':
+      $file = 'api_petitions_load_signatures.response599.json';
       break;
 
   }

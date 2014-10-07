@@ -1,0 +1,4 @@
+name = Petitions Mongo2MySql integrity
+description = Prevents admins from editing petitions outside of our workflow.
+core = 7.x
+package = Petitions

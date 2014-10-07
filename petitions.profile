@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @file
+ * Enables modules and site configuration for a Petitions site installation.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function petitions_form_install_configure_form_alter(&$form, &$form_state, $form_id) {
   $form['site_information']['site_name']['#default_value'] = $_SERVER['SERVER_NAME'];
   $form['admin_account']['account']['name']['#default_value'] = 'admin';
@@ -8,7 +16,7 @@ function petitions_form_install_configure_form_alter(&$form, &$form_state, $form
 }
 
 /**
- * Implementation of hook_profile_form_alter().
+ * Implements hook_profile_form_alter().
  */
 function petitions_form_alter(&$form, $form_state, $form_id) {
   if ($form_id == 'install_configure_form') {
@@ -49,6 +57,6 @@ Stop here. If you have not done this yet, add the settings below to settings.php
   'petition_response' => 'petition_tool_response',
   'petition_signatures' => 'petition_tool_signatures',
 );</pre>";
-   drupal_set_message($text);
+    drupal_set_message($text);
   }
 }

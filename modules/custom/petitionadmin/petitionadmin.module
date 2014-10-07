@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file
+ * Admin functionality for Petitions.
+ */
+
+module_load_include('inc', 'petitionadmin', 'petitionadmin.views_default');
+
+/**
+ * Implements hook_views_api().
+ */
+function petitionadmin_views_api() {
+  return array("version" => "3.0");
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function petitionadmin_menu_alter(&$items) {
+  $deny_access = shunt_is_enabled('petition_mysql_save');
+  if ($deny_access) {
+    unset($items['admin/moderation-tools']);
+  }
+}
+
+/**
+ * Implements hook_form_id_alter().
+ */
+function petitionadmin_form_views_form_petitions_moderation_tools_alter(&$form, &$form_state, $form_id) {
+  $form['select']['submit']['#value'] = t('Next');
+}

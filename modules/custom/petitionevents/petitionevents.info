@@ -1,0 +1,5 @@
+name = Petition Events
+description = Contains functionality related to events fired around petitions.
+core = 7.x
+package = Petitions
+dependencies[] = petition

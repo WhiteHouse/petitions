@@ -317,7 +317,7 @@ function api_key_manager_views_default_views() {
   $handler->display->display_options['filters']['field_api_key_manager_status_value']['table'] = 'field_data_field_api_key_manager_status';
   $handler->display->display_options['filters']['field_api_key_manager_status_value']['field'] = 'field_api_key_manager_status_value';
   $handler->display->display_options['filters']['field_api_key_manager_status_value']['value'] = array(
-    'pending' => 'pending',
+    'approved' => 'approved',
   );
   $handler->display->display_options['filters']['field_api_key_manager_status_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_api_key_manager_status_value']['expose']['operator_id'] = 'field_api_key_manager_status_value_op';

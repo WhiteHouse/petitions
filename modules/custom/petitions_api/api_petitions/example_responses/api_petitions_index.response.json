@@ -2,7 +2,10 @@
   "metadata": {
     "responseInfo": {
       "status": 200,
-      "developerMessage": "OK"
+      "developerMessage": "OK",
+      "userMessage": "",
+      "errorCode": "",
+      "moreInfo": ""
     },
     "requestInfo": {
       "apiVersion": 1,
@@ -11,14 +14,14 @@
         "body": null,
         "createdAfter": null,
         "createdAt": null,
-        "createdBefore": null,
+        "createdBefore": "1352924535",
         "isPublic": 1,
         "isSignable": null,
-        "limit": 10,
-        "mock": null,
-        "offset": 0,
-        "petitionsDefaultLimit": "1000",
-        "publicThreshold": 1,
+        "limit": "3",
+        "mock": 0,
+        "offset": "0",
+        "petitionsDefaultLimit": 1000,
+        "publicThreshold": 149,
         "responseId": null,
         "signatureCount": null,
         "signatureCountCeiling": null,
@@ -29,93 +32,108 @@
         "status": null,
         "title": null,
         "url": null,
-        "website_url": "https://petitions.whitehouse.gov"
+        "websiteUrl": "https://petitions.whitehouse.gov"
       }
     },
     "resultset": {
-      "count": 4,
-      "limit": 10,
+      "count": 809,
+      "limit": 3,
       "offset": 0
-    },
-    "executionTime": 0.004933119
+    }
   },
   "results": [
     {
-      "id": "50cb6d2ba9a0b1c52e000017",
+      "id": "50a3fd762f2c88cd65000015",
       "type": "petition",
-      "title": "Immediately address the issue of gun control through the introduction of legislation in Congress.",
-      "body": "The goal of this petition is to force the Obama Administration to produce legislation that limits access to guns. While a national dialogue is critical, laws are the only means in which we can reduce the number of people murdered in gun related deaths. Powerful lobbying groups allow the ownership of guns to reach beyond the Constitution's intended purpose of the right to bear arms. Therefore, Congress must act on what is stated law, and face the reality that access to firearms reaches beyond what the Second Amendment intends to achieve. The signatures on this petition represent a collective demand for a bipartisan discussion resulting in a set of laws that regulates how a citizen obtains a gun.",
+      "title": "Secure resources and funding, and begin construction of a Death Star by 2016.",
+      "body": "Those who sign here petition the United States government to secure funding and resources, and begin construction on a Death Star by 2016.\r\n\r\nBy focusing our defense resources into a space-superiority platform and weapon system such as a Death Star, the government can spur job creation in the fields of construction, engineering, space exploration, and more, and strengthen our national defense.\r\n\r\n",
       "issues": [
         {
-          "id": "4",
-          "name": "Civil Rights and Liberties"
+          "id": "12",
+          "name": "Defense"
         },
         {
-          "id": "22",
-          "name": "Firearms"
+          "id": "97",
+          "name": "Job Creation"
+        },
+        {
+          "id": "139",
+          "name": "Science and Space Policy"
         }
       ],
       "signatureThreshold": 25000,
-      "signatureCount": 197073,
+      "signatureCount": 34435,
       "signaturesNeeded": 0,
-      "url": "https://petitions.whitehouse.gov/petition/immediately-address-issue-gun-control-through-introduction-legislation-congress/2tgcXzQC",
-      "deadline": 1358101035,
+      "url": "https://petitions.whitehouse.gov/petition/secure-resources-and-funding-and-begin-construction-death-star-2016/wlfKzFkN",
+      "deadline": 1355516534,
       "status": "responded",
       "response": {
-        "id": "681",
-        "url": "https://petitions.whitehouse.gov/response/message-president-obama-about-your-petition-reducing-gun-violence",
-        "associationTime": "1355963976"
+        "id": "716",
+        "url": "https://petitions.whitehouse.gov/response/isnt-petition-response-youre-looking",
+        "associationTime": "1357944472"
       },
-      "created": 1355509035
+      "created": 1352924534,
+      "isSignable": false,
+      "isPublic": true
     },
     {
-      "id": "alphanumericString",
+      "id": "50a3ee296ce61c7f7100000b",
       "type": "petition",
-      "title": "Petition Title",
-      "body": "Petition Body.",
+      "title": "Ban the practice of circumcising individuals under the age of 18.",
+      "body": "Circumcision is a barbaric tribal practice that amounts to child abuse. Before any individual under go any permanent body modification such as tattooing or sex reassignment surgery they must be considered old enough to understand the consequences. You cannot understand the ramifications of this act to your physical being until after puberty, when your genitals have fully developed. ",
       "issues": [
         {
           "id": "4",
           "name": "Civil Rights and Liberties"
         },
         {
-          "id": "22",
-          "name": "Firearms"
-        }
-      ],
-      "signatureThreshold": 100000,
-      "signatureCount": 90000,
-      "signaturesNeeded": 10000,
-      "url": "https://petitions.whitehouse.gov/petition/petition-title/alphanumericString",
-      "deadline": 1363323600,
-      "status": "open",
-      "response": null,
-      "created": 1360908000
-    },
-    {
-      "id": "alphanumericString",
-      "type": "petition",
-      "title": "Petition Title",
-      "body": "Petition Body.",
-      "issues": [
-        {
-          "id": "4",
-          "name": "Civil Rights and Liberties"
+          "id": "25",
+          "name": "Health Care"
         },
         {
-          "id": "22",
-          "name": "Firearms"
+          "id": "28",
+          "name": "Human Rights"
         }
       ],
-      "signatureThreshold": 100000,
-      "signatureCount": 110000,
-      "signaturesNeeded": 0,
-      "url": "https://petitions.whitehouse.gov/petition/petition-title/alphanumericString",
-      "deadline": 1363323600,
-      "status": "pending response",
+      "signatureThreshold": 25000,
+      "signatureCount": 3085,
+      "signaturesNeeded": 21915,
+      "url": "https://petitions.whitehouse.gov/petition/ban-practice-circumcising-individuals-under-age-18/DbCyTjRH",
+      "deadline": 1355512617,
+      "status": "closed",
       "response": null,
-      "created": 1360908000,
-      "isSignable": true,
+      "created": 1352920617,
+      "isSignable": false,
+      "isPublic": true
+    },
+    {
+      "id": "50a3e438adfd95740f000011",
+      "type": "petition",
+      "title": "Remove HEMP (Non-Psychoactive Cannabis) from the Federal governments banned substance list. Make it Legal to Grow in USA",
+      "body": "There is no reason for it to be illegal. It won't make you high. It is Not Marijuana, and it alone could make enough oil to free the nation. Hemp is the most versatile plant in the Universe, its strong enough to make rope, and diverse enough to make oil. This plant will grow almost everywhere with very little maintenance and without watering.And it is insect resistant naturally. It grows quickly and the steps to turn it into gasoline are very simple. We could replace our need for anything other than hemp in a matter of Months, not years.\r\n\r\nFuel:\r\n\r\n* Hemp can produce 10 times more methanol than corn. \r\n* Hemp is Earth's number-one biomass resource; it is capable of producing 10 tons per acre in four months.\r\n",
+      "issues": [
+        {
+          "id": "1",
+          "name": "Agriculture"
+        },
+        {
+          "id": "3",
+          "name": "Budget and Taxes"
+        },
+        {
+          "id": "20",
+          "name": "Environment"
+        }
+      ],
+      "signatureThreshold": 25000,
+      "signatureCount": 5091,
+      "signaturesNeeded": 19909,
+      "url": "https://petitions.whitehouse.gov/petition/remove-hemp-non-psychoactive-cannabis-federal-governments-banned-substance-list-make-it-legal-grow/yr51rXsx",
+      "deadline": 1355510072,
+      "status": "closed",
+      "response": null,
+      "created": 1352918072,
+      "isSignable": false,
       "isPublic": true
     }
   ]

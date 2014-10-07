@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "responseInfo": {
+      "status": "599",
+      "developerMessage:": "Class could not be instantiated.",
+      "userMessage": "The resource that you requested is temporarily unavailable.",
+      "errorCode": "83",
+      "moreInfo": "See the documentation: https://petitions.whitehouse.gov/developers#petitions-retrieve-error-599"
+    }
+  }
+}

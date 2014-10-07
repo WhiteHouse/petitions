@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  */
@@ -16,18 +17,8 @@ function wh_response_install() {
 }
 
 /**
- * Implements hook_update_N().
+ * Implements hook_update_last_removed().
  */
-function wh_response_update_7001() {
-  // Set the weight to 2 (must be after pathauto)
-  db_update('system')
-    ->fields(array('weight' => 2))
-    ->condition('type', 'module')
-    ->condition('name', 'wh_response')
-    ->execute();
+function wh_response_update_last_removed() {
+  return 7001;
 }
- 
- 
-
- 
- 

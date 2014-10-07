@@ -36,6 +36,24 @@ function api_key_manager_menu() {
 }
 
 /**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function api_key_manager_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Add action link to 'node/add/key' on 'admin/petitions/api-keys' page.
+  if ($root_path == 'admin/petitions/api-keys') {
+    $item = menu_get_item('node/add/key');
+    $item['title'] = t('Create API key');
+    $item['localized_options']['query'] = drupal_get_destination();
+    if ($item['access']) {
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+      );
+    }
+  }
+}
+
+/**
  * Gets an API Key.
  *
  * The API Key node object is cached indefinitely to prevent return trips to the

@@ -56,11 +56,52 @@ function _api_signatures_create_doc() {
     '#path' => '/signatures',
     '#weight' => 2,
     '#description' => t('Send an independently gathered signature to a petition.'),
-    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/signatures', array('absolute' => TRUE)),
+    '#request_url' => url(variable_get('petitions_data_petitions_api_url', '') . '/v1/signatures.json?api_key=asY1k9uCQY7Hg8MCBaa', array('absolute' => TRUE)),
     '#request_data' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.request.json'),
     '#response' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.response.json'),
+    '#errors' => _api_signatures_create_doc_errors(),
     '#auth' => TRUE,
   );
 
   return $element;
+}
+
+/**
+ * Documentation callback for errors related to the create method.
+ */
+function _api_signatures_create_doc_errors() {
+  global $base_url;
+  $errors = array(
+    // 400
+    SIGNATURES_QUEUE_STATUS_BAD_REQUEST => array(
+      '#question' => t("What happens if my submission does not include all the required fields?"),
+      '#description' => t("I am building a web application that will post petition signatures via the write API. I can definitely foresee a scenario where all of the required fields were not gathered. If I am trying to post a signature via the API at http://api.whitehouse.gov/v1/signatures that does not contain all of the required fields, will I get an error response?"),
+      '#response' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.response400.json'),
+    ),
+    '401' => array(
+      '#question' => t("What happens when I pass an invalid API key with my request?"),
+      '#description' => t("I am building a web application that will submit signatures via the write API and confirm that signatures have been validated via the validations resource. If I pass an invalid API key with my request, will I get a response?"),
+      '#response' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.response401.json'),
+    ),
+    // 403.
+    SIGNATURES_QUEUE_STATUS_FORBIDDEN => array(
+      '#question' => t("What happens when I try to sign a petition that is closed?"),
+      '#description' => t("I am building a web application that will post petition signatures via the write API. If I am trying to post a signature via the API at http://api.whitehouse.gov/v1/signatures to a petition that is more then 30 days old and has since been closed, will I get a response? If so, is there a different response if the petition was closed prior to the 30 days?"),
+      '#response' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.response403.json'),
+    ),
+    // 404.
+    SIGNATURES_QUEUE_STATUS_NOT_FOUND => array(
+      '#question' => t("What happens when I try to sign a petition that doesn't exist?"),
+      '#description' => t("I am building a web application that will post petition signatures via the write API. If I am trying to post a signature via the API at http://api.whitehouse.gov/v1/signatures for a petition that does not actually exist, will I get an error response?"),
+      '#response' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.response404.json'),
+    ),
+    // 500.
+    SIGNATURES_QUEUE_STATUS_SERVER_ERROR => array(
+      '#question' => t("What happens when the API service is not available?"),
+      '#description' => t("I am building a web application that will post petition signatures via the write API. If I am trying to post a signature via the API at http://api.whitehouse.gov/v1/signatures and the service is down, will I get a response?"),
+      '#response' => file_get_contents(__DIR__ . '/examples/' . 'api_signatures_create.response500.json'),
+    ),
+  );
+
+  return $errors;
 }

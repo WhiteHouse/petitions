@@ -3,4 +3,3 @@ description = Implements shunts for the Petitions API to disable resources witho
 core = 7.x
 package = Petitions API
 dependencies[] = api_errors
-dependencies[] = shunt

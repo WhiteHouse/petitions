@@ -19,16 +19,8 @@ function petition_mongo2mysql_save($mongodb_petition) {
   // Lets make the _id plain to make our life easier.
   $mongodb_petition['id'] = $mongodb_petition['_id']->__toString();
 
-  // If we are dealing with an already existing petition, let's load it.
-  $query = new EntityFieldQuery();
-  $query->entityCondition("entity_type", "node");
-  $query->entityCondition("bundle", "petition");
-  $query->fieldCondition("field_legacy_id", "value", $mongodb_petition['id'], "=");
-  $results = $query->execute();
-
-  if (!empty($results)) {
-    $info = array_shift($results['node']);
-    $nid = $info->nid;
+  // If petition already exists, load it.
+  if ($nid = petition_get_nid($mongodb_petition['id'])) {
     $node = node_load($nid);
   }
   // Otherwise, create a new one.
@@ -39,13 +31,7 @@ function petition_mongo2mysql_save($mongodb_petition) {
     $node = entity_create('node', $node_array);
   }
 
-  // Also, unless it is explicitely set, this node is not published.
-  if (!empty($mongodb_petition['published'])) {
-    $node->status = 1;
-  }
-  else {
-    $node->status = 0;
-  }
+  $node->status = (petition_mongo2mysql_is_mongo_published($mongodb_petition)) ? 1 : 0;
 
   // The node properties we are interested in are: type, title, uid, status,
   // created, and changed.
@@ -241,4 +227,46 @@ function petition_shunt() {
   return array(
     'petition_mysql_save' => t('Disable petition writes to MySQL.'),
   );
+}
+
+/**
+ * Checks to see if a mongo_petition is published.
+ *
+ * Determining if the published/unpublished state of a mongo petition is
+ * surprisingly complex.
+ *
+ * @param array $mongo_petition
+ *   A Mongo petition--NOT a MySQL petition.
+ *
+ * @return bool
+ *   Returns TRUE if the mongo petition published. FALSE otherwise.
+ */
+function petition_mongo2mysql_is_mongo_published(array $mongo_petition) {
+  $was_published = isset($mongo_petition['published']);
+  $is_published = !in_array($mongo_petition['petition_status'], wh_petitions_unpublished_statuses());
+
+  if ($was_published && !$is_published) {
+    return FALSE;
+  }
+  elseif ($was_published && $is_published) {
+    return TRUE;
+  }
+  else {
+    // $was_published is FALSE, $is_published is TRUE. This shouldn’t be
+    // possible.
+    watchdog("Mongo2Mysql", "Encountered a petition with an indeterminate published state.");
+  }
+}
+
+
+/**
+ * Function to load an individual mongo petition from a URL.
+ *
+ * @param string $url
+ *   URL for the current petition.
+ */
+function petition_load_mongo2mysql_from_url($url) {
+  $conn = wh_petitions_mongo_petition_connection();
+  $petition = $conn->findOne(array('nice_url' => $url), array('title'));
+  return $petition;
 }

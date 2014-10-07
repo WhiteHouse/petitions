@@ -132,6 +132,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       'short_url',
       'closed',
       'created',
+      'published',
       'petition_status',
       'review_timeframe',
       'response_id',
@@ -165,7 +166,8 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
         ->setReviewTimeframe($doc['review_timeframe'])
         ->setStatus($doc['petition_status'])
         ->setResponse(isset($doc['response_id']) ? $this->formatReturnResponse($doc['response_id']) : NULL)
-        ->setCreated($doc['created']);
+        ->setCreated($doc['created'])
+        ->setPublished($doc['published']);
 
       $results[] = $petition->toArray();
     }

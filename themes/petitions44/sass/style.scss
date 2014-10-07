@@ -1913,7 +1913,8 @@ h2.active {
 }
 
 #petition-inner .block-petitionssignatureform form label,
-#petition-inner .block-petitionssignatureform form .privacy-legend {
+#petition-inner .block-petitionssignatureform form .privacy-container,
+#petition-inner .block-petitionssignatureform form .note-container {
   padding: 0;
   color: #7a7a7a;
 }
@@ -1922,21 +1923,27 @@ h2.active {
   margin: 0;
 }
 
-#petition-inner .block-petitionssignatureform form .privacy-legend {
+#petition-inner .block-petitionssignatureform form .privacy-container {
+  margin: 0 0 0 0;
+}
+
+#petition-inner .block-petitionssignatureform form .note-container {
   margin: 1em 0 0 0;
 }
 
-#petition-inner .block-petitionssignatureform form .privacy-legend a {
+#petition-inner .block-petitionssignatureform form .privacy-legend a,
+#petition-inner .block-petitionssignatureform form .note-container a {
   color: #004990;
 }
 
 #petition-inner .block-petitionssignatureform form .form-type-checkbox label {
   display: inline;
   font-weight: normal;
+  line-height: 1.5;
 }
 
 #petition-inner .block-petitionssignatureform form .form-text {
-  max-width: 100%;
+  max-width: 201px;
   border: 1px solid #cbcbcb;
   height: 2em;
 }
@@ -1968,6 +1975,7 @@ h2.active {
 
 #petition-inner .block-petitionssignatureform .toggle-container {
   background: none;
+  padding: 0px 15px 10px 15px;
 }
 
 #petition-inner .block-petitionssignatureform h2,
@@ -1978,11 +1986,17 @@ h2.active {
 
 #petition-inner .block-petitionssignatureform h2.trigger {
   border-bottom: none;
+  padding-top: 6px;
 }
 
 #petition-inner .block-petitionssignatureform h2 a,
-#petition-inner .block-petitionssignatureform h2.active a {
+#petition-inner .block-petitionssignatureform h2.active a{
   color: #323232;
+  font-size: 1.5em;
+}
+
+#petition-inner .block-petitionssignatureform .thank-you h2, {
+  color: #8C0402;
   font-size: 1.5em;
 }
 
@@ -1990,7 +2004,6 @@ h2.active {
   color: #8C0402;
   font-size: 105%;
   font-weight: normal;
-  text-transform: uppercase;
 }
 
 /****** Individual Petition Page ******/
@@ -4757,7 +4770,9 @@ text-transform:uppercase;
                 .method-arguments .title,
                 .method-request .request-title,
                 .method-response .response-title,
-                .implementations .implementations-title {
+                .implementations .implementations-title,
+                .method-errors .title
+                {
                   background: #0F3E72;
                   padding: 5px 5px;
                   color: white;
@@ -4771,7 +4786,8 @@ text-transform:uppercase;
                 .method-request .request-url,
                 .method-request .request-body,
                 .method-response .response-body,
-                .implementations .implementation-bundle .implementation {
+                .implementations .implementation-bundle .implementation,
+                .method-errors. method-error {
                   border: 1px solid #f2f3f5;
                   padding: 5px 5px;
                 }
@@ -4816,11 +4832,26 @@ text-transform:uppercase;
 
                 // Areas expected to contain <pre> tags.
                 .method-request .request-body,
-                .method-response .response-body {
+                .method-response .response-body,
+                .method-error .method-error-response {
                   background: #F2F3F5;
                   word-wrap: normal;
                   white-space: pre;
                   overflow: auto;
+                }
+
+                // Errors.
+                .method-error {
+                  .method-error-detail {
+                    .method-error-question {
+                      h6 {
+                        margin: 0;
+                      }
+                    }
+                    .method-error-description {
+                      font-style: italic;
+                    }
+                  }
                 }
 
                 // Implementations.

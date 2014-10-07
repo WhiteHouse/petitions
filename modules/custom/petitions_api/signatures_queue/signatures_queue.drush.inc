@@ -11,6 +11,11 @@
 function signatures_queue_drush_command() {
   $items = array();
 
+  $items['signatures-queue-queue-list'] = array(
+    'description' => 'Check the status of the signature queues.',
+    'aliases' => array('sqql'),
+  );
+
   $items['signatures-queue-invoke-workflow'] = array(
     'aliases' => array('sqiw'),
     'callback' => 'drush_signatures_queue_invoke_workflow',
@@ -31,6 +36,7 @@ function signatures_queue_drush_command() {
       'signatures_queue',
     ),
   );
+
   $items['signatures-queue-check-empty'] = array(
     'callback' => 'drush_signatures_queue_check_empty',
     'description' => 'Checks for empty signatures queues and logs timestamp if queue is empty.',
@@ -64,6 +70,48 @@ function signatures_queue_drush_help($section) {
     case 'meta:signatures_queue:title':
       return dt('Signature queue Drush commands');
   }
+}
+
+/**
+ * Implements drush_hook_COMMAND().
+ */
+function drush_signatures_queue_queue_list() {
+  // All this would be much cleaner using output formats, but it has to work on
+  // Drush 5.
+  $column_width = 36;
+
+  drush_print(dt('Queue @space Items', array(
+    '@space' => str_pad('', $column_width - 5),
+  )));
+
+  signatures_queue_set_db();
+
+  $queue_names = array_keys(signatures_queue_get_queue_names());
+  foreach ($queue_names as $queue_name) {
+    // The "queue" is a literal queue.
+    if (SignaturesQueue::isValidQueueName($queue_name)) {
+      // Make sure the queue exists before trying to interact with it.
+      $queue = SignaturesQueue::get($queue_name);
+      $queue->createQueue();
+      $count = (int) $queue->numberOfItems();
+    }
+    // The "queue" is actually a database table.
+    else {
+      // Ignore tables that aren't in the "signatures_processing" database.
+      if (!db_table_exists($queue_name)) {
+        continue;
+      }
+
+      $count = (int) db_select($queue_name)->countQuery()->execute()->fetchField();
+    }
+
+    drush_print(dt('@queue_name..@count', array(
+      '@queue_name' => str_pad($queue_name, $column_width, '.'),
+      '@count' => number_format($count),
+    )));
+  }
+
+  db_set_active();
 }
 
 /**

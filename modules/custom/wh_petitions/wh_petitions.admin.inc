@@ -395,18 +395,20 @@ function wh_petitions_admin_petition_settings() {
     '#type' => 'textarea',
     '#title' => t('Text for the email sent when a petition receives enough signatures to pass the compliance review threshold.'),
     '#description' => '',
-    '#default_value' => variable_get('wh_petitions_review_threshold_passed_text', 'The petition titled "!petition_title" has passed the number of signatures necessary for compliance review.
+    '#default_value' => variable_get('wh_petitions_review_threshold_passed_text', "The petition titled \"!petition_title\" has passed the number of signatures necessary for compliance review.
 
-You can review and, if necessary, remove this petition at the following URL: !petition_edit_link
-    '),
+You can review the petition here:<br />!petition_remove_link
+
+=================
+
+TITLE:
+!petition_title
+
+BODY:
+!petition_body
+
+================="),
     '#required' => TRUE,
-  );
-  $form['petition_admin']['wh_petitions_admin_removal_notification_emails'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Petition Removal Notification Email Addresses'),
-    '#description' => t('Enter a comma-separated list of email addresses which should received notices when a petition is removed.'),
-    '#default_value' => variable_get('wh_petitions_admin_removal_notification_emails', ''),
-    '#required' => FALSE,
   );
 
   // Settings related to petition administration.
@@ -985,10 +987,28 @@ function wh_petitions_admin_petitions() {
       $featured = '<div id="featured-' . check_plain($id) . '" class="featured" style="display:inline;cursor:pointer;"><a>' . t('Un-Feature') . '</a></div>';
     }
 
-    // Flag ( Remove from Site )
-    $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a>' . t('Remove from Site') . '</a></div>';
-    if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
-      $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a>' . t('Enable on Site') . '</a></div>';
+    if (shunt_is_enabled('petition_mysql_save')) {
+      // Flag ( Remove from Site )
+      $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a href="/remove-mongo-petition?petition_id=' . $id . '">' . t('Remove from Site') . '</a></div>';
+      if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
+        $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a>' . t('Enable on Site') . '</a></div>';
+      }
+    }
+
+    else {
+      // Flag ( Remove from Site )
+      $node = petition_load_from_legacy_id($id);
+
+      $nid = "";
+      if (!empty($node)) {
+        $nid = $node->nid;
+      }
+
+      $text = ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) ? t('Enable via MySQL') : t('Disable via MySQL');
+      $link = l($text, 'admin/moderation-tools', array(
+        'query' => array('nid' => $nid),
+      ));
+      $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;">' . $link . '</div>';
     }
 
     $action_string = $bookmark . ' | ' . $featured . ' | ' . $hidden_link;
@@ -1041,8 +1061,8 @@ function wh_petitions_admin_petitions() {
     $markup .= '<fieldset class="container-inline fieldset titled">';
     $markup .= '<legend><span class="fieldset-title fieldset-legend">' . t('Petition Creator') . '</span></legend>';
     $markup .= '<div class="fieldset-content fieldset-wrapper clearfix">';
-    $markup .= '<p>' . t('Name (UID): ') . l($creator_name_id, 'user/' . $creator->uid) . '</p>';
-    $markup .= '<p>' . t("Email: ") . $creator->mail . '</p>';
+    $markup .= '<p>' . t('Name (UID): !link', array('!link' => l($creator_name_id, "user/{$creator->uid}"))) . '</p>';
+    $markup .= '<p>' . t("Email: @email", array('@email' => $creator->mail)) . '</p>';
     $markup .= '</div>';
     $markup .= '</fieldset>';
 
@@ -1068,6 +1088,12 @@ function wh_petitions_admin_petitions() {
       '#type' => 'markup',
       '#markup' => $markup,
     );
+  }
+
+  if (!shunt_is_enabled('petition_mysql_save')) {
+    drupal_set_message(t('MySQL based petitions are enabled, and using this page will introduce inconsistencies between Mongo- and MySQL-based petitions.<br />We recommend that you use the new <a href="@link">MySQL-based petitions moderation tools</a> to keep petitions in sync.', array(
+      '@link' => url('admin/moderation-tools'),
+    )), 'warning');
   }
 
   $form['#submit'][] = 'wh_petitions_admin_petitions_submit';
@@ -1367,40 +1393,22 @@ function wh_petitions_remove_lists($petition_id) {
     $conn = wh_petitions_mongo_petition_connection();
     $petition = array();
     $petition = wh_petitions_load_petition($conn, $petition_id);
+
+    // Don't love this logic for determining if something should be
+    // published/unpublished. However, since it will go away with mongo we can
+    // tolerate it for now.
+
     if ($petition['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
-      // Check to see what Status it should have.
-      $timestamp = strtotime('- ' . $petition['review_timeframe'] . ' days');
-
-      if ($petition['published'] < $timestamp) {
-        $petition['petition_status'] = WH_PETITION_STATUS_CLOSED;
-      }
-      elseif ($petition['signature_count'] < $petition['public_signatures']) {
-        $petition['petition_status'] = WH_PETITION_STATUS_PRIVATE;
-      }
-      elseif ($petition['signature_count'] < $petition['response_signatures']) {
-        $petition['petition_status'] = WH_PETITION_STATUS_PUBLIC;
-      }
-      elseif ($petition['signature_count'] >= $petition['response_signatures']) {
-        $petition['petition_status'] = WH_PETITION_STATUS_UNDER_REVIEW;
-        $petition['response_status'] = WH_PETITION_RESPONSE_STATUS_PENDING;
-      }
-
-      wh_petitions_save_petition($conn, $petition);
-      $text = t('Remove from Site');
+      $petition = wh_petitions_mongo2mysql_publish($petition_id);
+      $link = l(t('Remove from site'), 'remove-mongo-petition', array(
+        'query' => array('petition_id' => $petition_id),
+      ));
     }
     else {
-      // Set the status on the object to match what we're about
-      // to set in the database record.
-      $petition['petition_status'] = WH_PETITION_STATUS_FLAGGED;
-
-      wh_petitions_save_petition($conn, $petition);
-      $text = t('Enable on Site');
+      drupal_goto('remove-mongo-petition', array(
+        'query' => array('petition_id' => $petition_id),
+      ));
     }
-    // Log the activity to the admin_log collection.
-    wh_petitions_admin_log($user, 'petition', $petition);
-
-    // Send removal notification.
-    wh_petitions_removal_notification($user, $petition);
 
     // Now that PHP is done with the petition, convert some
     // of the attribute values to text so JS can display them easier.
@@ -1413,7 +1421,7 @@ function wh_petitions_remove_lists($petition_id) {
       array(
 
         // The text of the link for the remove-lists div.
-        'link' => '<a>' . $text . '</a>',
+        'link' => $link,
 
         // A representation of the petition for JS to display.
         'petition' => $petition,
@@ -1447,7 +1455,6 @@ function wh_petitions_response_autocomplete($string = '') {
 
   drupal_json_output($matches);
 }
-
 
 /**
  * Generate a csv list of signatures on the given petition.

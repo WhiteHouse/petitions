@@ -8,7 +8,7 @@ core = 7.x
 ;    @see http://drupal.org/node/972536
 ;
 ; --------------------------------------
-projects[drupal][version] = 7.24
+projects[drupal][version] = 7.31
 projects[drupal][patch][] = http://drupal.org/files/drupal-menu-int-972536-83-D7.patch
 
 ;  Patch correcting database switching within a Simpletest run.
@@ -19,5 +19,5 @@ projects[drupal][patch][] = https://drupal.org/files/issues/drupal-insertassert_
 ; Petitions installation profile
 ; -------------------------------
 projects[petitions][type] = profile
-projects[petitions][download][tag] = 7.x-2.0-rc23
+projects[petitions][download][tag] = 7.x-2.0-rc26
 projects[petitions][download][type] = git

@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "responseInfo": {
+      "status": "403",
+      "developerMessage:": "Petition {petition_id} cannot accept more signatures. (If you believe this petition was not open for a full 30 days, it's possible that it was flagged and removed for violation of terms of service.)",
+      "userMessage": "This petition cannot accept more signatures. You can open a new petition on this issue here: https://edit.dev8.petitions.whitehouse.gov/.",
+      "errorCode": "74",
+      "moreInfo": "See the documentation: https://petitions.whitehouse.gov/developers#signatures-create-error-403"
+    }
+  }
+}

@@ -20,7 +20,9 @@ function wh_petition_tool_install() {
   $signature_conn->ensureIndex('petition_id');      
 }
 
-function wh_petition_tool_update_7001($sandbox) {
-  // Upping stale file threshold to 60 days to prevent improper caching at Aka
-  variable_set('drupal_stale_file_threshold', 5184000);
+/**
+ * Implements hook_update_last_removed().
+ */
+function wh_petition_tool_update_last_removed() {
+  return 7001;
 }

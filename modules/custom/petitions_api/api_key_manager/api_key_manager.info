@@ -1,5 +1,5 @@
 name = API Key Manager
-description = API Key Manager
+description = API Key Manager provides the ability to create, manage, and validate API keys.
 core = 7.x
 package = Petitions API
 dependencies[] = ctools
@@ -12,6 +12,7 @@ dependencies[] = strongarm
 dependencies[] = text
 dependencies[] = views
 dependencies[] = views_bulk_operations
+configure = admin/petitions/api-keys
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:1
 features[field][] = node-key-field_api_key_manager_desc

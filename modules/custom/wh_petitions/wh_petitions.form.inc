@@ -813,7 +813,6 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
     // By default, a user signs their own petition
     $user_load = user_load($user->uid);
 
-
     $petition['signature_count'] = 1;
 
     // Petition should always use the review timeframe, public/review signature counts that are set when the petition is published.

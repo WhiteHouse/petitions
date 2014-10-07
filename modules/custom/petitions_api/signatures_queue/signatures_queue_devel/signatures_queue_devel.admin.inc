@@ -103,14 +103,14 @@ function _signatures_queue_devel_overrides() {
     'signature_source_api_key',
     'signup',
     'timestamp_petition_close',
-    'timestamp_submitted',
+    'timestamp_received_new_signature',
     'timestamp_validation_close',
-    'timestamp_validation_email_sent',
+    'timestamp_initiated_signature_validation',
     'zip',
     'secret_validation_key',
-    'timestamp_processed',
+    'timestamp_processed_signature',
     // Validations overrides.
-    'timestamp_validated',
+    'timestamp_received_signature_validation',
     'timestamp_validation_close',
     'client_ip',
   );
