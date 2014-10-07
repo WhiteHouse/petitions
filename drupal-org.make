@@ -175,7 +175,7 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 ; -----------------
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
-projects[fortyfour][version] = 1.0-alpha8
+projects[fortyfour][revision] = 027674985
 
 ; External libraries
 ; -----------------
