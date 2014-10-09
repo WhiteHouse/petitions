@@ -5,7 +5,8 @@
       "developerMessage": "OK",
       "userMessage": "",
       "errorCode": "",
-      "moreInfo": ""
+      "moreInfo": "",
+      "apiMessage": "API version: 1. Deprecated fields and parameters will not be supported in API version 2: created, createdAt, createdBefore, createdAfter (use published). See the documentation: https://petitions.whitehouse.gov/developers#petitions"
     },
     "resultset": {
       "count": 1,
@@ -44,6 +45,7 @@
         "url": "/response/isnt-petition-response-youre-looking",
         "associationTime": "1357944472"
       },
+      "created": 1352924534,
       "published": 1352924534,
       "isSignable": false,
       "isPublic": true

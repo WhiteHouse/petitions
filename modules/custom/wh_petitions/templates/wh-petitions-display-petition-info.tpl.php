@@ -23,7 +23,7 @@
     <h1 class="title"><?php print $title; ?></h1>
     <?php print $body; ?>
     <?php if(!empty($published)): ?>
-    <div class="date"><strong><?php print t("Published:"); ?></strong> <?php print $published; ?>
+    <div class="date"><strong><?php print t("Published Date:"); ?></strong> <?php print $published; ?>
     <?php endif; ?>
     <div class="issues"><strong><?php print t("Issues:"); ?></strong> <?php print $issues; ?></div>
 
