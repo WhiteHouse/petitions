@@ -168,6 +168,8 @@ projects[nagios][patch][] = http://drupal.org/files/check_checks.patch
 
 ; Contrib themes
 ; -----------------
+projects[fortyfour][download][type] = git
+projects[fortyfour][download][url] = http://git.drupal.org/project/fortyfour.git
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
 projects[fortyfour][revision] = 027674985
