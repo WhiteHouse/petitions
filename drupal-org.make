@@ -74,7 +74,7 @@ projects[pathauto][version] = 1.2
 projects[petitionssignatureform][type] = module
 projects[petitionssignatureform][download][type] = git
 projects[petitionssignatureform][download][url] = http://git.drupal.org/sandbox/whitehouse/2283727.git
-projects[petitionssignatureform][download][revision] = d855b200d2c9fadfb2bf22f901d679f1c3724d50
+projects[petitionssignatureform][download][revision] = 62ba30dedbc2b2bbaf98fefad1524d77191dceb7
 
 projects[profile2][version] = 1.3
 
