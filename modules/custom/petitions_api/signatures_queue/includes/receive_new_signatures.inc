@@ -33,6 +33,9 @@
  *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
  *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
+ * @throws Exception
+ *   Rethrows any exceptions caught.
+ *
  * @see signatures_queue_invoke_workflow()
  */
 function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker_name, array $options = array()) {
@@ -42,7 +45,7 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
 
   try {
     petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.invoked");
-    petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.invoked");
+    petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.invoked");
 
     // Debugging. Log signature data received.
     if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
@@ -51,11 +54,11 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
       ), WATCHDOG_DEBUG);
     }
 
-    // Make sure the signature argument is valid. This is done first because it's
-    // cheapest.
+    // Make sure the signature argument is valid. This is done first because
+    // it's cheapest.
     if (!_signatures_queue_validate_signature($signature)) {
       petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.bad_request");
-      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.bad_request");
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.bad_request");
       return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
     }
 
@@ -64,14 +67,14 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
     // Make sure the petition exists.
     if (empty($petition)) {
       petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.not_found");
-      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.not_found");
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.not_found");
       return SIGNATURES_QUEUE_STATUS_NOT_FOUND;
     }
 
     // Make sure the petition is "signable".
     if (!$petition['isSignable']) {
       petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.forbidden");
-      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.forbidden");
+      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.forbidden");
       return SIGNATURES_QUEUE_STATUS_FORBIDDEN;
     }
 
@@ -81,7 +84,7 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
     // Enqueue it.
     _signatures_queue_enqueue_item($item);
     petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.status.ok");
-    petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.status.ok");
+    petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.status.ok");
     return SIGNATURES_QUEUE_STATUS_OK;
   }
   catch (Exception $e) {
@@ -176,5 +179,5 @@ function _signatures_queue_enqueue_item(array $item) {
 
   petitionslog_event('signatures_queue.data_store.signatures_submitted_queue.item_added');
   petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.completed");
-  petitionslog_event("signatures_queue.workflow.receive_new_signatures.petitions_id.{$petition_id}.completed");
+  petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.completed");
 }
