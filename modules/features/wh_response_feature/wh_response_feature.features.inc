@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_ctools_plugin_api().
+ * Implements hook_ctools_plugin_api().
  */
 function wh_response_feature_ctools_plugin_api() {
   list($module, $api) = func_get_args();
@@ -15,12 +15,12 @@ function wh_response_feature_ctools_plugin_api() {
 }
 
 /**
- * Implementation of hook_image_default_styles().
+ * Implements hook_image_default_styles().
  */
 function wh_response_feature_image_default_styles() {
   $styles = array();
 
-  // Exported image style: agency_seal
+  // Exported image style: agency_seal.
   $styles['agency_seal'] = array(
     'name' => 'agency_seal',
     'effects' => array(
@@ -28,6 +28,7 @@ function wh_response_feature_image_default_styles() {
         'label' => 'Scale and crop',
         'help' => 'Scale and crop will maintain the aspect-ratio of the original image, then crop the larger dimension. This is most useful for creating perfectly square thumbnails without stretching the image.',
         'effect callback' => 'image_scale_and_crop_effect',
+        'dimensions callback' => 'image_resize_dimensions',
         'form callback' => 'image_resize_form',
         'summary theme' => 'image_resize_summary',
         'module' => 'image',
@@ -39,13 +40,14 @@ function wh_response_feature_image_default_styles() {
         'weight' => '1',
       ),
     ),
+    'label' => 'agency_seal',
   );
 
   return $styles;
 }
 
 /**
- * Implementation of hook_node_info().
+ * Implements hook_node_info().
  */
 function wh_response_feature_node_info() {
   $items = array(

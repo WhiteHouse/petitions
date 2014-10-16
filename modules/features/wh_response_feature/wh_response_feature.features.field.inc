@@ -1,19 +1,23 @@
 <?php
+/**
+ * @file
+ * wh_response_feature.features.field.inc
+ */
 
 /**
- * Implementation of hook_field_default_fields().
+ * Implements hook_field_default_fields().
  */
 function wh_response_feature_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'node-wh_response-body'
+  // Exported field: 'node-wh_response-body'.
   $fields['node-wh_response-body'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(
-        '0' => 'node',
+        0 => 'node',
       ),
       'field_name' => 'body',
       'foreign keys' => array(
@@ -26,11 +30,14 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
-      'settings' => array(),
+      'settings' => array(
+        'profile2_private' => FALSE,
+      ),
       'translatable' => '1',
       'type' => 'text_with_summary',
     ),
@@ -80,7 +87,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_agency_name'
+  // Exported field: 'node-wh_response-field_agency_name'.
   $fields['node-wh_response-field_agency_name'] = array(
     'field_config' => array(
       'active' => '1',
@@ -98,9 +105,10 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '128',
@@ -148,7 +156,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_agency_seal'
+  // Exported field: 'node-wh_response-field_agency_seal'.
   $fields['node-wh_response-field_agency_seal'] = array(
     'field_config' => array(
       'active' => '1',
@@ -166,9 +174,10 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'fid' => array(
-          '0' => 'fid',
+          0 => 'fid',
         ),
       ),
+      'locked' => '0',
       'module' => 'image',
       'settings' => array(
         'default_image' => 0,
@@ -205,6 +214,7 @@ function wh_response_feature_field_default_fields() {
       'required' => 0,
       'settings' => array(
         'alt_field' => 1,
+        'default_image' => 0,
         'file_directory' => '',
         'file_extensions' => 'png gif jpg jpeg',
         'max_filesize' => '',
@@ -226,7 +236,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_audio_embed'
+  // Exported field: 'node-wh_response-field_audio_embed'.
   $fields['node-wh_response-field_audio_embed'] = array(
     'field_config' => array(
       'active' => '1',
@@ -244,9 +254,10 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -294,7 +305,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_is_featured'
+  // Exported field: 'node-wh_response-field_is_featured'.
   $fields['node-wh_response-field_is_featured'] = array(
     'field_config' => array(
       'active' => '1',
@@ -305,14 +316,15 @@ function wh_response_feature_field_default_fields() {
       'foreign keys' => array(),
       'indexes' => array(
         'value' => array(
-          '0' => 'value',
+          0 => 'value',
         ),
       ),
+      'locked' => '0',
       'module' => 'list',
       'settings' => array(
         'allowed_values' => array(
-          '0' => '0',
-          '1' => '1',
+          0 => '0',
+          1 => '1',
         ),
         'allowed_values_function' => '',
       ),
@@ -322,7 +334,7 @@ function wh_response_feature_field_default_fields() {
     'field_instance' => array(
       'bundle' => 'wh_response',
       'default_value' => array(
-        '0' => array(
+        0 => array(
           'value' => 0,
         ),
       ),
@@ -362,7 +374,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_issues'
+  // Exported field: 'node-wh_response-field_issues'.
   $fields['node-wh_response-field_issues'] = array(
     'field_config' => array(
       'active' => '1',
@@ -380,13 +392,14 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'tid' => array(
-          '0' => 'tid',
+          0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
-          '0' => array(
+          0 => array(
             'parent' => '0',
             'vocabulary' => 'issues',
           ),
@@ -432,7 +445,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_petition_count'
+  // Exported field: 'node-wh_response-field_petition_count'.
   $fields['node-wh_response-field_petition_count'] = array(
     'field_config' => array(
       'active' => '1',
@@ -442,6 +455,7 @@ function wh_response_feature_field_default_fields() {
       'field_name' => 'field_petition_count',
       'foreign keys' => array(),
       'indexes' => array(),
+      'locked' => '0',
       'module' => 'number',
       'settings' => array(),
       'translatable' => '1',
@@ -450,7 +464,7 @@ function wh_response_feature_field_default_fields() {
     'field_instance' => array(
       'bundle' => 'wh_response',
       'default_value' => array(
-        '0' => array(
+        0 => array(
           'value' => '0',
         ),
       ),
@@ -491,7 +505,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_private_tags'
+  // Exported field: 'node-wh_response-field_private_tags'.
   $fields['node-wh_response-field_private_tags'] = array(
     'field_config' => array(
       'active' => '1',
@@ -509,13 +523,14 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'tid' => array(
-          '0' => 'tid',
+          0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
-          '0' => array(
+          0 => array(
             'parent' => '0',
             'vocabulary' => 'wh_response_tags',
           ),
@@ -563,7 +578,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_response_email'
+  // Exported field: 'node-wh_response-field_response_email'.
   $fields['node-wh_response-field_response_email'] = array(
     'field_config' => array(
       'active' => '1',
@@ -581,9 +596,10 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -629,7 +645,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_response_email_subject'
+  // Exported field: 'node-wh_response-field_response_email_subject'.
   $fields['node-wh_response-field_response_email_subject'] = array(
     'field_config' => array(
       'active' => '1',
@@ -647,9 +663,10 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -697,7 +714,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_response_media'
+  // Exported field: 'node-wh_response-field_response_media'.
   $fields['node-wh_response-field_response_media'] = array(
     'field_config' => array(
       'active' => '1',
@@ -715,13 +732,14 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'tid' => array(
-          '0' => 'tid',
+          0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
-          '0' => array(
+          0 => array(
             'parent' => '0',
             'vocabulary' => 'wh_response_media',
           ),
@@ -767,7 +785,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_shorturl'
+  // Exported field: 'node-wh_response-field_shorturl'.
   $fields['node-wh_response-field_shorturl'] = array(
     'field_config' => array(
       'active' => '1',
@@ -785,9 +803,10 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '32',
@@ -835,7 +854,7 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_video_embed'
+  // Exported field: 'node-wh_response-field_video_embed'.
   $fields['node-wh_response-field_video_embed'] = array(
     'field_config' => array(
       'active' => '1',
@@ -853,9 +872,10 @@ function wh_response_feature_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
