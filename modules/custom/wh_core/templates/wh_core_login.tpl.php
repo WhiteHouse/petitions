@@ -1,11 +1,16 @@
-<?php 
+<?php
+
 /**
-* Variables provided by wh_core:
-*  - $wh_core_login, 
-*  - $options, array, displays options required for forgot my password
-*    destination re-direct and attributes. 
-*    @see l()
-*/
+ * @file
+ * Core login form.
+ *
+ * Variables provided by wh_core:
+ *  - $wh_core_login,
+ *  - $options, array, displays options required for forgot my password
+ *    destination re-direct and attributes.
+ *
+ * @see l()
+ */
 ?>
 
 <div id="user-login-form-wrapper">

@@ -1,8 +1,12 @@
 <?php
 
 /**
+ * @file
+ * Rules for wh_core.
+ */
+
+/**
  * Implements hook_rules_action_info().
- *
  */
 function wh_core_rules_action_info() {
   $actions['login_user'] = array(
@@ -21,7 +25,6 @@ function wh_core_rules_action_info() {
 
 /**
  * Provides a call back for the login_user Rules action.
- *
  */
 function wh_core_login_user($account) {
   global $user;

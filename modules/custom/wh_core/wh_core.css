@@ -37,7 +37,7 @@ form#user-pass .form-item {
 
 #user-register-form-wrapper .webform-description {
   margin: 12px 0px 25px 0px;
-  border-bottom: 1px solid #E6E6E6;
+  border-bottom: 1px solid #e6e6e6;
 }
 
 #user-password-form-wrapper p {
@@ -54,13 +54,12 @@ form#user-register-form #edit-account {
 form#user-register-form h1,
 form#user-login h1,
 form#user-pass h1 {
-  border-bottom: 1px solid #CECECE;
+  border-bottom: 1px solid #cecece;
   color: #666;
   font-size: 1.75em;
   font-weight: normal;
   font-family: Arial,Helvetica,sans-serif;
   line-height: 0em;
-  padding-bottom: 20px;
   padding-bottom: 20px;
 }
 
@@ -151,8 +150,8 @@ form#user-pass .form-text,
 form#user-register-form .form-text,
 form#user-login .form-text,
 form#user-pass .form-text {
-  background: #FDFDFD url(../wh_core/img/backgrounds/bg-form-item.png) repeat-x scroll 0 0;
-  border-color: #CECECE #DCDCDC #DCDCDC;
+  background: #fdfdfd url(../wh_core/img/backgrounds/bg-form-item.png) repeat-x scroll 0 0;
+  border-color: #cecece #dcdcdc #dcdcdc;
   border-style: solid;
   border-width: 1px;
   color: #666666;
@@ -167,10 +166,6 @@ form#user-register-form input#edit-email-updates {
 
 form#user-register-form .fieldset-legend {
   display: none;
-}
-
-form#user-register-form .form-item {
-  10px 0px 10px 0px;
 }
 
 form#user-register-form .fieldset-description {
@@ -196,7 +191,7 @@ form#user-register-form #recaptcha_table {
 }
 
 form#user-register-form .recaptchatable {
-  border: 1px solid #DFDFDF !important;
+  border: 1px solid #dfdfdf !important;
   line-height: 1em;
 }
 
@@ -235,7 +230,7 @@ form#user-register-form #recaptcha_tagline {
 }
 
 form#user-register-form #recaptcha_response_field {
-  border: 1px solid #CECECE !important;
+  border: 1px solid #cecece !important;
   padding: 6px 1px;
   margin-left: -7px !important;
   width: 345px !important;
@@ -253,14 +248,14 @@ form#user-register-form  #edit-submit {
 
 form#user-register-form #edit-submit,
 form#user-register-form #edit-submit:hover,
-form#user-register-form #edit-submit:focus{
+form#user-register-form #edit-submit:focus {
   background: url(../wh_core/img/login/user_account_create_account_btn.png);
   padding: 3px 108px 16px 109px;
   margin: 20px 0 20px 172px;
 }
 
 form#user-register-form #edit-submit:hover,
-form#user-register-form #edit-submit:focus{
+form#user-register-form #edit-submit:focus {
   background-position: 0px 32px;
 }
 
