@@ -55,10 +55,7 @@ function wh_core_preprocess_wh_core_login(&$variables) {
     ),
   );
 
-  $destination = check_plain($_GET['destination']);
-  if (strlen($destination) > 0) {
-    $variables['options']['query'] = array('destination' => $destination);
-  }
+  $variables['options']['query'] = drupal_get_destination();
 }
 
 /**
