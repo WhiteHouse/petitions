@@ -1,6 +1,8 @@
 <?php
+
 /**
- * @front_class.php
+ * @file
+ * Adds a "front" class to menu link for the front page.
  */
 
 /**
@@ -20,13 +22,13 @@ function front_class_preprocess_links(&$variables) {
 /**
  * Find the <front> link. Add a "front" class to <li> to make it themable.
  *
- * @param $variables
- *  Array from preprocessor
+ * @param array $variables
+ *   Input parameter from front_class_preprocess_links().
  *
- * @return $links
- *  $variable['links'] to override.
+ * @return array $links
+ *   $variable['links'] to override.
  */
-function front_class_front_link($variables) {
+function front_class_front_link(array $variables) {
   $links = $variables['links'];
   foreach ($links as $key => $link) {
     $is_front = front_class_is_front($link);
@@ -35,14 +37,14 @@ function front_class_front_link($variables) {
       $original_key = $key;
       $new_key = $original_key . " front";
       $new_link = $link;
-    } 
+    }
   }
   // Rebuild $links array in same order it's already in.
   $new_links = array();
-  foreach($links as $key => $link) {
+  foreach ($links as $key => $link) {
     if (isset($original_key) && $key == $original_key) {
       $new_links[$new_key] = $new_link;
-    } 
+    }
     else {
       $new_links[$key] = $link;
     }
@@ -51,15 +53,15 @@ function front_class_front_link($variables) {
 }
 
 /**
- * Determin if $link is a link to <front>.
+ * Determine if $link is a link to <front>.
  *
- * @param $link
- *  Array
+ * @param array $link
+ *   A link data array from front_class_preprocess_links().
  *
- * @return
- *  Boolean
+ * @return bool
+ *   TRUE if the link refers to the site front page, or FALSE if not.
  */
-function front_class_is_front($link) {
+function front_class_is_front(array $link) {
   $front = variable_get('site_frontpage', FALSE);
   $href = $link['href'];
   return ($front == $href) ? TRUE : FALSE;
