@@ -40,7 +40,7 @@ function front_class_front_link($variables) {
   // Rebuild $links array in same order it's already in.
   $new_links = array();
   foreach($links as $key => $link) {
-    if ($key == $original_key) {
+    if (isset($original_key) && $key == $original_key) {
       $new_links[$new_key] = $new_link;
     } 
     else {
