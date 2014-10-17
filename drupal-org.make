@@ -145,6 +145,10 @@ libraries[colorbox][download][url] = https://github.com/jackmoore/colorbox/archi
 libraries[faker][download][type] = get
 libraries[faker][download][url] = https://github.com/fzaninotto/Faker/archive/v1.3.0.tar.gz
 
+libraries[disposable_email_checker][download][type] = git
+libraries[disposable_email_checker][download][url] = https://github.com/vboctor/disposable_email_checker.git
+libraries[disposable_email_checker][download][revision] = 10aacb860961e8b58edfc740156c0cc8ef405a9d
+
 ; The jQuery plugin required for views_infinite_scroll to work.
 ; Calling this library js is a trick to get the file to the right spot, it
 ; should be fixed.
