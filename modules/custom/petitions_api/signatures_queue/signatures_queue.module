@@ -124,6 +124,27 @@ function signatures_queue_permission() {
 }
 
 /**
+ * Implements hook_libraries_info().
+ */
+function signatures_queue_libraries_info() {
+  $libraries['disposable_email_checker'] = array(
+    'name' => 'Disposable Email Checker',
+    'vendor url' => 'https://github.com/vboctor/disposable_email_checker',
+    'download url' => 'https://github.com/vboctor/disposable_email_checker/releases',
+    'path' => 'php',
+    'version arguments' => array(
+      'file' => 'changelog.txt',
+      'pattern' => '/ - ([\d\.]+)/',
+      'lines' => 4,
+    ),
+    'files' => array(
+      'php' => array('disposable.php'),
+    ),
+  );
+  return $libraries;
+}
+
+/**
  * Implements hook_mail().
  */
 function signatures_queue_mail($key, &$message, $params) {
@@ -397,6 +418,20 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
   }
 
   return $status;
+}
+
+/**
+ * Determines whether a given email address is disposable or not.
+ *
+ * @param string $address
+ *   An email address to test.
+ *
+ * @return bool
+ *   TRUE if the email address is disposable, or FALSE if not.
+ */
+function signatures_queue_is_disposable_email($address) {
+  libraries_load('disposable_email_checker');
+  return DisposableEmailChecker::is_disposable_email($address);
 }
 
 /**
