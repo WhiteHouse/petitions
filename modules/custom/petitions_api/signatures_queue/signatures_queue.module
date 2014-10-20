@@ -435,6 +435,27 @@ function signatures_queue_is_disposable_email($address) {
 }
 
 /**
+ * Determines whether a given email address is subaddressed or not.
+ *
+ * "Subaddressed" email addresses, also known as "plus addresses" or "tagged
+ * addresses", have the form username+tag@domain.tld.
+ *
+ * @param $address
+ *   An email address to test.
+ *
+ * @return bool
+ *   TRUE if the email address is subaddressed, or FALSE if not.
+ *
+ * @see https://en.wikipedia.org/wiki/Email_address#Address_tags
+ */
+function signatures_queue_is_subaddressed_email($address) {
+  // A subaddressed email address must contain a username and a plus sign. Match
+  // any string that begins with one or more characters other than an at sign
+  // (@), followed by a plus sign (+).
+  return (preg_match('/^[^@]+\+/', $address) == 1);
+}
+
+/**
  * Gets a status string usable for logging from a workflow status return value.
  *
  * @param string $workflow
