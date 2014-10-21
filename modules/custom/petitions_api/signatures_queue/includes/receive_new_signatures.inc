@@ -83,6 +83,7 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
 
     // Enqueue it.
     _signatures_queue_enqueue_item($item);
+    _signatures_queue_log_signatory_details($api_key, $petition_id, $item);
     petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.status.ok");
     petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.status.ok");
     return SIGNATURES_QUEUE_STATUS_OK;
@@ -180,4 +181,33 @@ function _signatures_queue_enqueue_item(array $item) {
   petitionslog_event('signatures_queue.data_store.signatures_submitted_queue.item_added');
   petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.completed");
   petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.completed");
+}
+
+/**
+ * Logs signatory details from a new signature.
+ *
+ * @param string $api_key
+ *   The API key used to submit the signature.
+ * @param string $petition_id
+ *   The unique identifier of the petition.
+ * @param array $signature
+ *   The signature queue item as created by
+ *   _signatures_queue_build_new_queue_item().
+ */
+function _signatures_queue_log_signatory_details($api_key, $petition_id, array $signature) {
+  $domain = petitionslog_filter_metric(signatures_queue_get_domain_from_email($signature['email']));
+  $is_disposable = signatures_queue_is_disposable_email($signature['email']) ? 'true' : 'false';
+  $is_subaddressed = signatures_queue_is_subaddressed_email($signature['email']) ? 'true' : 'false';
+
+  // Log in aggregate, per API key, and per petition ID metrics.
+  $metric_prefixes = array(
+    'signatures_queue.workflow.receive_new_signatures',
+    "signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}",
+    "signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}",
+  );
+  foreach ($metric_prefixes as $prefix) {
+    petitionslog_event("{$prefix}.email_address.domain.{$domain}");
+    petitionslog_event("{$prefix}.email_address.is_disposable.{$is_disposable}");
+    petitionslog_event("{$prefix}.email_address.is_subaddressed.{$is_subaddressed}");
+  }
 }

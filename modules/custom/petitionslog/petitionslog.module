@@ -58,6 +58,22 @@ function petitionslog_event($name, $type = 'count', $value = NULL) {
 }
 
 /**
+ * Filters a given event metric name.
+ *
+ * @param string $name
+ *   The metric name to filter.
+ *
+ * @return string
+ *   The filtered metric name.
+ */
+function petitionslog_filter_metric($name) {
+  // Graphite (http://graphite.readthedocs.org/) uses dots to separate event
+  // name components. Replace them with underscores.
+  $filtered_name = str_replace('.', '_', $name);
+  return $filtered_name;
+}
+
+/**
  * Formats data for logging via watchdog.
  *
  * This function tries to determine where data will be logged and formats it
