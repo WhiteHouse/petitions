@@ -192,7 +192,7 @@ function signatures_queue_theme($existing, $type, $theme, $path) {
  * @param array $options
  *   Unused parameter required by the token_replace() function.
  */
-function signatures_queue_validation_email_tokens(&$replacements, $data, $options) {
+function signatures_queue_validation_email_tokens(array &$replacements, array $data, array $options) {
   if (isset($data['signature info'])) {
     global $base_url;
     $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
@@ -382,6 +382,7 @@ function signatures_queue_get_workflow_names() {
  *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @throws Exception()
+ *   If an invalid workflow is specified.
  */
 function signatures_queue_invoke_workflow($workflow, array $options = array()) {
   // Initialize default options.
@@ -458,10 +459,10 @@ function signatures_queue_is_disposable_email($address) {
 /**
  * Determines whether a given email address is subaddressed or not.
  *
- * "Subaddressed" email addresses, also known as "plus addresses" or "tagged
- * addresses", have the form username+tag@domain.tld.
+ * Subaddressed email addresses, also known as plus addresses or tagged
+ * addresses, have the form username+tag@domain.tld.
  *
- * @param $address
+ * @param string $address
  *   An email address to test.
  *
  * @return bool

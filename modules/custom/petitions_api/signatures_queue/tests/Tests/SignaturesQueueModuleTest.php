@@ -15,12 +15,12 @@ class SignaturesQueueModuleTest extends PHPUnit_Framework_TestCase {
   /**
    * Tests email address domain extraction.
    *
-   * @dataProvider providerSignaturesQueueGetDomainFromEmail
-   *
    * @param string $expected
    *   The expected output from the function.
    * @param mixed $address
    *   The email address to test.
+   *
+   * @dataProvider providerSignaturesQueueGetDomainFromEmail
    */
   public function testSignaturesQueueGetDomainFromEmail($expected, $address) {
     $this->assertEquals($expected, signatures_queue_get_domain_from_email($address));
@@ -41,12 +41,12 @@ class SignaturesQueueModuleTest extends PHPUnit_Framework_TestCase {
   /**
    * Tests subaddressed email address detection.
    *
-   * @dataProvider providerSignaturesQueueIsSubaddressedEmail
-   *
    * @param bool $expected
    *   The expected output from the function.
    * @param mixed $address
    *   The email address to test.
+   *
+   * @dataProvider providerSignaturesQueueIsSubaddressedEmail
    */
   public function testSignaturesQueueIsSubaddressedEmail($expected, $address) {
     $message = ($expected) ? 'Failed to identify a subaddressed email' : 'Falsely identified a non-subaddressed email.';
