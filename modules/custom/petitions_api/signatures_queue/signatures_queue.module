@@ -275,6 +275,27 @@ function signatures_queue_shunt() {
 }
 
 /**
+ * Gets the domain name from an email address.
+ *
+ * @param string $address
+ *   An email address.
+ *
+ * @return string|false
+ *   The domain name portion of the given email address, or FALSE if it is not a
+ *   valid email address.
+ */
+function signatures_queue_get_domain_from_email($address) {
+  // Inline the valid_email_address() test to keep this unit-testable. It's the
+  // lesser of two evils. :(
+  if (!filter_var($address, FILTER_VALIDATE_EMAIL)) {
+    return FALSE;
+  }
+
+  $parts = explode('@', $address);
+  return $parts[count($parts) - 1];
+}
+
+/**
  * Gets an array of queue names.
  *
  * Note: Real queues are named something_queue. The tables listed here that

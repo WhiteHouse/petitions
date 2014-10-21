@@ -13,6 +13,32 @@ require_once dirname(__FILE__) . '/../../signatures_queue.module';
 class SignaturesQueueModuleTest extends PHPUnit_Framework_TestCase {
 
   /**
+   * Tests email address domain extraction.
+   *
+   * @dataProvider providerSignaturesQueueGetDomainFromEmail
+   *
+   * @param string $expected
+   *   The expected output from the function.
+   * @param mixed $address
+   *   The email address to test.
+   */
+  public function testSignaturesQueueGetDomainFromEmail($expected, $address) {
+    $this->assertEquals($expected, signatures_queue_get_domain_from_email($address));
+  }
+
+  /**
+   * Data provider for testSignaturesQueueGetDomainFromEmail().
+   *
+   * @see testSignaturesQueueGetDomainFromEmail()
+   */
+  public function providerSignaturesQueueGetDomainFromEmail() {
+    $tests[] = array('example.com', 'username@example.com');
+    $tests[] = array('subdomain.example.com', 'username@subdomain.example.com');
+    $tests[] = array(FALSE, 'invalid address');
+    return $tests;
+  }
+
+  /**
    * Tests subaddressed email address detection.
    *
    * @dataProvider providerSignaturesQueueIsSubaddressedEmail
