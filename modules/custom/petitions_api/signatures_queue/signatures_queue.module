@@ -292,7 +292,7 @@ function signatures_queue_get_domain_from_email($address) {
   }
 
   $parts = explode('@', $address);
-  return $parts[count($parts) - 1];
+  return strtolower($parts[count($parts) - 1]);
 }
 
 /**
