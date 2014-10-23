@@ -1403,12 +1403,13 @@ function wh_petitions_save_petition(&$collection, $petition) {
     $petition['uid'] = (int) $petition['uid'];
     if ($petition['created'] == 0) {
       $petition['created'] = (int) time();
+      petitionslog_event('petition.created');
     }
     $collection->save($petition);
     petitions_data_freshen_cached_petition($petition['_id']);
 
     module_invoke_all("wh_petitions_petition_save", $petition);
-    
+
     return $petition['_id']->__toString();
   }
 }
