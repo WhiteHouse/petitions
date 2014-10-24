@@ -60,7 +60,9 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
 
   $result = $query->execute();
 
-  if (!$result->rowCount()) {
+  // If the query finds any number of matches less than the batch size, the
+  // workflow has effectively "caught up".
+  if ($result->rowCount() < $limit) {
     petitionslog_event('signatures_queue.workflow.process_signatures.caught_up');
   }
 
