@@ -1051,8 +1051,22 @@ function wh_petitions_admin_petitions() {
   // If this is a single result, display extra information about the petition.
   if (!empty($arg2)) {
 
-    $creator = user_load(intval($res['uid']));
-    $creator_name_id = $creator->profile_last_name . ', ' . $creator->profile_first_name . ' (' . $creator->uid . ')';
+    $uid = intval($res['uid']);
+    $creator = user_load($uid);
+    $creator_profile = profile2_load_by_user($creator, 'main');
+    $creator_name = array();
+    if ($creator) {
+      if (!empty($creator_profile->field_last_name[LANGUAGE_NONE][0]['safe_value'])) {
+        $creator_name[] = check_plain($creator_profile->field_last_name[LANGUAGE_NONE][0]['safe_value']);
+      }
+      if (!empty($creator_profile->field_first_name[LANGUAGE_NONE][0]['safe_value'])) {
+        $creator_name[] = check_plain($creator_profile->field_first_name[LANGUAGE_NONE][0]['safe_value']);
+      }
+    }
+    $creator_name_id = t('@name (@uid)', array(
+      '@name' => implode($creator_name, ', '),
+      '@uid' => $uid,
+    ));
 
     $markup = '';
     $markup .= '<p><strong>' . t('Description:') . '</strong> ' . wh_petitions_format_description($res['body']) . '</p><p>&nbsp;</p>';
