@@ -388,6 +388,7 @@ function _signatures_queue_preprocess_signatures_insert_batch_fields($table_name
     $fields = drupal_map_assoc(array_keys($schema['fields']));
     // Unset auto-inc and empty fields.
     unset($fields['sid']);
+    unset($fields['timestamp_preprocessed_validation']);
     unset($fields['timestamp_processed_signature']);
   }
   elseif ($table_name == 'validations') {
