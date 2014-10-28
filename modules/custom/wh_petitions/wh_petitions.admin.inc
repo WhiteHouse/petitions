@@ -1080,7 +1080,8 @@ function wh_petitions_admin_petitions() {
     $markup .= '</div>';
     $markup .= '</fieldset>';
 
-    $markup .= '<p><string>' . t('Abuse Flags:') . '</strong>' . $res['abuse_count'] . '</p>';
+    $abuse_count = (!empty($res['abuse_count'])) ? $res['abuse_count'] : 0;
+    $markup .= '<p><strong>' . t('Abuse Flags:') . '</strong> ' . $abuse_count . '</p>';
     $markup .= '<p><strong>' . t('User Keywords:') . '</strong> ' . check_plain(implode(', ', $res['user_tags'])) . '</p>';
     $markup .= '<p><strong>' . t('Private Keywords:') . '</strong> ' . check_plain(implode(', ', $res['private_tags'])) . '</p>';
     $markup .= '<p><strong>' . t('Review Timeframe') . '</strong> ' . intval($res['review_timeframe']) . ' Days</p>';
