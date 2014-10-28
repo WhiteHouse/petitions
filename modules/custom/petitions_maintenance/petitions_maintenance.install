@@ -58,6 +58,6 @@ function petitions_maintenance_update_7301(&$sandbox) {
  */
 function petitions_maintenance_update_7302(&$sandbox) {
   db_delete('system')
-    ->condition('name', -'formatforlog')
+    ->condition('name', 'formatforlog')
     ->execute();
 }
