@@ -175,9 +175,9 @@ function petitions_signatures_display_form_alter(&$form, &$form_state, $form_id)
 function petitions_signatures_display_location_validate($form, &$form_state) {
   $zipcode = $form_state['values']['profile_main']['field_zip'][LANGUAGE_NONE][0]['value'];
   $location = petitions_signatures_display_location($zipcode);
-  $city = $location[0]['city'];
-  $state = $location[0]['state'];
-  if ($location[0]['country'] == 'us') {
+  $city = isset($location[0]['city']) ? $location[0]['city'] : '';
+  $state = isset($location[0]['state']) ? $location[0]['state'] : '';
+  if (isset($location[0]['country']) && $location[0]['country'] == 'us') {
     $country = 'United States';
   }
   else {
