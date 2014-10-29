@@ -760,6 +760,8 @@ function wh_petitions_admin_petitions() {
   $form['options'] = array(
     '#type' => 'fieldset',
     '#title' => t('Batch Apply Keywords'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
     '#attributes' => array('class' => array('container-inline')),
   );
   $form['options']['private_tags'] = array(
@@ -767,13 +769,13 @@ function wh_petitions_admin_petitions() {
     '#title' => t('Private Keywords'),
     '#default_value' => '',
     '#size' => 25,
+    '#description' => t('Separate keywords with a comma.'),
   );
   $form['options']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Update'),
     '#validate' => array('wh_petitions_admin_petitions_tags_validate'),
     '#submit' => array('wh_petitions_admin_petitions_tags_submit'),
-    '#suffix' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:11px;">( ' . t('Separate keywords with a comma') . ' )</span>',
   );
 
   // Build the sortable table header.
@@ -904,6 +906,8 @@ function wh_petitions_admin_petitions() {
     $form['apply'] = array(
       '#type' => 'fieldset',
       '#title' => t('Apply Response To This Petition'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
       '#attributes' => array('class' => array('container-inline')),
     );
     $form['apply']['response_title'] = array(
@@ -1051,6 +1055,9 @@ function wh_petitions_admin_petitions() {
   // If this is a single result, display extra information about the petition.
   if (!empty($arg2)) {
 
+    $markup = '';
+    $markup .= '<p><strong>' . t('Description:') . '</strong> ' . wh_petitions_format_description($res['body']) . '</p>';
+
     $uid = intval($res['uid']);
     $creator = user_load($uid);
     $creator_profile = profile2_load_by_user($creator, 'main');
@@ -1063,30 +1070,18 @@ function wh_petitions_admin_petitions() {
         $creator_name[] = check_plain($creator_profile->field_first_name[LANGUAGE_NONE][0]['safe_value']);
       }
     }
-    $creator_name_id = t('@name (@uid)', array(
-      '@name' => implode($creator_name, ', '),
-      '@uid' => $uid,
-    ));
+    $creator_name = implode(', ', $creator_name);
+    $markup .= '<p>' . t('<strong>Petition Creator:</strong> <a href="@url">@name</a> (@email)', array(
+      '@url' => url("user/{$uid}"),
+      '@name' => $creator_name,
+      '@email' => $creator->mail,
+    )) . '</p>';
 
-    $markup = '';
-    $markup .= '<p><strong>' . t('Description:') . '</strong> ' . wh_petitions_format_description($res['body']) . '</p><p>&nbsp;</p>';
-
-    // Fieldset with details from the user record.
-    $markup .= '<fieldset class="container-inline fieldset titled">';
-    $markup .= '<legend><span class="fieldset-title fieldset-legend">' . t('Petition Creator') . '</span></legend>';
-    $markup .= '<div class="fieldset-content fieldset-wrapper clearfix">';
-    $markup .= '<p>' . t('Name (UID): !link', array('!link' => l($creator_name_id, "user/{$creator->uid}"))) . '</p>';
-    $markup .= '<p>' . t("Email: @email", array('@email' => $creator->mail)) . '</p>';
-    $markup .= '</div>';
-    $markup .= '</fieldset>';
-
-    $abuse_count = (!empty($res['abuse_count'])) ? $res['abuse_count'] : 0;
-    $markup .= '<p><strong>' . t('Abuse Flags:') . '</strong> ' . $abuse_count . '</p>';
     $markup .= '<p><strong>' . t('User Keywords:') . '</strong> ' . check_plain(implode(', ', $res['user_tags'])) . '</p>';
     $markup .= '<p><strong>' . t('Private Keywords:') . '</strong> ' . check_plain(implode(', ', $res['private_tags'])) . '</p>';
-    $markup .= '<p><strong>' . t('Review Timeframe') . '</strong> ' . intval($res['review_timeframe']) . ' Days</p>';
-    $markup .= '<p><strong>' . t('Signatures for Public') . '</strong> ' . intval($res['public_signatures']) . ' Days</p>';
-    $markup .= '<p><strong>' . t('Signatures for Response') . '</strong> ' . intval($res['response_signatures']) . ' Days</p>';
+    $markup .= '<p><strong>' . t('Review Timeframe') . '</strong> ' . number_format(intval($res['review_timeframe'])) . ' Days</p>';
+    $markup .= '<p><strong>' . t('Signatures for Public') . '</strong> ' . number_format(intval($res['public_signatures'])) . ' Days</p>';
+    $markup .= '<p><strong>' . t('Signatures for Response') . '</strong> ' . number_format(intval($res['response_signatures'])) . ' Days</p>';
     if (!empty($res['published'])) {
       $markup .= '<p><strong>' . t('Published Date:') . '</strong> ' . date('M d, Y', $res['published']) . '</p>';
     }
@@ -1100,8 +1095,14 @@ function wh_petitions_admin_petitions() {
       $markup .= '<p><strong>' . t('Archived Date:') . '</strong> ' . date('M d, Y', $res['closed']) . '</p>';
     }
     $form['petition'] = array(
-      '#type' => 'markup',
-      '#markup' => $markup,
+      '#type' => 'fieldset',
+      '#title' => t('Details'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      'details' => array(
+        '#type' => 'markup',
+        '#markup' => $markup,
+      ),
     );
   }
 
