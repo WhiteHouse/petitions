@@ -498,7 +498,7 @@ function wh_petitions_petition_detail($petition_id) {
     'body' => wh_petitions_format_description($petition['body']),
     'created' => check_plain($created),
     'issues' => $issues,
-    'published' => date("M d, Y", $published),
+    'published' => date("M j, Y", $published),
     'total_needed' => wh_petitions_format_number($total_needed),
     'signatures_needed' => wh_petitions_format_number($signatures_needed),
     'signatures' => wh_petitions_format_number($signatures),

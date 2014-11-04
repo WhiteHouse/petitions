@@ -72,7 +72,7 @@
         "url": "https://petitions.whitehouse.gov/response/isnt-petition-response-youre-looking",
         "associationTime": "1357944472"
       },
-      "published": 1352924534,
+      "created": 1352924534,
       "isSignable": false,
       "isPublic": true
     },
@@ -102,7 +102,7 @@
       "deadline": 1355512617,
       "status": "closed",
       "response": null,
-      "published": 1352920617,
+      "created": 1352920617,
       "isSignable": false,
       "isPublic": true
     },
@@ -132,7 +132,7 @@
       "deadline": 1355510072,
       "status": "closed",
       "response": null,
-      "published": 1352918072,
+      "created": 1352918072,
       "isSignable": false,
       "isPublic": true
     }
