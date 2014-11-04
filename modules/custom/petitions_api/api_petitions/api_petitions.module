@@ -61,7 +61,7 @@ function api_petitions_services_resources() {
             'name' => 'created_before',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created before specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.) NOTE: createdBefore is deprecated. This parameter may not be supported in API v2. Use published field and related parameters instead.', array(
+            'description' => t('Filters results to display items created before specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdBefore'),
@@ -70,7 +70,7 @@ function api_petitions_services_resources() {
             'name' => 'created_after',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created after specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.) NOTE: createdAfter is deprecated. This parameter may not be supported in API v2. Use published field and related parameters instead.', array(
+            'description' => t('Filters results to display items created after specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdAfter'),
@@ -79,7 +79,7 @@ function api_petitions_services_resources() {
             'name' => 'created_at',
             'optional' => TRUE,
             'type' => 'int',
-            'description' => t('Filters results to display items created (or published) at specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.) NOTE: createdAt contains the petition published date. createdAt is deprecated. This parameter may not be supported in API v2. Use published field and related parameters instead.', array(
+            'description' => t('Filters results to display items created at specified time. Accepts Unix timestamp. (There\'s a handy unix timestamp converter <a href="@here">here</a>.)', array(
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdAt'),
@@ -331,15 +331,6 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
 
-  // Set messages to send using numeric id(s) of message.
-  $api_msgs = array(1);
-  $api_change_params = array(
-    'msg' => _api_petitions_api_message($api_msgs),
-    'website_url' => $website_url,
-    'pg_location' => 'developers#petitions',
-  );
-  $api_change_msg = _api_petitions_api_update_message($api_change_params);
-
   // Return mock response.
   if ($mock) {
     $response = json_decode(_api_petitions_mock_response('retrieve'));
@@ -359,7 +350,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     $error_code = 83;
     $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-599', array('!url' => $website_url));
     watchdog('api_petitions', $e->getMessage());
-    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info);
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
   // Throw error if petition was not found.
@@ -376,10 +367,6 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     'results' => $results,
     'limit' => 1,
   );
-
-  if (!empty($api_change_msg)) {
-    $response_params['api_message'] = $api_change_msg;
-  }
   $response = api_services_responses_format($response_params);
 
   return $response;
@@ -395,15 +382,6 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
 
   $public_threshold = variable_get('wh_petitions_public_signatures', 150) - 1;
   $petitions_default_limit = variable_get('api_petitions_index_max_limit', 1000);
-
-  // Set messages to send using numeric id(s) of message.
-  $api_msgs = array(1);
-  $api_change_params = array(
-    'msg' => _api_petitions_api_message($api_msgs),
-    'website_url' => $website_url,
-    'pg_location' => 'developers#petitions',
-  );
-  $api_change_msg = _api_petitions_api_update_message($api_change_params);
 
   // Return mock response.
   if ($mock) {
@@ -498,10 +476,6 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
       'offset' => $offset,
     );
 
-    if (!empty($api_change_msg)) {
-      $response_params['api_message'] = $api_change_msg;
-    }
-
     return api_services_responses_format($response_params);
   }
   // Throw error if resource cannot be accessed.
@@ -519,6 +493,7 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
     $user_message = (!empty($data['userMessage'])) ? $data['userMessage'] : '';
     $error_code = (!empty($data['errorCode'])) ? $data['errorCode'] : '';
     $more_info = (!empty($data['moreInfo'])) ? $data['moreInfo'] : '';
+
     watchdog('api_petitions', $e->getMessage());
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
@@ -652,7 +627,9 @@ function _api_petitions_index_doc() {
     '#name' => t('Index'),
     '#path' => '/petitions',
     '#weight' => 1,
-    '#description' => _api_petitions_petitions_preface(),
+    '#description' => t('Returns a list of petitions, individual petitions, and signatures attached to an individual petition. Unsupported non-Latin characters are replaced with an "x".
+
+Limits: 10 requests per second. Developers who need historic data on all public petitions should consider using our bulk data download, described above.'),
     '#request_url' => variable_get('petitions_data_petitions_api_url', '') . '/v1/petitions.json?limit=3&offset=0&createdBefore=1352924535',
     '#response' => _api_petitions_mock_response('index'),
     '#errors' => _api_petitions_index_doc_errors(),
@@ -772,82 +749,4 @@ function api_petitions_form_petitions_data_form_alter(&$form, &$form_state) {
     '#default_value' => variable_get('api_petitions_signatures_index_max_limit', 1000),
     '#element_validate' => array('element_validate_number'),
   );
-}
-
-/**
- * Returns a Petitions API update message.
- *
- * @param array $api_change_params
- *   An array of message parameters: message, url, anchor.
- *
- * @return string
- *   A compiled message.
- */
-function _api_petitions_api_update_message(array $api_change_params) {
-  if (empty($api_change_params)) {
-    return '';
-  }
-  $msg = (!empty($api_change_params['msg'])) ? $api_change_params['msg'] . ' ' : '';
-  $website_url = (!empty($api_change_params['website_url'])) ? 'See the documentation: ' . $api_change_params['website_url'] : '';
-  $pg_location = (!empty($api_change_params['pg_location'])) ? '/' . $api_change_params['pg_location'] : '';
-  $msg_params = array(
-    '!msg' => $msg,
-    '!url' => $website_url,
-    '!pg_loc' => $pg_location,
-  );
-  $api_update_message = t('!msg!url!pg_loc', $msg_params);
-  return $api_update_message;
-}
-
-/**
- * Returns a message string.
- *
- * @param array $api_msg_params
- *   An array of message ids as integers: 1,2,3... .
- *
- * @return string
- *   All requested messages concatenated as one message.
- */
-function _api_petitions_api_message(array $api_msg_params) {
-  if (empty($api_msg_params)) {
-    return '';
-  }
-  $msg_outputs = array();
-  $message_collection = array(
-    1 => 'API version: 1. Deprecated fields and parameters will not be supported in API version 2: created, createdAt, createdBefore, createdAfter (use published).',
-  );
-  foreach ($api_msg_params as $api_msg_param) {
-    $msg_outputs[$api_msg_param] = $message_collection[$api_msg_param];
-  }
-  $api_message = implode(' ', $msg_outputs);
-  return $api_message;
-}
-
-/**
- * Returns the Developer page Petitions documentation preface HTML formatted.
- *
- * @return string
- *   An HTML formatted message.
- */
-function _api_petitions_petitions_preface() {
-
-  $preface_msg1 = t('Returns a list of petitions, individual petitions, and signatures attached to an individual petition.');
-  $preface_msg2 = t('Details');
-  $preface_msg3 = t('Non-Latin characters are replaced with an "x".');
-  $preface_msg4 = t('Limits: 10 requests per second.');
-  $preface_msg5 = t('Developers who need historic data on all public petitions should consider using our bulk data download, described above.');
-
-  $preface_msg6 = t('Deprecated fields and parameters (these may not be supported in when API v2 comes out):');
-  $preface_msg7 = t('created (use published instead)');
-  $preface_msg8 = t('createdBefore');
-  $preface_msg9 = t('createdAfter');
-  $preface_msg10 = t('createdAt');
-
-  $preface_message = '<style>.api-pre li{margin-left:21px;}</style><p>' . $preface_msg1 . '</p>' . $preface_msg2 . '<ul class="api-pre"><li>'
-    . $preface_msg3 . '</li><li>' . $preface_msg4 .
-    '</li><li>' . $preface_msg5 . '</li></ul><br />' . $preface_msg6 . '<ul class="api-pre"><li>'
-    . $preface_msg7 . '</li><li>' . $preface_msg8 . '</li><li>' . $preface_msg9 .
-    '</li><li>' . $preface_msg10 . '</li><ul>';
-
-  return $preface_message;
 }

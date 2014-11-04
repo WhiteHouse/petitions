@@ -61,8 +61,21 @@ function api_errors_throw_error($status_code, $developer_message, $user_message 
   services_error($developer_message, $status_code, $data);
 }
 
+
 /**
  * Implements hook_rest_server_execute_errors_alter().
+ *
+ * @param array $error
+ *   An array with the following properties:
+ *     - code: error code
+ *     - header_message: message that will be returned in Status header
+ *     - body_data: data returned in the body of the response
+ *   You can alter 'header_message' and 'body_data' in your hook
+ *   implementations.
+ * @param array $controller
+ *   The executed controller.
+ * @param array $arguments
+ *   The arguments passed to the controller.
  */
 function api_errors_rest_server_execute_errors_alter(&$error, $controller, $arguments) {
 

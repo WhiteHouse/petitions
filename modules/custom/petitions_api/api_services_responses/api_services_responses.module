@@ -110,11 +110,6 @@ function api_services_responses_format($params = array()) {
       '#required' => FALSE,
       '#default_value' => NULL,
     ),
-    'api_message' => array(
-      '#type' => 'string',
-      '#required' => FALSE,
-      '#default_value' => NULL,
-    ),
   );
 
   // Check parameters that were passed.
@@ -153,9 +148,6 @@ function api_services_responses_format($params = array()) {
   }
   if (isset($params['more_info'])) {
     $response['metadata']['responseInfo']['moreInfo'] = $params['more_info'];
-  }
-  if (isset($params['api_message'])) {
-    $response['metadata']['responseInfo']['apiMessage'] = $params['api_message'];
   }
 
   if (isset($params['request_info'])) {
