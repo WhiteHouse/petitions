@@ -93,4 +93,18 @@ class MigrateDestinationSignatureEntity extends MigrateDestinationEntity {
       $entity->user_last_name = replace4byte($entity->user_last_name);
     }
   }
+
+  /**
+   * Delete a batch of entities at once.
+   *
+   * @param $nids
+   *  Array of entity IDs to be deleted.
+   */
+  public function bulkRollback(array $ids) {
+    migrate_instrument_start('entity_delete_multiple');
+    $this->prepareRollback($ids);
+    entity_delete_multiple('signature_mail', $ids);
+    $this->completeRollback($ids);
+    migrate_instrument_stop('entity_delete_multiple');
+  }
 }
