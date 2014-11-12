@@ -28,7 +28,7 @@ Comparing Mongo data and MySQL data
      $mysql = (isset($mysql_all->{$mysql_var})) ?
           $mysql_all->{$mysql_var} : 'non-existent';
      $mysql = migrate_mongo2mysql_petsig_arrayout($mysql);
-     // $mysql = ((!empty($mysql) || ($mysql === "0") || ($mysql === 0))) ? $mysql : 'non-existent';
+
      $id = strtolower($item['name']);
 
      $compare = ($mongo == $mysql) ? '=' : 'X';

@@ -10,7 +10,9 @@
  * Page callback for admin/reports/mongo-mysql-petition/compare/%.
  *
  * @param string $petition_id
- *   A mongo peition id that corresponds to mongo petition id or mysql legacy_id.
+ *   A mongo peition id that corresponds to mongo petition id or mysql
+ * legacy_id.
+ *
  * @return string
  *   Returns the html to build the page that compares the mongo and mysql data
  *   for a single petition.
@@ -239,6 +241,7 @@ function _migrate_mongo2mysql_petsig_page($petition_id = 0) {
  *
  * @param string $signature_id
  *   The signature id of the signature being compared
+ *
  * @return string
  *   The html of the page comparing a mongo signature to a mysql signature.
  */

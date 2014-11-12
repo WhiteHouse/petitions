@@ -97,8 +97,8 @@ class MigrateDestinationSignatureEntity extends MigrateDestinationEntity {
   /**
    * Delete a batch of entities at once.
    *
-   * @param $nids
-   *  Array of entity IDs to be deleted.
+   * @param array $ids
+   *   Array of entity IDs to be deleted.
    */
   public function bulkRollback(array $ids) {
     migrate_instrument_start('entity_delete_multiple');
