@@ -65,6 +65,10 @@ function api_petitions_services_resources() {
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdBefore'),
+            'deprecated' => TRUE,
+            'deprecated_message' => t('@field will not be supported in API version 2.', array(
+              '@field' => 'createdBefore',
+            )),
           ),
           array(
             'name' => 'created_after',
@@ -74,6 +78,10 @@ function api_petitions_services_resources() {
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdAfter'),
+            'deprecated' => TRUE,
+            'deprecated_message' => t('@field will not be supported in API version 2.', array(
+              '@field' => 'createdAfter',
+            )),
           ),
           array(
             'name' => 'created_at',
@@ -83,6 +91,10 @@ function api_petitions_services_resources() {
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdAt'),
+            'deprecated' => TRUE,
+            'deprecated_message' => t('@field will not be supported in API version 2.', array(
+              '@field' => 'createdAt',
+            )),
           ),
           array(
             'name' => 'limit',
@@ -269,6 +281,10 @@ function api_petitions_services_resources() {
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdBefore'),
+            'deprecated' => TRUE,
+            'deprecated_message' => t('@field will not be supported in API version 2.', array(
+              '@field' => 'createdBefore',
+            )),
           ),
           array(
             'name' => 'created_after',
@@ -278,6 +294,10 @@ function api_petitions_services_resources() {
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdAfter'),
+            'deprecated' => TRUE,
+            'deprecated_message' => t('@field will not be supported in API version 2.', array(
+              '@field' => 'createdAfter',
+            )),
           ),
           array(
             'name' => 'created_at',
@@ -287,6 +307,10 @@ function api_petitions_services_resources() {
               '@here' => 'http://www.unixtimestamp.com/',
             )),
             'source' => array('param' => 'createdAt'),
+            'deprecated' => TRUE,
+            'deprecated_message' => t('@field will not be supported in API version 2.', array(
+              '@field' => 'createdAt',
+            )),
           ),
           array(
             'name' => 'limit',
@@ -369,17 +393,17 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
   );
 
   // Set messages to send using numeric id(s) of message.
-  $api_message = array(1);
-  $api_change_params = array(
-    'msg' => _api_petitions_api_message($api_message),
-    'website_url' => $website_url,
-    'pg_location' => 'developers#petitions',
-  );
-  $api_change_message = _api_petitions_api_update_message($api_change_params);
+  // $api_message = array(1);
+  // $api_change_params = array(
+  //   'msg' => _api_petitions_api_message($api_message),
+  //   'website_url' => $website_url,
+  //   'pg_location' => 'developers#petitions',
+  // );
+  // $api_change_message = _api_petitions_api_update_message($api_change_params);
 
-  if (!empty($api_change_message)) {
-    $response_params['api_message'] = $api_change_message;
-  }
+  // if (!empty($api_change_message)) {
+  //   $response_params['api_message'] = $api_change_message;
+  // }
   $response = api_services_responses_format($response_params);
 
   return $response;
@@ -490,17 +514,17 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
     );
 
     // Set messages to send using numeric id(s) of message.
-    $api_message = array(1);
-    $api_change_params = array(
-      'msg' => _api_petitions_api_message($api_message),
-      'website_url' => $website_url,
-      'pg_location' => 'developers#petitions',
-    );
-    $api_change_message = _api_petitions_api_update_message($api_change_params);
+    // $api_message = array(1);
+    // $api_change_params = array(
+    //   'msg' => _api_petitions_api_message($api_message),
+    //   'website_url' => $website_url,
+    //   'pg_location' => 'developers#petitions',
+    // );
+    // $api_change_message = _api_petitions_api_update_message($api_change_params);
 
-    if (!empty($api_change_message)) {
-      $response_params['api_message'] = $api_change_message;
-    }
+    // if (!empty($api_change_message)) {
+    //   $response_params['api_message'] = $api_change_message;
+    // }
 
     return api_services_responses_format($response_params);
   }
