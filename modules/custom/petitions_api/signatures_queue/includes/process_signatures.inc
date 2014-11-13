@@ -742,6 +742,6 @@ function _signatures_queue_process_signatures_increment_count($petition_id, $deb
 
   // Increment count in petition node?
   if (!shunt_is_enabled('signature_mail_mysql_save')) {
-    petition_increment_count($petition_id, $debug);
+    petition_increment_count($petition_id, 1, $debug);
   }
 }
