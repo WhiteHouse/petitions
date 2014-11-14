@@ -392,18 +392,6 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
     'limit' => 1,
   );
 
-  // Set messages to send using numeric id(s) of message.
-  // $api_message = array(1);
-  // $api_change_params = array(
-  //   'msg' => _api_petitions_api_message($api_message),
-  //   'website_url' => $website_url,
-  //   'pg_location' => 'developers#petitions',
-  // );
-  // $api_change_message = _api_petitions_api_update_message($api_change_params);
-
-  // if (!empty($api_change_message)) {
-  //   $response_params['api_message'] = $api_change_message;
-  // }
   $response = api_services_responses_format($response_params);
 
   return $response;
@@ -512,19 +500,6 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
       'limit' => $limit,
       'offset' => $offset,
     );
-
-    // Set messages to send using numeric id(s) of message.
-    // $api_message = array(1);
-    // $api_change_params = array(
-    //   'msg' => _api_petitions_api_message($api_message),
-    //   'website_url' => $website_url,
-    //   'pg_location' => 'developers#petitions',
-    // );
-    // $api_change_message = _api_petitions_api_update_message($api_change_params);
-
-    // if (!empty($api_change_message)) {
-    //   $response_params['api_message'] = $api_change_message;
-    // }
 
     return api_services_responses_format($response_params);
   }
@@ -834,30 +809,6 @@ function _api_petitions_api_update_message(array $api_change_parameters) {
   }
   $api_update_message = $message . $website_url . $pg_location;
   return $api_update_message;
-}
-
-/**
- * Returns a message string.
- *
- * @param array $api_msg_params
- *   An array of message ids as integers: 1,2,3... .
- *
- * @return string
- *   All requested messages concatenated as one message.
- */
-function _api_petitions_api_message(array $api_msg_params) {
-  if (empty($api_msg_params)) {
-    return '';
-  }
-  $msg_outputs = array();
-  $message_collection = array(
-    1 => 'API version: 1. Deprecated fields and parameters will not be supported in API version 2: created, createdAt, createdBefore, createdAfter (use published).',
-  );
-  foreach ($api_msg_params as $api_msg_param) {
-    $msg_outputs[$api_msg_param] = $message_collection[$api_msg_param];
-  }
-  $api_message = implode(' ', $msg_outputs);
-  return $api_message;
 }
 
 /**
