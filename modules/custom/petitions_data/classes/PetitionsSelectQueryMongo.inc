@@ -185,7 +185,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
     if ($this->getCreatedDate()) {
       $query = $this->getQuery();
       $query += array(
-        'created' => $this->getCreatedDate(),
+        'published' => $this->getCreatedDate(),
       );
       $this->setQuery($query);
     }
@@ -197,11 +197,11 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   protected function addStartDateToQuery() {
     if ($this->getStartDate()) {
       $query = $this->getQuery();
-      // Do not overwrite any other parameters that use 'created'.
-      if (!isset($query['created'])) {
-        $query['created'] = array();
+      // Do not overwrite any other parameters that use 'published'.
+      if (!isset($query['published'])) {
+        $query['published'] = array();
       }
-      $query['created'] += array('$gt' => $this->getStartDate());
+      $query['published'] += array('$gt' => $this->getStartDate());
       $this->setQuery($query);
     }
   }
@@ -212,11 +212,11 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   protected function addEndDateToQuery() {
     if ($this->getEndDate()) {
       $query = $this->getQuery();
-      // Do not overwrite any other parameters that use 'created'.
-      if (!isset($query['created'])) {
-        $query['created'] = array();
+      // Do not overwrite any other parameters that use 'published'.
+      if (!isset($query['published'])) {
+        $query['published'] = array();
       }
-      $query['created'] += array('$lt' => $this->getEndDate());
+      $query['published'] += array('$lt' => $this->getEndDate());
       $this->setQuery($query);
     }
   }
