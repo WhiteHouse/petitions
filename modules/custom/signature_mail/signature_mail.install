@@ -21,7 +21,7 @@ function signature_mail_install() {
 /**
  * Updating signature_mail user_zip to 255 characters.
  */
-function signature_mail_7100() {
+function signature_mail_update_7100() {
   $new_schema = array(
     'description' => 'zipcode',
     'type' => 'varchar',
