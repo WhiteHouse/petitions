@@ -41,7 +41,7 @@ class PetitionsController {
     $petition_form['response_signatures'] = $petition->getSignatureThreshold();
     $petition_form['review_timeframe'] = $petition->getReviewTimeframe();
     $petition_form['reached_public'] = $petition->getReachedPublic();
-    $petition_form['published'] = $petition->getCreated();
+    $petition_form['published'] = $petition->getPublished();
 
     // Save the petition to MongoDB.
     $conn = wh_petitions_mongo_petition_connection();

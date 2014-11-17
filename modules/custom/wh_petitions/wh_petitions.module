@@ -1290,7 +1290,7 @@ function wh_petitions_mail($key, &$message, $params) {
       $legacy_id = check_plain($petition['_id']);
 
       if (!empty($petition)) {
-        if(function_exists('petitionevents_mail_additions')){
+        if (function_exists('petitionevents_mail_additions')) {
           $context = array();
           $context["petition_title"] = $petition['title'];
           $context["petition_uid"] = $petition['_uid'];
@@ -1314,7 +1314,7 @@ function wh_petitions_mail($key, &$message, $params) {
         $message['body'][0] = str_replace('!petition_body', check_plain($petition['body']), $message['body'][0]);
 
         $link_path = "$base_url/admin/petitions/$legacy_id";
-        $link= l($link_path,$link_path);
+        $link = l($link_path, $link_path);
         $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
       }
       else {
@@ -2002,7 +2002,7 @@ function wh_petitions_increment_signature_count(&$petition, $connection = FALSE)
  */
 function wh_petitions_shunt() {
   $shunts = array();
- 
+
   // This shunt will stop both mongo and mysql petition creation via the form.
   // It overrides the shunts defined by petition and signature mail.
   // Once we separate the mongo code from the current petition creation form,
