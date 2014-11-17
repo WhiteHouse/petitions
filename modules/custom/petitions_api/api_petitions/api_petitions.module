@@ -827,14 +827,5 @@ function _api_petitions_petitions_preface() {
       t('Developers who need historic data on all public petitions should consider using our bulk data download, described above.'),
     ),
   ));
-  $message .= theme('item_list', array(
-    'title' => t('Deprecated fields and parameters'),
-    'items' => array(
-      t('created (use published instead)'),
-      t('createdBefore'),
-      t('createdAfter'),
-      t('createdAt'),
-    ),
-  ));
   return $message;
 }
