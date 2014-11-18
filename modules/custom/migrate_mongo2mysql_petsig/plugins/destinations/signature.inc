@@ -86,27 +86,27 @@ class MigrateDestinationSignatureEntity extends MigrateDestinationEntity {
     parent::prepare($entity, $source_row);
 
     if (isset($entity->user_first_name)) {
-      $entity->user_first_name = migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_first_name));
+      $entity->user_first_name = substr(migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_first_name)), 0, 255);
     }
 
     if (isset($entity->user_last_name)) {
-      $entity->user_last_name = migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_last_name));
+      $entity->user_last_name = substr(migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_last_name)), 0, 255);
     }
 
     if (isset($entity->user_city)) {
-      $entity->user_city = migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_city));
+      $entity->user_city = substr(migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_city)), 0, 255);
     }
 
     if (isset($entity->user_state)) {
-      $entity->user_state = migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_state));
+      $entity->user_state = substr(migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_state)), 0, 255);
     }
 
     if (isset($entity->user_zip)) {
-      $entity->user_zip = migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_zip));
+      $entity->user_zip = substr(migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_zip)), 0, 255);
     }
 
     if (isset($entity->user_country)) {
-      $entity->user_country = migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_country));
+      $entity->user_country = substr( migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_country)), 0, 255);
     }
 
   }

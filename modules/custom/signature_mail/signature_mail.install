@@ -17,3 +17,18 @@ function signature_mail_install() {
     signature_mail_disable_mysql();
   }
 }
+
+/**
+ * Updating signature_mail user_zip to 255 characters.
+ */
+function signature_mail_update_7100() {
+  $new_schema = array(
+    'description' => 'zipcode',
+    'type' => 'varchar',
+    'not null' => TRUE,
+    'default' => '',
+    'length' => '255',
+  );
+  db_change_field('signature_mail', 'user_zip', 'user_zip', $new_schema);
+
+}

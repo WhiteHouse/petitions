@@ -18,7 +18,7 @@ function signature_mail_shunt() {
 }
 
 /**
- * Disable mysql. (This uses a shunt trip that turns off access to mysql.)
+ * Disable mysql. (This uses a shunt trip that turns off access to mysql.).
  */
 function signature_mail_disable_mysql() {
   // Set the initial state of MySQL shunt to disable mysql writes.

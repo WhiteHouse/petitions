@@ -88,7 +88,7 @@ class SignatureMail extends Signature {
     array(
       'description' => 'zipcode',
       'type' => 'varchar',
-      'length' => 20,
+      'length' => 255,
       'not null' => TRUE,
     ));
 
