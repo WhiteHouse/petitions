@@ -102,7 +102,7 @@ class MigrateDestinationSignatureEntity extends MigrateDestinationEntity {
     }
 
     if (isset($entity->user_zip)) {
-      $entity->user_zip = substr(migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_zip)), 0, 20);
+      $entity->user_zip = substr(migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_zip)), 0, 255);
     }
 
     if (isset($entity->user_country)) {
@@ -110,4 +110,19 @@ class MigrateDestinationSignatureEntity extends MigrateDestinationEntity {
     }
 
   }
+
+  /**
+   * Delete a batch of entities at once.
+   *
+   * @param $nids
+   *  Array of entity IDs to be deleted.
+   */
+  public function bulkRollback(array $ids) {
+    migrate_instrument_start('entity_delete_multiple');
+    $this->prepareRollback($ids);
+    entity_delete_multiple('signature_mail', $ids);
+    $this->completeRollback($ids);
+    migrate_instrument_stop('entity_delete_multiple');
+  }
+
 }
