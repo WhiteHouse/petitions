@@ -84,3 +84,30 @@ function replace4byte($string) {
     | \xF4[\x80-\x8F][\x80-\xBF]{2}      # plane 16
     )%xs', "�", $string);
 }
+
+/**
+ * Sanitizes database input.
+ *
+ * Removes characters that break XML validation and replaces non-English
+ * characters with x's.
+ *
+ * @param string $string
+ *   The raw input string.
+ *
+ * @return string
+ *   The XML-safe output string.
+ */
+function migrate_mongo2mysql_sanitize_output($string) {
+  // Make the string XML-safe by removing unacceptable Unicode characters.
+  // @see http://stackoverflow.com/questions/12229572/php-generated-xml-shows-invalid-char-value-27-message
+  $string = preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', '', $string);
+
+  // Replace non-English characters with x's.
+  // @see http://stackoverflow.com/questions/3654879/remove-non-english-characters-php
+  $string = preg_replace('/[^\00-\255]+/u', 'x', $string);
+
+  // Remove potential XSS attempts.
+  $string = filter_xss($string);
+
+  return $string;
+}
