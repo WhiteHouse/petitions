@@ -46,7 +46,8 @@ class PetitionMigration extends PetSigMigration {
         "review_timeframe" => "Review Timeframe",
         "response_signatures" => "Response Signature",
         "public_signatures" => "Public Signature", "short_url" => "Short URL",
-        "created" => "Created",
+        "created" => "Created", "closed" => "Closed",
+
     ));
 
     $this->destination = new MigrateDestinationNodeModified('petition');
@@ -71,7 +72,7 @@ class PetitionMigration extends PetSigMigration {
     $this->addFieldMapping("field_timestamp_published", 'published');
     $this->addFieldMapping("field_timestamp_reached_public", 'reached_public');
     $this->addFieldMapping("field_timestamp_reached_ready", 'reached_ready');
-    $this->addFieldMapping("field_timestamp_responded");
+    $this->addFieldMapping("field_timestamp_responded", "closed");
 
     $this->addUnmigratedSources(array("field_response_id"));
 
