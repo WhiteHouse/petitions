@@ -33,7 +33,14 @@ class PetitionMigration extends PetSigMigration {
     $this->description = t('Migrate mongodb petition objects, to a content type petition');
 
     $collection = wh_petitions_mongo_petition_connection();
-    $this->source = new MigrateSourceMongoDB($collection, array(), array(
+
+    $query = array(
+      'petition_status' => array(
+        '$nin' => array((int) WH_PETITION_STATUS_DRAFT),
+      ),
+    );
+
+    $this->source = new MigrateSourceMongoDB($collection, $query, array(
         '_id' => "MongoDB identifier",
         'uid' => "User ID", 'title' => "Title", 'body' => "Body",
         'response_id' => "Response ID", "issues" => "Issues",
