@@ -35,9 +35,10 @@ class PetitionMigration extends PetSigMigration {
     $collection = wh_petitions_mongo_petition_connection();
 
     $query = array(
-      'petition_status' => array(
-        '$nin' => array((int) WH_PETITION_STATUS_DRAFT),
-      ),
+    // Commented out to import ALL petitions, including drafts
+      //  'petition_status' => array(
+      //    '$nin' => array((int) WH_PETITION_STATUS_DRAFT),
+      //  ),
     );
 
     $this->source = new MigrateSourceMongoDB($collection, $query, array(
