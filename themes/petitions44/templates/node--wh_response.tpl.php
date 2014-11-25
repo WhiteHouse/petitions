@@ -107,8 +107,7 @@
         <span class="petition-title"><?php print $petition_title; ?>       
           <?php if ($petition_count > 1): ?>
             <a href="" class="no-follow" id="more-petitions">
-            <?php
-            $petition_label = ($petition_count == 2) ? 'petition' : 'petitions';
+            <?php $petition_label = ($petition_count == 2) ? 'petition' : 'petitions'; ?>
             <?php print t('and !count other !petition_label', array('!count' => $petition_count - 1, '!petition_label' => $petition_label)); ?>
             </a>
           <?php endif; ?>
