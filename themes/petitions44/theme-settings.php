@@ -4,8 +4,7 @@
  * @file
  * Creates the help text field in the theme settings UI.
  */
-
-  require_once drupal_get_path('theme', 'petitions44') . '/template.php';
+require_once drupal_get_path('theme', 'petitions44') . '/template.php';
 
 /**
  * Implements hook_form_system_theme_settings_alter().
