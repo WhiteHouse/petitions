@@ -107,11 +107,9 @@
         <span class="petition-title"><?php print $petition_title; ?>       
           <?php if ($petition_count > 1): ?>
             <a href="" class="no-follow" id="more-petitions">
-            <?php if ($petition_count == 2): ?>
-              <?php print t('and !count other petition', array('!count' => $petition_count - 1)); ?>
-            <?php else: ?>
-              <?php print t('and !count other petitions', array('!count' => $petition_count - 1)); ?>
-            <?php endif; ?>
+            <?php
+            $petition_label = ($petition_count == 2) ? 'petition' : 'petitions';
+            <?php print t('and !count other !petition_label', array('!count' => $petition_count - 1, '!petition_label' => $petition_label)); ?>
             </a>
           <?php endif; ?>
         </span><!--/petition title-->
@@ -142,11 +140,8 @@
 <?php if ($petition_count > 0): ?>              
   <div class="petition-list clearfix">
     <div class="response-applies-msg">
-      <?php if ($petition_count == 1): ?>
-        <?php print t('The above response applies to the following !count petition', array('!count' => $petition_count)); ?>
-      <?php else: ?>
-        <?php print t('The above response applies to the following !count petitions', array('!count' => $petition_count)); ?>
-      <?php endif; ?>
+      <?php $petition_label = ($petition == 1) ? 'petition' : 'petitions'; ?>
+      <?php print t('The above response applies to the following !count !petition_label', array('!count' => $petition_count, '!', '!petition_label' => $petition_label)); ?>
     </div><!--/response applies-msg-->
               
     <div class="full-page-list" id="petitions">
