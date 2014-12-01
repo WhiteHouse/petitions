@@ -1,6 +1,11 @@
 <?php
+/**
+ * @file
+ * This file contains functionality for displaying petitions.
+ */
 
 /*********************** PETITION LIST ****************************/
+
 /**
  * Callback to display the list of petitions on the Open Petitions ( /petitions ) page.
  */
@@ -100,7 +105,7 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
   // Retrieve only public and under_review petitions that aren't hidden from lists by admins
   $query = array(
     'petition_status' => array(
-      '$in' => array((int)WH_PETITION_STATUS_PUBLIC, (int)WH_PETITION_STATUS_UNDER_REVIEW)
+      '$in' => array((int) WH_PETITION_STATUS_PUBLIC, (int) WH_PETITION_STATUS_UNDER_REVIEW)
     ),
     'hidden' => 0,
   );
@@ -274,7 +279,6 @@ function wh_petitions_more_petitions($sort, $page, $cols, $issues) {
     print json_encode($data);
   }
   exit;
-  print $html;
 }
 
 /**
@@ -365,7 +369,7 @@ function wh_petitions_petition_detail($petition_id) {
   $created = date("M d, Y", $timestamp);
   $issues = array();
   if (!empty($petition['issues'])) {
-    for ($i=0;$i<sizeof($petition['issues']);$i++) {
+    for ($i = 0; $i < sizeof($petition['issues']); $i++) {
       $term = taxonomy_term_load($petition['issues'][$i]);
       if (!empty($term)) {
         array_push($issues, l($term->name, 'petitions/all/0/2/' . intval($term->tid)));
@@ -380,8 +384,8 @@ function wh_petitions_petition_detail($petition_id) {
     $signatures_needed = 0;
   }
   $signatures = $petition['signature_count'];
-  $time = $petition['published'];
-  $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
+  $published = $petition['published'];
+  $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $published);
   $end_date = date("F d, Y", $end_date);
 
   // Set a flag for archived petitions
@@ -412,27 +416,28 @@ function wh_petitions_petition_detail($petition_id) {
            'title' => (!empty($node->field_agency_seal[$node->language][0]['title'])) ? check_plain($node->field_agency_seal[$node->language][0]['title']) : '',
            'attributes' => array('class' => array('graphic')),
            'getsize' => TRUE,
-         );
-         $agency_seal = theme('image_style', $image_vars);
-       }
+          );
+          $agency_seal = theme('image_style', $image_vars);
+        }
 
-       // Retrieve the appropiate audio/video field info for the response.
-       if (!empty($node->field_response_media[$node->language][0])) {
-         $media_tid = $node->field_response_media[$node->language][0]['tid'];
-         $media = taxonomy_term_load($media_tid);
-         $media_name = $media->name;
+        // Retrieve the appropiate audio/video field info for the response.
+        if (!empty($node->field_response_media[$node->language][0])) {
+          $media_tid = $node->field_response_media[$node->language][0]['tid'];
+          $media = taxonomy_term_load($media_tid);
+          $media_name = $media->name;
 
-         switch ($media_name) {
-           case 'Audio':
-             if (!empty($node->field_audio_embed[$node->language][0])) {
-               $response_audio = check_plain($node->field_audio_embed[$node->language][0]['value']);
-             }
-             break;
-           case 'Video':
-             if (!empty($node->field_video_embed[$node->language][0])) {
-               $response_video = check_plain($node->field_video_embed[$node->language][0]['value']);
-             }
-             break;
+          switch ($media_name) {
+            case 'Audio':
+              if (!empty($node->field_audio_embed[$node->language][0])) {
+                $response_audio = check_plain($node->field_audio_embed[$node->language][0]['value']);
+              }
+              break;
+
+            case 'Video':
+              if (!empty($node->field_video_embed[$node->language][0])) {
+                $response_video = check_plain($node->field_video_embed[$node->language][0]['value']);
+              }
+              break;
           }
         }
       }
@@ -493,7 +498,7 @@ function wh_petitions_petition_detail($petition_id) {
     'body' => wh_petitions_format_description($petition['body']),
     'created' => check_plain($created),
     'issues' => $issues,
-    'published' => check_plain($published),
+    'published' => date("M d, Y", $published),
     'total_needed' => wh_petitions_format_number($total_needed),
     'signatures_needed' => wh_petitions_format_number($signatures_needed),
     'signatures' => wh_petitions_format_number($signatures),
@@ -519,8 +524,8 @@ function wh_petitions_petition_detail($petition_id) {
     $sig_conn = wh_petitions_mongo_petition_signatures_connection();
     $sig_conn->setSlaveOkay(FALSE);
     $query = array(
-      'uid' => (int)$user->uid,
-      'petition_id' => (string)$petition_id,
+      'uid' => (int) $user->uid,
+      'petition_id' => (string) $petition_id,
     );
     $result = $sig_conn->findOne($query);
     if (!empty($result)) {
@@ -604,7 +609,7 @@ function wh_petitions_petition_detail($petition_id) {
   $last_id = '';
   if (!empty($_GET['page'])) {
     $get_page = preg_replace('/[^0-9]/', '', $_GET['page']);
-    if (is_int((int)$get_page)) {
+    if (is_int((int) $get_page)) {
       $page = intval($get_page);
       $sigs_per_page = 19;
       $last_id = preg_replace('/[^a-zA-Z0-9]/', '', $_GET['last']);
@@ -744,8 +749,8 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
   // Find out if a user has signed the petition and capture their signature if they have
   if ($user->uid != $petition_uid) {
     $query = array(
-      'uid' => (int)$user->uid,
-      'petition_id' => (string)$petition_id,
+      'uid' => (int) $user->uid,
+      'petition_id' => (string) $petition_id,
     );
     $result = $sig_conn->findOne($query);
     if (!empty($result)) {
@@ -765,12 +770,12 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
   }
 
   $query = array(
-    'petition_id' => (string)$petition_id,
+    'petition_id' => (string) $petition_id,
   );
 
   // If this current user has signed this petition, remove them from the possible signatures we retrieve ( they'll always be second on the first page )
   if (!empty($has_user_signed)) {
-    $query['uid'] = array('$nin' => array((int)$user->uid));
+    $query['uid'] = array('$nin' => array((int) $user->uid));
     if ($page == 1) {
       $per_page = $per_page - 1;
     }
@@ -781,15 +786,15 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
 
   // If we're on the first page, we want to get the creator's signature to display first.
   if ($page == 1) {
-    $creator_signature = $sig_conn->findOne(array('petition_id' => (string)$petition_id, 'uid' => (int)$petition_uid));
+    $creator_signature = $sig_conn->findOne(array('petition_id' => (string) $petition_id, 'uid' => (int) $petition_uid));
   }
 
   // We don't want to retrieve the creator's signature in any of the queries either.
   if (empty($query['uid']) && !empty($petition_uid)) {
-    $query['uid'] = array('$nin' => array((int)$petition_uid));
+    $query['uid'] = array('$nin' => array((int) $petition_uid));
   }
   else {
-    array_push($query['uid']['$nin'], (int)$petition_uid);
+    array_push($query['uid']['$nin'], (int) $petition_uid);
   }
 
   // Get the first page of results
@@ -943,8 +948,8 @@ function wh_petitions_user_dashboard() {
   // Get this user's draft petitions, sort by the id ( descending in order created )
   $conn = wh_petitions_mongo_petition_connection();
   $query = array(
-    'uid' => (int)$user->uid,
-    'petition_status' => (int)WH_PETITION_STATUS_DRAFT,
+    'uid' => (int) $user->uid,
+    'petition_status' => (int) WH_PETITION_STATUS_DRAFT,
   );
   $result = $conn->find($query, array('title', 'signature_count', 'nice_url'));
 
@@ -979,8 +984,8 @@ function wh_petitions_user_dashboard() {
   // Get the petitions this user has created
   $created_html = '';
   $query = array(
-    'uid' => (int)$user->uid,
-    'petition_status' => array('$gt' => (int)WH_PETITION_STATUS_DRAFT),
+    'uid' => (int) $user->uid,
+    'petition_status' => array('$gt' => (int) WH_PETITION_STATUS_DRAFT),
   );
   $sort = array(
     'published' => -1,
@@ -995,9 +1000,11 @@ function wh_petitions_user_dashboard() {
         case WH_PETITION_STATUS_FLAGGED:
           $petition_status = 'removed';
           break;
+
         case WH_PETITION_STATUS_REVIEWED:
           $petition_status = 'response';
           break;
+
         case WH_PETITION_STATUS_CLOSED:
           $petition_status = 'archived';
           break;
@@ -1021,16 +1028,16 @@ function wh_petitions_user_dashboard() {
   // Get the petitions this user has signed ( but ones they're not a creator for, since creators automatically sign their petitions )
   $sig_conn = wh_petitions_mongo_petition_signatures_connection();
   $mongo_array = array();
-  $result = $sig_conn->find(array('uid' => (int)$user->uid), array('petition_id'));
+  $result = $sig_conn->find(array('uid' => (int) $user->uid), array('petition_id'));
   foreach ($result as $res) {
     array_push($mongo_array, new MongoId($res['petition_id']));
   }
 
   $signed_html = '';
   $query = array(
-    'uid' => array('$ne' => (int)$user->uid),
+    'uid' => array('$ne' => (int) $user->uid),
     '_id' => array('$in' => $mongo_array),
-    'petition_status' => array('$gt' => (int)WH_PETITION_STATUS_DRAFT),
+    'petition_status' => array('$gt' => (int) WH_PETITION_STATUS_DRAFT),
   );
   $result = $conn->find($query, array('petition_status', 'title', 'signature_count', 'nice_url'));
 
@@ -1042,9 +1049,11 @@ function wh_petitions_user_dashboard() {
         case WH_PETITION_STATUS_FLAGGED:
           $petition_status = 'removed';
           break;
+
         case WH_PETITION_STATUS_REVIEWED:
           $petition_status = 'response';
           break;
+
         case WH_PETITION_STATUS_CLOSED:
           $petition_status = 'archived';
           break;
