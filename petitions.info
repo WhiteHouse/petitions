@@ -33,7 +33,6 @@ dependencies[] = context
 dependencies[] = entity
 dependencies[] = entitycache
 dependencies[] = features
-dependencies[] = gatekeeper
 dependencies[] = globalredirect
 dependencies[] = imce
 dependencies[] = libraries

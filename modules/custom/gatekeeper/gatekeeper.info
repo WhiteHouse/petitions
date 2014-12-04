@@ -1,4 +1,0 @@
-name = Gatekeeper
-description = Alerts users when they are exiting the current domain.
-core = 7.x
-dependencies[] = colorbox
