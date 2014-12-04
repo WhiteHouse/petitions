@@ -8,11 +8,9 @@ version = VERSION
 
 ; core
 dependencies[] = block
-dependencies[] = color
 dependencies[] = comment
 dependencies[] = contextual
 dependencies[] = dashboard
-dependencies[] = help
 dependencies[] = image
 dependencies[] = list
 dependencies[] = menu
@@ -32,7 +30,6 @@ dependencies[] = rdf
 dependencies[] = captcha
 dependencies[] = colorbox
 dependencies[] = context
-dependencies[] = context_ui
 dependencies[] = entity
 dependencies[] = entitycache
 dependencies[] = features
