@@ -12,8 +12,10 @@ function petition_enable() {
   $t = get_t();
   drupal_set_message($message = $t('The Petition  module was successfully enabled.'), $type = 'status');
   // Start MySQL writes off disabled.
+  // Note: shunt_enable_shunt() isn't available yet when installing the distro
+  // fresh, so set the variable directly.
   // @todo: remove this once MongoDB is removed.
-  shunt_enable_shunt('petition_mysql_save');
+  variable_set('shunt_petition_mysql_save', TRUE);
 }
 
 /**
@@ -37,8 +39,10 @@ function petition_install() {
   drupal_set_message($message = $t('The Petition module has been installed and a Petition content type has been created.'), $type = 'status');
 
   // Set the initial state of MySQL shunt to disable mysql writes.
+  // Note: shunt_enable_shunt() isn't available yet when installing the distro
+  // fresh, so set the variable directly.
   // @todo This default setting should be removed when mongo is fully removed.
-  shunt_enable_shunt('petition_mysql_save');
+  variable_set('shunt_petition_mysql_save', TRUE);
 
 }
 
@@ -80,7 +84,7 @@ function petition_update_7300(&$sandbox) {
  *
  * The structure of the array coming in matches the fields array created by
  * the Features module.
- * 
+ *
  * @param array $fields
  *   A fields array as created by Features.
  */
