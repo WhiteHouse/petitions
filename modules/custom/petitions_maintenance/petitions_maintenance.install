@@ -61,3 +61,13 @@ function petitions_maintenance_update_7302(&$sandbox) {
     ->condition('name', 'formatforlog')
     ->execute();
 }
+
+/**
+ * Remove colorbox module.
+ */
+function petitions_maintenance_update_7303(&$sandbox) {
+  db_delete('system')
+    ->condition('name', 'colorbox')
+    ->execute();
+  db_query("DELETE FROM {variable} WHERE name LIKE 'colorbox_%'");
+}

@@ -28,7 +28,6 @@ dependencies[] = rdf
 
 ; contrib
 dependencies[] = captcha
-dependencies[] = colorbox
 dependencies[] = context
 dependencies[] = entity
 dependencies[] = entitycache

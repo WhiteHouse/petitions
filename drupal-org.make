@@ -10,8 +10,6 @@ projects[advanced_help][version] = 1.0
 
 projects[captcha][version] = 1.0
 
-projects[colorbox][version] = 2.4
-
 projects[conditional_styles][version] = 2.1
 
 projects[context][version] = 3.1
@@ -138,9 +136,6 @@ projects[zen][patch][2144803-1] = https://drupal.org/files/issues/zen-include_er
 
 ; Third Party Libraries
 ; ==============================================================================
-
-libraries[colorbox][download][type] = file
-libraries[colorbox][download][url] = https://github.com/jackmoore/colorbox/archive/1.4.27.zip
 
 libraries[faker][download][type] = get
 libraries[faker][download][url] = https://github.com/fzaninotto/Faker/archive/v1.3.0.tar.gz
