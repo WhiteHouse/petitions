@@ -230,7 +230,7 @@ function _petitions44_help_text() {
   // Check for user-defined header.
   if (!$petitions44_help_text = theme_get_setting('petitions44_help_text')) {
     // If no user-defined header exists, check to see if an included module is
-    // providing defaults (this is useful for implmentations like petitions).
+    // providing defaults (this is useful for implementations like petitions).
     $text = t('Help make We the People even better. Share your feedback on how this new platform can improve.');
     $petitions44_help_text = variable_get('petitions44_help_text', $text);
   }
