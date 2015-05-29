@@ -9,15 +9,15 @@
  */
 function petitionevents_action_info() {
   return array(
-    'petitionevents_unpublish_petition_action' => array(
+    'petitionevents_hide_petition_action' => array(
       'type' => 'node',
-      'label' => t('Remove petitions'),
+      'label' => t('Petitions Hide (Remove)'),
       'configurable' => TRUE,
       'vbo_configurable' => TRUE,
     ),
-    'petitionevents_publish_petition_action' => array(
+    'petitionevents_show_petition_action' => array(
       'type' => 'node',
-      'label' => t('Restore petitions'),
+      'label' => t('Petitions Restore'),
     ),
   );
 }
@@ -32,9 +32,9 @@ function petitionevents_action_info() {
  *   Contextual information passed into the action.  Values set in a VBO form
  *   would be present here.
  */
-function petitionevents_unpublish_petition_action(&$node, $context) {
+function petitionevents_hide_petition_action(&$node, $context) {
   try{
-    petition_unpublish($node);
+    petition_hide($node);
   }
 
   catch (Exception $e) {
@@ -48,7 +48,7 @@ function petitionevents_unpublish_petition_action(&$node, $context) {
   if (!$context['skip_notification']) {
     $context['petition_title'] = $node->title;
     $context['petition_uid'] = $node->uid;
-    petitionevents_send_remove_email($context);
+    petitionevents_send_hidden_email($context);
   }
 
   watchdog('petition_removal', 'Unpublishing petition: @title nid: @nid', array(
@@ -67,9 +67,9 @@ function petitionevents_unpublish_petition_action(&$node, $context) {
  *   Contextual information passed into the action.  Values set in a VBO form
  *   would be present here.
  */
-function petitionevents_publish_petition_action(&$node, $context) {
+function petitionevents_show_petition_action(&$node, $context) {
   try{
-    petition_publish($node);
+    petition_show($node);
   }
 
   catch (Exception $e) {
@@ -80,7 +80,7 @@ function petitionevents_publish_petition_action(&$node, $context) {
     return;
   }
 
-  watchdog('petition_publish', 'Publishing petition: @title nid: @nid', array(
+  watchdog('petition_show', 'Publishing petition: @title nid: @nid', array(
     '@title' => $node->title,
     '@nid' => $node->nid,
   ));
@@ -94,7 +94,7 @@ function petitionevents_publish_petition_action(&$node, $context) {
  *   Contextual information passed into the action.  Values set in a VBO form
  *   would be present here.
  */
-function petitionevents_send_remove_email($context) {
+function petitionevents_send_hidden_email($context) {
   // If an address was given, send a test email message.
   $user = user_load($context['petition_uid']);
 
@@ -115,7 +115,7 @@ function petitionevents_send_remove_email($context) {
   $params['body'] = $message_body;
   $params['bcc'] = check_plain($context['bcc']);
   $params['from'] = $from_full_email;
-  $result = drupal_mail('petitionevents', 'send_remove_email', $petition_owner_full_email, $language, $params);
+  $result = drupal_mail('petitionevents', 'send_hidden_email', $petition_owner_full_email, $language, $params);
 }
 
 /**
@@ -123,9 +123,9 @@ function petitionevents_send_remove_email($context) {
  */
 function petitionevents_mail($key, &$message, $params) {
 
-  if ($key == 'send_remove_email') {
+  if ($key == 'send_hidden_email') {
     $message['subject'] = $params['subject'];
-    $message['body'] = $params['body'];
+    $message['body'][] = $params['body'];
     $message['bcc'] = $params['bcc'];
     $message['from'] = $params['from'];
   }
@@ -140,7 +140,7 @@ function petitionevents_mail($key, &$message, $params) {
  * @return array
  *   Form of the array.
  */
-function petitionevents_unpublish_petition_action_form($settings) {
+function petitionevents_hide_petition_action_form($settings) {
   $form = array();
   $form['petitionevents_remove_email_skip_notification'] = array(
     '#type' => 'checkbox',
@@ -170,7 +170,7 @@ function petitionevents_unpublish_petition_action_form($settings) {
 /**
  * Implements hook_action_validate().
  */
-function petitionevents_unpublish_petition_action_validate($form, &$form_state) {
+function petitionevents_hide_petition_action_validate($form, &$form_state) {
   $skip_notification = (boolean) $form_state['values']['petitionevents_remove_email_skip_notification'];
   if ($skip_notification) {
     return;
@@ -201,7 +201,7 @@ function petitionevents_unpublish_petition_action_validate($form, &$form_state) 
 /**
  * Submit callback for actions form.
  */
-function petitionevents_unpublish_petition_action_submit($form, $form_state) {
+function petitionevents_hide_petition_action_submit($form, $form_state) {
   $action_context = array();
   $action_context['skip_notification'] = $form_state['values']['petitionevents_remove_email_skip_notification'];
   $action_context['from_name'] = $form_state['values']['petitionevents_remove_email_from_name'];

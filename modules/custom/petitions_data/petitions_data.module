@@ -1,11 +1,12 @@
 <?php
+
 /**
  * @file
- * This is the main module file for petitions_data.
+ * Data abstraction for use with services to provide a flexible backend.
  */
 
-// @todo Remove this after mongo is turned off before version 7.x-3.0 release.
-require_once dirname(__FILE__) . '/petitions_data.mongo2mysql.inc';
+// @mongo2mysql
+include_once 'petitions_data.mongo2mysql.inc';
 
 /**
  * Implements hook_menu().
@@ -111,24 +112,106 @@ function petitions_data_freshen_cached_petition($petition_id) {
   petitions_data_clear_cached_petition($petition_id);
 
   // Reload the petition into cache.
-  petitions_data_mongo2mysql_get_petition($petition_id);
+  petitions_data_get_petition($petition_id);
 }
 
 /**
- * Gets a "nice URL" from a full URL.
+ * Gets the path component from a full URL.
  *
  * @param string $full_url
  *   The full URL, e.g., "https://example.com/petition/some-title/as1d2vy6".
  *
  * @return string
- *   The corresponding "nice URL", e.g., "petition/some-title/as1d2vy6".
+ *   The corresponding path, e.g., "petition/some-title/as1d2vy6".
  */
-function petitions_data_get_nice_url_from_full_url($full_url) {
-  // The "nice URL" is just the URL path component without the leading forward
-  // slash (/).
+function petitions_data_get_path_from_full_url($full_url) {
+  // The is just the URL path component without the leading forward slash (/).
   $url_parts = parse_url($full_url);
-  $nice_url = substr($url_parts['path'], 1);
-  return $nice_url;
+  $path = substr($url_parts['path'], 1);
+  return $path;
+}
+
+/**
+ * Gets a petition.
+ *
+ * The petition array is cached indefinitely to prevent return trips to the
+ * database for the same information.
+ *
+ * @todo To prevent stale data, cache entries need to be invalidated by petition
+ *   ID whenever:
+ *     - A petition is modified.
+ *     - A new petition is created.
+ *
+ * @param string $petition_id
+ *   A hexidecimal petition ID.
+ *
+ * @return array
+ *   Returns an array of petition data if a petition is found (or an empty array
+ *   if not) containing the following (key, value) pairs:
+ *   - id: A unique identifier as a hexidecimal string.
+ *   - type: The string "petition".
+ *   - title: The title string.
+ *   - body: The body string.
+ *   - issues: An indexed array of terms from the "Issues" vocabulary that the
+ *     petition is tagged with, where each value is another array with the
+ *     following (key, value) pairs:
+ *     - id: The term id (tid).
+ *     - name: The term name string.
+ *   - signatureThreshold: The number of signatures required to receive an
+ *     official response.
+ *   - url: The absolute path to the petition, e.g. "/petition/petition-title".
+ *   - deadline: The deadline for signing the petition, as a Unix timestamp.
+ *   - status: The string "open", "pending response", "responded", or "closed".
+ *   - response: An array of response data if a response has been associated
+ *     with the petition (or NULL if not) containing the following (key, value)
+ *     pairs:
+ *     - id: The response node ID (nid).
+ *     - url: The absolute path to the response node, e.g.
+ *       "/response/response-title".
+ *     - associationTime: The date the response was associated with the
+ *       petition, in the form of a Unix timestamp.
+ *   - created: The date the petition was created, as a Unix timestamp.
+ *
+ *  The following are *not* included in the returned array because they would
+ *  change too often to be reliable in the cached petition data.
+ *   - signatureCount: The number of signatures the petition has received to
+ *     date.
+ *   - signaturesNeeded: The number of signatures still needed in order to reach
+ *     the threshold.
+ */
+function petitions_data_get_petition($petition_id) {
+  $petition = &drupal_static(__FUNCTION__ . $petition_id);
+  if (empty($petition)) {
+    if ($cache = cache_get("petition:{$petition_id}", 'cache_petitions_petitions')) {
+      $petition = $cache->data;
+    }
+    else {
+      $petition = PetitionsController::load($petition_id);
+
+      // If the petition exists, remove volatile values that are likely to
+      // become stale before the cache expires and lead to unreliable displays.
+      if (!empty($petition)) {
+        unset($petition['signatureCount'], $petition['signaturesNeeded']);
+      }
+
+      // Cache the result.
+      cache_set("petition:{$petition_id}", $petition, 'cache_petitions_petitions', CACHE_PERMANENT);
+    }
+  }
+  return $petition;
+}
+
+/**
+ * Determines whether a given petition ID is valid.
+ *
+ * @param mixed $value
+ *   The value to test.
+ *
+ * @return bool
+ *   Returns TRUE if the given value is a valid petition ID or FALSE if not.
+ */
+function petitions_data_is_valid_petition_id($value) {
+  return is_int($value) || petition_is_legacy_id($value);
 }
 
 /**
@@ -141,7 +224,7 @@ function petitions_data_get_nice_url_from_full_url($full_url) {
  *   Returns TRUE if the petition is open and not expired.
  */
 function petitions_data_petition_is_open($petition_id) {
-  $petition = petitions_data_mongo2mysql_get_petition($petition_id);
+  $petition = petitions_data_get_petition($petition_id);
 
   // Confirm that the petition exists.
   if (empty($petition)) {
@@ -154,6 +237,50 @@ function petitions_data_petition_is_open($petition_id) {
   }
 
   return TRUE;
+}
+
+/**
+ * Generates a URL for the Petitions website.
+ *
+ * For external URLs, use url() instead.
+ *
+ * @param string $path
+ *   (optional) The internal path being linked to, such as "node/34". The
+ *   default value is equivalent to passing in '<front>' See url() for more
+ *   details.
+ * @param bool $absolute
+ *   (optional) Whether to return an absolute link (beginning with http:).
+ *   Useful for links that will be displayed outside the site, such as in an API
+ *   response or email. If FALSE, returns a path fragment without the leading
+ *   forward slash (/). Defaults to TRUE.
+ *
+ * @return string
+ *   A string containing a URL to the given path.
+ */
+function petitions_data_url($path = NULL, $absolute = TRUE) {
+  // Strip leading slashes from internal paths to prevent them becoming external
+  // URLs without protocol. /example.com should not be turned into
+  // //example.com.
+  $path = ltrim($path, '/');
+
+  $base_url = variable_get('petitions_data_petitions_website_url', $GLOBALS['base_url']);
+
+  $alias = drupal_get_path_alias($path);
+
+  $base = $absolute ? $base_url . '/' : base_path();
+
+  return $base . $alias;
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
+function petitions_data_query_petitions_data_debug_alter(QueryAlterableInterface $query) {
+  if (!variable_get('petitions_data_debug', FALSE)) {
+    return;
+  }
+
+  petitionslog_log_query('petitions_data', $query);
 }
 
 /**

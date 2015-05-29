@@ -395,14 +395,16 @@ Drupal.behaviors.moreSignatures = {
       function () {
         var petition_id = $(this).attr('rel');
         var last_id = $('#last-signature-id').html();
+        var previously_found_creator = $('#found-creator').html();
 
-        var url = "/signatures/more/"+petition_id+"/"+(signature_page + 1)+"/"+last_id;
+        var url = "/signatures/more/"+petition_id+"/"+(signature_page + 1)+"/"+last_id+"/"+previously_found_creator;
         var params = {};
         $.getJSON(url, params, function(data) {
           signature_page++;
           $('#signature-list').data('signature_page', signature_page);
           $(".load-next").remove();
           $("#last-signature-id").remove();
+          $("#found-creator").remove();
           $("#signature-list").append(data.markup);
           var newsignatures = $(data.markup).filter('.entry').length;
           var current = parseInt($('#signature-list .count').html());
@@ -530,14 +532,16 @@ function autoSignatures() {
     signature_page = $('#signature-list').data('signature_page');
     signature_page = signature_page || 1;
     var last_id = $('#last-signature-id').html();
+    var previously_found_creator = $('#found-creator').html();
 
-    var url = "/signatures/more/"+petition_id+"/"+(signature_page + 1)+"/"+last_id;
+    var url = "/signatures/more/"+petition_id+"/"+(signature_page + 1)+"/"+last_id+"/"+previously_found_creator;
     var params = {};
     $.getJSON(url, params, function(data) {
       signature_page++;
       $('#signature-list').data('signature_page', signature_page);
       $(".load-next").remove();
       $("#last-signature-id").remove();
+      $("#found-creator").remove();
       $("#signature-list").append(data.markup);
       var newsignatures = $(data.markup).filter('.entry').length;
       var current = parseInt($('#signature-list .count').html());
@@ -685,7 +689,7 @@ Drupal.behaviors.signModal = {
         $('#wh-footer').css('position', 'relative');
         if(sign_return != 0) {
           $('#sign-this-petition').replaceWith(sign_return);
-          var url = "/signatures/more/"+sign_id+"/1/0/";
+          var url = "/signatures/more/"+sign_id+"/1/0/0/";
           var params = {};
           $.getJSON(url, params, function(data) {
             signature_page++;

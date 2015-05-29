@@ -22,3 +22,18 @@ function wh_response_install() {
 function wh_response_update_last_removed() {
   return 7001;
 }
+
+/**
+ * Add petition reference field to response content type.
+ */
+function wh_response_update_7301(&$sandbox) {
+  $features = array(
+    'wh_response_feature' => array('field', 'views_view', 'ctools', 'features_api'),
+  );
+
+  // Enable the modules by name.
+  module_enable(array_keys($features));
+
+  // Revert the feature (if the feature has been changed)
+  features_revert($features);
+}

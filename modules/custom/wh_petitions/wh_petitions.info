@@ -5,7 +5,6 @@ core = "7.x"
 version = "7.x-1.2"
 
 dependencies[] = "menu"
-dependencies[] = "mongodb"
 dependencies[] = "pathauto"
 dependencies[] = "taxonomy"
 dependencies[] = "taxonomy_sync"
@@ -14,6 +13,7 @@ dependencies[] = "wh_user_profile"
 dependencies[] = "petitions_signatures_display"
 dependencies[] = "petition"
 dependencies[] = "petitionevents"
+dependencies[] = "petitions_data"
 
 files[] = wh_petitions.admin.inc
 files[] = wh_petitions.cron.inc

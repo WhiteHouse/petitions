@@ -20,11 +20,11 @@ function signatures_queue_configure() {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['all']['signatures_queue_enable_debugging'] = array(
+  $form['all']['signatures_queue_debug'] = array(
     '#type' => 'checkbox',
     '#title' => 'Enable debugging',
     '#description' => t('Enable debugging mode. This does things like increase the amount of details logged via watchdog throughout the signature queue pipeline.'),
-    '#default_value' => variable_get('signatures_queue_enable_debugging', FALSE),
+    '#default_value' => variable_get('signatures_queue_debug', FALSE),
   );
   $form['all']['signatures_queue_notify_email'] = array(
     '#type' => 'textfield',

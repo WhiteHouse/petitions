@@ -21,3 +21,39 @@ function petitions_data_schema() {
   $schema['cache_petitions_petitions'] = drupal_get_schema_unprocessed('system', 'cache');
   return $schema;
 }
+
+/**
+ * Update shunts.
+ */
+function petitions_data_update_7301() {
+  // Set variables directly because the Shunt API is not available in
+  // hook_update_N().
+  variable_set('shunt_mysql_writes', TRUE);
+  $removed_shunts = array(
+    'petition_mongodb_read',
+    'petition_mongodb_write',
+    'petition_mysql_save',
+    'signature_mail_mysql_save',
+    'wh_petitions_petition_create',
+    'wh_petitions_signature_create',
+  );
+  foreach ($removed_shunts as $shunt) {
+    variable_del("shunt_{$shunt}");
+  }
+}
+
+/**
+ * PT-1668: Remove unused mongo/mysql shunts
+ */
+function petitions_data_update_7302() {
+  $removed_shunts = array(
+    'mongo_reads',
+    'mongo_writes',
+    'mysql_writes',
+  );
+
+  foreach ($removed_shunts as $shunt) {
+    variable_del("shunt_{$shunt}");
+  }
+
+}

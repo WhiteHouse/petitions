@@ -238,3 +238,13 @@ function _wh_petitions_set_as_primary_menu() {
 function wh_petitions_update_last_removed() {
   return 7105;
 }
+
+/**
+ * Increase module weight.
+ */
+function wh_petitions_update_7106(&$sandbox) {
+  db_update('system')
+    ->fields(array('weight' => 100))
+    ->condition('name', 'wh_petitions', '=')
+    ->execute();
+}

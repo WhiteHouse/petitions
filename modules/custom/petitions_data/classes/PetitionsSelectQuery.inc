@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Defines PetitionsSelectQuery class.
+ * Contains PetitionsSelectQuery.
  */
 
 /**
@@ -15,8 +15,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
 
   protected $title;
   protected $body;
-  protected $issueID;
-  protected $issue;
+  protected $issueIDs;
   protected $petitionIds;
   protected $baseURL;
   protected $responseID;
@@ -40,12 +39,90 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   protected $status;
   protected $isSignable;
   protected $isPublic;
+  protected $isOpen;
+  protected $orderByFieldsMap;
+  protected $orderByDirMap;
+  protected $uid;
+
+  /**
+   * These constants are used by the setOrderBy function.
+   * Mapping is done in PetitionsSelectQueryMongo.inc and
+   * PetitionsSelectQueryMysql.inc to determine the column names
+   * for each one of these constants.
+   */
+  const SELECT_QUERY_ORDER_BY_FIELD_PUBLISHED = 'PUBLISHED';
+  const SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT = 'SIGNATURE_COUNT';
+  const SELECT_QUERY_ORDER_BY_FIELD_DATE_REACHED_PUBLIC = 'DATE_REACHED_PUBLIC';
+
+  /**
+   * Valid petition fields for order by
+   *
+   * NOTE: Adding any additional fields requires adding of indexes to database.
+   * Use of a new field without indexes will cause ADVERSE performance issues.
+   *
+   * @var array
+   */
+  protected $validPetitionsOrderByFields = array(
+    self::SELECT_QUERY_ORDER_BY_FIELD_PUBLISHED,
+    self::SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT,
+    self::SELECT_QUERY_ORDER_BY_FIELD_DATE_REACHED_PUBLIC,
+  );
 
   /**
    * Constructor. This must be explicitly called by subclasses.
    */
   public function __construct() {
     parent::__construct();
+    // Merge petition specific order by fields with common order by fields from SelectQueryBase.
+    $this->setValidOrderByFields(array_merge($this->getValidOrderByFields(), $this->getValidPetitionsOrderByFields()));
+  }
+
+  /**
+   * Getter accessor for $this->validPetitionsOrderByFields.
+   *
+   * @return array
+   *   The array of validPetitionsOrderByFields
+   */
+  public function getValidPetitionsOrderByFields() {
+    return $this->validPetitionsOrderByFields;
+  }
+
+  /**
+   * Get accessor for $this->orderBy.
+   *
+   * @return array
+   *   The array of orderBy stdClass objects.
+   *   orderBy objects contain properties field and direction
+   */
+  public function getOrderBy() {
+    // If a single, specific petition has been requested, there is no need to
+    // add an ORDER BY clause to the query.
+    $petition_ids = (array) $this->getPetitionIds();
+    if (count($petition_ids) == 1) {
+      return NULL;
+    }
+
+    return $this->orderBy;
+  }
+
+  /**
+   * Get accessor for $this->orderByFieldsMap.
+   *
+   * @return array
+   *   Array of orderByFieldsMap
+   */
+  public function getOrderByFieldsMap() {
+    return $this->orderByFieldsMap;
+  }
+
+  /**
+   * Get accessor for $this->orderByDirMap.
+   *
+   * @return array
+   *   Array of orderByDirMap
+   */
+  public function getOrderByDirMap() {
+    return $this->orderByDirMap;
   }
 
   /**
@@ -244,6 +321,16 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   }
 
   /**
+   * Get accessor for $this->isOpen.
+   *
+   * @return bool|null
+   *   Returns the value of the isOpen query filter if set or NULL if not.
+   */
+  protected function getIsOpen() {
+    return $this->isOpen;
+  }
+
+  /**
    * Set accessor for $this->isPublic.
    *
    * @param string $is_public
@@ -279,37 +366,61 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   }
 
   /**
-   * Get accessor for $this->issueID.
+   * Set accessor for $this->isOpen.
    *
-   * @return int
-   *   The issue ID used to filter results.
-   */
-  protected function getIssueID() {
-    return $this->issueID;
-  }
-
-  /**
-   * Set accessor for $this->issueID.
-   *
-   * @param int $issue_id
-   *   The issue ID used to filter results.
+   * @param string $is_open
+   *   The open status of the petition.
    *
    * @return PetitionsSelectQuery
    *   Returns current instance of object.
    */
-  public function setIssueID($issue_id) {
-    $this->issueID = $issue_id;
+  public function setIsOpen($is_open) {
+    // Case race: First to evaluate TRUE wins.
+    switch (TRUE) {
+      // These are all the possible true cases.
+      case intval($is_open) == 1:
+      case strtolower($is_open) == 'true':
+      case $is_open === TRUE:
+        $this->isOpen = TRUE;
+        break;
+
+      // These are all the possible false cases.
+      case $is_open === '0':
+      case $is_open === 0:
+      case strtolower($is_open) == 'false':
+      case $is_open === FALSE:
+        $this->isOpen = FALSE;
+        break;
+
+      case $is_open === NULL:
+      default:
+        break;
+    }
     return $this;
   }
 
   /**
-   * Get accessor for $this->issue.
+   * Get accessor for $this->issueIDs.
    *
-   * @return string
-   *   The issue used to filter results.
+   * @return array
+   *   Array of the issue IDs used to filter results.
    */
-  protected function getIssue() {
-    return $this->issue;
+  protected function getIssueIDs() {
+    return $this->issueIDs;
+  }
+
+  /**
+   * Set accessor for $this->issueIDs.
+   *
+   * @param array $issue_ids
+   *   Array of the issue IDs used to filter results.
+   *
+   * @return PetitionsSelectQuery
+   *   Returns current instance of object.
+   */
+  public function setIssueIDs($issue_ids) {
+    $this->issueIDs = $issue_ids;
+    return $this;
   }
 
   /**
@@ -349,20 +460,6 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   public function setPetitionId($pid) {
     $this->setPetitionIds(array($pid));
 
-    return $this;
-  }
-
-  /**
-   * Set accessor for $this->issue.
-   *
-   * @param string $issue
-   *   The issue used to filter results.
-   *
-   * @return PetitionsSelectQuery
-   *   Returns current instance of object.
-   */
-  public function setIssue($issue) {
-    $this->issue = $issue;
     return $this;
   }
 
@@ -769,14 +866,14 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
       $issues = array($issues);
     }
     foreach ($issues as $issue_id) {
-      $term = taxonomy_term_load($issue_id);
+      $term = taxonomy_term_load((int) $issue_id);
 
       if (empty($term)) {
         continue;
       }
 
       $row = array(
-        'id' => $term->tid,
+        'id' => (int) $term->tid,
         'name' => petitions_data_sanitize_output($term->name),
       );
       $terms[] = $row;
@@ -822,6 +919,99 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   }
 
   /**
+   * Get accessor for $this->uid.
+   *
+   * @return int
+   *   The user ID used to filter results against.
+   */
+  protected function getUid() {
+    return $this->uid;
+  }
+
+  /**
+   * Set accessor for $this->uid.
+   *
+   * @param int $uid
+   *   The User ID to filter results against.
+   *
+   * @return PetitionsSelectQuery
+   *   Returns current instance of object.
+   */
+  public function setUid($uid) {
+    $this->uid = (int) $uid;
+    return $this;
+  }
+
+  /**
+   * Parses the various status-related filters to get resulting status codes.
+   *
+   * @return array
+   *   Returns an array of status codes allowed by the active filters.
+   *
+   * @see PetitionsSelectQuery::setStatus()
+   * @see PetitionsSelectQuery::setIsOpen()
+   * @see PetitionsSelectQuery::setIsPublic()
+   * @see PetitionsSelectQuery::setIsSignable()
+   */
+  protected function parseStatus() {
+    // Start with all status codes and remove them as filters are applied.
+    $included_statuses = wh_petitions_all_statuses();
+
+    $not_public_statuses = $this->removeStatusesFromArray(wh_petitions_public_statuses(), wh_petitions_all_statuses());
+    $not_open_statuses = $this->removeStatusesFromArray(wh_petitions_open_statuses(), wh_petitions_all_statuses());
+    $not_signable_statuses = $this->removeStatusesFromArray(wh_petitions_signable_statuses(), wh_petitions_all_statuses());
+
+    // Is public.
+    if ($this->getIsPublic() === TRUE) {
+      $included_statuses = $this->removeStatusesFromArray($not_public_statuses, $included_statuses);
+    }
+    elseif ($this->getIsPublic() === FALSE) {
+      $included_statuses = $this->removeStatusesFromArray(wh_petitions_public_statuses(), $included_statuses);
+    }
+
+    // Is open.
+    if ($this->getIsOpen() === TRUE) {
+      $included_statuses = $this->removeStatusesFromArray($not_open_statuses, $included_statuses);
+    }
+    elseif ($this->getIsOpen() === FALSE) {
+      $included_statuses = $this->removeStatusesFromArray(wh_petitions_open_statuses(), $included_statuses);
+    }
+
+    // Is signable.
+    if ($this->getIsSignable() === TRUE) {
+      $included_statuses = $this->removeStatusesFromArray($not_signable_statuses, $included_statuses);
+    }
+    elseif ($this->getIsSignable() === FALSE) {
+      $included_statuses = $this->removeStatusesFromArray(wh_petitions_signable_statuses(), $included_statuses);
+    }
+
+    // Status.
+    if ($this->getStatus() == 'open') {
+      $included_statuses = $this->removeStatusesFromArray($not_open_statuses, $included_statuses);
+    }
+    elseif ($this->getStatus() == 'closed') {
+      $included_statuses = $this->removeStatusesFromArray(wh_petitions_open_statuses(), $included_statuses);
+    }
+
+    return $included_statuses;
+  }
+
+  /**
+   * Filters unwanted statuses from a status array.
+   *
+   * @param array $statuses_to_remove
+   *   The list of statuses to remove from $status_array
+   * @param array $statuses
+   *   The current list of statuses from which statuses need to be removed.
+   *
+   * @return array
+   *   Status array based on $statuses with all $statuses_to_remove removed.
+   */
+  public static function removeStatusesFromArray($statuses_to_remove, $statuses) {
+    return array_diff($statuses, $statuses_to_remove);
+  }
+
+  /**
    * Helper function to calculate and load info for responses.
    *
    * @param int $response_id
@@ -830,23 +1020,21 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @return array
    *   Basic information and a link to the associated petition response.
    */
-  protected function formatReturnResponse($response_id = 0) {
+  public static function formatReturnResponse($response_id = 0) {
     if (!$response_id) {
       return array();
     }
-    $uri = drupal_lookup_path('alias', 'node/' . $response_id);
     $created_time = db_select('node', 'n')
       ->fields('n', array('created'))
       ->condition('nid', $response_id)
-      ->orderBy('created', 'DESC')
-      ->range(0, 1)
       ->execute()
       ->fetchField();
     $response = array(
-      'id' => $response_id,
-      'url' => $this->getBaseURL() . '/' . $uri,
-      'associationTime' => $created_time,
+      'id' => (int) $response_id,
+      'url' => petitions_data_url("node/" . $response_id),
+      'associationTime' => (int) $created_time,
     );
     return $response;
   }
+
 }

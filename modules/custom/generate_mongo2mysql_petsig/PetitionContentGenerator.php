@@ -155,7 +155,7 @@ class PetitionContentGenerator {
     $data['field_petition_featured'] = $faker->randomNumber(0, 1);
     $data['field_petition_hidden'] = 0;
     $data['field_petition_status'] = WH_PETITION_STATUS_PUBLIC;
-    $data['field_petition_response_status'] = WH_PETITION_RESPONSE_STATUS_UNANSWERED;
+    $data['field_response_status'] = WH_PETITION_RESPONSE_STATUS_UNANSWERED;
     $data['field_petition_review_timeframe'] = $review_timeframe;
 
     return $data;
@@ -286,7 +286,7 @@ class PetitionContentGenerator {
       'private_tags'      => array(),
       'related_petitions' => array(),
       'petition_status'   => $data['field_petition_status'],
-      'response_status'   => $data['field_petition_response_status'],
+      'response_status'   => $data['field_response_status'],
       'published'         => $data['field_timestamp_published'],
       'reached_public'    => $data['field_timestamp_reached_public'],
       'reached_ready'     => $data['field_timestamp_reached_ready'],

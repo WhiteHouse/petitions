@@ -4,10 +4,6 @@
  * Definition of the signature mail entity, and some helper functions.
  */
 
-// Load file containing functions relating to MongoDB to MySQL migration.
-// @todo Remove this line and associated file once MongoDB is depreciated.
-include_once 'signature_mail.mongo2mysql.inc';
-
 /**
  * Implements hook_signature_info().
  */

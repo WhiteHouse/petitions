@@ -38,4 +38,5 @@
 <?php if($has_more): ?>
   <?php print l(t('Load Next !count Signatures', array('!count' => $sigs_per_page)), $nice_url, array('query' => array('page' => ($page + 1), 'last' => $last_id), 'html' => TRUE, 'attributes' => array('class' => array('load-next', 'no-follow'), 'rel' => $petition_id))); ?>
   <div id="last-signature-id" class="display-none"><?php print $last_id; ?></div>
+  <div id="found-creator" class="display-none"><?php print $previously_found_creator; ?></div>
 <?php endif; ?>

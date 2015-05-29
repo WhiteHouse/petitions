@@ -39,7 +39,7 @@
 function _signatures_queue_initiate_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
 
-  $debug = variable_get('signatures_queue_enable_debugging', FALSE);
+  $debug = variable_get('signatures_queue_debug', FALSE);
 
   // Retrieve and delete signatures from the signatures_submitted_queue.
   $signatures = _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, 0, $debug);
@@ -73,7 +73,6 @@ function _signatures_queue_initiate_signature_validation($job_id, $server_name, 
  *
  * @param int $batch_size
  *   The number of signatures to process in this batch.
- *
  * @param bool $debug
  *   Enable verbose logging for debugging.
  *
@@ -217,21 +216,33 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
     $elapsed = signatures_queue_get_microtime_elapsed_since($signature->data['timestamp_received_new_signature']);
     petitionslog_event('signatures_queue.data_flow.time_elapsed.received_new_signature__to__initiated_signature_validation', 'time', $elapsed);
 
-    // Send validation email.
     $to = $signature->data['email'];
+
+    // Make sure email address is valid before attempting to send to it.
+    if (!valid_email_address($to)) {
+      continue;
+    }
+
+    // Send validation email.
     global $language;
     $params = array('signature info' => $signature->data);
     try {
+      $event = 'signatures_queue.workflow.initiate_signature_validation.time_elapsed.drupal_mail';
+      petitionslog_reusable_timer_start($event);
       $message = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
+      $elapsed = petitionslog_reusable_timer_read_and_destroy($event);
+      petitionslog_event($event, 'time', $elapsed);
       if ($message['result']) {
         $signatures_mailed['sent'][] = $signature;
       }
       else {
+        petitionslog_event('exceptions.signatures_queue.ef6b8ea');
         // Mailing errors should be logged by active mail system.
         $signatures_mailed['not sent'][] = $signature;
       }
     }
     catch (Exception $e) {
+      petitionslog_event('exceptions.signatures_queue.286e111');
       // Mailing errors should be logged by active mail system.
       $signatures_mailed['not sent'][] = $signature;
     }

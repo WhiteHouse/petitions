@@ -129,10 +129,20 @@ function _signatures_queue_archive_invalid_signatures($queues_last_emptied, $wat
   // Insert the invalid signatures into the signatures_not_validated_archive
   // table.
   while ($row = $query->fetchAssoc()) {
-    db_insert('signatures_not_validated_archive')
-      ->fields($row)
-      ->execute();
-    $archived_count++;
+    try {
+      db_insert('signatures_not_validated_archive')
+        ->fields($row)
+        ->execute();
+      $archived_count++;
+    }
+    catch (PDOException $e) {
+      petitionslog_event('exceptions.signatures_queue.4b4729c');
+      watchdog('signatures_queue', 'Failed to archive item to signatures_not_validated_archive due to a database error: item: !item, exception: !exception. @suffix', array(
+        '!item' => petitionslog_format_for_watchdog($row),
+        '!exception' => petitionslog_format_for_watchdog($e),
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_CRITICAL);
+    }
   }
   $count_signatures_not_validated_archive = db_select('signatures_not_validated_archive')->countQuery()->execute()->fetchField();
   _signatures_queue_data_store_size_event('signatures_not_validated_archive', $count_signatures_not_validated_archive);
@@ -226,10 +236,20 @@ function _signatures_queue_archive_orphaned_validations($queues_last_emptied, $w
   // Insert the orphaned validations into validations_orphaned_archive table.
   while ($row = $results->fetchAssoc()) {
     $columns[] = $row['secret_validation_key'];
-    db_insert('validations_orphaned_archive')
-      ->fields($row)
-      ->execute();
-    $orphaned_count++;
+    try {
+      db_insert('validations_orphaned_archive')
+        ->fields($row)
+        ->execute();
+      $orphaned_count++;
+    }
+    catch (PDOException $e) {
+      petitionslog_event('exceptions.signatures_queue.fa29d17');
+      watchdog('signatures_queue', 'Failed to archive item to validations_orphaned_archive due to a database error: item: !item, exception: !exception. @suffix', array(
+        '!item' => petitionslog_format_for_watchdog($row),
+        '!exception' => petitionslog_format_for_watchdog($e),
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_CRITICAL);
+    }
   }
 
   // Log the number of successfully archived orphaned signatures.
@@ -281,6 +301,9 @@ function _signatures_queue_delete_orphaned_validations($queues_last_emptied, $wa
       ->condition('a.timestamp_validation_close', $queues_last_emptied, '<');
     $columns = $query->execute()->fetchCol(1);
   }
+
+  //Initialize variable.
+  $deleted_signatures = 0;
 
   // Delete signatures that are no longer valid from the pending table.
   if (count($columns)) {
@@ -376,10 +399,20 @@ function _signatures_queue_archive_processed_signatures($queues_last_emptied, $w
   // Insert the processed signatures into the signatures_processed_archive
   // table.
   while ($row = $results->fetchAssoc()) {
-    db_insert('signatures_processed_archive')
-      ->fields($row)
-      ->execute();
-    $archived_count++;
+    try {
+      db_insert('signatures_processed_archive')
+        ->fields($row)
+        ->execute();
+      $archived_count++;
+    }
+    catch (PDOException $e) {
+      petitionslog_event('exceptions.signatures_queue.9491ced');
+      watchdog('signatures_queue', 'Failed to archive an item to signatures_processed_archive due to a database error: item: !item, exception: !exception. @suffix', array(
+        '!item' => petitionslog_format_for_watchdog($row),
+        '!exception' => petitionslog_format_for_watchdog($e),
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_CRITICAL);
+    }
   }
 
   $count_signatures_processed_archive = db_select('signatures_processed_archive')->countQuery()->execute()->fetchField();
@@ -456,10 +489,20 @@ function _signatures_queue_archive_processed_validations($queues_last_emptied, $
   // Insert the processed validations into the validations_processed_archive
   // table.
   while ($row = $results->fetchAssoc()) {
-    db_insert('validations_processed_archive')
-      ->fields($row)
-      ->execute();
-    $archived_count++;
+    try {
+      db_insert('validations_processed_archive')
+        ->fields($row)
+        ->execute();
+      $archived_count++;
+    }
+    catch (PDOException $e) {
+      petitionslog_event('exceptions.signatures_queue.807e94e');
+      watchdog('signatures_queue', 'Failed to archive item to validations_processed_archive due to a database error: item: !item, exception: !exception. @suffix', array(
+        '!item' => petitionslog_format_for_watchdog($row),
+        '!exception' => petitionslog_format_for_watchdog($e),
+        '@suffix' => $watchdog_suffix,
+      ), WATCHDOG_CRITICAL);
+    }
   }
 
   $count = db_select('validations_processed_archive')->countQuery()->execute()->fetchField();

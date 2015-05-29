@@ -142,6 +142,11 @@ function _migrate_mongo2mysql_petsig_page($petition_id = 0) {
     'mysql' => "field_short_url",
   );
   $a_compare[] = array(
+    'name' => 'Legacy_URL',
+    'mongo' => 'nice_url',
+    'mysql' => "field_legacy_path",
+  );
+  $a_compare[] = array(
     'name' => 'Timestamp_Created',
     'mongo' => 'created',
     'mysql' => 'created',
@@ -153,7 +158,7 @@ function _migrate_mongo2mysql_petsig_page($petition_id = 0) {
     'field_petition_response_sign', 'field_petition_review_timeframe',
     'field_abuse_count', 'field_petition_signature_count', 'field_timestamp_responded',
     'field_legacy_id', 'body', 'field_response_id', 'field_petition_status',
-    'field_petition_response_status', 'field_timestamp_published',
+    'field_response_status', 'field_timestamp_published',
     'field_timestamp_reached_public', 'field_timestamp_reached_ready',
     "field_response_status");
 

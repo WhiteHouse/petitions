@@ -6,8 +6,6 @@ dependencies[] = api_users
 dependencies[] = date_api
 
 
-; Information added by drush on 2013-01-30
 version = ""
 project = "petitions"
-datestamp = "1359587545"
 

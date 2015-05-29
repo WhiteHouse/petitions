@@ -34,16 +34,18 @@ class PetitionMigration extends PetSigMigration {
 
     $collection = wh_petitions_mongo_petition_connection();
 
-    $query = array(
-      'petition_status' => array(
-        '$nin' => array((int) WH_PETITION_STATUS_DRAFT),
-      ),
-    );
+    $query = array();
 
-    if(_menu_site_is_offline(TRUE)) {
-      $query = array();
+    $include_unpublished_petitions = variable_get('migrate_mongo2mysql_pet_unpublish', 0);
+    if (empty($include_unpublished_petitions)) {
+      // Exclude unpublished petitions.
+      $query = array(
+        'petition_status' => array(
+          '$nin' => array((int) WH_PETITION_STATUS_DRAFT),
+        ),
+      );
     }
-
+    $options = array('track_changes' => 1);
     $this->source = new MigrateSourceMongoDB($collection, $query, array(
         '_id' => "MongoDB identifier",
         'uid' => "User ID", 'title' => "Title", 'body' => "Body",
@@ -57,9 +59,10 @@ class PetitionMigration extends PetSigMigration {
         "review_timeframe" => "Review Timeframe",
         "response_signatures" => "Response Signature",
         "public_signatures" => "Public Signature", "short_url" => "Short URL",
-        "created" => "Created", "closed" => "Closed",
+        "created" => "Created", "closed" => "Closed", "nice_url" => "Legacy Path",
+        "review_threshold_mail_sent" => "Review threshold email sent",
 
-    ));
+    ), array('_id' => 1), $options);
 
     $this->destination = new MigrateDestinationNodeModified('petition');
 
@@ -80,15 +83,16 @@ class PetitionMigration extends PetSigMigration {
     $this->addFieldMapping("field_petition_status", 'petition_status');
     $this->addFieldMapping("field_response_status", 'response_status');
     $this->addFieldMapping("field_short_url", "short_url");
+    $this->addFieldMapping("field_legacy_path", "nice_url");
     $this->addFieldMapping("field_timestamp_published", 'published');
     $this->addFieldMapping("field_timestamp_reached_public", 'reached_public');
     $this->addFieldMapping("field_timestamp_reached_ready", 'reached_ready');
     $this->addFieldMapping("field_timestamp_responded", "closed");
+    $this->addFieldMapping("field_review_threshold_mail_sent", "review_threshold_mail_sent");
 
     $this->addUnmigratedSources(array("field_response_id"));
 
     $this->addUnmigratedDestinations(array(
-        'status',
         'changed',
         'sticky',
         'revision',
@@ -119,6 +123,7 @@ class PetitionMigration extends PetSigMigration {
         'field_petition_issues:create_term',
         'field_petition_issues:ignore_case',
         "field_short_url:language",
+        "field_legacy_path:language",
     ));
 
     $this->map = new MigrateSQLMap($this->machineName,
@@ -149,7 +154,25 @@ class SignatureMigration extends PetSigMigration {
     $this->description = t('Migrate mongodb signature objects, to a signature entity');
 
     $collection = wh_petitions_mongo_petition_signatures_connection();
-    $this->source = new MigrateSourceMongoDB($collection, array(), array(
+
+    $query = array();
+
+    $include_all_signatures = variable_get('migrate_mongo2mysql_sig_all', 0);
+    if (empty($include_all_signatures)) {
+      // Exclude signatures created after specified date.
+      $signatures_created_after = variable_get('migrate_mongo2mysql_sig_date_start', 0);
+      if (!empty($signatures_created_after)) {
+        $signatures_created_after = strtotime($signatures_created_after);
+        $query['timestamp']['$gt'] = (int) $signatures_created_after;
+      }
+      // Exclude signatures created before specified date.
+      $signatures_created_before = variable_get('migrate_mongo2mysql_sig_date_end', 0);
+      if (!empty($signatures_created_before)) {
+        $signatures_created_before = strtotime($signatures_created_before);
+        $query['timestamp']['$lt'] = (int) $signatures_created_before;
+      }
+    }
+    $this->source = new MigrateSourceMongoDB($collection, $query, array(
         '_id' => "MongoDB identifier",
         'petition_id' => "Petition ID", "uid" => "User ID",
         "timestamp" => "Created Date", 'user_agent' => "User Agent",

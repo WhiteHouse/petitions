@@ -24,6 +24,18 @@ function migrate_mongo2mysql_petsig_menu() {
     'file' => 'migrate_mongo2mysql_petsig_compare.inc',
   );
 
+  // Admin - Petition Tool Settings.
+  $items['admin/config/system/mongo-mysql'] = array(
+    'title' => 'Petition Migration Settings',
+    'description' => 'Manage mongo2mysql migration settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_migrate_mongo2mysql_settings'),
+    'access arguments' => array('administer petition settings'),
+    'weight' => -10,
+    'file' => 'migrate_mongo2mysql_petsig.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
   return $items;
 }
 

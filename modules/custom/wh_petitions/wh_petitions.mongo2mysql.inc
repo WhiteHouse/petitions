@@ -5,45 +5,6 @@
  */
 
 /**
- * Check to see if signature exists already.
- *
- * @param string $petition_id
- *   The unique identifier of the petition.
- * @param int $uid
- *   A user ID.
- *
- * @return string|false
- *   Signature ID or FALSE if it doesn't exist yet.
- */
-function wh_petitions_mongo2mysql_get_signature_id($petition_id, $uid) {
-    $signature_id = FALSE;
-
-    // Create connection.
-    $sig_connection = wh_petitions_mongo_petition_signatures_connection();
-    $sig_connection->setSlaveOkay(FALSE);
-
-    // Determine if this user has already signed the petition.
-    $query = array(
-        'uid' => (int) $uid,
-        'petition_id' => (string) $petition_id,
-    );
-    $result = $sig_connection->findOne($query);
-    if (!empty($result)) {
-        $signature_id = $result['_id']->__toString();
-        // TODO make sure this ^^ works.
-    }
-
-    return $signature_id;
-}
-
-/**
- * @see wh_petitions_mongo2mysql_get_signature_id()
- */
-function wh_petitions_get_signature_id($petition_id, $uid) {
-  throw new Exception(t('wh_petitions_get_signature_id() is deprecated. Use wh_petitions_mongo2mysql_get_signature_id(). See ABOUT-7.x-3.x.md for more info.'));
-}
-
-/**
  * Creates a signature record.
  *
  * Wrapper around wh_petitions_create_signature(). This can be called by modules
@@ -60,9 +21,6 @@ function wh_petitions_get_signature_id($petition_id, $uid) {
  *
  * @return string|false
  *   The ID of the created signature record if one is created, or FALSE if not.
- *
- * @todo Replace usages of this function with method call to
- *   SignaturesQueryFactory::create->save().
  */
 function wh_petitions_mongo2mysql_create_new_signature($petition_id, $user, $client_ip, $timestamp = FALSE) {
     // Setup connections for signatures and petitions.
@@ -88,7 +46,6 @@ function wh_petitions_mongo2mysql_create_new_signature($petition_id, $user, $cli
 
     $signature_id = wh_petitions_create_signature($petition, $user, $sig_connection, $client_ip, '', $timestamp);
     if (!$signature_id) {
-        watchdog('wh_petitions', 'Failed to create signature for @user on @petition', array('@user' => $user->uid, '@petition' => $petition['_id']));
         return FALSE;
     };
 
@@ -135,4 +92,65 @@ function wh_petitions_mongo2mysql_increment_count($petition_id) {
  */
 function wh_petitions_increment_count($petition_id) {
   throw new Exception(t('wh_petitions_increment_count() is deprecated. Use wh_petitions_mongo2mysql_increment_count().'));
+}
+
+/**
+ * List un-notified compliant petitions.
+ *
+ * Pulls a list of petitions with more signatures than the compliance review
+ * threshold and which have not been sent compliance review notifications. 
+ */
+function wh_petitions_mongo2mysql_compliance_review_threshold_check($threshold, $compliance_reviewer_emails) {
+  $petition_connection = wh_petitions_mongo_petition_connection();
+
+  $where = array(
+    // Have to cast it because otherwise mongo treats it as string.
+    'signature_count' => array('$gte' => (int) $threshold),
+    '$or' => array(
+      array('review_threshold_mail_sent' => 0),
+      array('review_threshold_mail_sent' => array('$exists' => FALSE)),
+    ),
+    'petition_status' => array(
+      '$in' => array(
+        WH_PETITION_STATUS_DRAFT,
+        WH_PETITION_STATUS_PRIVATE,
+        WH_PETITION_STATUS_PUBLIC,
+      ),
+    ),
+  );
+  $fields = array(
+    '_id',
+    'signature_count',
+    'review_threshold_mail_sent',
+  );
+  $notification_list = $petition_connection->find($where, $fields);
+  foreach ($notification_list as $notification) {
+    $petition = wh_petitions_load_slim_petition($petition_connection, $notification['_id'], array('body'));
+
+    $message = drupal_mail('wh_petitions', 'review_threshold_passed', $compliance_reviewer_emails, language_default(),
+      array(
+        'petition' => $petition,
+      )
+    );
+
+    // Set the var on the petition record so we know the mail has been sent.
+    $review_threshold_mail_sent = time();
+    $petition_connection->update(
+      array('_id' => $petition['_id']),
+      array('$set' => array('review_threshold_mail_sent' => $review_threshold_mail_sent))
+    );
+    // Also update the corresponding petition node.
+    if (petitions_data_mysql_writes_are_enabled()) {
+      $legacy_id = $petition['_id']->__toString();
+      $nid = petition_get_nid($legacy_id);
+      if (!empty($nid)) {
+        $petition_node = node_load($nid);
+        $petition_node->field_review_threshold_mail_sent[$petition->language][0]['value'] = $review_threshold_mail_sent;
+        node_save($petition_node);
+      }
+    }
+
+    watchdog('wh_petitions', 'Petition (@id) Review Threshold Notification Sent.', array('@id' => $notification['_id']));
+
+  }
 }

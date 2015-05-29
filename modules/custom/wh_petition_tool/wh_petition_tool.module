@@ -215,7 +215,7 @@ function wh_petition_tool_left_nav() {
  *    The original relative URL
  *
  * @return
- *    The wh.gov short URL.
+ *    The wh.gov short URL or NULL on failure.
  */
 function wh_petition_tool_shortenurl($url) {
   $server = variable_get('wh_petition_tool_hub_url', '');
@@ -228,17 +228,27 @@ function wh_petition_tool_shortenurl($url) {
   );
   if ($response->code == 200) {
     $shortened_url = json_decode($response->data);
-    return $shortened_url[0];
+    $parsed_url = parse_url($shortened_url[0]);
+    if (!empty($parsed_url['path']) && strlen($parsed_url['path']) > 1) {
+      return $shortened_url[0];
+    }
+    else {
+      watchdog('wh_petition_tool', 'Request to shorten !url did not return a path.', array(
+        '!url' => $url,
+      ), WATCHDOG_ERROR);
+      // Return the absolute url from the path passed in if the url shortener tool returns no path.
+      return NULL;
+    }
   }
   else {
     // Log an error.
-    $text = t('Request to !url failed. Code: !code. Error: !error', array(
+    watchdog('wh_petition_tool', 'Request to !url failed. Code: !code. Error: !error', array(
       '!url' => $url,
       '!code' => $response->code,
       '!error' => $response->error,
-    ));
-    watchdog('wh_petition_tool', $text, 'error');
-    return FALSE;
+    ), WATCHDOG_ERROR);
+    // Return the absolute url from the path passed in if the url shortener tool returns an error.
+    return NULL;
   }
 }
 
@@ -407,20 +417,28 @@ function wh_petition_tool_form_forward_form_alter(&$form, &$form_state) {
   $message = '';
   if (arg(0) == 'petition') {
     $message = variable_get('wh_petitions_email_forward_text', '');
-    $conn = wh_petitions_mongo_petition_connection();
     $petition_id = arg(2);
-    $petition = $conn->findOne(array('_id' => new MongoId($petition_id)), array('response_signatures', 'short_url', 'body', 'title', 'published', 'review_timeframe'));
+
+    $petition = PetitionsController::load($petition_id);
 
     if (!empty($petition)) {
       $time = $petition['published'];
       $end_date = strtotime('+' . $petition['review_timeframe'] . ' days', $time);
       $end_date = date("F d, Y", $end_date);
 
-      if (empty($petition['short_url'])) $petition['short_url'] = '';
+      // In case the short URL isn't available, use the absolute form of the
+      // nice URL to use in emails, so that there's at least *something* to
+      // click on. We don't want to store that value in the short_url of the
+      // petition so that we can regenerate it later (leave it as false).
+      $full_link = petitions_data_url($petition['url']);
+
+      if (empty($petition['short_url'])) {
+        $petition['short_url'] = $full_link;
+      }
 
       $message = str_replace('!petition_description', $petition['body'], $message);
       $message = str_replace('!shorturl', $petition['short_url'], $message);
-      $message = str_replace('!signatures_needed', wh_petitions_format_number($petition['response_signatures']), $message);
+      $message = str_replace('!signatures_needed', wh_petitions_format_number($petition['signaturesPublic']), $message);
       $message = str_replace('!date_needed', $end_date, $message);
     }
   }
@@ -531,15 +549,15 @@ function wh_petition_tool_mail_alter(&$message) {
 /**
  * Themes the twitter link on petitions and responses.
  */
-function wh_petition_tool_twitter_link($id, $title, $type = 'petition', $link_text='', $short_url='', $nice_url='') {
+function wh_petition_tool_twitter_link($id, $title, $type = 'petition', $link_text='', $short_url='', $path='') {
   global $base_url;
   if (empty($short_url)) {
-    $short_url = $base_url .'/'. $nice_url;
+    $short_url = $base_url .'/'. $path;
   }
   $link = 'http://twitter.com/share?';
   $link .= 'url=' . $short_url;
   $link .= '&amp;text=' . urlencode($title);
-  $link .= '&amp;counturl=' . $base_url .'/'. $nice_url;
+  $link .= '&amp;counturl=' . $base_url .'/'. $path;
 
   if (empty($link_text)) {
     $link_text = t('Twitter');
@@ -551,9 +569,9 @@ function wh_petition_tool_twitter_link($id, $title, $type = 'petition', $link_te
 /**
  * Themes the facebook share link on petitions and responses.
  */
-function wh_petition_tool_facebook_link($id, $title, $type = 'petition', $link_text='', $nice_url='') {
+function wh_petition_tool_facebook_link($id, $title, $type = 'petition', $link_text='', $path='') {
   global $base_url;
-  $url = $base_url . "/$nice_url";
+  $url = $base_url . "/$path";
 
   if (empty($link_text)) {
     $link_text = t('Facebook');

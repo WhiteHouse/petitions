@@ -39,7 +39,7 @@ function wh_zipcodelookup_form_alter(&$form, &$form_state, $form_id) {
  *   JSON array of data
  */
 function _zip_code_lookup($zip, $form) {
-  $city_state_pairs = _perform_lookup($zip);
+  $city_state_pairs = wh_zipcodelookup_get_location_details_from_zipcode($zip);
   drupal_json_output(array(
     'status' => TRUE,
     'data' => $city_state_pairs,
@@ -49,7 +49,7 @@ function _zip_code_lookup($zip, $form) {
 }
 
 /**
- * Execute the lookup.
+ * Gets the city, state, and country for a given Zip-code.
  *
  * Currently assumes the zipcodes are in a mysql database.
  * Change this function when the implementation changes.
@@ -60,7 +60,7 @@ function _zip_code_lookup($zip, $form) {
  * @return array
  *   A multidimensional array of city, state, and country matching the zip code
  */
-function _perform_lookup($zip) {
+function wh_zipcodelookup_get_location_details_from_zipcode($zip) {
   $query = "SELECT city, state, country from {wh_zipcodes} where zip = :zip";
   $results = db_query($query, array(':zip' => $zip));
   $pairs = array();

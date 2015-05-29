@@ -69,10 +69,6 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
     // Construct the validated signature data array  for validations_queue.
     $signature_data = _signatures_queue_validated_signature_data($options['secret_validation_key'], $options['petition_id']);
 
-    // Log time elapsed since passing through previous workflow.
-    $elapsed_since_initiating_signature_validation = signatures_queue_get_microtime_elapsed_since($signature_data['timestamp_initiated_signature_validation']);
-    petitionslog_event('signatures_queue.data_flow.time_elapsed.initiated_signature_validation__to__received_signature_validation', 'time', $elapsed_since_initiating_signature_validation);
-
     // Queue validated signatures for next step.
     $queue = SignaturesQueue::get('validations_queue');
     $queue->createQueue();
@@ -86,7 +82,7 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
   }
 
   // Debugging. Log options and signature data.
-  if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
+  if ($debug = variable_get('signatures_queue_debug', FALSE)) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Options passed to receive_signature_validation workflow: !options', array(
       '!options' => petitionslog_format_for_watchdog($options),
     ), WATCHDOG_DEBUG);

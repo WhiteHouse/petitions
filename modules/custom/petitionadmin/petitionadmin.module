@@ -1,25 +1,40 @@
 <?php
 /**
  * @file
- * Admin functionality for Petitions.
+ * Code for the Petition UI feature.
+ *
+ * This module contains mysql only functionality.  It will only work in Phase 4
+ * of the mongo2 mysql transition: reading from mysql and writing
+ * to mysql.  No mongo!
  */
 
-module_load_include('inc', 'petitionadmin', 'petitionadmin.views_default');
-
-/**
- * Implements hook_views_api().
- */
-function petitionadmin_views_api() {
-  return array("version" => "3.0");
-}
+include_once 'petitionadmin.features.inc';
 
 /**
  * Implements hook_menu_alter().
  */
 function petitionadmin_menu_alter(&$items) {
-  $deny_access = shunt_is_enabled('petition_mysql_save');
-  if ($deny_access) {
+  // Hide MySQL-based moderations tools if MySQL functionality isn't enabled.
+  // e.g Hide Mongo2MySql phase 1 and phase 4.
+  if (!(petitions_data_mysql_writes_are_enabled() && petitions_data_mongo_writes_are_enabled())) {
     unset($items['admin/moderation-tools']);
+  }
+
+  // Show mysql admin tool only when we are in Mongo2MySql phase 4.
+  if (petitions_data_mysql_writes_are_enabled() && !petitions_data_mongo_writes_are_enabled()) {
+
+    unset($items['admin/petitions']);
+
+    // Update the current petition menu item to point to the new mysql admin
+    // page.
+    $items['admin/petitions'] = array(
+      'title'            => 'Petitions',
+      'page callback'    => 'drupal_goto',
+      'page arguments'   => array('admin/content/petitions'),
+      'access arguments' => array('administer petitions'),
+      'type'             => MENU_NORMAL_ITEM,
+      'weight' => -10,
+    );
   }
 }
 
@@ -28,4 +43,272 @@ function petitionadmin_menu_alter(&$items) {
  */
 function petitionadmin_form_views_form_petitions_moderation_tools_alter(&$form, &$form_state, $form_id) {
   $form['select']['submit']['#value'] = t('Next');
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function petitionadmin_permission() {
+  $permissions = array();
+
+  $permissions['petition access signatures'] = array(
+    'title'       => t('View petition signatures'),
+    'description' => t('Have the right to view petition signatures.'),
+  );
+
+  $permissions['petition access administrator'] = array(
+    'title'       => t('Access petition administration'),
+    'description' => t('Have the right to access petition administration.'),
+  );
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function petitionadmin_menu() {
+  $items = array();
+
+  $items['node/%/signatures'] = array(
+    'type'             => MENU_LOCAL_TASK,
+    'title'            => 'Signatures',
+    'page callback'    => 'views_embed_view',
+    'page arguments'   => array('petitionadmin_signatures', 'page_1', 1),
+    'access callback'  => '_petitionadmin_access_callback',
+    'access arguments' => array(1),
+    'weight'           => 50,
+  );
+
+  $items['node/%/signatures/export/%'] = array(
+    'type'             => MENU_CALLBACK,
+    'page callback'    => 'petitionadmin_export_signatures',
+    'page arguments'   => array(1, 4, 'download'),
+    'access callback'  => '_petitionadmin_access_callback',
+    'access arguments' => array(1),
+  );
+
+  $items['node/%/signatures/export/%/%'] = array(
+    'type'             => MENU_CALLBACK,
+    'page callback'    => 'petitionadmin_export_signatures',
+    'page arguments'   => array(1, 4, 5),
+    'access callback'  => '_petitionadmin_access_callback',
+    'access arguments' => array(1),
+  );
+
+  $items['admin/content/petitions/content'] = array(
+    'title'  => 'Listing',
+    'type'   => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['admin/content/petitions/api-keys'] = array(
+    'title'            => 'API keys',
+    'page callback'    => 'drupal_goto',
+    'page arguments'   => array('admin/petitions/api-keys'),
+    'access arguments' => array('administer api keys'),
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 2,
+  );
+
+  $items['admin/content/petitions/settings'] = array(
+    'title'            => 'Settings',
+    'page callback'    => 'drupal_goto',
+    'page arguments'   => array('admin/petitions/settings'),
+    'access arguments' => array('administer petitions'),
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 3,
+  );
+
+  return $items;
+}
+
+/**
+ * Export signatures for a petition.
+ *
+ * @param int $node_id
+ *   Petition node ID to export signatures of.
+ *
+ * @param string $export_fields
+ *   base = all signatures CSV data without emails
+ *   email = only email signatures CSV data
+ *
+ * @param string $export_type
+ *   download = Download as a file attachment
+ *   stdout = Output to stdout
+ */
+function petitionadmin_export_signatures($node_id, $export_fields, $export_type = 'stdout') {
+  $users = array();
+
+  // Number of rows to load into memory on one loop, adjust for performance.
+  $loop_size = variable_get('signatures_export_loop_size', 5000);
+  $loop_index = 0;
+
+  if ($export_type == 'download') {
+    $filename = 'petition_' . $node_id . '_signatures_' . date('c') . '.csv';
+    petitionadmin_download_send_headers($filename);
+  }
+
+  do {
+    // Force MySQL.
+    $signatures = SignaturesSelectQueryFactory::create(TRUE);
+    $signatures->setPetitionId($node_id);
+    $signatures->setMaxReturnLimit($loop_size);
+    $signatures->setOffset($loop_index++ * $loop_size);
+    $signatures_data = $signatures->execute()->getResultObjects();
+
+    if ($export_fields == 'email') {
+      $uids = array();
+
+      foreach ($signatures_data as $signature) {
+        $uids[] = $signature->getUid();
+      }
+      // Use db_select to improve performance instead of user_load_multiple.
+      $query = db_select('users', 'u');
+      $query->fields('u', array('uid', 'mail'))
+        ->condition('u.uid', $uids, 'IN');
+      $users = $query->execute()->fetchAllAssoc('uid');
+    }
+
+    $df = fopen("php://output", 'w');
+    foreach ($signatures_data as $signature) {
+      if ($export_fields == 'base') {
+        $fields = array(
+          $signature->getEntityId(),
+          $signature->getFirstName(),
+          $signature->getLastName(),
+          $signature->getCity(),
+          $signature->getState(),
+          $signature->getZip(),
+          $signature->getCreated(),
+        );
+      }
+      elseif ($export_fields == 'email') {
+        $fields = array($users[$signature->getUid()]->mail);
+      }
+      fputcsv($df, $fields);
+    }
+    fclose($df);
+    $signatures_count = count($signatures_data);
+
+    unset($signatures_data);
+    unset($signatures);
+    unset($query);
+    unset($users);
+  } while ($signatures_count == $loop_size);
+
+  if ($export_type == 'download') {
+    // Exit out to prevent any other data from entering download stream.
+    die;
+  }
+}
+
+/**
+ * Generate headers for downloading a file via stream.
+ *
+ * @param string $filename
+ *   Filename to use for attachment download
+ */
+function petitionadmin_download_send_headers($filename) {
+  // Disable caching.
+  $now = gmdate("D, d M Y H:i:s");
+  header("Expires: Tue, 03 Jul 2001 06:00:00 GMT");
+  header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
+  header("Last-Modified: {$now} GMT");
+
+  // Force download.
+  header("Content-Type: application/force-download");
+  header("Content-Type: application/octet-stream");
+  header("Content-Type: application/download");
+
+  // Disposition / encoding on response body.
+  header("Content-Disposition: attachment;filename={$filename}");
+  header("Content-Transfer-Encoding: binary");
+}
+
+/**
+ * Renders the signatures entities for a petition.
+ *
+ * @param null $node
+ *   Target petition ID.
+ *
+ * @return bool|void
+ *   Rendered view or nothing.
+ */
+function petitionadmin_display_signatures($node = NULL) {
+  if (!empty($node) && is_object($node)) {
+    return views_embed_view('petitions_signatures', 'page_1', $node->nid);
+  }
+}
+
+/**
+ * Security access callback for signatures tab and view.
+ *
+ * @param null $node
+ *   Target petition ID.
+ *
+ * @return bool
+ *   TRUE if access is allowed. FALSE otherwise
+ */
+function _petitionadmin_access_callback($node = NULL) {
+  if (empty($node) || is_object($node)) {
+    return FALSE;
+  }
+
+  $node = node_load($node);
+  $is_petition_node = $node->type == 'petition';
+  $is_user_authorized = user_access('petition access signatures');
+
+  // This check represents an abundance of caution to prevent this page from
+  // being accessed in Phase 1, Phase 2, and Phase 3 of the mongo2mysql
+  // transition.
+  $is_mongo_off = !petitions_data_mongo_writes_are_enabled();
+  return $is_petition_node && $is_user_authorized && $is_mongo_off;
+}
+
+/**
+ * Implements hook_views_plugins().
+ */
+function petitionadmin_views_plugins() {
+  $plugins = array(
+    'access' => array(
+      'petition_access' => array(
+        'title'   => t('Petition Admin Index Access'),
+        'help'    => t('this is a custom access plugin'),
+        'handler' => 'PetitionUiViewsAccessPlugin',
+        'path'    => drupal_get_path('module', 'petitionadmin'),
+      ),
+    ),
+  );
+
+  return $plugins;
+}
+
+/**
+ * Petition views access callback.
+ *
+ * @param null $account
+ *   Current user account or null.
+ *
+ * @return bool
+ *   boolean if user should have access.
+ */
+function petitionadmin_views_access_callback($account = NULL) {
+  global $user;
+  $access = FALSE;
+
+  if (is_null($account)) {
+    $account = $user;
+  }
+
+  $is_user_authorized = views_check_perm('petition access administrator', $account);
+
+  // This line has a lot of meaning.  This code will only execute when
+  // in Phase 4 of the mongo2 mysql transition: reading from mysql and writing
+  // to mysql.  No mongo!
+  $is_mongo_off = !petitions_data_mongo_writes_are_enabled();
+  $access = $is_user_authorized  && $is_mongo_off;
+
+  return $access;
 }

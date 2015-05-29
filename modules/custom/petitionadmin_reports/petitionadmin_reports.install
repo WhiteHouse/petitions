@@ -1,0 +1,136 @@
+<?php
+/**
+ * @file
+ * Code for the Petition UI - Reports installation.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function petitionadmin_reports_schema() {
+
+  $schema['petitionadmin_reports_report_summary'] = array(
+    'description' => 'Holding table for petition and signatures summary statistics',
+    'fields'      => array(
+      'user_all'                   => array(
+        'description' => 'Total users in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'user_valid'                 => array(
+        'description' => 'Valid users in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'petition_all'               => array(
+        'description' => 'All petitions in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'petition_active'            => array(
+        'description' => 'Active petitions in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'petition_public'            => array(
+        'description' => 'Public petitions in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'petition_awaiting_response' => array(
+        'description' => 'Petitions awaiting response in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'petition_responded'         => array(
+        'description' => 'Petitions with responses in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'petition_removed'           => array(
+        'description' => 'Petitions removed in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'petition_expired'           => array(
+        'description' => 'Petitions expired in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'signature_all'              => array(
+        'description' => 'All signatures in the system.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+    ),
+  );
+
+  $schema['petitionadmin_reports_report_issues'] = array(
+    'description' => 'Holding table for petition and signatures summary statistics',
+    'fields'      => array(
+      'tid'             => array(
+        'description' => 'The primary identifier for the term',
+        'type'        => 'serial',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE,
+      ),
+      'term_name'       => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+      ),
+      'petition_all'    => array(
+        'description' => 'Total petitions categorized by term.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'petition_public' => array(
+        'description' => 'Public petitions categorized by term.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+      'signature_all'   => array(
+        'description' => 'Total signatures in petitions categorized by term.',
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'unsigned'    => TRUE,
+        'default'     => 0,
+      ),
+    ),
+    'unique keys' => array(
+      'tid' => array('tid'),
+    ),
+    'primary key' => array('tid'),
+    'indexes'     => array(
+      'term_name' => array('term_name'),
+    ),
+  );
+
+  return $schema;
+
+}

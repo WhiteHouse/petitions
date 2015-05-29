@@ -41,14 +41,14 @@
 function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker_name, array $options = array()) {
   $signature = (array) $options['signature'];
   $api_key = $signature['signature_source_api_key'];
-  $petition_id = $signature['petition_id'];
+  $petition_id = !empty($signature['petition_id']) ? $signature['petition_id'] : 'NONE';
 
   try {
     petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.invoked");
     petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.invoked");
 
     // Debugging. Log signature data received.
-    if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
+    if ($debug = variable_get('signatures_queue_debug', FALSE)) {
       watchdog('signatures_queue', 'DEBUG ENABLED: New signature received: !signature', array(
         '!signature' => petitionslog_format_for_watchdog($signature),
       ), WATCHDOG_DEBUG);
@@ -62,20 +62,22 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
       return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
     }
 
-    $petition = petitions_data_mongo2mysql_get_petition($petition_id);
+    if (!shunt_is_enabled('signatures_queue_receive_new_signatures_validate_petition')) {
+      $petition = petitions_data_get_petition($petition_id);
 
-    // Make sure the petition exists.
-    if (empty($petition)) {
-      petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.not_found");
-      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.not_found");
-      return SIGNATURES_QUEUE_STATUS_NOT_FOUND;
-    }
+      // Make sure the petition exists.
+      if (empty($petition)) {
+        petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.not_found");
+        petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.not_found");
+        return SIGNATURES_QUEUE_STATUS_NOT_FOUND;
+      }
 
-    // Make sure the petition is "signable".
-    if (!$petition['isSignable']) {
-      petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.forbidden");
-      petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.forbidden");
-      return SIGNATURES_QUEUE_STATUS_FORBIDDEN;
+      // Make sure the petition is "signable".
+      if (!$petition['isSignable']) {
+        petitionslog_event("signatures_queue.workflow.receive_new_signatures.api_key.{$api_key}.forbidden");
+        petitionslog_event("signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}.forbidden");
+        return SIGNATURES_QUEUE_STATUS_FORBIDDEN;
+      }
     }
 
     // Input is all valid. Build the queue item.
@@ -89,6 +91,7 @@ function _signatures_queue_receive_new_signatures($job_id, $server_name, $worker
     return SIGNATURES_QUEUE_STATUS_OK;
   }
   catch (Exception $e) {
+    petitionslog_event('exceptions.signatures_queue.3a67b6f');
     throw $e;
   }
 }
@@ -151,7 +154,7 @@ function _signatures_queue_build_new_queue_item(array $signature) {
   $item = array_merge($expected_fields, $signature_trimmed);
 
   // Add application data to the item.
-  $petition = petitions_data_mongo2mysql_get_petition($signature['petition_id']);
+  $petition = petitions_data_get_petition($signature['petition_id']);
   $validation_grace_period = (int) variable_get('signatures_queue_validation_grace_period', 2);
   $item['timestamp_received_new_signature'] = time();
   $item['timestamp_petition_close'] = $petition['deadline'];
@@ -195,7 +198,6 @@ function _signatures_queue_enqueue_item(array $item) {
  *   _signatures_queue_build_new_queue_item().
  */
 function _signatures_queue_log_signatory_details($api_key, $petition_id, array $signature) {
-  $domain = petitionslog_filter_metric(signatures_queue_get_domain_from_email($signature['email']));
   $is_disposable = signatures_queue_is_disposable_email($signature['email']) ? 'true' : 'false';
   $is_subaddressed = signatures_queue_is_subaddressed_email($signature['email']) ? 'true' : 'false';
 
@@ -206,7 +208,6 @@ function _signatures_queue_log_signatory_details($api_key, $petition_id, array $
     "signatures_queue.workflow.receive_new_signatures.petition_id.{$petition_id}",
   );
   foreach ($metric_prefixes as $prefix) {
-    petitionslog_event("{$prefix}.email_address.domain.{$domain}");
     petitionslog_event("{$prefix}.email_address.is_disposable.{$is_disposable}");
     petitionslog_event("{$prefix}.email_address.is_subaddressed.{$is_subaddressed}");
   }

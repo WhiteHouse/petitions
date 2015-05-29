@@ -22,7 +22,7 @@ function _api_signatures_resource_create($api_key, array $signature) {
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
 
   // Verbose logging, if debugging is enabled.
-  if ($debug = variable_get('signatures_queue_enable_debugging', FALSE)) {
+  if ($debug = variable_get('signatures_queue_debug', FALSE)) {
     watchdog('api_signatures', 'DEBUG ENABLED: _api_signatures_resource_create() param $api_key: @api_key', array(
       '@api_key' => $api_key,
     ));

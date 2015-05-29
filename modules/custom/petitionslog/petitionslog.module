@@ -9,7 +9,12 @@
  * Logs a system event.
  *
  * @param string $name
- *   The name of the event you want to log.
+ *   The
+ *   @link http://graphite.readthedocs.org/)-compatible Graphite @endlink
+ *   -compatible name of the event you want to log--i.e., a path delimited by
+ *   dots (.). (See
+ *   @link http://graphite.readthedocs.org/en/latest/feeding-carbon.html#step-1-plan-a-naming-hierarchy Getting Your Data Into Graphite: Step 1 @endlink
+ *   .)
  * @param string $type
  *   (optional) The type of metric to log--one of the following values
  *   corresponding to the
@@ -58,6 +63,52 @@ function petitionslog_event($name, $type = 'count', $value = NULL) {
 }
 
 /**
+ * Starts a reusable timer.
+ *
+ * This function is a mere wrapper for symmetry with
+ * petitionslog_reusable_timer_read_and_destroy(), which performs the important
+ * work of preventing timers from accumulating through reuse.
+ *
+ * @param string $name
+ *   The name of the timer.
+ *
+ * @see petitionslog_reusable_timer_read_and_destroy()
+ */
+function petitionslog_reusable_timer_start($name) {
+  timer_start($name);
+}
+
+/**
+ * Reads and destroys a reusable timer.
+ *
+ * Drupal provides no facility to destroying timers, so two uses of the same
+ * timer name inside the same PHP process will accumulate, e.g., if a timer by
+ * the same name is used inside a loop with five iterations and each iteration
+ * takes one second, the first iteration will accurately register as having
+ * taken one second, but the second will register as having taken two, the third
+ * as three, etc.
+ *
+ * After calling this function, a timer by the same name can be safely started
+ * using petitionslog_reusable_timer_start().
+ *
+ * @param string $name
+ *   The name of the timer.
+ *
+ * @return int
+ *   The current timer value in milliseconds.
+ *
+ * @see petitionslog_reusable_timer_start()
+ */
+function petitionslog_reusable_timer_read_and_destroy($name) {
+  $elapsed = (int) timer_read($name);
+
+  // Delete the timer variable to prevent accumulation.
+  unset($GLOBALS['timers'][$name]['start']);
+
+  return $elapsed;
+}
+
+/**
  * Filters a given event metric name.
  *
  * @param string $name
@@ -71,6 +122,53 @@ function petitionslog_filter_metric($name) {
   // name components. Replace them with underscores.
   $filtered_name = str_replace('.', '_', $name);
   return $filtered_name;
+}
+
+/**
+ * Logs a database query to watchdog.
+ *
+ * @param string $type
+ *   The category to which this message belongs. Can be any string, but the
+ *   general practice is to use the name of the module calling
+ *   petitionslog_log_query().
+ * @param QueryAlterableInterface $query
+ *   An Query object describing the composite parts of a SQL query.
+ */
+function petitionslog_log_query($type, QueryAlterableInterface $query) {
+  // Get the SQL for the query. This logic is adapted from devel's dpq(). The
+  // chief difference is that the below doesn't invoke the query's preExecute()
+  // method, which can cause errors in this context. Regardless, avoiding the
+  // dependency makes it possible, if necessary, to use this feature in prod
+  // without enabling devel there, and that's good thing.
+  $sql = (string) $query;
+  $quoted = array();
+  $connection = Database::getConnection();
+  foreach ((array) $query->arguments() as $key => $val) {
+    $quoted[$key] = $connection->quote($val);
+  }
+  $sql = strtr($sql, $quoted);
+
+  // Prefix tables so the string is directly copy/paste-able into an SQL tool.
+  $sql = $connection->prefixTables($sql);
+
+  // Run EXPLAIN. Wrap in a try..catch() in case of a database that doesn't
+  // support the syntax.
+  try {
+    $result = db_query("EXPLAIN {$sql}");
+    $explain = array();
+    while ($row = $result->fetchAssoc()) {
+      $explain[] = $row;
+    }
+  }
+  catch (Exception $e) {
+    $explain = t('Not available.');
+  }
+
+  watchdog($type, 'SQL: !sql EXPLAIN: !explain Query object: !query', array(
+    '!sql' => petitionslog_format_for_watchdog($sql),
+    '!explain' => petitionslog_format_for_watchdog($explain),
+    '!query' => petitionslog_format_for_watchdog($query),
+  ));
 }
 
 /**
@@ -92,12 +190,15 @@ function petitionslog_filter_metric($name) {
 function petitionslog_format_for_watchdog($data) {
   // Use pretty printing if dblog is enabled.
   if (module_exists('dblog')) {
+    if (is_string($data)) {
+      return "<blockquote><pre>{$data}</pre></blockquote>";
+    }
     // JSON_PRETTY_PRINT is only available since PHP 5.4.0.
-    if (defined('JSON_PRETTY_PRINT')) {
-      return json_encode($data, JSON_PRETTY_PRINT);
+    elseif (defined('JSON_PRETTY_PRINT')) {
+      return '<blockquote><pre>' . json_encode($data, JSON_PRETTY_PRINT) . '</pre></blockquote>';
     }
     else {
-      return print_r($data, TRUE);
+      return '<blockquote><pre>' . print_r($data, TRUE) . '</pre></blockquote>';
     }
   }
   // Otherwise, use (compressed) JSON to get it all on a single line.

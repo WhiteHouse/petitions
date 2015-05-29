@@ -13,10 +13,9 @@
 function petitionsmongo2mysqlintegrity_form_petition_node_form_alter(&$form, &$form_state, $form_id) {
   global $user;
 
-  $is_mongo_on = !shunt_is_enabled('wh_petitions_petition_create');
   $is_not_superuser = $user->uid !=1;
 
-  if ($is_mongo_on && $is_not_superuser) {
+  if (petitions_data_mongo_reads_are_enabled() && $is_not_superuser) {
     // Remove ability to publish
     $form['options']['status']['#value'] = 1;
     $form['options']['#type'] = 'hidden';
@@ -52,10 +51,9 @@ function petitionsmongo2mysqlintegrity_form_node_admin_content_validation(&$form
   $pub_options = array('publish', 'unpublish');
   $admin_link = l('petitions moderation page', 'admin/moderation-tools');
 
-  $is_mongo_on = !shunt_is_enabled('wh_petitions_petition_create');
   $is_not_superuser = $user->uid !=1;
   
-  if ($is_mongo_on && $is_not_superuser) {
+  if (petitions_data_mongo_is_on() && $is_not_superuser) {
     // Throw error if any of our actions are publish/unpublish and any selection is a petition.
     if (in_array($form_state['values']['operation'], $pub_options)) {
       foreach ($selected as $choice) {

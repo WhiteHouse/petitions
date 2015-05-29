@@ -71,3 +71,69 @@ function petitions_maintenance_update_7303(&$sandbox) {
     ->execute();
   db_query("DELETE FROM {variable} WHERE name LIKE 'colorbox_%'");
 }
+
+/**
+ * Install new modules.
+ */
+function petitions_maintenance_update_7304(&$sandbox) {
+  module_enable(array('efq_extra_field'));
+}
+
+/**
+ * Install petitionadmin_reports modules.  Revert petitionadmin feature.
+ */
+function petitions_maintenance_update_7307(&$sandbox) {
+  module_enable(array('petitionadmin_reports'));
+
+  $features = array(
+    'wh_response_feature' => array('petitionadmin'),
+  );
+
+  // Revert the feature.
+  features_revert($features);
+
+  // Remove orphaned Drupal Actions.
+  actions_synchronize(actions_list(), TRUE);
+}
+
+/**
+ * Install new modules.
+ */
+function petitions_maintenance_update_7308(&$sandbox) {
+  module_enable(array('apachesolr'));
+}
+
+/**
+ * Install prevent_user_login module.
+ */
+function petitions_maintenance_update_7309(&$sandbox) {
+  module_enable(array('prevent_user_login'));
+
+  // Assign the block to the takeover region. Before we can write directly to
+  // the database, we have to force drupal to write the new block definition by
+  // calling _block_rehash('petitions44).
+  _block_rehash('petitions44');
+
+  db_merge('block')
+    ->key(array(
+      'theme' => 'petitions44',
+      'delta' => 'prevent_user_login_block',
+      'module' => 'prevent_user_login',
+    ))
+    ->fields(array(
+      'region' => 'takeover',
+      'status' => 1,
+      'weight' => 50,
+      'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+    ))
+    ->execute();
+
+}
+
+/**
+ * Install and configure Transliteration module.
+ */
+function petitions_maintenance_update_7310(&$sandbox) {
+  module_enable(array('transliteration'));
+  variable_set('pathauto_transliterate', 1);
+}

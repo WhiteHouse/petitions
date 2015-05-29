@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ */
+function wh_response_feature_uninstall() {
+  variable_delete('date_format_response');
+}
+
+/**
+ * PT-1479: Add publish date to responses.
+ */
+function wh_response_feature_update_7001() {
+  variable_set('date_format_response', 'F j, Y');
+}

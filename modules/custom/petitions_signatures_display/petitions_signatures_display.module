@@ -69,8 +69,8 @@ function petitions_signatures_display_style($first_name, $last_name) {
  * Invokes _perform_lookup() in wh_zipcodelookup.module.
  */
 function petitions_signatures_display_location($zipcode = '') {
-  if (module_exists('wh_zipcodelookup') && function_exists('_perform_lookup')) {
-    $location = _perform_lookup($zipcode);
+  if (module_exists('wh_zipcodelookup') && function_exists('wh_zipcodelookup_get_location_details_from_zipcode')) {
+    $location = wh_zipcodelookup_get_location_details_from_zipcode($zipcode);
     return $location;
   }
   else {

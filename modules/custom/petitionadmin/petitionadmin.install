@@ -16,3 +16,27 @@ function petitionadmin_install() {
     ->condition('name', 'petitionadmin', '=')
     ->execute();
 }
+
+/**
+ * PT-1686: Optimize signature downloads.
+ *
+ * 1) Reverts this feature module.
+ * 2-3) Disables and uninstalls views_data_export, even though it is no longer
+ * present in the system.
+ */
+function petitionadmin_update_7001() {
+  // 1) Revert the feature.
+  features_revert(array('petitionadmin' => array('views_view')));
+
+  // 2) Disable views_data_export in the database.
+  db_query("UPDATE system SET status = '0' WHERE name = 'views_data_export';");
+  db_query("DELETE FROM cache_bootstrap WHERE cid = 'system_list';");
+
+  // 3) Uninstall views_data_export: clear tables from schema.
+  $tables = array('views_data_export', 'views_data_export_object_cache');
+  foreach ($tables as $table_name) {
+    if (db_table_exists($table_name)) {
+      db_drop_table($table_name);
+    }
+  }
+}

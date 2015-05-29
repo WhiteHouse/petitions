@@ -18,15 +18,6 @@ function hook_wh_petitions_petition_save($petition) {
 }
 
 /**
- * Act when a petition has been closed.
- *
- * @param array $petition
- *   an array with the petition's data.
- */
-function hook_wh_petitions_petition_close($petition) {
-}
-
-/**
  * Act when the body of a petition has been updated.
  *
  * @param array $petition

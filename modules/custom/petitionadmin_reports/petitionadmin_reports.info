@@ -1,0 +1,8 @@
+name = Petition Admin - Reports
+description = Petition: Reports and Statistics.
+core = 7.x
+package = Petitions
+version = 7.x-3.0
+project = petitionadmin_reports
+dependencies[] = petitionadmin
+files[] = petitionadmin_reports.report.summary.inc

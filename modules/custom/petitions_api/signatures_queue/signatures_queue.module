@@ -83,14 +83,14 @@ function signatures_queue_menu() {
   $items['thank-you'] = array(
     'title' => 'Thank You',
     'page callback' => '_signatures_queue_validation_page_callback',
-    'access arguments' => array('access content'),
+    'access arguments' => array('validate petition signatures'),
     'file' => 'signatures_queue.pages.inc',
   );
   $items['thank-you/%'] = array(
     'title' => 'Thank You',
     'page callback' => '_signatures_queue_validated_page_callback',
     'page arguments' => array(1),
-    'access arguments' => array('access content'),
+    'access arguments' => array('validate petition signatures'),
     'file' => 'signatures_queue.pages.inc',
   );
   $items['validation-error'] = array(
@@ -119,6 +119,10 @@ function signatures_queue_permission() {
     ),
     'monitor queues' => array(
       'title' => t('Monitor signatures queue'),
+    ),
+    'validate petition signatures' => array(
+      'title' => t('Validate petition signatures'),
+      'description' => t('Validate petition signatures by visiting their email verification links.'),
     ),
   );
 }
@@ -246,12 +250,12 @@ function signatures_queue_validation_email_tokens(array &$replacements, array $d
     $replacements['[signature:validation-url]'] = _signatures_queue_validation_link($website_url, $data['signature info']);
     // Load the petition via the API retrieve method.
     $petition = PetitionsController::load($petition_id);
-    if (!empty($petition[0])) {
+    if (!empty($petition)) {
       // Tokens for values associated to the petition.
-      $replacements['[petition:title]'] = $petition[0]['title'];
-      $replacements['[petition:body]'] = $petition[0]['body'];
-      $replacements['[petition:url]'] = $petition[0]['url'];
-      $replacements['[petition:deadline]'] = date('l, F j, Y', $petition[0]['deadline']);
+      $replacements['[petition:title]'] = $petition['title'];
+      $replacements['[petition:body]'] = $petition['body'];
+      $replacements['[petition:url]'] = $petition['url'];
+      $replacements['[petition:deadline]'] = date('l, F j, Y', $petition['deadline']);
     }
   }
 }
@@ -271,6 +275,9 @@ function signatures_queue_shunt() {
     ));
     $shunts[$name] = $description;
   }
+
+  $shunts['signatures_queue_receive_new_signatures_validate_petition'] = t('Prevents the "receive new signatures" workflow from validating the requested petition ID, so that the workflow performs no database queries.');
+
   return $shunts;
 }
 
@@ -544,6 +551,10 @@ function signatures_queue_set_db($conf_name = 'signatures_processing') {
   if (empty($drupal_test_info['test_run_id']) && !empty($databases[$conf_name])) {
     // Set database so that we create the tables there.
     db_set_active($conf_name);
+  }
+  // If the database is not defined, set back to the default db.
+  elseif (empty($databases[$conf_name])) {
+    db_set_active();
   }
 }
 

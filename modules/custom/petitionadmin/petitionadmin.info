@@ -1,9 +1,20 @@
 name = Petition Admin
-description = Contains administrative tools for petitions.
+description = Petitions: Administrative interface
 core = 7.x
 package = Petitions
-
+php = 5.2.4
+version = 7.x-1.0
+project = petitionadmin
 dependencies[] = ctools
-dependencies[] = views
+dependencies[] = date_views
 dependencies[] = petition
 dependencies[] = petitionevents
+dependencies[] = signature_mail
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = petitionadmin
+features[views_view][] = petitionadmin_signatures
+features[views_view][] = petitions
+files[] = petitionadmin_views_access_plugin.inc
+mtime = 1430350353

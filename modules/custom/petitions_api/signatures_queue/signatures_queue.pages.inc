@@ -91,25 +91,27 @@ function _signatures_queue_validation_page_callback() {
  * Callback for thank-you/%.
  */
 function _signatures_queue_validated_page_callback($petition_id) {
-  $conn = wh_petitions_mongo_petition_connection();
-  $petition = wh_petitions_load_petition($conn, $petition_id);
+
+  $petition = PetitionsController::loadObject($petition_id);
 
   if (!empty($petition)) {
-    $url = (!empty($petition['short_url'])) ? $petition['short_url'] : $petition['nice_url'];
+    $short_url = $petition->getShortUrl();
+    $nice_url = $petition->getNiceUrl();
+    $url = (!empty($short_url)) ? $short_url : $nice_url;
     $plain_petition_id = check_plain($petition_id);
-    $plain_petition_title = check_plain($petition['title']);
+    $plain_petition_title = check_plain($petition->getTitle());
     return theme('signatures_queue_validation_thank_you', array(
       'petition' => $petition,
       'page_title' => t('Thank you for signing this petition!'),
       'message' => t('<p>You\'ve successfully signed the petition <a href="@petition_link">"!title"</a>. Your signature has been verified and counted.</p><p>Take the next step and gather support for it by sharing this petition on Twitter and Facebook, or by sharing a link to this petition: <a href="@petition_link">@petition_link</a></p>', array(
         '@petition_link' => url($url, array('absolute' => TRUE)),
-        '!title' => drupal_ucfirst(check_plain($petition['title'])),
+        '!title' => drupal_ucfirst($plain_petition_title),
       )),
       'email_link' => wh_petition_tool_email_link(t('E-mail'), t('A We the People Petition'), t('I wanted to share this We the People petition with you: @petition_link', array(
         '@petition_link' => url($url, array('absolute' => TRUE)),
       ))),
-      'twitter_link' => wh_petition_tool_twitter_link($plain_petition_id, $plain_petition_title, 'petition', '', $petition['short_url'], $petition['nice_url']),
-      'facebook_link' => wh_petition_tool_facebook_link($plain_petition_id, $plain_petition_title, 'petition', '', $petition['nice_url']),
+      'twitter_link' => wh_petition_tool_twitter_link($plain_petition_id, $plain_petition_title, 'petition', '', $short_url, $nice_url),
+      'facebook_link' => wh_petition_tool_facebook_link($plain_petition_id, $plain_petition_title, 'petition', '', $nice_url),
     ));
   }
   else {

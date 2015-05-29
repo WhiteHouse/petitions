@@ -2,21 +2,8 @@
 
 /**
  * @file
- * Items to execute on instalation of signature_mail.
+ * Install, update and uninstall functions for the Signature Mail module.
  */
-
-// @todo Remove after 7.x-3.0 is released and mongo dependency is removed.
-require_once 'signature_mail.mongo2mysql.inc';
-
-/**
- * Implements hook_install().
- */
-function signature_mail_install() {
-  // @todo This can be removed after 7.x-3.0 release.
-  if (function_exists('signature_mail_disable_mysql')) {
-    signature_mail_disable_mysql();
-  }
-}
 
 /**
  * Updating signature_mail user_zip to 255 characters.
@@ -30,5 +17,4 @@ function signature_mail_update_7100() {
     'length' => '255',
   );
   db_change_field('signature_mail', 'user_zip', 'user_zip', $new_schema);
-
 }
