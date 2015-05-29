@@ -8,17 +8,28 @@ defaults[projects][subdir] = contrib
 
 projects[advanced_help][version] = 1.0
 
+projects[apachesolr][version] = 1.7
+projects[apachesolr][patch][1764352-2] = https://www.drupal.org/files/issues/decouple_cron-1764352-2.patch
+projects[apachesolr][patch][2457953] = https://www.drupal.org/files/issues/apachesolr-slow_queries_reindex-10.patch
+projects[apachesolr][patch][2459461] = https://www.drupal.org/files/issues/apache_solr_profiling-2459461-5.patch
+projects[apachesolr][patch][2476229] = https://www.drupal.org/files/issues/apachesolr-solr_clear_batch-2476229-1.patch
+
 projects[captcha][version] = 1.0
 
 projects[conditional_styles][version] = 2.1
 
-projects[context][version] = 3.1
+projects[context][version] = 3.6
 
 projects[ctools][version] = 1.4
 
 projects[date][version] = 2.6
 
 projects[diff][version] = 3.2
+
+projects[efq_extra_field][download][type] = git
+projects[efq_extra_field][download][url] = http://git.drupal.org/project/efq_extra_field.git
+projects[efq_extra_field][download][revision] = c81036076d3818afb8fd16041b00bf6dabf0b6b1
+projects[efq_extra_field][patch][2399063-1] = https://www.drupal.org/files/issues/efq_extra_field-move_class_to_include-2399063-1.patch
 
 projects[email_confirm][version] = 1.1
 
@@ -111,13 +122,21 @@ projects[textcaptcha][patch][2279207-1] = https://drupal.org/files/issues/textca
 
 projects[token][version] = 1.5
 
-projects[views][version] = 3.7
+projects[transliteration][version] = 3.2
+
+projects[views][version] = 3.11
 
 projects[views_infinite_scroll][version] = 1.1
+; Apply patch from https://www.drupal.org/node/1199794 to eliminate count query from infinite scroller for performance
+projects[views_infinite_scroll][patch][1199794] = https://www.drupal.org/files/issues/infinite_scroll_no_count.patch
 
 projects[views_bulk_operations][version] = 3.1
 
+projects[views_data_export][version] = 3.0-beta8
+
 projects[wysiwyg][version] = 2.2
+
+projects[usfedgov_google_analytics][version] = 1.0-rc1
 
 ; Contrib Themes
 ; ==============================================================================
@@ -159,3 +178,6 @@ libraries[petitions-php-sdk][download][revision] = fe03d49e39e88e87cff2295172d02
 libraries[spyc][download][type] = file
 libraries[spyc][download][url] = https://raw.github.com/mustangostang/spyc/79f61969f63ee77e0d9460bc254a27a671b445f3/spyc.php
 libraries[spyc][download][filename] = spyc.php
+
+libraries[fed_analytics][download][type] = get
+libraries[fed_analytics][download][url] = https://github.com/GSA/DAP-Gov-wide-GA-Code/archive/1785a8c79cb991ef4efd1a8ee6b7c3d66647119f.zip

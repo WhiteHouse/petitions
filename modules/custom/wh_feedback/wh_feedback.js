@@ -73,7 +73,7 @@ attach: function (context,settings) {
 					   if ($("#wh-feedback-webform textarea[id=wh-feedback-comments]").val()) { wh_feedback_success(); wh_feedback_submitted = true; } else {
 						$.ajax({
 							type: "POST",
-							url: https://wwws.whitehouse.gov/feedback-petitions,
+							url: 'https://wwws.whitehouse.gov/feedback-petitions',
 							data: $('#wh-feedback-modal form[id^=webform-client-form-]').serialize(),
 							beforeSend: function() {
 								if (wh_feedback_validate()) { 

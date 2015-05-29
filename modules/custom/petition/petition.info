@@ -1,5 +1,5 @@
 name = Petition
-description = Creates the content type: Petition
+description = Provides a Petition content type.
 core = 7.x
 package = Petitions
 php = 5.2.4
@@ -9,9 +9,11 @@ project = petition
 files[] = petition.mongo2mysql.inc
 
 dependencies[] = date
+dependencies[] = date_popup
 dependencies[] = entityreference
 dependencies[] = list
 dependencies[] = number
 dependencies[] = options
 dependencies[] = taxonomy
 dependencies[] = wh_response_feature
+dependencies[] = shunt

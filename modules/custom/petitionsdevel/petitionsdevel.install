@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Petitions Devel module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function petitionsdevel_uninstall() {
+  // Delete the module's persistent variables.
+  variable_del('shunt_mongodb_connection');
+}

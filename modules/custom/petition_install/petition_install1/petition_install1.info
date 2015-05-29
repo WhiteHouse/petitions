@@ -1,12 +1,11 @@
 name = Whitehouse Petition Install 1 (no contrib or custom dependencies)
-description = Install modules with no dependencies 
+description = Install modules with no dependencies
 
 core = 7.x
 
 ; contrib
 ; -----------------
 
-; dependencies[] = acquia_connector
 dependencies[] = advanced_help
 dependencies[] = captcha
 ; dependencies[] = coder
@@ -40,8 +39,6 @@ dependencies[] = govdelivery
 dependencies[] = wh_feedback
 
 
-; Information added by drush on 2013-08-08
 version = ""
 project = "petitions"
-datestamp = "1375992615"
 

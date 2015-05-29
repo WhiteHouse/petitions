@@ -8,7 +8,6 @@ dependencies[] = block
 dependencies[] = context
 dependencies[] = wh_petitions
 dependencies[] = wh_response_feature
-datestamp = 1375992615
 features[context][] = create_petition
 features[context][] = dashboard
 features[context][] = petition

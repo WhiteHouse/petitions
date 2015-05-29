@@ -39,10 +39,10 @@
  *
  * @see signatures_queue_invoke_workflow()
  */
-function _signatures_queue_process_signatures($job_id, $server_name, $worker_name, $options) {
+function _signatures_queue_process_signatures($job_id, $server_name, $worker_name, array $options) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
   $limit = signatures_queue_get_queue_batch_size('process_signatures');
-  $debug = variable_get('signatures_queue_enable_debugging', FALSE);
+  $debug = variable_get('signatures_queue_debug', FALSE);
 
   // Set the active database to the signatures_processing db.
   signatures_queue_set_db();
@@ -105,11 +105,12 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       // Set ID.
       $item['signature_id'] = $signature_id;
       // Increment signature count.
-      _signatures_queue_process_signatures_increment_count($item['petition_id']);
+      PetitionsController::incrementSignatureCount($item['petition_id']);
     }
     // If it's a new signature, but no new signature was created...
     elseif ($new_signature && empty($signature_id)) {
       // Log failure.
+      petitionslog_event('exceptions.signatures_queue.f79c9a5');
       watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_received_signature_validation: @timestamp_received_signature_validation. @suffix', array(
         '@secret_validation_key' => $item['secret_validation_key'],
         '@vid' => $item['vid'],
@@ -265,60 +266,21 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
  */
 function _signatures_queue_process_signatures_valid_petition($petition_id, $debug = FALSE) {
   // Make sure petition exists and is signable.
-  // @todo This should really use the logic in Petition::isSignable(). And
-  // Petition::isSignable should really be updated to honor the signatures
+  // @todo This should really use the logic in PetitionItem::isSignable(). And
+  // PetitionItem::isSignable should really be updated to honor the signatures
   // queue grace period if passed in as a param. But getting that to work
   // will take some refactoring. For now, just try to load the petition. If
   // you can't load it, you shouldn't be able to sign it. It was likely
   // been removed/unpublished by an administrator because it violates terms of
   // service.
-  if (!shunt_is_enabled('signature_mail_mysql_save')) {
-    // MySQL is the authoritative data store. Check petition node to confirm
-    // validity.
-    $nid = petition_get_nid($petition_id);
-    $node = node_load($nid);
-    // Edge case from PT-1423 hit here. Mongo to mysql migration has happened,
-    // but we have somehow managed to create a mongo based petition without a
-    // node counterpart (maybe by switching shunts after the initial migration).
-    // A good way to address this is by trying to create the node on the fly,
-    // instead of just erroring out and dropping the signature.
-    if (!$node) {
-      // Debug?
-      if ($debug) {
-        watchdog('signatures_queue', 'DEBUG ENABLED: Petition id @petition_id does not seem to have a petition node.', array(
-          '@petition_id' => $petition_id,
-        ), WATCHDOG_DEBUG);
-      }
-      // Node doesn't exist.
-      return FALSE;
+  $petition = petitions_data_get_petition($petition_id);
+  if (!$petition) {
+    if ($debug) {
+      watchdog('signatures_queue', 'Invalid petition: id = @id', array(
+        '@id' => $petition_id,
+      ), WATCHDOG_DEBUG);
     }
-    if (!$node->status) {
-      // Debug?
-      if ($debug) {
-        watchdog('signatures_queue', 'DEBUG ENABLED: Invalid petition, not published: node = !node', array(
-          '!node' => petitionslog_format_for_watchdog($node),
-        ), WATCHDOG_DEBUG);
-      }
-      // Node is unpublished.
-      return FALSE;
-    }
-  }
-  else {
-    // If mongo2mysql switch is not complete or the mysql shunt is tripped, use
-    // the legacy petitions_data module to try and load the petition being
-    // signed. If it can't be loaded, it can't be signed either.
-    if (module_exists('petitions_data')) {
-      $petition = petitions_data_mongo2mysql_get_petition($petition_id);
-      if (!$petition) {
-        // Debug?
-        if ($debug) {
-          watchdog('signatures_queue', 'Invalid petition, cannot load petition_id from mongo: id = @id', array(
-            '@id' => $petition_id,
-          ), WATCHDOG_DEBUG);
-        }
-        return FALSE;
-      }
-    }
+    return FALSE;
   }
 
   // If not found to be invalid, it's valid.
@@ -415,6 +377,7 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
   }
   catch (PDOException $exception) {
     // @todo Abuse detection.
+    petitionslog_event('exceptions.signatures_queue.a49d9ef');
     watchdog('signatures_queue', 'An item could not be added due to a database error: item: !item, exception: !exception. @suffix', array(
       '!item' => petitionslog_format_for_watchdog($item),
       '!exception' => petitionslog_format_for_watchdog($exception),
@@ -435,9 +398,6 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
  *   The item from the database query.
  * @param string $watchdog_suffix
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
- *
- * @return bool
- *   Returns TRUE on success.
  */
 function _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix) {
   // Set the active database to the signatures_processing db.
@@ -477,6 +437,7 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
     petitionslog_event('signatures_queue.data_store.signatures_processed.item_added');
   }
   catch (PDOException $exception) {
+    petitionslog_event('exceptions.signatures_queue.e5f8a95');
     $erred = TRUE;
   }
   try {
@@ -494,12 +455,13 @@ function _signatures_queue_process_signatures_move_to_processed($item, $watchdog
     petitionslog_event('signatures_queue.data_store.validations_processed.item_added');
   }
   catch (PDOException $exception) {
+    petitionslog_event('exceptions.signatures_queue.48d42b3');
     $erred = TRUE;
   }
 
   // Log errors.
   if ($erred) {
-    // @todo Abuse detection.
+    petitionslog_event('exceptions.signatures_queue.388ac8b');
     watchdog('signatures_queue', 'An item could not be moved to processed due to a database error: item: !item, exception: !exception. @suffix', array(
       '!item' => petitionslog_format_for_watchdog($item),
       '!exception' => petitionslog_format_for_watchdog($exception),
@@ -551,65 +513,24 @@ function _signatures_queue_process_signatures_get_unique_username($email) {
 }
 
 /**
- * Try to look up signature id based on uid and petition id.
+ * Gets a signature ID based on a petition ID and user ID.
  *
- * @todo This is hardcoded to signature_mail use cases. After the mongo2mysql 
- * refactor is done, consider whether this should be genericized to support more
- * types of signature entities besides just signature_mail (e.g. Facebook,
- * Twitter, other).
- *
- * @param string $petition_id
- *   Petition id.
+ * @param string|int $petition_id
+ *   A petition ID.
  * @param int $uid
- *   User id
+ *   A user ID.
  *
- * @return string
- *   Legacy ids are mongo IDs. New mysql based IDs are serial IDs assigned by
- *   mysql.
+ * @return string|int|false
+ *   The ID of the signature if found or FALSE if not. IDs may be
+ *   strings (legacy MongoDB IDs) or integers (entity IDs).
  */
 function _signatures_queue_process_signatures_get_signature_id($petition_id, $uid) {
-  $signature_id = '';
-
-  // Use deprecated mongo2mysql lookup?
-  // @todo Remove this for 7.x-3.0 release.
-  if (function_exists('wh_petitions_mongo2mysql_get_signature_id')
-  && !shunt_is_enabled('wh_petitions_signature_create')) {
-    // Get signature id from mongo petition_signatures collection.
-    $signature_id = wh_petitions_mongo2mysql_get_signature_id($petition_id, $uid);
-  }
-
-  // @todo We should start using this when mysql is enabled and test to confirm
-  // the ids match when both are enabled. It's a good, low risk opportunity to
-  // validate things working as expected before finally flipping the switcht.
-  else {
-
-    // Get signature id from signature_mail table in mysql.
-    $query = db_select('signature_mail', 'sm')
-      ->fields('sm', array('id'))
-      ->condition('uid', $uid, '=')
-      ->condition('petition_id', $petition_id, '=');
-
-    // Figure out if the id passed in was a legacy mongo id or a node id.
-    $is_node_id = is_numeric($petition_id);
-    if ($is_node_id) {
-      $query->condition('petition_id', $petition_id, '=');
-    }
-    else {
-      $query->condition('legacy_petition_id', $petition_id, '=');
-    }
-    $result = $query->execute();
-
-    // Get the signature ID.
-    while ($row = $result->fetchAssoc()) {
-      $signature_id = $row['id'];
-    }
-
-  }
-
-  // @todo Note: If ID was found with _process_signatures_mongo2mysql_get_id(),
-  // this returns a mongo signature_id. If found in mysql, it returns a
-  // serial/numeric signature_mail id. Will this cause problems?
-  return $signature_id;
+  $signatures = SignaturesSelectQueryFactory::create()
+    ->setPetitionId($petition_id)
+    ->setUid($uid)
+    ->execute()
+    ->getResult();
+  return (!empty($signatures[0]['id'])) ? $signatures[0]['id'] : FALSE;
 }
 
 /**
@@ -618,130 +539,45 @@ function _signatures_queue_process_signatures_get_signature_id($petition_id, $ui
  * @param array $item
  *   Signature data that has worked its way down the pipeline through the
  *   signature queue.
- * @param obj $user
+ * @param object $user
  *   Drupal user, owner of this signature.
  * @param bool $debug
  *   Enable debugging.
  *
- * @return string
- *   $signature_id The ID of the signature created
+ * @return string|false
+ *   The ID of the signature created, or FALSE if none could be created.
  */
-function _signatures_queue_process_signatures_save_signature($item, $user, $debug) {
-  // Save to mongo?
-  if (function_exists('wh_petitions_mongo2mysql_create_new_signature') && !shunt_is_enabled('wh_petitions_signature_create')) {
-    $client_ip = 'not available';
+function _signatures_queue_process_signatures_save_signature(array $item, $user, $debug) {
+  $petition = PetitionsController::loadObject($item['petition_id']);
 
-    // Debug? Print to log.
-    if ($debug) {
-      watchdog('signatures_queue', 'DEBUG ENABLED: Saving signature to mongo: !item', array(
-        '!item' => petitionslog_format_for_watchdog($item),
-      ), WATCHDOG_DEBUG);
-    }
-
-    // Save. Get legacy mongo petition ID.
-    $legacy_signature_id = wh_petitions_mongo2mysql_create_new_signature($item['petition_id'], $user, $client_ip, $item['timestamp_received_new_signature']);
-
-    // If there's no ID here, saving the signature to mongo failed. Log failure.
-    if (!$legacy_signature_id) {
-      watchdog('signatures_queue', 'Error: Attempt to save signature to mongo failed. Queue item = !item', array(
-        '!item' => petitionslog_format_for_watchdog($item),
-      ), WATCHDOG_ERROR);
-    }
-
-    // Debugging? Print success result to log.
-    if ($debug && $legacy_signature_id) {
-      // Signature was successfully saved to mongo.
-      watchdog('signatures_queue', 'DEBUG ENABLED: Signature successfully saved to mongo. Legacy mongo signature id: @id', array(
-        '@id' => $legacy_signature_id,
-      ), WATCHDOG_DEBUG);
-    }
+  // No such petition could be found.
+  if (!$petition) {
+    return FALSE;
   }
 
-  // Save to mysql?
-  if (!shunt_is_enabled('signature_mail_mysql_save')) {
-    // Build up $signature array to save via Entity::save().
-    $signature = array();
+  $signature = new SignatureItem();
+  // Set the legacy petition ID first else we end up with no petition ID at all.
+  // We have to set it in the case when mongo reads are disabled but mongo
+  // writes are still enabled.
+  $signature
+    ->setLegacyPetitionId($petition->getLegacyId())
+    ->setPetitionId($petition->getEntityId())
+    ->setFirstName($item['first_name'])
+    ->setLastName($item['last_name'])
+    ->setCreated($item['timestamp_received_new_signature'])
+    ->setUid($user->uid)
+    ->setUser($user)
+    ->setZip($item['zip']);
+  $signature = SignaturesController::save($signature);
 
-    // If there's a corresponding mongo signature ID, save it as legacy_id.
-    $signature['legacy_id'] = (!empty($legacy_signature_id)) ? $legacy_signature_id : '';
-
-    // Is petition_id from the item in the queue a mongo id? If so, store as
-    // legacy_petition_id.
-    if (petition_is_legacy_id($item['petition_id'])) {
-      $signature['legacy_petition_id'] = $item['petition_id'];
-    }
-
-    // Get the node id of the petition. Store this as main petition_id.
-    $nid = petition_get_nid($item['petition_id']);
-    $signature['petition_id'] = $nid;
-
-    // Get user id of signer.
-    $signature['uid'] = $user->uid;
-
-    // Map properties of $item pulled from the queue to signature entity fields.
-    $property_map = array(
-      "first_name" => "user_first_name",
-      "last_name" => "user_last_name",
-      "zip" => "user_zip",
-      'timestamp_received_new_signature' => 'timestamp',
-      "client_ip" => "ip_address",
-    );
-    foreach ($property_map as $item_key => $signature_key) {
-      $signature[$signature_key] = $item[$item_key];
-    }
-
-    // Double check we have default values for all properties.
-    // @todo This is currently hard coded to signature_mail. If/When we create
-    // more types of signatures, that come through this pipeline, refactor to
-    // accommodate broader use cases.
-    $schema = drupal_get_schema("signature_mail");
-    foreach ($schema['fields'] as $property => $info) {
-      if (empty($signature[$property])) {
-        if ($property != 'id' && ($info['type'] == 'text' || $info['type'] == "varchar")) {
-          $signature[$property] = "";
-        }
-        elseif ($property != 'id' && $info['type'] == 'int') {
-          $signature[$property] = 0;
-        }
-      }
-    }
-
-    // Convert $signature array to a signature entity (object).
-    $signature['bundle'] = array();
-    $signature = entity_create("signature_mail", $signature);
-
-    // Save it!
-    $signature->save();
-
-    // Debugging? Print result to log.
-    if ($debug) {
-      watchdog('signatures_queue', 'DEBUG ENABLED: Signature has been saved to mysql. Signature entity: !signature', array(
-        '!signature' => petitionslog_format_for_watchdog($signature),
+  if ($debug) {
+    if ($signature->getId() !== NULL) {
+      watchdog('signatures_queue', 'DEBUG ENABLED: Signature has been saved. Signature entity: !signature', array(
+        '!signature' => petitionslog_format_for_watchdog($signature->toEntity()),
       ), WATCHDOG_DEBUG);
     }
   }
 
-  // @TODO Refactor. Return mysql-based id if available.
-  return $legacy_signature_id;
-}
+  return $signature->getId();
 
-/**
- * Increase the cached signature count for a petition.
- *
- * @param string $petition_id
- *   Unique ID for a petition.
- * @param bool $debug
- *   Enable debugging.
- */
-function _signatures_queue_process_signatures_increment_count($petition_id, $debug = FALSE) {
-  // Increment count in petition stored in mongo?
-  $mongo2mysql_function = 'wh_petitions_mongo2mysql_increment_count';
-  if (function_exists($mongo2mysql_function) && !shunt_is_enabled('wh_petitions_signature_create')) {
-    $mongo2mysql_function($petition_id);
-  }
-
-  // Increment count in petition node?
-  if (!shunt_is_enabled('signature_mail_mysql_save')) {
-    petition_increment_count($petition_id, 1, $debug);
-  }
 }

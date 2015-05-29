@@ -20,5 +20,10 @@ class MigrateDestinationNodeModified extends MigrateDestinationNode {
     $entity->body[LANGUAGE_NONE][0]['value'] = replace4byte(
       $entity->body[LANGUAGE_NONE][0]['value']);
 
+    // Let's check the legacy path for unsupported chars.
+    $entity->field_legacy_path[LANGUAGE_NONE][0]['value'] = replace4byte(
+      $entity->field_legacy_path[LANGUAGE_NONE][0]['value']);
+
+    $entity->status = (empty($entity->field_petition_status[LANGUAGE_NONE][0]['value']) ? 0 : 1);
   }
 }

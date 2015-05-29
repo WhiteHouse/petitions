@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Provides utilities to support development on Petitions.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function petitionsdevel_init() {
+  // Conditionally break all connections to MongoDB to simulate service
+  // disconnection or outage. Any Mongo-dependent functionality should fail when
+  // this happens.
+  if (shunt_is_enabled('mongodb_connection')) {
+    variable_del('mongodb_connections');
+    variable_del('mongodb_collections');
+    variable_del('mongodb_options');
+  }
+}
+
+/**
+ * Implements hook_shunt().
+ */
+function petitionsdevel_shunt() {
+  return array(
+    'mongodb_connection' => t('Trip this shunt to break the connection to MongoDB.'),
+  );
+}

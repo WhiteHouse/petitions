@@ -12,8 +12,6 @@ project = "taxonomy_sync"
 version = "7.x-1.0"
 
 
-; Information added by drush on 2013-08-08
 version = ""
 project = "petitions"
-datestamp = "1375992615"
 

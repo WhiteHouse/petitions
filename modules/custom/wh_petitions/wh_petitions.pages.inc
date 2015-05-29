@@ -71,14 +71,13 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
   $html = '';
   $count = 0;
   $petitions = array();
-  $conn = wh_petitions_mongo_petition_connection();
 
-  // Make sure the sort is a valid option
+  // Make sure the sort is a valid option.
   if (!in_array($sort, array('all', 'trending', 'popular'))) {
     $sort = 'all';
   }
 
-  // Validate the page and calculate the offset for the query
+  // Validate the page and calculate the offset for the query.
   $page = intval($page);
   if ($page <= 0) {
     $page = 1;
@@ -90,124 +89,185 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
     $cols = 2;
   }
 
-  // Issues
+  // Issues.
   if (!empty($issues)) {
     $issues = explode(" ", urldecode($issues));
-    for ($i=0; $i<sizeof($issues); $i++) {
+    for ($i = 0; $i < count($issues); $i++) {
       $issues[$i] = intval($issues[$i]);
     }
   }
 
-  // Search
+  // Search.
   $search = strtolower(strip_tags(trim(urldecode($search))));
-  $keywords = explode(' ', $search);
 
-  // Retrieve only public and under_review petitions that aren't hidden from lists by admins
-  $query = array(
-    'petition_status' => array(
-      '$in' => array((int) WH_PETITION_STATUS_PUBLIC, (int) WH_PETITION_STATUS_UNDER_REVIEW)
-    ),
-    'hidden' => 0,
-  );
+  // Retrieve only public, under_review petitions not hidden by admins.
+  // $realtime boolean of FALSE sets up the query for Solr, instead of MySQL.
+  // IMPORTANT: $realtime is NOT tied to an empty $search. This is only
+  // coincidental and avoids confusing negative-negatives.
+  $realtime = empty($search);
+  $petitions_query = PetitionsSelectQueryFactory::create($realtime);
+  $petitions_query->setIsOpen(TRUE);
 
   // Retrieve petitions with at least one of the issue tid's
   if (!empty($issues)) {
-    $query['issues'] = array('$in' => $issues);
+    $petitions_query->setIssueIDs($issues);
   }
 
-  // Retrieve petitions that have at least one of the same keywords from the search in their titles.
-  if (!empty($search)) {
-    $query['title_keywords'] = array('$in' => $keywords);
-  }
-
-  // Compose the sort option
-  $sort_query = array();
+  // Compose the sort options.
   if ($sort == 'all') {
-    $sort_query = array(
-      'reached_public' => -1,
-    );
+    $petitions_query->setOrderBy(PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_FIELD_DATE_REACHED_PUBLIC, PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_DESC);
     drupal_set_title(t('All Petitions'));
   }
   elseif ($sort == 'popular') {
-    $sort_query = array(
-      'signature_count' => -1,
-    );
+    $petitions_query->setOrderBy(PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT, PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_DESC);
     drupal_set_title(t('Popular Petitions'));
   }
   elseif ($sort == 'trending') {
     drupal_set_title(t('Trending Petitions'));
   }
 
-  // Fields to retrieve
-  $retrieve_fields = array('title', 'signature_count', 'reached_public', 'nice_url');
-
   // If we're searching by text, we should be displaying results that match the title first, then results that match the body.
   // To accomplish this, we do two queries, one matching title and one matching description
   // Based on the counts from each and the page we're on, we can figure out which query(s) to run and which results to get.
+
   if (!empty($search)) {
-    // Find how many match titles
-    $title_total = $conn->find($query)->sort($sort_query)->count();
-    // Find how many match descriptions
-    $body_query = $query;
-    $body_query['body_keywords'] = $body_query['title_keywords'];
-    $body_query['title_keywords'] = array('$nin' => $keywords);
-    $body_total = $conn->find($body_query)->sort($sort_query)->count();
+    if (petitions_data_mongo_reads_are_enabled()) {
+      $conn = wh_petitions_mongo_petition_connection();
+      $keywords = explode(' ', $search);
 
-    // Combine the results
-    $total = $title_total + $body_total;
+      // Fields to retrieve.
+      $retrieve_fields = array(
+        'title',
+        'signature_count',
+        'reached_public',
+        'nice_url',
+      );
+
+      // Retrieve petitions that have at least one of the same keywords from the search in their titles.
+      $query = array(
+        'petition_status' => array(
+          '$in' => array((int) WH_PETITION_STATUS_PUBLIC, (int) WH_PETITION_STATUS_UNDER_REVIEW),
+        ),
+        'hidden' => 0,
+        'title_keywords' => array('$in' => $keywords),
+      );
+
+      // Retrieve petitions with at least one of the issue tid's
+      if (!empty($issues)) {
+        $query['issues'] = array('$in' => $issues);
+      }
+
+      $sort_query = array();
+      if ($sort == 'all') {
+        $sort_query = array(
+          'reached_public' => -1,
+        );
+      }
+      elseif ($sort == 'popular') {
+        $sort_query = array(
+          'signature_count' => -1,
+        );
+      }
+
+      // Find how many match titles.
+      $title_total = $conn->find($query)->sort($sort_query)->count();
+
+      // Find how many match descriptions.
+      $body_query = $query;
+      $body_query['body_keywords'] = $body_query['title_keywords'];
+      $body_query['title_keywords'] = array('$nin' => $keywords);
+      $body_total = $conn->find($body_query)->sort($sort_query)->count();
+
+      // Combine the results.
+      $total = $title_total + $body_total;
+
+      if ($total > 0) {
+        // If we're not past the count of titles, query petitions based on title.
+        if ($offset < $title_total) {
+          $result = $conn->find($query, $retrieve_fields)
+            ->sort($sort_query)
+            ->skip($offset)
+            ->limit(WH_PETITION_PETITIONS_PER_PAGE);
+
+          foreach ($result as $res) {
+            $res['id'] = $res['_id']->__toString();
+            $res['url'] = $res['nice_url'];
+            $res['signatureCount'] = $res['signature_count'];
+            array_push($petitions, $res);
+            $count++;
+          }
+        }
+
+        // Query descriptions if we didn't find 8 (WH_PETITION_PETITIONS_PER_PAGE) results from title search ( either ran out of results or the offset is past the
+        // result count for titles )
+        if ($count < WH_PETITION_PETITIONS_PER_PAGE) {
+          $limit = WH_PETITION_PETITIONS_PER_PAGE - $count;
+          $body_offset = $offset - $title_total;
+          if ($body_offset < 0) {
+            $body_offset = 0;
+          }
+          $body_result = $conn->find($body_query, $retrieve_fields)->sort($sort_query)->skip($body_offset)->limit($limit);
+
+          foreach ($body_result as $res) {
+            $res['id'] = $res['_id']->__toString();
+            $res['url'] = $res['nice_url'];
+            $res['signatureCount'] = $res['signature_count'];
+            array_push($petitions, $res);
+            $count++;
+          }
+        }
+      }
+    }
+    else {
+      // Perform MySQL Title search only.
+      if (strlen($search) < 3) {
+        return '<p class="no-results">' . t('Please enter at least 3 characters to search by.') . '</p>';
+      }
+
+      $petitions_query->setTitle($search);
+
+      // Find how many match titles.
+      $petitions_execute = $petitions_query->setLimit(WH_PETITION_PETITIONS_PER_PAGE)->setOffset($offset)->execute();
+      $title_total_results = $petitions_execute->getCount();
+      $total = $title_total_results;
+
+      if ($offset < $title_total_results) {
+        $result = $petitions_execute->getResult();
+
+        foreach ($result as $res) {
+          array_push($petitions, $res);
+          $count++;
+        }
+      }
+    }
+
+    if (!$total) {
+      return '<p class="no-results">' . t('There are no petitions that match this search.') . '</p>';
+    }
   }
+  else {
+    $result = NULL;
+    $total = 0;
 
-  // If we ran a search and had results, we need to figure out what to display.
-  if (!empty($search) && $total > 0) {
-    // If we're not past the count of titles, query petitions based on title.
-    if ($offset < $title_total) {
-      $result = $conn->find($query, $retrieve_fields)->sort($sort_query)->skip($offset)->limit(WH_PETITION_PETITIONS_PER_PAGE);
+    // For Trending sort, we have a helper function to do this for us since this logic is used in multiple places.
+    if ($sort == 'trending') {
+      if (petitions_data_mongo_reads_are_enabled()) {
+        $conn = wh_petitions_mongo_petition_connection();
+        $result = wh_petitions_trending_results($conn, $offset, WH_PETITION_PETITIONS_PER_PAGE, $total);
+      }
+    }
+    // Otherwise, proceed normally.
+    else {
+      $petitions_execute = $petitions_query->setLimit(WH_PETITION_PETITIONS_PER_PAGE)->setOffset($offset)->execute();
+      $result = $petitions_execute->getResult();
+      $total = $petitions_execute->getCount();
+    }
 
+    if ($result) {
       foreach ($result as $res) {
         array_push($petitions, $res);
         $count++;
       }
-    }
-
-    // Query descriptions if we didn't find 8 (WH_PETITION_PETITIONS_PER_PAGE) results from title search ( either ran out of results or the offset is past the
-    // result count for titles )
-    if ($count < WH_PETITION_PETITIONS_PER_PAGE) {
-      $limit = WH_PETITION_PETITIONS_PER_PAGE;
-      if ($count < WH_PETITION_PETITIONS_PER_PAGE) {
-        $limit = WH_PETITION_PETITIONS_PER_PAGE - $count;
-      }
-      $body_offset = $offset - $title_total;
-      if ($body_offset < 0) {
-        $body_offset = 0;
-      }
-      $body_result = $conn->find($body_query, $retrieve_fields)->sort($sort_query)->skip($body_offset)->limit($limit);
-
-      foreach ($body_result as $res) {
-        array_push($petitions, $res);
-        $count++;
-      }
-    }
-  }
-  else {
-    // We had a search but found no results, keep the page the same.
-    if (!empty($search)) {
-      return '<p class="no-results">' . t('There are no petitions that match this search.') . '</p>';
-    }
-
-    // For Trending sort, we have a helper function to do this for us since this logic is used in multiple places.
-    if ($sort == 'trending') {
-      $total = 0;
-      $result = wh_petitions_trending_results($conn, $offset, WH_PETITION_PETITIONS_PER_PAGE, $total);
-    }
-    // Otherwise, proceed normally
-    else {
-      $result = $conn->find($query, $retrieve_fields)->sort($sort_query)->skip($offset)->limit(WH_PETITION_PETITIONS_PER_PAGE);
-      $total = $conn->find($query)->sort($sort_query)->count();
-    }
-
-    foreach ($result as $res) {
-      array_push($petitions, $res);
-      $count++;
     }
   }
 
@@ -216,24 +276,23 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
     $issues = array(0);
   }
 
-  // Theme the petitions
+  // Theme the petitions.
   $i = 0;
   foreach ($petitions as $res) {
-    $id = $res['_id']->__toString();
     $html .= theme('wh_petitions_display_list_petition', array(
       'entry_num' => $i,
-      'title' => check_plain($res['title']),
-      'signature_count' => wh_petitions_format_number($res['signature_count']),
-      'petition_link' => l(t('Find out more'), $res['nice_url']),
+      'title' => filter_xss($res['title']),
+      'signature_count' => wh_petitions_format_number($res['signatureCount']),
+      'petition_link' => l(t('Find out more'), $res['url']),
       'cols' => intval($cols),
-      'petition_id' => check_plain($id),
-      'nice_url' => $res['nice_url'],
+      'petition_id' => check_plain($res['id']),
+      'nice_url' => $res['url'],
     ));
     $i++;
   }
 
   if (!empty($issues) && empty($html) && $issues[0] != 0) {
-    if (sizeof($issues) == 1) {
+    if (count($issues) == 1) {
       $html = '<p class="no-results">' . t('There are no petitions that match this issue.') . '</p>';
     }
     else {
@@ -291,21 +350,50 @@ function wh_petitions_trending_results($conn, $offset, $per_page, &$total) {
   $ids = variable_get('wh_petitions_trending_ids', array());
   if (!empty($ids)) {
     $id_slice = array_slice($ids, $offset, $per_page);
-    $query = array(
-      '_id' => array('$in' => $id_slice),
-    );
-    $retrieve_fields = array('title', 'signature_count', 'published', 'nice_url');
-    $result = $conn->find($query, $retrieve_fields);
-  }
-  $arr = array();
-  foreach ($id_slice as $key => $val) {
-    foreach ($result as $res) {
-      if ($res['_id'] == $val) {
-        array_push($arr, $res);
+
+    if (petitions_data_mongo_reads_are_enabled()) {
+      $query = array(
+        '_id' => array('$in' => $id_slice),
+      );
+      $retrieve_fields = array('title', 'signature_count', 'published', 'nice_url');
+      $result = $conn->find($query, $retrieve_fields);
+      $arr = array();
+      foreach ($id_slice as $key => $val) {
+        foreach ($result as $res) {
+          if ($res['_id'] == $val) {
+            array_push($arr, $res);
+          }
+        }
+      }
+
+    }
+    else {
+      $query = db_select('node', 'n');
+      $query->leftJoin('field_data_field_petition_signature_count', 'psc', 'psc.entity_id = n.nid');
+      $query->leftJoin('field_data_field_timestamp_published', 'tp', 'tp.entity_id = n.nid');
+      $query->leftJoin('url_alias', 'ua', 'substring(ua.source, 6) = n.nid');
+
+      $query->addField('n', 'title');
+      $query->addField('psc', 'field_petition_signature_count_value', 'signature_count');
+      $query->addfield('tp', 'field_timestamp_published_value', 'published');
+      $query->addField('ua', 'alias', 'nice_url');
+
+      $query->condition('n.type', 'petition', '=');
+      $query->condition('n.nid', $id_slice, 'IN');
+      $result = $query->execute()->fetchAllAssoc('n.nid');
+
+      $arr = array();
+      foreach ($id_slice as $key => $val) {
+        foreach ($result as $res) {
+          if ($res['_id'] == $val) {
+            array_push($arr, $res);
+          }
+        }
       }
     }
   }
-  $total = sizeof($ids);
+
+  $total = count($ids);
 
   return $arr;
 }
@@ -467,7 +555,7 @@ function wh_petitions_petition_detail($petition_id) {
       $reached_ready = date('M d, Y', $petition['reached_ready']);
     }
 
-    if (!shunt_is_enabled('petition_mysql_save') && function_exists("petitionevents_get_administer_link")) {
+    if (petitions_data_mysql_writes_are_enabled() && function_exists("petitionevents_get_administer_link")) {
       $admin_link = petitionevents_get_administer_link();
     }
 
@@ -616,9 +704,12 @@ function wh_petitions_petition_detail($petition_id) {
     }
   }
   $signatures = wh_petitions_get_signatures($petition_id, $petition['uid'], $page, $has_more, FALSE, $petition['signature_count'], $last_id);
+
   $last_id = '';
+  $previously_found_creator = '0';
   if (!empty($signatures)) {
-    $last_id = $signatures[(sizeof($signatures) -1)]['_id']->__toString();
+    $last_id = $signatures[(count($signatures) -1)]['id'];
+    $previously_found_creator = $signatures[(count($signatures) -1)]['previously_found_creator'];
   }
 
   $signature_html = theme('wh_petitions_display_signatures', array(
@@ -629,6 +720,7 @@ function wh_petitions_petition_detail($petition_id) {
     'sigs_per_page' => $sigs_per_page,
     'last_id' => $last_id,
     'nice_url' => $petition['nice_url'],
+    'previously_found_creator' => $previously_found_creator,
   ));
 
   // Load the issues and search forms
@@ -704,8 +796,25 @@ function wh_petitions_petition_detail($petition_id) {
  */
 function wh_petitions_petition_detail_niceurl($url) {
   // Load the petition
-  $conn = wh_petitions_mongo_petition_connection();
   $nice_url = check_plain($_GET['q']);
+  if (!petitions_data_mongo_reads_are_enabled()) {
+    $nid = '';
+    // Find corresponding petition node by legacy path.
+    $result = db_query('select entity_id from {field_data_field_legacy_path} WHERE field_legacy_path_value = :nice_url AND bundle=\'petition\'', array(':nice_url' => $nice_url));
+    $nid = $result->fetchColumn(0);
+    // Redirect to corresponding petition node, if found.
+    if (!empty($nid)) {
+      $petition_node_path = 'node/' . $nid;
+      drupal_goto($petition_node_path, array(), 301);
+    }
+    else {
+      // If no node petition found and mongo reads are disabled, return not found.
+      drupal_not_found();
+    }
+    return;
+  }
+
+  $conn = wh_petitions_mongo_petition_connection();
   $petition = $conn->findOne(array('nice_url' => $nice_url), array('title'));
 
   if ($petition) {
@@ -729,91 +838,136 @@ function wh_petitions_petition_detail_niceurl($url) {
  * has_more = whether to display the 'more' box
  * whether we're coming from an ajax request.  if so, retrieve 20.  otherwise retrieve 19.
  * last id that we retrieved. use this for faster pagination.  ( range query instead of skip is faster according to 10gen )
+ * previously_found_creator = whether the creator's signature has been found in previous query results.
  */
-function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_more, $from_ajax = FALSE, $signature_count = 0, $last_id) {
+function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_more, $from_ajax = FALSE, $signature_count = 0, $last_id, $previously_found_creator = FALSE) {
+
   global $user;
-  $has_user_signed = FALSE;
-  $user_signature = array();
   $signatures = array();
   if (empty($page)) {
     $page = 1;
   }
   if ($from_ajax && $page != 1) {
-    $per_page = 20;
+    if ($previously_found_creator) {
+      $per_page = 20;
+    }
+    else {
+      // The creator's signature is always displayed first.
+      // Get one extra signature in case we also find the creator's
+      // signature in the following results.
+      $per_page = 21;
+    }
   }
   else {
     $per_page = 19;
-  }
-  $sig_conn = wh_petitions_mongo_petition_signatures_connection();
-
-  // Find out if a user has signed the petition and capture their signature if they have
-  if ($user->uid != $petition_uid) {
-    $query = array(
-      'uid' => (int) $user->uid,
-      'petition_id' => (string) $petition_id,
-    );
-    $result = $sig_conn->findOne($query);
-    if (!empty($result)) {
-      $has_user_signed = TRUE;
-      $user_signature = $result;
-    }
   }
 
   // Get the signatures we should be retrieving
   if ($page == 1) {
     $skip = 0;
-    $max = 18;
+    $max = 19;
+    $count_offset = 1;
+  }
+  elseif ($previously_found_creator) {
+    $skip = 19 + (($page - 2) * $per_page);
+    $max = $skip + $per_page;
+    $count_offset = 1;
   }
   else {
-    $skip = 18 + (($page - 2) * $per_page);
-    $max = 18 + (($page - 1) * $per_page);
-  }
-
-  $query = array(
-    'petition_id' => (string) $petition_id,
-  );
-
-  // If this current user has signed this petition, remove them from the possible signatures we retrieve ( they'll always be second on the first page )
-  if (!empty($has_user_signed)) {
-    $query['uid'] = array('$nin' => array((int) $user->uid));
-    if ($page == 1) {
-      $per_page = $per_page - 1;
-    }
-    else {
-      $skip--;
-    }
+    $skip = 18 + (($page - 2) * ($per_page - 1));
+    $max = $skip + $per_page;
+    $count_offset = 0;
   }
 
   // If we're on the first page, we want to get the creator's signature to display first.
   if ($page == 1) {
-    $creator_signature = $sig_conn->findOne(array('petition_id' => (string) $petition_id, 'uid' => (int) $petition_uid));
+    $creator_signature = SignaturesSelectQueryFactory::create()
+      ->setPetitionId((string)$petition_id)
+      ->setUid((int)$petition_uid)
+      ->setLimit(1)
+      ->execute()
+      ->getResultObjects();
   }
 
-  // We don't want to retrieve the creator's signature in any of the queries either.
-  if (empty($query['uid']) && !empty($petition_uid)) {
-    $query['uid'] = array('$nin' => array((int) $petition_uid));
-  }
-  else {
-    array_push($query['uid']['$nin'], (int) $petition_uid);
-  }
+  // Use non-realtime Solr to find signatures excluding the creator's.
+  $signatures = SignaturesSelectQueryFactory::create(FALSE)
+    ->setPetitionId((string)$petition_id);
 
-  // Get the first page of results
-  if ($page == 1) {
-    $results = $sig_conn->find($query)->sort(array('_id' => -1))->limit(($per_page - 1));
+  // Sorting signatures in MySQL is too expensive, so only sort if signatures are served by Solr.
+  if (petitions_data_solr_signature_queries_are_enabled()) {
+    $signatures = $signatures
+      ->setOrderBy(SignaturesSelectQuery::SELECT_QUERY_ORDER_BY_FIELD_TIMESTAMP, SignaturesSelectQuery::SELECT_QUERY_ORDER_BY_DESC);
   }
-  // If we got the last id from the previous page, use this to query by as it will be faster
-  else if (!empty($last_id)) {
-    $query['_id'] = array('$lt' => new MongoId($last_id));
-    $results = $sig_conn->find($query)->sort(array('_id' => -1))->limit($per_page);
-  }
+  $signatures = $signatures->setLimit(($per_page));
+
   // If we just got a page number, not a last id, do the query anyway using skip
-  else {
-    $results = $sig_conn->find($query)->sort(array('_id' => -1))->skip($skip)->limit($per_page);
+  if ($page != 1) {
+    $signatures->setOffset($skip);
+  }
+  $signatures = $signatures->execute()
+                  ->getResultObjects();
+
+  if (empty($signatures) && empty($creator_signature)) {
+    $has_more = FALSE;
+    return FALSE;
   }
 
+  // Check if we selected the creator's signature again.
+  // If so, we will remove it so it is not displayed twice.
+  if (!$previously_found_creator) {
+    // Look for creator's signature in $signatures
+    $creator_signature_found = FALSE;
+    foreach ($signatures as $key => $signature) {
+      if((int) $signature->getUid() == (int) $petition_uid) {
+        $creator_signature_found = TRUE;
+        break;
+      }
+    }
+    if ($creator_signature_found) {
+      // Remove the creator from retrieved signatures so we don't display it twice.
+      unset($signatures[$key]);
+      // Following queries don't need to worry about removing
+      // creator from results.
+      $previously_found_creator = TRUE;
+    }
+    // If we have still not found it, but have selected more
+    // signatures than we can display, then remove a signature
+    // from the array.
+    elseif ((($page != 1) && count($signatures) == 21) || (($page == 1) && count($signatures) == 19)) {
+      // Remove the last signature because we have 1 too many.
+      array_pop($signatures);
+    }
+  }
+
+  // If we have a creator's signature, make it the first one.
+  if (($page == 1) && !empty($creator_signature[0])) {
+    array_unshift($signatures, $creator_signature[0]);
+  }
+
+  $result = array();
+  $i = 0;
   // Put the results into an array
-  foreach ($results as $res) {
-    array_push($signatures, $res);
+  foreach ($signatures as $signature) {
+    if (empty($signature)) {
+      continue;
+    }
+    $result[$i] = array(
+      'id' => $signature->getId(),
+      'petition_id' => $signature->getPetitionId(),
+      'uid' => $signature->getUid(),
+      'user' => array(
+        'first_name' => $signature->getFirstName(),
+        'last_name' => $signature->getLastName(),
+        'username' => $signature->getUser()->name,
+        'country' => $signature->getUserCountry(),
+        ),
+      'timestamp' => $signature->getCreated(),
+      );
+
+    $result[$i]['user']['city'] = $signature->getCity();
+    $result[$i]['user']['state'] = $signature->getState();
+    $result[$i]['user']['zip'] = $signature->getZip();
+    $i++;
   }
 
   // Determine if there are more signatures to display after these
@@ -821,55 +975,48 @@ function wh_petitions_get_signatures($petition_id, $petition_uid, $page, &$has_m
     $has_more = FALSE;
   }
 
-  // If we have a creator's signature, make it the first one.
-  if (!empty($creator_signature)) {
-    if (empty($signatures)) {
-      array_push($signatures, $creator_signature);
-    }
-    else {
-      array_splice($signatures, 0, 1, array_merge(array($creator_signature), array($signatures[0])));
-    }
-  }
-
-  // If this user has signed it and we need to display their signature ( page = 1 ), add their signature
-  if ($has_user_signed && $page == 1) {
-    array_splice($signatures, 0, 1, array_merge(array($signatures[0]), array($user_signature)));
-  }
-
   // Set some themeing variables that will be available to the template for displaying the results.
-  for ($i=0; $i<sizeof($signatures); $i++) {
-    if ($signatures[$i]['uid'] == $petition_uid) {
-      $signatures[$i]['is_creator'] = TRUE;
+  $result_count = count($result);
+  for ($i = 0; $i < $result_count; $i++) {
+    $signature_number = $signature_count - $i - $skip + $count_offset;
+    $result[$i]['number'] = wh_petitions_format_number($signature_number);
+
+    if ($result[$i]['uid'] == $petition_uid) {
+      $result[$i]['is_creator'] = TRUE;
+      $result[$i]['number'] = wh_petitions_format_number(1);
     }
-    if ($signatures[$i]['uid'] == $user->uid) {
-      $signatures[$i]['is_user'] = TRUE;
+    if ($result[$i]['uid'] == $user->uid) {
+      $result[$i]['is_user'] = TRUE;
     }
 
-    $signatures[$i]['comment'] = check_plain($signatures[$i]['comment']);
-    $signatures[$i]['number'] = wh_petitions_format_number($signatures[$i]['number']);
-
-    $first_name = (!empty($signatures[$i]['user']['first_name'])) ? $signatures[$i]['user']['first_name'] : '';
-    $last_name = (!empty($signatures[$i]['user']['last_name'])) ? $signatures[$i]['user']['last_name'] : '';
+    $first_name = (!empty($result[$i]['user']['first_name'])) ? $result[$i]['user']['first_name'] : '';
+    $last_name = (!empty($result[$i]['user']['last_name'])) ? $result[$i]['user']['last_name'] : '';
     $name = petitions_signatures_display_style($first_name, $last_name);
 
-    $zipcode = (!empty($signatures[$i]['user']['zip'])) ? $signatures[$i]['user']['zip'] : '';
-    $city = (!empty($signatures[$i]['user']['city'])) ? $signatures[$i]['user']['city'] : '';
-    $state = (!empty($signatures[$i]['user']['state'])) ? $signatures[$i]['user']['state'] : '';
+    $zipcode = (!empty($result[$i]['user']['zip'])) ? $result[$i]['user']['zip'] : '';
+    $city = (!empty($result[$i]['user']['city'])) ? $result[$i]['user']['city'] : '';
+    $state = (!empty($result[$i]['user']['state'])) ? $result[$i]['user']['state'] : '';
     $location = petitions_signatures_display_location_formatted($zipcode, $city, $state);
 
     if ($location) {
-      $signatures[$i]['location'] = check_plain($location);
+      $result[$i]['location'] = check_plain($location);
     }
-    $signatures[$i]['full_name'] = check_plain($name);
+    $result[$i]['full_name'] = check_plain($name);
+  }
+  if ($previously_found_creator) {
+    $result[(count($result) -1)]['previously_found_creator'] = '1';
+  }
+  else {
+    $result[(count($result) -1)]['previously_found_creator'] = '0';
   }
 
-  return $signatures;
+  return $result;
 }
 
 /**
  * Function to display more signatures from an ajax request
  */
-function wh_petitions_more_signatures($petition_id, $page, $last_id) {
+function wh_petitions_more_signatures($petition_id, $page, $last_id, $previously_found_creator) {
   // Make sure we got a petition id
   if (empty($petition_id)) {
     print '';
@@ -883,10 +1030,7 @@ function wh_petitions_more_signatures($petition_id, $page, $last_id) {
     $page = intval($page);
   }
 
-  // Load the petition
-  $conn = wh_petitions_mongo_petition_connection();
-  $petition = array();
-  $petition = wh_petitions_load_slim_petition($conn, $petition_id, array('uid', 'signature_count'));
+  $petition = PetitionsController::loadObject($petition_id);
 
   // If it wasn't a valid petition id, exit
   if (empty($petition)) {
@@ -894,12 +1038,14 @@ function wh_petitions_more_signatures($petition_id, $page, $last_id) {
   }
 
   $has_more = TRUE;
-  $signatures = wh_petitions_get_signatures($petition_id, $petition['uid'], $page, $has_more, TRUE, $petition['signature_count'], $last_id);
+  $signatures = wh_petitions_get_signatures($petition_id, $petition->getUid(), $page, $has_more, TRUE, $petition->getSignatureCount(), $last_id, (bool) $previously_found_creator);
 
   // Set the last id that we found in the signature list for this page so we can pass that on to the next pagination query
   $last_id = '';
+  $previously_found_creator = '0';
   if (!empty($signatures)) {
-    $last_id = $signatures[(sizeof($signatures) -1)]['_id']->__toString();
+    $last_id = $signatures[(count($signatures) -1)]['id'];
+    $previously_found_creator = $signatures[(count($signatures) -1)]['previously_found_creator'];
   }
 
   $signature_html = theme('wh_petitions_display_signatures', array(
@@ -908,11 +1054,12 @@ function wh_petitions_more_signatures($petition_id, $page, $last_id) {
     'page' => $page + 1,
     'has_more' => $has_more,
     'count' => sizeof($signatures),
-    'total' => wh_petitions_format_number($petition['signature_count']),
+    'total' => wh_petitions_format_number($petition->getSignatureCount()),
     'from_ajax' => TRUE,
     'sigs_per_page' => 20,
     'last_id' => $last_id,
-    'nice_url' => $petition['nice_url'],
+    'nice_url' => $petition->getNiceUrl(),
+    'previously_found_creator' => $previously_found_creator,
   ));
 
   $data = array('markup' => $signature_html);
@@ -946,57 +1093,49 @@ function wh_petitions_user_dashboard() {
   drupal_set_title(t('My Petitions'));
 
   // Get this user's draft petitions, sort by the id ( descending in order created )
-  $conn = wh_petitions_mongo_petition_connection();
-  $query = array(
-    'uid' => (int) $user->uid,
-    'petition_status' => (int) WH_PETITION_STATUS_DRAFT,
-  );
-  $result = $conn->find($query, array('title', 'signature_count', 'nice_url'));
+  $query = PetitionsSelectQueryFactory::create();
+  $query->setUid($user->uid);
+  //@todo Set order by published desc
+  $result = $query->execute()->getResultObjects();
 
-  // Delete Modal
   $draft_html = '';
-  $count = 0;
+  $created_html = '';
+  $signed_html = '';
+  $draft_petitions_count = 0;
+  $finished_petitions_count = 0;
+  $signed_petitions_count = 0;
+
   module_load_include('inc', 'wh_petitions', 'wh_petitions.form');
   $delete_text = variable_get('wh_petitions_delete_modal_text', '');
+
   foreach ($result as $res) {
-    $petition_status = WH_PETITION_STATUS_DRAFT;
-    $delete_form = drupal_get_form('wh_petitions_delete_petition_form', $res['_id']->__toString());
-    $delete_form = drupal_render($delete_form);
+    if($res->getStatus() == WH_PETITION_STATUS_DRAFT) {
+      // Delete Modal for drafts.
+      $petition_status = WH_PETITION_STATUS_DRAFT;
+      $delete_form = drupal_get_form('wh_petitions_delete_petition_form', $res->getId());
+      $delete_form = drupal_render($delete_form);
 
-    $draft_html .= theme('wh_petitions_display_list_petition', array(
-      'title' => check_plain($res['title']),
-      'signature_count' => wh_petitions_format_number($res['signature_count']),
-      'nice_url' => '',
-      'petition_link' => l(t('Finish'), 'petition/create/' . check_plain($res['_id']->__toString()), array('attributes' => array('class' => 'finish'))),
-      'cols' => 2,
-      'status' => $petition_status,
-      'delete_link' => TRUE,
-      'petition_id' => check_plain($res['_id']->__toString()),
-      'entry_num' => $count,
-      'dashboard' => TRUE,
-      'draft' => TRUE,
-      'delete_form' => $delete_form,
-      'delete_text' => $delete_text,
-    ));
-    $count++;
-  }
+      $draft_html .= theme('wh_petitions_display_list_petition', array(
+        'title' => check_plain($res->getTitle()),
+        'signature_count' => wh_petitions_format_number($res->getSignatureCount()),
+        'nice_url' => '',
+        'petition_link' => l(t('Finish'), 'petition/create/' . check_plain($res->getId()), array('attributes' => array('class' => 'finish'))),
+        'cols' => 2,
+        'status' => $petition_status,
+        'delete_link' => TRUE,
+        'petition_id' => check_plain($res->getId()),
+        'entry_num' => $draft_petitions_count++,
+        'dashboard' => TRUE,
+        'draft' => TRUE,
+        'delete_form' => $delete_form,
+        'delete_text' => $delete_text,
+      ));
+    }
+    else {
+      // Petition is not in draft status.
+      $petition_status = '';
 
-  // Get the petitions this user has created
-  $created_html = '';
-  $query = array(
-    'uid' => (int) $user->uid,
-    'petition_status' => array('$gt' => (int) WH_PETITION_STATUS_DRAFT),
-  );
-  $sort = array(
-    'published' => -1,
-  );
-  $result = $conn->find($query, array('petition_status', 'title', 'signature_count', 'nice_url'))->sort($sort);
-
-  $count = 0;
-  foreach ($result as $res) {
-    $petition_status = '';
-    if (in_array($res['petition_status'], array(WH_PETITION_STATUS_FLAGGED, WH_PETITION_STATUS_REVIEWED, WH_PETITION_STATUS_CLOSED))) {
-      switch ($res['petition_status']) {
+      switch ($res->getStatus()) {
         case WH_PETITION_STATUS_FLAGGED:
           $petition_status = 'removed';
           break;
@@ -1009,69 +1148,67 @@ function wh_petitions_user_dashboard() {
           $petition_status = 'archived';
           break;
       }
+
+      $created_html .= theme('wh_petitions_display_list_petition', array(
+        'title' => check_plain($res->getTitle()),
+        'signature_count' => wh_petitions_format_number($res->getSignatureCount()),
+        'nice_url' => $res->getNiceUrl(),
+        'petition_link' => l(t('View'), $res->getNiceUrl(), array('attributes' => array('class' => 'view'))),
+        'cols' => 2,
+        'petition_status' => $petition_status,
+        'petition_id' => check_plain($res->getId()),
+        'entry_num' => $finished_petitions_count++,
+        'dashboard' => TRUE,
+      ));
+    }
+  }
+
+  // Get the petitions this user has signed.
+  $sig_query = SignaturesSelectQueryFactory::create();
+  $sig_query->setUid($user->uid);
+  $result = $sig_query->execute()->getResultObjects();
+  $petition_ids = array();
+
+  if($result) {
+    foreach ($result as $res) {
+      $petition_ids[] = $res->getPetitionId(FALSE);
     }
 
-    $created_html .= theme('wh_petitions_display_list_petition', array(
-      'title' => check_plain($res['title']),
-      'signature_count' => wh_petitions_format_number($res['signature_count']),
-      'nice_url' => $res['nice_url'],
-      'petition_link' => l(t('View'), $res['nice_url'], array('attributes' => array('class' => 'view'))),
-      'cols' => 2,
-      'petition_status' => $petition_status,
-      'petition_id' => check_plain((string) $res['_id']),
-      'entry_num' => $count,
-      'dashboard' => TRUE,
-    ));
-    $count++;
-  }
+    $petition_query = PetitionsSelectQueryFactory::create();
+    $petition_query->setPetitionIds($petition_ids);
+    $petition_result = $petition_query->execute()->getResultObjects();
 
-  // Get the petitions this user has signed ( but ones they're not a creator for, since creators automatically sign their petitions )
-  $sig_conn = wh_petitions_mongo_petition_signatures_connection();
-  $mongo_array = array();
-  $result = $sig_conn->find(array('uid' => (int) $user->uid), array('petition_id'));
-  foreach ($result as $res) {
-    array_push($mongo_array, new MongoId($res['petition_id']));
-  }
+    foreach ($petition_result as $res) {
+      // Skip any petitions that are draft and that that aren't created by this user.
+      if (($res->getUid() != (int) $user->uid) && ($res->getStatus() != (int) WH_PETITION_STATUS_DRAFT)) {
+        $petition_status = '';
 
-  $signed_html = '';
-  $query = array(
-    'uid' => array('$ne' => (int) $user->uid),
-    '_id' => array('$in' => $mongo_array),
-    'petition_status' => array('$gt' => (int) WH_PETITION_STATUS_DRAFT),
-  );
-  $result = $conn->find($query, array('petition_status', 'title', 'signature_count', 'nice_url'));
+        switch ($res->getStatus()) {
+          case WH_PETITION_STATUS_FLAGGED:
+            $petition_status = 'removed';
+            break;
 
-  $count = 0;
-  foreach ($result as $res) {
-    $petition_status = '';
-    if (in_array($res['petition_status'], array(WH_PETITION_STATUS_FLAGGED, WH_PETITION_STATUS_REVIEWED, WH_PETITION_STATUS_CLOSED))) {
-      switch ($res['petition_status']) {
-        case WH_PETITION_STATUS_FLAGGED:
-          $petition_status = 'removed';
-          break;
+          case WH_PETITION_STATUS_REVIEWED:
+            $petition_status = 'response';
+            break;
 
-        case WH_PETITION_STATUS_REVIEWED:
-          $petition_status = 'response';
-          break;
-
-        case WH_PETITION_STATUS_CLOSED:
-          $petition_status = 'archived';
-          break;
+          case WH_PETITION_STATUS_CLOSED:
+            $petition_status = 'archived';
+            break;
+        }
+        $signed_html .= theme('wh_petitions_display_list_petition', array(
+          'title' => check_plain($res->getTitle()),
+          'signature_count' => wh_petitions_format_number($res->getSignatureCount()),
+          'nice_url' => $res->getNiceUrl(),
+          'petition_link' => l(t('View'), $res->getNiceUrl(), array('attributes' => array('class' => 'view'))),
+          'cols' => 2,
+          'petition_status' => $petition_status,
+          'petition_id' => check_plain($res->getId()),
+          'entry_num' => $signed_petitions_count++,
+          'dashboard' => TRUE,
+        ));
       }
     }
-
-    $signed_html .= theme('wh_petitions_display_list_petition', array(
-      'title' => check_plain($res['title']),
-      'signature_count' => wh_petitions_format_number($res['signature_count']),
-      'nice_url' => $res['nice_url'],
-      'petition_link' => l(t('View'), $res['nice_url'], array('attributes' => array('class' => 'view'))),
-      'cols' => 2,
-      'petition_status' => $petition_status,
-      'petition_id' => check_plain($res['_id']->__toString()),
-      'entry_num' => $count,
-      'dashboard' => TRUE,
-    ));
-    $count++;
   }
 
   $username = '';

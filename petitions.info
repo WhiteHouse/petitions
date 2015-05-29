@@ -35,7 +35,6 @@ dependencies[] = features
 dependencies[] = globalredirect
 dependencies[] = imce
 dependencies[] = libraries
-dependencies[] = mongodb
 dependencies[] = pathauto
 dependencies[] = petitions_api
 dependencies[] = petitionssignatureform
@@ -67,6 +66,8 @@ dependencies[] = petitions_usermenu
 dependencies[] = petitionslog
 dependencies[] = signature_mail
 dependencies[] = signatures_queue
+dependencies[] = petitionadmin
+dependencies[] = petitionadmin_reports
 
 ; files
 files[] =  petitions.profile

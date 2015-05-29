@@ -1,22 +1,24 @@
 <?php
+
 /**
  * @file
- * Template file for theming a given documentation version.
+ * Theme implementation for a documentation version.
  *
  * A given documentation version contains the following nested elements:
- * - Resources, defined by Services. E.g., user, node, etc.
- * - Method bundles. E.g., operations, actions, targeted actions.
- * - Methods. E.g., create, update, index, etc.
+ * - Resources defined by Services, e.g., user, node, etc.
+ * - Method bundles, e.g., operations, actions, targeted actions.
+ * - Methods, e.g., create, update, index, etc.
  *
- * Available custom variables:
- * - $resources: An array of resources for this doumentation version.
+ * Available variables:
+ * - $resources: An array of resources for this documentation version.
  * - $description
  * - $table_of_contents
- *
  */
 ?>
 <div id="how-why-content" class="clearfix">
-  <?php print $left_nav; ?>
+  <?php if (!empty($left_nav)): ?>
+    <?php print $left_nav; ?>
+  <?php endif; ?>
 
   <div class="main-content">
     <div class="services-documentation-version">

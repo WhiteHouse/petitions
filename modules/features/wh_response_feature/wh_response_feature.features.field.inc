@@ -505,6 +505,92 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
+  // Exported field: 'node-wh_response-field_petition_id'.
+  $fields['node-wh_response-field_petition_id'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '-1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_petition_id',
+      'foreign keys' => array(
+        'node' => array(
+          'columns' => array(
+            'target_id' => 'nid',
+          ),
+          'table' => 'node',
+        ),
+      ),
+      'indexes' => array(
+        'target_id' => array(
+          0 => 'target_id',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'entityreference',
+      'settings' => array(
+        'handler' => 'views',
+        'handler_settings' => array(
+          'behaviors' => array(
+            'views-select-list' => array(
+              'status' => 0,
+            ),
+          ),
+          'view' => array(
+            'args' => array(),
+            'display_name' => 'entityreference_1',
+            'view_name' => 'public_petitions',
+          ),
+        ),
+        'profile2_private' => FALSE,
+        'target_type' => 'node',
+      ),
+      'translatable' => '0',
+      'type' => 'entityreference',
+    ),
+    'field_instance' => array(
+      'bundle' => 'wh_response',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'This is an autocomplete field; type the title of the petition to select it.',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'entityreference',
+          'settings' => array(
+            'link' => FALSE,
+          ),
+          'type' => 'entityreference_label',
+          'weight' => 14,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_petition_id',
+      'label' => 'Petitions',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'entityreference',
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'path' => '',
+          'size' => '120',
+        ),
+        'type' => 'entityreference_autocomplete',
+        'weight' => '11',
+      ),
+    ),
+  );
+
   // Exported field: 'node-wh_response-field_private_tags'.
   $fields['node-wh_response-field_private_tags'] = array(
     'field_config' => array(
@@ -640,7 +726,7 @@ function wh_response_feature_field_default_fields() {
           'rows' => '5',
         ),
         'type' => 'text_textarea',
-        'weight' => '13',
+        'weight' => '14',
       ),
     ),
   );
@@ -709,7 +795,7 @@ function wh_response_feature_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '12',
+        'weight' => '13',
       ),
     ),
   );
@@ -849,7 +935,7 @@ function wh_response_feature_field_default_fields() {
           'size' => '32',
         ),
         'type' => 'text_textfield',
-        'weight' => '11',
+        'weight' => '12',
       ),
     ),
   );
@@ -934,11 +1020,13 @@ function wh_response_feature_field_default_fields() {
   t('Issues');
   t('Media');
   t('Petition Count');
+  t('Petitions');
   t('Private Keywords');
   t('Response Email');
   t('Response Email Subject');
   t('Short URL');
   t('The type of media of this response.  After you\'ve chosen a media type, the appropriate fields will appear.');
+  t('This is an autocomplete field; type the title of the petition to select it.');
   t('This is the assigned shortened URL of the Response.  This will get populated automatically.');
   t('Upload the seal of the agency who is responding to this petition.  Images will be scaled and cropped to 50x50 pixels.');
   t('Video Embed');

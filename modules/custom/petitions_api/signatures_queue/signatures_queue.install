@@ -41,6 +41,11 @@ function signatures_queue_install() {
     drupal_set_message($t('IMPORTANT! Signature archive tables created in default database. This is not recommended for production installations. See INSTALL.md for more information.'), 'warning');
   }
 
+  // Set some default permissions.
+  $perms = array('validate petition signatures');
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, $perms);
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, $perms);
+
   // Warn users about two week limit on archiving.
   drupal_set_message($t('IMPORTANT! The archiving workflow assumes you are processing signatures regularly. The default assumption is that all queues will be cleared within any given two week period.  If you intend to NOT process signatures regularly, make the necessary adjustments to $queues_last_emptied in includes/archive_signatures.inc.'), 'warning');
 }
@@ -502,4 +507,13 @@ function signatures_queue_update_7300() {
   if (db_table_exists($table) && db_field_exists($table, $old_name)) {
     db_change_field($table, $old_name, $new_name, $signatures_queue_schema['signature_validations']['fields'][$new_name]);
   }
+}
+
+/**
+ * Set default for new permission.
+ */
+function signatures_queue_update_7301() {
+  $perms = array('validate petition signatures');
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, $perms);
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, $perms);
 }

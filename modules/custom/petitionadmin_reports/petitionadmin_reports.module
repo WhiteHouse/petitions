@@ -1,0 +1,97 @@
+<?php
+/**
+ * @file
+ * Code for the Petition UI - Reports feature.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function petitionadmin_reports_menu() {
+  $items = array();
+
+  $items['admin/content/petitions/reports'] = array(
+    'title' => 'Reports',
+    'page callback' => 'petitionadmin_reports_report_summary',
+    'access arguments' => array('petition access reports'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+    'file' => 'petitionadmin_reports.report.summary.inc',
+  );
+
+  $items['admin/content/petitions/reports/summary'] = array(
+    'title' => 'Summary',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function petitionadmin_reports_menu_alter(&$items) {
+  // Remove mongo report link in Mongo2Mysql phase 4.  Replace with link to
+  // mysql reports.
+  if (petitions_data_mysql_writes_are_enabled() && !petitions_data_mongo_writes_are_enabled()) {
+    unset($items['admin/petition-reports']);
+
+    // Update the current petition menu item to point to the new mysql admin
+    // page.
+    $items['admin/petition-reports'] = array(
+      'title'            => 'Petitions Reports',
+      'page callback'    => 'drupal_goto',
+      'page arguments'   => array('admin/content/petitions/reports'),
+      'access arguments' => array('petition access reports'),
+      'type'             => MENU_NORMAL_ITEM,
+    );
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function petitionadmin_reports_permission() {
+  $permissions = array();
+
+  $permissions['petition access reports'] = array(
+    'title'       => t('Access petition reports'),
+    'description' => t('Have the right to access petition reports.'),
+  );
+
+  return $permissions;
+}
+
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function petitionadmin_reports_cron_queue_info() {
+  $queues['petitionadmin_reports_summary'] = array(
+    'worker callback' => 'petitionadmin_reporting_summary_processor',
+  );
+
+  return $queues;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function petitionadmin_reports_cron() {
+  $current_datetime = time();
+
+  // Petition UI Reports Summary Cron.
+  $last_execution = variable_get('petitionadmin_reports_summary_lastrun', 0);
+
+  // Number of seconds in an hour.
+  $hour_interval = 3600;
+  $run_window = $last_execution + $hour_interval;
+
+  if ($current_datetime >= $run_window) {
+    module_load_include('inc', 'petitionadmin_reports', 'petitionadmin_reports.report.summary');
+
+    $petition_queue_summary = DrupalQueue::get('petitionadmin_reports_summary');
+    $petition_queue_summary->createItem(array());
+  }
+}

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Defines PetitionsQueryMongo class.
+ * Contains PetitionsQueryMongo.
  */
 
 /**
@@ -15,16 +15,47 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   protected $collection;
   protected $query = array();
 
+  /**
+   * OrderBy ASC/DESC mapping
+   *
+   * @var array
+   */
+  protected $orderByDirMap = array(
+    self::SELECT_QUERY_ORDER_BY_ASC => 1,
+    self::SELECT_QUERY_ORDER_BY_DESC => -1,
+  );
 
   /**
-   * Constructor.
+   * OrderBy Field mapping
+   *
+   * Maps Order By constants to appropriate database column name.
+   *
+   * @var array
+   *   An array containing 'field' element with field name.
+   */
+  protected $orderByFieldsMap = array(
+    self::SELECT_QUERY_ORDER_BY_FIELD_ID => array('field' => '_id'),
+    self::SELECT_QUERY_ORDER_BY_FIELD_TITLE => array('field' => 'title'),
+    self::SELECT_QUERY_ORDER_BY_FIELD_DATE_CREATED => array('field' => 'created'),
+    self::SELECT_QUERY_ORDER_BY_FIELD_PUBLISHED => array('field' => 'published'),
+    self::SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT => array('field' => 'signature_count'),
+    self::SELECT_QUERY_ORDER_BY_FIELD_DATE_REACHED_PUBLIC => array('field' => 'reached_public'),
+  );
+
+  /**
+   * {@inheritdoc}
    */
   public function __construct() {
     parent::__construct();
-    $collection = mongodb_collection('petitions');
+    try {
+      $collection = mongodb_collection('petitions');
+    }
+    catch (Exception $e) {
+      petitionslog_event('exception.petitions_data.e54cea3');
+    }
     $this->setCollection($collection);
+    $this->setOrderBy(self::SELECT_QUERY_ORDER_BY_FIELD_DATE_CREATED, self::SELECT_QUERY_ORDER_BY_DESC);
   }
-
 
   /**
    * Get accessor for $this->collection.
@@ -42,8 +73,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
    * @param MongoCollection $collection
    *   MongoCollection resource for querying against a collection.
    *
-   * @return PetitionsMongoRaw
-   *   Returns current instance of object.
+   * @return $this
    */
   protected function setCollection($collection) {
     $this->collection = $collection;
@@ -66,8 +96,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
    * @param array $query
    *   Array of query parameters to get passed to mongodb.
    *
-   * @return PetitionsMongoRaw
-   *   Returns current instance of object.
+   * @return $this
    */
   protected function setQuery(array $query) {
     $this->query = $query;
@@ -77,18 +106,19 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   /**
    * Primary processing function of class. Makes query to MongoDB.
    *
-   * @return PetitionsQueryMongo
-   *   Returns current instance of object.
+   * @return $this
    */
   public function execute() {
-    $results = array();
-
     if (($this->getIsSignable() === TRUE) || ($this->getIsSignable() === FALSE)) {
       $this->addIsSignableToQuery();
     }
 
     if (($this->getIsPublic() === TRUE) || ($this->getIsPublic() === FALSE)) {
       $this->addIsPublicToQuery();
+    }
+
+    if (($this->getIsOpen() === TRUE) || ($this->getIsOpen() === FALSE)) {
+      $this->addIsOpenToQuery();
     }
 
     if ($this->getCreatedDate()) {
@@ -116,11 +146,13 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
     }
 
     $this->addTitleToQuery();
+    $this->addIssuesToQuery();
     $this->addBodyToQuery();
     $this->addURLToQuery();
     $this->addStatusToQuery();
     $this->addResponseIDToQuery();
     $this->addPetitionIdsToQuery();
+    $this->addUidToQuery();
 
     $fields = array(
       'title',
@@ -136,6 +168,17 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       'petition_status',
       'review_timeframe',
       'response_id',
+      'response_status',
+      'reached_public',
+      'reached_ready',
+      'public_signatures',
+      'uid',
+      'bookmarked',
+      'featured',
+      'private_tags',
+      'user_tags',
+      'abuse_flags',
+      'review_threshold_mail_sent',
     );
 
     // WARNING: All query additions must happen prior to calling formatStatus().
@@ -146,34 +189,62 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       ->find($query, $fields)
       ->limit($this->getLimit())
       ->skip($this->getOffset())
-      ->sort(array('created' => -1));
+      ->sort($this->getSort());
 
-    if (!$mongo_results->hasNext()) {
-      $this->setResult(array());
-      return $this;
-    }
-
+    $result_objects = array();
+    $result_arrays = array();
     foreach ($mongo_results as $doc) {
 
-      $petition = new Petition();
-      $petition->setId($this->formatReturnId($doc['_id']))
+      $petition = new PetitionItem();
+      $petition->setLegacyId($this->formatReturnId($doc['_id']))
         ->setTitle($doc['title'])
         ->setBody($doc['body'])
         ->setIssues($this->formatReturnIssues($doc['issues']))
         ->setSignatureThreshold($doc['response_signatures'])
         ->setSignatureCount($doc['signature_count'])
         ->setNiceUrl($this->formatReturnUrl($doc['nice_url']))
+        ->setShortUrl($doc['short_url'])
         ->setReviewTimeframe($doc['review_timeframe'])
         ->setStatus($doc['petition_status'])
-        ->setResponse(isset($doc['response_id']) ? $this->formatReturnResponse($doc['response_id']) : NULL)
         ->setCreated($doc['created'])
-        ->setPublished($doc['published']);
+        ->setPublished($doc['published'])
+        ->setUid($doc['uid'])
+        ->setResponseStatus($doc['response_status'])
+        ->setReachedPublic($doc['reached_public'])
+        ->setSignaturePublicThreshold($doc['public_signatures'])
+        ->setUserTags($doc['user_tags']);
+      if (!empty($doc['abuse_flags'])) {
+        $petition->setAbuseFlags($doc['abuse_flags']);
+      }
+      if (!empty($doc['bookmarked'])) {
+        $petition->setBookmarked($doc['bookmarked']);
+      }
+      if (!empty($doc['closed'])) {
+        $petition->setClosed($doc['closed']);
+      }
+      if (!empty($doc['featured'])) {
+        $petition->setFeatured($doc['featured']);
+      }
+      if (!empty($doc['private_tags'])) {
+        $petition->setPrivateTags($doc['private_tags']);
+      }
+      if (!empty($doc['reached_ready'])) {
+        $petition->setReachedReady($doc['reached_ready']);
+      }
+      if (!empty($doc['response_id'])) {
+        $petition->setResponse(PetitionsSelectQuery::formatReturnResponse($doc['response_id']));
+      }
+      if (!empty($doc['review_threshold_mail_sent'])) {
+        $petition->setReviewThresholdMailSent($doc['review_threshold_mail_sent']);
+      }
 
-      $results[] = $petition->toArray();
+      $result_objects[] = $petition;
+      $result_arrays[] = $petition->toRestResponseItemArray();
     }
 
+    $this->setResultObjects($result_objects);
+    $this->setResult($result_arrays);
     $this->setCount($mongo_results->count());
-    $this->setResult($results);
 
     return $this;
   }
@@ -321,6 +392,19 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   }
 
   /**
+   * Adds the issues argument to the query.
+   */
+  protected function addIssuesToQuery() {
+    if ($this->getIssueIDs()) {
+      $query = $this->getQuery();
+      $query += array(
+        'issues' => array('$in' => $this->getIssueIDs()),
+      );
+      $this->setQuery($query);
+    }
+  }
+
+  /**
    * Helper function to add $this->body as a query parameter.
    */
   protected function addBodyToQuery() {
@@ -359,7 +443,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   protected function addURLToQuery() {
     // Filter by URL.
     if ($this->getURL()) {
-      $nice_url = petitions_data_get_nice_url_from_full_url($this->getURL());
+      $nice_url = petitions_data_get_path_from_full_url($this->getURL());
       $query = $this->getQuery();
       $query += array(
         'nice_url' => $nice_url,
@@ -441,8 +525,25 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       // Request is for petitions that are NOT public.
       // Non-public petitions are not available through the index api.
       // Return access denied with a message.
-      $developer_message = t('You need a petition id or url to access non-public petitions.');
+      $developer_message = t('You need a petition ID or URL to access non-public petitions.');
       api_errors_throw_error(403, $developer_message);
+    }
+  }
+
+  /**
+   * Helper function to add $this->isOpen as a query parameter.
+   */
+  protected function addIsOpenToQuery() {
+    // Petitions with any of the following status, are considered open.
+    $array_open_statuses = wh_petitions_open_statuses();
+
+    if ($this->getIsOpen()) {
+      // Request is for petitions that are open.
+      $this->setStatusInclude($array_open_statuses);
+    }
+    elseif ($this->getIsOpen() === FALSE) {
+      // Request is for petitions that are NOT open.
+      $this->setStatusExclude($array_open_statuses);
     }
   }
 
@@ -465,6 +566,45 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   }
 
   /**
+   * Helper function to add $this->uid as a query parameter.
+   */
+  protected function addUidToQuery() {
+    if ($this->getUid()) {
+      $query = $this->getQuery();
+      $query += array(
+        'uid' => (int) $this->getUid(),
+      );
+      $this->setQuery($query);
+    }
+  }
+
+  /**
+   * Adds the orderBy arguments to the query.
+   */
+  protected function getSort() {
+    $sort_array = array();
+    if (!$this->getOrderBy()) {
+      return $sort_array;
+    }
+
+    foreach ($this->getOrderBy() as $order_by) {
+      $field = $order_by->field;
+      $order_by_dir = $order_by->direction;
+
+      if (!$this->isValidOrderByField($field)) {
+        throw new Exception('getSort - Not a valid field: ' . $field);
+      }
+      if (!$this->isValidOrderByDirection($order_by_dir)) {
+        throw new Exception('getSort - Not a valid direction: ' . $order_by_dir);
+      }
+      $mapped_field = $this->orderByFieldsMap[$field]['field'];
+      $mapped_dir = $this->orderByDirMap[$order_by_dir];
+      $sort_array[$mapped_field] = $mapped_dir;
+    }
+    return $sort_array;
+  }
+
+  /**
    * Helper function to format return response ID field.
    *
    * @param MongoId $id
@@ -476,7 +616,6 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
   protected function formatReturnId($id) {
     return $id->{'$id'};
   }
-
 
   /**
    * Helper function to remove petition statuses from another array.
@@ -568,7 +707,6 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
     $this->setQuery($query);
   }
 
-
   /**
    * Get accessor for $query->statusExclude.
    *
@@ -584,7 +722,6 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       return array();
     }
   }
-
 
   /**
    * Set accessor for $query->status exclude.
@@ -644,14 +781,32 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
     // Remove non-mongofied statuses in the query array.
     unset($query['petition_status_in']);
     unset($query['petition_status_exclude']);
+
     if (!empty($status_to_query)) {
       $query['petition_status'] = array('$in' => (Array) $status_to_query);
     }
-    else {
+    elseif (!count($query)) {
       // Some combination of status filters have resulted in no filters,
       // which is impossible to return.  Set this to nin for the entire status.
       $query['petition_status'] = array('$nin' => wh_petitions_all_statuses());
     }
     $this->setQuery($query);
+  }
+
+  /**
+   * Gets a petition ID from a given petition URL.
+   *
+   * @param $url
+   *   The URL to get a petition ID from.
+   *
+   * @return mixed|false
+   *   A petition ID corresponding to the given URL, or FALSE if there is no
+   *   corresponding petition.
+   */
+  public static function getPetitionIdFromUrl($url) {
+    $nice_url = petitions_data_get_path_from_full_url($url);
+    $conn = wh_petitions_mongo_petition_connection();
+    $petition = $conn->findOne(array('nice_url' => $nice_url), array('title'));
+    return (string) $petition['_id'];
   }
 }

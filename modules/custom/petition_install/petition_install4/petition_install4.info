@@ -62,8 +62,6 @@ dependencies[] = wh_contexts
 dependencies[] = wh_misc
 
 
-; Information added by drush on 2013-08-08
 version = ""
 project = "petitions"
-datestamp = "1375992615"
 

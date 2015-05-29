@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * @file
+ * Drush script to be run one time only. Creates two-way links between response
+ * nodes and petition nodes after complete mongo2mysql migration is complete.
+ * Only to be run on sites utilizing MySQL.
+ *
+ * Instructions on when to use this file can be found in:
+ * - /README/PT-1532-migration-release-instructions.txt
+ */
+
+#!/usr/bin/env drush
+
+// Select all links from petitions to responses.
+$query = db_query("SELECT 'node' as entity_type, r.type as bundle, 0 as deleted, r.nid as entity_id, r.vid as revision_id, r.language as language, p.entity_id as field_petition_id_target_id
+  FROM node r 
+ 	INNER JOIN field_data_field_response_id p ON p.field_response_id_target_id=r.nid
+  WHERE type='wh_response'");
+
+// Create corresponding links from responses to petitions.
+$deltas = array();
+foreach ($query as $result) {
+  if (!isset($deltas[$result->entity_id])) {
+    $deltas[$result->entity_id] = 0;
+  }
+  else {
+    $deltas[$result->entity_id]++;
+  }
+  db_query("INSERT IGNORE INTO field_data_field_petition_id (entity_type, bundle, deleted, entity_id, revision_id, language, delta, field_petition_id_target_id) VALUES (:entity_type, :bundle, :deleted, :entity_id, :revision_id, :language, :delta, :field_petition_id_target_id)",
+  array(
+    ':entity_type' => $result->entity_type,
+    ':bundle' => $result->bundle,
+    ':deleted' => $result->deleted,
+    ':entity_id' => $result->entity_id,
+    ':revision_id' => $result->revision_id,
+    ':language' => $result->language,
+    ':delta' => $deltas[$result->entity_id],
+    ':field_petition_id_target_id' => $result->field_petition_id_target_id,
+  ));
+  db_query("INSERT IGNORE INTO field_revision_field_petition_id (entity_type, bundle, deleted, entity_id, revision_id, language, delta, field_petition_id_target_id) VALUES (:entity_type, :bundle, :deleted, :entity_id, :revision_id, :language, :delta, :field_petition_id_target_id)",
+  array(
+    ':entity_type' => $result->entity_type,
+    ':bundle' => $result->bundle,
+    ':deleted' => $result->deleted,
+    ':entity_id' => $result->entity_id,
+    ':revision_id' => $result->revision_id,
+    ':language' => $result->language,
+    ':delta' => $deltas[$result->entity_id],
+    ':field_petition_id_target_id' => $result->field_petition_id_target_id,
+  ));
+}

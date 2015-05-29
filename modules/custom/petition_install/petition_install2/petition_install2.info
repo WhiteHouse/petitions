@@ -14,8 +14,6 @@ dependencies[] = wh_response_feature
 dependencies[] = wh_user_ss_data
 
 
-; Information added by drush on 2013-08-08
 version = ""
 project = "petitions"
-datestamp = "1375992615"
 

@@ -2,10 +2,7 @@
 
 /**
  * @file
- * api_petitions.module
- *
- * Provides petitions and signatures for Services according to Whitehouse API
- * Standards.
+ * Provides a petitions Services resource.
  */
 
 /**
@@ -363,7 +360,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 
   // Attempt to load response.
   try {
-    $results = PetitionsController::load($petition_id);
+    $petition = PetitionsController::load($petition_id);
   }
   // Catch any errors that may cause $resource->load() to fail. E.g., mongodb.
   // errors. Throw our own, custom error instead.
@@ -378,7 +375,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
   }
 
   // Throw error if petition was not found.
-  if (empty($results)) {
+  if (empty($petition)) {
     $status_code = 404;
     $developer_message = t("Petition @petition_id not found.", array('@petition_id' => $petition_id));
     $user_message = t("The petition that you requested does not exist.", array('@petition_id' => $petition_id));
@@ -388,7 +385,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
   }
 
   $response_params = array(
-    'results' => $results,
+    'results' => array($petition),
     'limit' => 1,
   );
 
@@ -414,18 +411,54 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
     return $response;
   }
 
+  // Err if request is for non-public petitions. This is not allowed.
+  if (!$is_public) {
+    $developer_message = t('You need a petition ID or URL to access non-public petitions.');
+    api_errors_throw_error(403, $developer_message);
+  }
+
+  // Err if request includes an invalid responseID argument.
+  if ($response_id && !is_numeric($response_id)) {
+    $developer_message = t('Invalid responseID argument.');
+    api_errors_throw_error(400, $developer_message);
+  }
+
   // The "url" argument is, for all practical purposes, a unique identifier. So
   // if one is provided, just redirect the request to the retrieve method so
   // that private petitions are accessible, just like they would be if the
   // petition ID were provided directly. (Obviously the user knows about the
   // existence of this petition if they have its URL.)
   if (!empty($url)) {
-    $nice_url = petitions_data_get_nice_url_from_full_url($url);
-    $conn = wh_petitions_mongo_petition_connection();
-    $petition = $conn->findOne(array('nice_url' => $nice_url), array('title'));
-    $petition_id = (string) $petition['_id'];
-    return _api_petitions_resource_retrieve($petition_id, $mock);
+    // If the URL doesn't include a path, it's not a valid petition URL. Note:
+    // the path component returned by parse_url() includes the leading forward
+    // slash (/), so the minimum required length is two.
+    if (strlen(parse_url($url, PHP_URL_PATH)) < 2) {
+      $developer_message = t('Invalid url argument.');
+      api_errors_throw_error(400, $developer_message);
+    }
+
+    $results = PetitionsSelectQueryFactory::create(FALSE)
+      ->setURL($url)
+      ->execute()
+      ->getResult();
+
+    // Return a 404 if no results are found.
+    if (empty($results[0]['id'])) {
+      $status_code = 404;
+      $developer_message = t('No petition found at @url.', array(
+        '@url' => $url,
+      ));
+      $user_message = t('The petition that you requested does not exist.');
+      $error_code = 84;
+      $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-404', array(
+        '!url' => $website_url,
+      ));
+      return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
+    }
+
+    return _api_petitions_resource_retrieve($results[0]['id'], $mock);
   }
+
   // Makes the assumption that all query parameters are present at this instant.
   // This brittle, the values here can be altered by setters when petitions_data
   // module builds the query to correspond with this request.
@@ -460,7 +493,7 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
   ksort($query_parameters);
 
   try {
-    $query = PetitionsSelectQueryFactory::create();
+    $query = PetitionsSelectQueryFactory::create(FALSE);
     // Scaffolding is in place for inactive parameters but logic is required.
     $query
      ->setBaseURL($website_url)
@@ -490,8 +523,6 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
       'resource' => 'petitions',
       'query' => $query_parameters,
     );
-    // $petition_ids = explode(',' check_plain($petition_id));
-    // setPetitionIds($petition_ids);
 
     $response_params = array(
       'request_info' => $request_info,
@@ -537,10 +568,21 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
     return $response;
   }
 
+  // Ensure the petition ID is valid.
+  $petition = PetitionsController::load($petition_id);
+  if (empty($petition)) {
+    $status_code = 404;
+    $developer_message = t("Petition @petition_id not found.", array('@petition_id' => $petition_id));
+    $user_message = t("The petition that you requested does not exist.", array('@petition_id' => $petition_id));
+    $error_code = 84;
+    $more_info = t('See the documentation: !url/developers#petitions-signatures-error-404', array('!url' => $website_url));
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
+  }
+
   $signatures_default_limit = variable_get('api_petitions_signatures_index_max_limit', 1000);
 
   try {
-    $resource = SignaturesSelectQueryFactory::create();
+    $resource = SignaturesSelectQueryFactory::create(FALSE);
     $resource->setCity($city)
       ->setState($state)
       ->setZipCode($zipcode)
@@ -614,7 +656,6 @@ function _api_petitions_retrieve_doc_example_implementations() {
     'thermometer' => array(
       '#name' => t('Thermometer'),
       '#description' => t('Display the status of a petition as a thermometer.'),
-      // '#location' => _api_petitions_example_implementation('retrieve', 'javascript', 'thermometer'),
       '#download_link' => drupal_get_path('module', 'api_petitions') . '/example_implementations/javascript/thermometer.zip',
       '#uses_sdk' => FALSE,
     ),
@@ -699,6 +740,11 @@ function _api_petitions_load_signatures_doc() {
  */
 function _api_petitions_load_signatures_doc_errors() {
   $errors = array(
+    '404' => array(
+      '#question' => t('What happens if an invalid petition ID is requested?'),
+      '#description' => t('If the request specifies an invalid petition ID, what will the response look like?'),
+      '#response' => _api_petitions_mock_response('load_signatures404'),
+    ),
     '599' => array(
       '#question' => t('What happens in case of server error?'),
       '#description' => t('If the request fails due to a server problem, what will the response look like?'),
@@ -711,6 +757,13 @@ function _api_petitions_load_signatures_doc_errors() {
 
 /**
  * Returns a mock response for petitions methods.
+ *
+ * @param string $method
+ *   A method identifier.
+ *
+ * @return string
+ *   The JSON mock response for the given identifier, or an empty string in case
+ *   of an invalid identifier.
  */
 function _api_petitions_mock_response($method) {
   switch ($method) {
@@ -738,10 +791,16 @@ function _api_petitions_mock_response($method) {
       $file = 'api_petitions_load_signatures.response.json';
       break;
 
+    case 'load_signatures404':
+      $file = 'api_petitions_load_signatures.response404.json';
+      break;
+
     case 'load_signatures599':
       $file = 'api_petitions_load_signatures.response599.json';
       break;
 
+    default:
+      return '';
   }
   $response = file_get_contents(drupal_get_path('module', 'api_petitions') . '/example_responses/' . $file);
   return $response;
@@ -790,13 +849,15 @@ function _api_petitions_api_update_message(array $api_change_parameters) {
     return '';
   }
   if (!empty($api_change_parameters['msg'])) {
-    $message = t($api_change_parameters['msg'] . ' ');
+    $message = $api_change_parameters['msg'] . ' ';
   }
   else {
     $message = '';
   }
   if (!empty($api_change_parameters['website_url'])) {
-    $website_url = t('See the documentation: ') . $api_change_parameters['website_url'];
+    $website_url = t('See the documentation: @url', array(
+      '@url' => $api_change_parameters['website_url'],
+    ));
   }
   else {
     $website_url = '';

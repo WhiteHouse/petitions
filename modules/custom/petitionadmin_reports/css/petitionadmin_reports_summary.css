@@ -1,0 +1,31 @@
+table#petition-summary-table {
+    max-width: 400px;
+}
+
+table#petition-summary-table th {
+    max-width: 20px;
+}
+
+table#petition-issues-table th,
+table#petition-summary-table th {
+    font-weight: bold;
+}
+
+table#petition-issues-table td,
+table#petition-summary-table td {
+    text-align: right;
+}
+
+table#petition-issues-table td {
+    border-right: solid #bebfb9 1px;
+}
+
+table#petition-summary-table tr td:last-child,
+tr td:last-child {
+    border: none 0px !important;
+}
+
+div#petitionadmin_reports_summary-lastrun {
+    margin-top: 20px;
+    text-align: right;
+}

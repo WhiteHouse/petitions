@@ -11,11 +11,7 @@
 function petition_enable() {
   $t = get_t();
   drupal_set_message($message = $t('The Petition  module was successfully enabled.'), $type = 'status');
-  // Start MySQL writes off disabled.
-  // Note: shunt_enable_shunt() isn't available yet when installing the distro
-  // fresh, so set the variable directly.
-  // @todo: remove this once MongoDB is removed.
-  variable_set('shunt_petition_mysql_save', TRUE);
+  variable_set('pathauto_node_petition_pattern', 'petition/[node:title]');
 }
 
 /**
@@ -37,13 +33,6 @@ function petition_install() {
   petition_build_fields(petition_fields());
   $t = get_t();
   drupal_set_message($message = $t('The Petition module has been installed and a Petition content type has been created.'), $type = 'status');
-
-  // Set the initial state of MySQL shunt to disable mysql writes.
-  // Note: shunt_enable_shunt() isn't available yet when installing the distro
-  // fresh, so set the variable directly.
-  // @todo This default setting should be removed when mongo is fully removed.
-  variable_set('shunt_petition_mysql_save', TRUE);
-
 }
 
 /**
@@ -71,9 +60,64 @@ function petition_update_last_removed() {
 }
 
 /**
+ * Revert petition_pages feature.
+ */
+function petition_update_7303(&$sandbox) {
+  _petition_pt_1613();
+}
+
+/**
+ * PT-1613: Revert petition_pages feature.
+ */
+function _petition_pt_1613() {
+  features_revert(array('petition_pages' => array('views_view')));
+}
+
+/**
  * Updates fields from fields array if it changed.
  */
 function petition_update_7300(&$sandbox) {
+  require_once 'includes/petition.field.inc';
+  // Update the fields and add their instances to the petition content type.
+  petition_build_fields(petition_fields());
+}
+/**
+ * Updates fields from fields array if it changed.
+ */
+function petition_update_7301(&$sandbox) {
+  require_once 'includes/petition.field.inc';
+  // Update the fields and add their instances to the petition content type.
+  petition_build_fields(petition_fields());
+}
+
+/**
+ * Set pathauto pattern for petitions.
+ *
+ * Update fields from fields array if it changed.
+ */
+function petition_update_7302(&$sandbox) {
+  variable_set('pathauto_node_petition_pattern', 'petition/[node:title]');
+
+  require_once 'includes/petition.field.inc';
+  // Update the fields and add their instances to the petition content type.
+  petition_build_fields(petition_fields());
+}
+
+/**
+ * Updates fields from fields array if it changed.
+ */
+function petition_update_7305(&$sandbox) {
+  require_once 'includes/petition.field.inc';
+  // Update the fields and add their instances to the petition content type.
+  petition_build_fields(petition_fields());
+}
+
+/**
+ * Add index to field_data_field_legacy_id.field_legacy_id_value
+ *
+ * Update fields from fields array if changed.
+ */
+function petition_update_7306(&$sandbox) {
   require_once 'includes/petition.field.inc';
   // Update the fields and add their instances to the petition content type.
   petition_build_fields(petition_fields());
@@ -96,7 +140,7 @@ function petition_build_fields($fields = array()) {
     // Load all the existing fields and instances up-front so that we don't
     // have to rebuild the cache all the time.
     $existing_fields = field_info_fields();
-    $existing_instances = field_info_instances('node', 'petition');
+    $existing_instances = field_info_instances();
 
     // Loop through and process each field and field instance.
     foreach ($fields as $field) {

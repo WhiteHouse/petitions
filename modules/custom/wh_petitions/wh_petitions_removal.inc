@@ -35,9 +35,9 @@ function wh_petitions_removal_form($form, &$form_state) {
 
   // Initial form first.
   if (!isset($form_state['storage']['confirm'])) {
-    $form = petitionevents_unpublish_petition_action_form(NULL);
-    $form['#validate'][] = 'petitionevents_unpublish_petition_action_validate';
-    $form['remove_email']['#description'] = t("The following message will be sent to the petitions you’ve selected for removal.");
+    $form = petitionevents_hide_petition_action_form(NULL);
+    $form['#validate'][] = 'petitionevents_hide_petition_action_validate';
+    $form['remove_email']['#description'] = t("The following message will be sent to the petitions you’ve selected to be hidden.");
     drupal_set_title('Petitions Moderation');
 
     // Add confirmation button to the form.
@@ -82,14 +82,14 @@ function wh_petitions_form_submit($form, &$form_state) {
     // the form.
     $form_state['storage']['confirm'] = TRUE;
     $form_state['rebuild'] = TRUE;
-    $form_state['storage']['context']  = petitionevents_unpublish_petition_action_submit($form, $form_state);
+    $form_state['storage']['context']  = petitionevents_hide_petition_action_submit($form, $form_state);
   }
   else {
     $petition_id = $form_state['storage']['petition_id'];
     $petition_uid = $form_state['storage']['petition_uid'];
 
     $context = $form_state['storage']['context'];
-    wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $context);
+    wh_petitions_hide_petition_action($petition_id, $petition_uid, $context);
 
     // This message is designed to mimic the current VBO message.
     drupal_set_message(t('Performed Remove petitions on 1 item.'));
@@ -112,9 +112,9 @@ function wh_petitions_form_submit($form, &$form_state) {
  *   Contextual information passed into the action.  Values set in a VBO form
  *   would be present here.
  */
-function wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $context) {
+function wh_petitions_hide_petition_action($petition_id, $petition_uid, $context) {
   try{
-    $petition = wh_petitions_mongo2mysql_unpublish($petition_id);
+    $petition = wh_petitions_mongo2mysql_hide($petition_id);
   }
 
   catch (Exception $e) {
@@ -129,7 +129,7 @@ function wh_petitions_unpublish_petition_action($petition_id, $petition_uid, $co
   $context['petition_uid'] = $petition_uid;
 
   if (!$context['skip_notification']) {
-    petitionevents_send_remove_email($context);
+    petitionevents_send_hidden_email($context);
   }
 
   watchdog("petition_removal", "Removing petition: @title mongo_petition_id: @nid", array('@title' => $petition['title'], '@nid' => $petition_id));

@@ -3,20 +3,27 @@ description = Data abstraction for use with services to provide a flexible backe
 core = 7.x
 package = Petitions API
 
+dependencies[] = apachesolr
+dependencies[] = efq_extra_field
 dependencies[] = wh_petitions
 
 ; Petitions Data access layer
-files[] = classes/Petition.inc
+files[] = classes/PetitionItem.inc
+files[] = classes/PetitionNotFoundException.inc
 files[] = classes/PetitionsController.inc
 files[] = classes/PetitionsSelectQuery.inc
 files[] = classes/PetitionsSelectQueryFactory.inc
 files[] = classes/PetitionsSelectQueryMongo.inc
+files[] = classes/PetitionsSelectQueryMysql.inc
+files[] = classes/PetitionsSelectQuerySolr.inc
 files[] = classes/SelectQueryBase.inc
-files[] = classes/Signature.inc
+files[] = classes/SignatureItem.inc
 files[] = classes/SignaturesController.inc
 files[] = classes/SignaturesSelectQuery.inc
 files[] = classes/SignaturesSelectQueryFactory.inc
 files[] = classes/SignaturesSelectQueryMongo.inc
+files[] = classes/SignaturesSelectQueryMysql.inc
+files[] = classes/SignaturesSelectQuerySolr.inc
 
 ; Tests
 files[] = tests/PetitionsDataBaseTestCase.test

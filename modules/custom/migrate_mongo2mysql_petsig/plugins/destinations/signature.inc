@@ -106,7 +106,7 @@ class MigrateDestinationSignatureEntity extends MigrateDestinationEntity {
     }
 
     if (isset($entity->user_country)) {
-      $entity->user_country = substr( migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_country)), 0, 255);
+      $entity->user_country = substr(migrate_mongo2mysql_sanitize_output(replace4byte($entity->user_country)), 0, 255);
     }
 
   }

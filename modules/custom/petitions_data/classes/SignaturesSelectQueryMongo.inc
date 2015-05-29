@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Defines SignaturesQueryMongo class.
+ * Contains SignaturesQueryMongo.
  */
 
 /**
- * Class SignaturesQueryMongo.
+ * Class SignaturesSelectQueryMongo.
  *
  * This should contain MongoDB-specific logic for querying signatures.
  */
@@ -16,11 +16,17 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
   protected $collection;
 
   /**
-   * Constructor.
+   * {@inheritdoc}
    */
   public function __construct() {
     parent::__construct();
-    $this->setCollection(mongodb_collection('petition_signatures'));
+    try {
+      $collection = mongodb_collection('petition_signatures');
+    }
+    catch (Exception $e) {
+      petitionslog_event('exception.petitions_data.c968b66');
+    }
+    $this->setCollection($collection);
   }
 
   /**
@@ -39,8 +45,7 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
    * @param MongoCollection $collection
    *   MongoCollection resource for querying against a collection.
    *
-   * @return SignaturesMongoRaw
-   *   Returns current instance of object.
+   * @return $this
    */
   protected function setCollection($collection) {
     $this->collection = $collection;
@@ -64,8 +69,7 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
    * @param array $query
    *   Array of query parameters to get passed to mongodb.
    *
-   * @return SignaturesMongoRaw
-   *   Returns current instance of object.
+   * @return $this
    */
   protected function setQuery(array $query) {
     $this->query = $query;
@@ -80,7 +84,8 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
    *   Results of query to MongoDB.
    */
   public function execute() {
-    $results = array();
+    $result_arrays = array();
+    $result_objects = array();
 
     if ($this->getCreatedDate()) {
       $this->addCreatedDateToQuery();
@@ -90,11 +95,13 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
       $this->addEndDateToQuery();
     }
 
+    $this->addUidToQuery();
     $this->addCityToQuery();
     $this->addStateToQuery();
     $this->addZipToQuery();
     $this->addCountryToQuery();
     $this->addPetitionIdsToQuery();
+    $this->addSignatureIdsToQuery();
 
     $fields = array(
       'uid',
@@ -120,8 +127,9 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
       ->sort(array('timestamp' => -1));
 
     foreach ($mongo_results as $doc) {
-      $signature = new Signature($doc['petition_id']);
+      $signature = new SignatureItem();
       $signature
+        ->setLegacyPetitionId($doc['petition_id'])
         ->setUid($doc['uid'])
         ->setId($this->formatReturnId($doc['_id']))
         ->setCreated($doc['timestamp']);
@@ -143,11 +151,12 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
         $signature->setZip($doc['user']['zip']);
       }
 
-      $results[] = $signature->toArray();
+      $result_objects[] = $signature;
+      $result_arrays[] = $signature->toRestResponseItemArray();
     }
-
     $this->setCount($mongo_results->count());
-    $this->setResult($results);
+    $this->setResult($result_arrays);
+    $this->setResultObjects($result_objects);
 
     return $this;
   }
@@ -174,6 +183,17 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
       $query += array(
         'user.state' => new MongoRegex("/" . $this->getState() . "/i"),
       );
+      $this->setQuery($query);
+    }
+  }
+
+  /**
+   * Helper function to add $this->uid as a query parameter.
+   */
+  protected function addUidToQuery() {
+    if ($this->getUid()) {
+      $query = $this->getQuery();
+      $query += array('uid' => $this->getUid());
       $this->setQuery($query);
     }
   }
@@ -259,6 +279,24 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
       $query = $this->getQuery();
       $query += array(
         'petition_id' => array('$in' => $this->getPetitionIds()),
+      );
+      $this->setQuery($query);
+    }
+  }
+
+  /**
+   * Helper function filter results by signature ids.
+   */
+  protected function addSignatureIdsToQuery() {
+    if ($this->getSignatureIds()) {
+      $sids = $this->getSignatureIds();
+      $mongo_ids = array();
+      foreach ($sids as $sid) {
+        $mongo_ids[] = new MongoId($sid);
+      }
+      $query = $this->getQuery();
+      $query += array(
+        '_id' => array('$in' => $mongo_ids),
       );
       $this->setQuery($query);
     }

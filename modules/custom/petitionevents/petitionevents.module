@@ -82,10 +82,9 @@ function petitionevents_mail_additions(&$message, $context) {
   // process mongo info here.
   // $is_mongo_petition = !empty($context['legacy_id']);
   $is_mysql_petition = !empty($context['nid']);
-  $is_mysql_enabled = !shunt_is_enabled('petition_mysql_save');
   $title = $context['petition_title'];
 
-  if ($is_mysql_petition && $is_mysql_enabled) {
+  if ($is_mysql_petition && petitions_data_mysql_writes_are_enabled()) {
     $message = str_replace('!petition_nid', $context['nid'], $message);
     $nid = $context['nid'];
 

@@ -1,0 +1,5 @@
+name = Petitions Devel
+description = Provides utilities to support development on Petitions.
+core = 7.x
+package = Development
+dependencies[] = shunt

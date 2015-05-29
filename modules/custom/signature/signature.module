@@ -5,6 +5,156 @@
  * helper function to create sample signatures, and to delete all signatures
  */
 
+
+// Apache Solr custom field names. Prefixes determine the storage mechanism,
+// e.g., "bs_*" for boolean, single-valued and "sm_" is for string,
+// multi-valued. See the dynamicField definitions in
+// solr-conf/solr-3.x/schema.xml in the apachesolr module for a complete list.
+
+
+define('SIGNATURE_SOLR_FIELD_ID', 'entity_id');
+define('SIGNATURE_SOLR_FIELD_UID', 'is_uid');
+define('SIGNATURE_SOLR_FIELD_PETITION_ID', 'is_petition_id');
+define('SIGNATURE_SOLR_FIELD_USER_FIRST_NAME', 'ss_user_first_name');
+define('SIGNATURE_SOLR_FIELD_USER_LAST_NAME', 'ss_user_last_name');
+define('SIGNATURE_SOLR_FIELD_LEGACY_ID', 'ss_legacy_id');
+define('SIGNATURE_SOLR_FIELD_LEGACY_PETITION_ID', 'ss_legacy_petition_id');
+define('SIGNATURE_SOLR_FIELD_TIMESTAMP', 'is_timestamp');
+define('SIGNATURE_SOLR_FIELD_USER_AGENT', 'ts_user_agent');
+define('SIGNATURE_SOLR_FIELD_IP_ADDRESS', 'ss_ip_address');
+define('SIGNATURE_SOLR_FIELD_USER_CITY', 'ss_user_city');
+define('SIGNATURE_SOLR_FIELD_USER_STATE', 'ss_user_state');
+define('SIGNATURE_SOLR_FIELD_USER_ZIP', 'ss_user_zip');
+define('SIGNATURE_SOLR_FIELD_USER_USERNAME', 'ss_user_username');
+define('SIGNATURE_SOLR_FIELD_USER_COUNTRY', 'ss_user_country');
+
+/**
+ * Implements hook_menu_alter().
+ *
+ * Overrides apachesolr_status_page() to remove stats generating slow queries.
+ */
+function signature_menu_alter(&$items) {
+  $items['admin/config/search/apachesolr'] = array(
+    'title'              => 'Apache Solr search',
+    'description'        => 'Administer Apache Solr.',
+    'page callback'      => 'signature_apachesolr_status_page',
+    'access arguments'   => array('administer search'),
+    'weight'             => -8,
+    'file'               => drupal_get_path('module', 'apachesolr') . '/apachesolr.admin.inc',
+  );
+}
+
+/**
+ * Gets information about the fields already in solr index.
+ *
+ * @param array $environment
+ *   The environment for which we need to ask the status from
+ *
+ * @return array page render array
+ */
+function signature_apachesolr_status_page($environment = array()) {
+  if (empty($environment)) {
+    $env_id = apachesolr_default_environment();
+    $environment = apachesolr_environment_load($env_id);
+  }
+  else {
+    $env_id = $environment['env_id'];
+  }
+
+  // Check for availability
+  if (!apachesolr_server_status($environment['url'], $environment['service_class'])) {
+    drupal_set_message(t('The server seems to be unavailable. Please verify the server settings at the <a href="!settings_page">settings page</a>', array('!settings_page' => url("admin/config/search/apachesolr/settings/{$environment['env_id']}/edit", array('query' =>  drupal_get_destination())))), 'warning');
+    return '';
+  }
+
+  try {
+    $solr = apachesolr_get_solr($environment["env_id"]);
+    $solr->clearCache();
+    $data = $solr->getLuke();
+  }
+  catch (Exception $e) {
+    watchdog('Apache Solr', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
+    drupal_set_message(nl2br(check_plain($e->getMessage())), "warning");
+    $data = new stdClass;
+    $data->fields = array();
+  }
+
+  $messages = array();
+  if (isset($data->index->numDocs)) {
+    try {
+      // Collect the stats
+      $stats_summary = $solr->getStatsSummary();
+      module_load_include('inc', 'apachesolr', 'apachesolr.index');
+      // We need a schema version greater than beta3. This is mostly to catch
+      // people using the Drupal 6 schema.
+      if (preg_match('/^drupal-[13]/', $stats_summary['@schema_version'])) {
+        $minimum = 'drupal-3.0-beta4';
+        if (version_compare($stats_summary['@schema_version'], $minimum, '<')) {
+          drupal_set_message(t('Your schema.xml version is too old. You must update it to at least %minimum and re-index your content.', array('%minimum' => $minimum)), 'error');
+        }
+      }
+      $pending_msg = $stats_summary['@pending_docs'] ? t('(@pending_docs sent but not yet processed)', $stats_summary) : '';
+      $index_msg = $stats_summary['@index_size'] ? t('(@index_size on disk)', $stats_summary) : '';
+      $indexed_message = t('@num Items !pending !index_msg', array(
+        '@num' => $data->index->numDocs,
+        '!pending' => $pending_msg,
+        '!index_msg' => $index_msg,
+      ));
+      $messages[] = array(t('Indexed'), $indexed_message);
+
+      $messages[] = array(t('Schema'), t('@schema_version', $stats_summary));
+      if (!empty($stats_summary['@core_name'])) {
+        $messages[] = array(t('Solr Core Name'), t('@core_name', $stats_summary));
+      }
+      $messages[] = array(t('Delay'), t('@autocommit_time before updates are processed.', $stats_summary));
+      $messages[] = array(t('Pending Deletions'), t('@deletes_total', $stats_summary));
+    }
+    catch (Exception $e) {
+      watchdog('Apache Solr', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
+    }
+  }
+  if (empty($messages)) {
+    $messages[] = array(t('Error'), t('No data was returned from the server. Check your log messages.'));
+  }
+
+// Initializes output with information about which server's setting we are
+  // editing, as it is otherwise not transparent to the end user.
+  $output['apachesolr_index_action_status'] = array(
+    '#prefix' => '<h3>' . t('@environment: Search Index Content', array('@environment' => $environment['name'])) . '</h3>',
+    '#theme' => 'table',
+    '#header' => array(t('Type'), t('Value')),
+    '#rows' => $messages,
+  );
+
+  $write_status = apachesolr_environment_variable_get($env_id, 'apachesolr_read_only', APACHESOLR_READ_WRITE);
+  if ($write_status == APACHESOLR_READ_WRITE) {
+    $output['index_action_form'] = drupal_get_form('apachesolr_index_action_form', $env_id);
+    $output['index_config_form'] = drupal_get_form('apachesolr_index_config_form', $env_id);
+  }
+  else {
+    drupal_set_message(t('Options for deleting and re-indexing are not available because the index is read-only. This can be changed on the <a href="!settings_page">settings page</a>', array('!settings_page' => url('admin/config/search/apachesolr/settings/' . $env_id . '/edit', array('query' =>  drupal_get_destination())))), 'warning');
+  }
+
+  return $output;
+}
+/**
+ * Implements hook_init().
+ *
+ * Enabled solr indexing on signature_mail based on shunt signature_solr_index.
+ */
+function signature_init() {
+  global $conf;
+  if (!shunt_is_enabled('signatures_solr_index')) {
+    if (isset($conf['apachesolr_environments'])) {
+      foreach ($conf['apachesolr_environments'] as $env => $data) {
+        if (!isset($conf['apachesolr_environments'][$env]['index_bundles']['signature_mail']) || !in_array('signature_mail', $conf['apachesolr_environments'][$env]['index_bundles']['signature_mail'])) {
+          $conf['apachesolr_environments'][$env]['index_bundles']['signature_mail'][] = 'signature_mail';
+        }
+      }
+    }
+  }
+}
+
 /**
  * Signature info hook.
  */
@@ -59,6 +209,13 @@ function signature_entity_info() {
           'custom settings' => TRUE,
         ),
       ),
+      'apachesolr' => array(
+        'indexable' => TRUE,
+        'document callback' => array('signature_solr_document'),
+        'reindex callback' => 'signature_solr_reindex',
+      ),
+      'static cache' => FALSE,
+      'entity cache' => FALSE,
     );
   }
 
@@ -82,6 +239,118 @@ function signature_entity_property_info_alter(&$info) {
       }
     }
   }
+}
+
+/**
+ * Document callback for apachsolr - creates solr document from an entity.
+ *
+ * @param ApacheSolrDocument $document
+ *   Solr document
+ *
+ * @param object $entity
+ *   Input Entity
+ *
+ * @param string $entity_type
+ *   Entity Type
+ *
+ * @return array
+ *   Array of solr documents
+ */
+function signature_solr_document(ApacheSolrDocument $document, $entity, $entity_type) {
+  $event = 'debugging.signature_solr_document';
+  petitionslog_reusable_timer_start($event);
+
+  $document->addField(SIGNATURE_SOLR_FIELD_UID, $entity->uid);
+  $document->addField(SIGNATURE_SOLR_FIELD_PETITION_ID, $entity->petition_id);
+  $document->addField(SIGNATURE_SOLR_FIELD_USER_FIRST_NAME, $entity->user_first_name);
+  $document->addField(SIGNATURE_SOLR_FIELD_USER_LAST_NAME, $entity->user_last_name);
+  $document->addField(SIGNATURE_SOLR_FIELD_LEGACY_ID, $entity->legacy_id);
+  $document->addField(SIGNATURE_SOLR_FIELD_LEGACY_PETITION_ID, $entity->legacy_petition_id);
+  $document->addField(SIGNATURE_SOLR_FIELD_TIMESTAMP, $entity->timestamp);
+  $document->addField(SIGNATURE_SOLR_FIELD_USER_AGENT, $entity->user_agent);
+  $document->addField(SIGNATURE_SOLR_FIELD_IP_ADDRESS, $entity->ip_address);
+  $document->addField(SIGNATURE_SOLR_FIELD_USER_CITY, $entity->user_city);
+  $document->addField(SIGNATURE_SOLR_FIELD_USER_STATE, $entity->user_state);
+  $document->addField(SIGNATURE_SOLR_FIELD_USER_ZIP, $entity->user_zip);
+  $document->addField(SIGNATURE_SOLR_FIELD_USER_USERNAME, $entity->user_username);
+  $document->addField(SIGNATURE_SOLR_FIELD_USER_COUNTRY, $entity->user_country);
+
+  $elapsed = petitionslog_reusable_timer_read_and_destroy($event);
+  petitionslog_event($event, 'time', $elapsed);
+
+  return array($document);
+
+}
+
+/**
+ * Reindexing callback for apachesolr - queues signature_mail rows for indexing.
+ *
+ * @return bool
+ *   TRUE if reindexing was successful.
+ */
+function signature_solr_reindex() {
+  $env_id = apachesolr_default_environment();
+  if (!count(apachesolr_get_index_bundles($env_id, 'signature_mail'))) {
+    return TRUE;
+  }
+
+  $indexer_table = apachesolr_get_indexer_table('signature_mail');
+  $apachesolr_queue = new ApacheSolrQueue();
+  $transaction = db_transaction();
+  try {
+    db_delete($indexer_table)
+      ->condition('entity_type', 'signature_mail')
+      ->condition('status', 1)
+      ->execute();
+
+    $apachesolr_queue->deleteItemMultipleByEntityType('signature_mail');
+
+    $select = db_select('signature_mail', 'sm');
+    $select->addField('sm', 'id', 'entity_id');
+    $select->addField('sm', 'timestamp', 'changed');
+    $select->addExpression("1", 'status');
+    $select->addExpression("'signature_mail'", 'bundle');
+    $select->addExpression("'signature_mail'", 'entity_type');
+
+    db_insert($indexer_table)
+      ->fields(array(
+        'entity_id',
+        'changed',
+        'status',
+        'bundle',
+        'entity_type',
+      ))
+      ->from($select)
+      ->execute();
+
+    if (variable_get('apachesolr_use_index_queue', FALSE)) {
+      $select = db_select('signature_mail', 'sm');
+      $select->addField('sm', 'id', 'entity_id');
+      $select->addField('sm', 'timestamp', 'created');
+      $select->addExpression("1", 'status');
+      $select->addExpression("'signature_mail'", 'bundle');
+      $select->addExpression("'signature_mail'", 'entity_type');
+
+      db_insert($apachesolr_queue->getQueueTable())
+        ->fields(array(
+          'entity_id',
+          'created',
+          'status',
+          'bundle',
+          'entity_type',
+        ))
+        ->from($select)
+        ->execute();
+    }
+  }
+  catch (Exception $e) {
+    $transaction->rollback();
+    drupal_set_message($e->getMessage(), 'error');
+    watchdog_exception('Apache Solr', $e);
+    return FALSE;
+  }
+
+  return TRUE;
 }
 
 /**

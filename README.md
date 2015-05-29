@@ -2,7 +2,7 @@
 
 Drupal 7 code base used to build an application that lets users create and sign petitions.
 
-This application is under active development and will continue to be modified and improved over time. The current release is an "alpha" pending changes that will remove its dependency on MongoDB (see “Roadmap” section below).
+This application is under active development and will continue to be modified and improved over time. The current release is an "alpha".
 
 ## Goals
 
@@ -18,13 +18,12 @@ Releasing the source code for this application is meant to empower other governm
 
 * Drupal 7.x
 * MySQL 5.x
-* MongoDB 2.2.4
 * PHP 5.2 or 5.3
 
 *Recommended:*
 
 * RAM +512 M
-* Dedicated MongoDB server (this dependency will be removed soon, see “Roadmap”)
+* Dedicated Solr server
 
 ## Usage
 
@@ -36,6 +35,8 @@ For installation instructions, see INSTALL.md.
 
 NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience. The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 themeing conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
 
+Keys for the write API are issued, validated, and rate limited by a third-party service.
+
 ## Roadmap
 
 Have an idea or question about future features for We the People? Let us know by opening a ticket on GitHub, emailing us directly at wethepeople@who.eop.gov, or tweeting @WHWeb.
@@ -43,12 +44,6 @@ Have an idea or question about future features for We the People? Let us know by
 We the People is a work in progress and currently exists at a very basic level of functionality. Priorities for future development are detailed below.
 
 The following descriptions are for informational purposes only and should not be interpreted as commitments or guarantees of future code releases in any way.
-
-*Move from MongoDB to MySQL*
-
-The current release depends on MongoDB. When we first created the application, we wanted to make sure we had a highly scalable application and database to meet our anticipated performance needs under high loads. We have been running MongoDB in production for over a year, but we have decided that the performance benefits it provides are outweighed by the complexity of trying to extend Drupal features backed by MongoDB.
-
-We are currently moving to a fully MySQL-backed application to increase the speed the development of new features and other aspects of maintaining the Drupal application. Our next release will be a dev branch that will be fully backed by MySQL, and once there is a tag for that branch, we will no longer maintain the MongoDB branch.
 
 *Install Profile*
 

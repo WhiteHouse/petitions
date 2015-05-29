@@ -49,8 +49,6 @@ features[] = main_menu
 features[] = secondary_menu
 
 
-; Information added by drush on 2013-08-08
 version = ""
 project = "petitions"
-datestamp = "1375992615"
 

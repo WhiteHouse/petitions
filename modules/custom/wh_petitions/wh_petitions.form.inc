@@ -143,10 +143,8 @@ function wh_petitions_create_petition_step_1($form, &$form_state) {
   elseif (empty($form_state['submitted'])) {
     $arg_petition_id = arg(2);
     if (!empty($arg_petition_id)) {
-      $conn = wh_petitions_mongo_petition_connection();
-      $conn->setSlaveOkay(FALSE);
-      $petition = array();
-      $petition = wh_petitions_load_petition($conn, $arg_petition_id);
+      $petition_item = PetitionsController::loadObject($arg_petition_id);
+      $petition = ($petition_item) ? $petition_item->toLegacyArray() : array();
 
       // Make sure we got a petition and that the creator is the current user, and that it's a draft.
       if (!empty($petition) && $user->uid == $petition['uid'] && $petition['petition_status'] == WH_PETITION_STATUS_DRAFT) {
@@ -326,28 +324,36 @@ function wh_petitions_create_petition_step_1_validate($form, &$form_state) {
  * Submit handler for step 1 of the create a petition form.
  *
  * Create a draft petition object and rebuild the form to go to step 2.
- * @TODO: Agnosticize this submit handler so multiple storage systems can act
- * on the data.
  */
 function wh_petitions_create_petition_step_1_submit($form, &$form_state) {
-
-  // If the shunt on petition creation is active, we don't need to do anything.
-  // See wh_petitions_shunt() for details.
-  if (shunt_is_enabled('wh_petitions_petition_create')) {
-    return;
-  }
-
   // Save the petition as a draft and add the id to the form state
   global $user;
-  $conn = wh_petitions_mongo_petition_connection();
-  $conn->setSlaveOkay(FALSE);
 
   // Get a default petition object or load the one we're editing.
   if (empty($form_state['petition_id'])) {
     $petition = wh_petitions_default_petition();
   }
   else {
-    $petition = wh_petitions_load_petition($conn, $form_state['petition_id']);
+    $petition_item = PetitionsController::loadObject($form_state['petition_id']);
+    if (empty($form_state['entity_id'])) {
+      // Try to see it petition already has the entity ID (phases 3/4 should).
+      $entity_id = $petition_item->getEntityId();
+      if (!empty($entity_id)) {
+        $form_state['entity_id'] = $petition_item->getEntityId();
+      }
+      elseif (petitions_data_mysql_writes_are_enabled()) {
+        // To get entity id in Phase 2, need to call Mysql direct since reads are disabled.
+        $petitions_query = new PetitionsSelectQueryMysql();
+        $petitions = $petitions_query->setPetitionIds(array($form_state['petition_id']))
+          ->execute()->getResultObjects();
+
+        if ($petitions) {
+          $petition_item_mysql = $petitions[0];
+          $form_state['entity_id'] = $petition_item_mysql->getEntityId();
+        }
+      }
+    }
+    $petition = ($petition_item) ? $petition_item->toLegacyArray() : array();
 
     // Make sure we got a petition and that the creator is the current user, and that it's a draft.
     if (!empty($petition) && $user->uid == $petition['uid'] && $petition['petition_status'] == WH_PETITION_STATUS_DRAFT) {
@@ -374,18 +380,23 @@ function wh_petitions_create_petition_step_1_submit($form, &$form_state) {
     $petition['issues'] = $issues;
 
     // Save and retrieve the ID for future use.
-    $id = wh_petitions_save_petition($conn, $petition);
+    $petition_item = PetitionItem::fromLegacyArray($petition);
+    if (!empty($form_state['entity_id'])) {
+      $petition_item->setEntityId($form_state['entity_id']);
+    }
+    PetitionsController::save($petition_item);
+    $form_state['entity_id'] = $petition_item->getEntityId();
+    $id = $petition_item->getId();
     if (!empty($id)) {
       $form_state['petition_id'] = $id;
       $form_state['petition'] = $petition;
 
       // Create a default nice url, it will get something better once
       // published but we need this for consistent url handling.
-      $petition['_id'] = new MongoId($id);
-      $petition['nice_url'] = "petition/detail/$id";
-      wh_petitions_save_petition($conn, $petition);
+      $petition_item->setNiceUrl("petition/detail/{$id}");
+      PetitionsController::save($petition_item);
     }
-    
+
     // Go to the next page
     $form_state['create_page'] = 2;
     $form_state['rebuild'] = TRUE;
@@ -410,8 +421,6 @@ function wh_petitions_create_petition_step_2($form, &$form_state) {
   $form['#prefix'] = theme('wh_petitions_create_header', array('step' => 2));
   $form['#attributes'] = array('id' => 'create-petition-form-step-2');
 
-  $conn = wh_petitions_mongo_petition_connection();
-  $conn->setSlaveOkay(FALSE);
   $petition_id = $form_state['petition_id'];
 
   // Get the issues into an array of keys
@@ -431,37 +440,40 @@ function wh_petitions_create_petition_step_2($form, &$form_state) {
     }
   }
 
-  // Retrieve the top 3 results sorted by signature count DESC that match all the issues and at least one of the title words
+  // Find three similar petitions.
   $similar = '';
   $similar_html = '';
-  $count = 0;
-  $query = array(
-    'issues' => array('$in' => $issues),
-    'title_keywords' => array('$in' => $title_terms),
-    'petition_status' => array(
-      '$in' => array((int)WH_PETITION_STATUS_PUBLIC, (int)WH_PETITION_STATUS_UNDER_REVIEW)
-    ),
-    'hidden' => 0,
-  );
-  $result = $conn->find($query, array('title', 'signature_count', 'nice_url'))->sort(array('signature_count' => -1))->limit(3);
+  $petition_query = PetitionsSelectQueryFactory::create(FALSE);
+  $petitions = $petition_query
+    ->setIsPublic(TRUE)
+    ->setIsSignable(TRUE)
+    ->setIssueIDs($issues)
+    // @todo Match at least one word from $title_terms in the petition title.
+    ->setLimit(3)
+    ->setOrderBy(PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT, PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_DESC)
+    ->execute()
+    ->getResultObjects();
 
   $petition_count = 0;
-  foreach ($result as $res) {
+  if ($petitions) {
+    /** @var PetitionItem $petition */
+    foreach ($petitions as $petition) {
+      $res = $petition->toLegacyArray();
+      $link = $petition->getNiceUrl();
 
-    $link = $res['nice_url'];
-
-    $similar_html .= theme('wh_petitions_display_list_petition', array(
-      'entry_num' => $petition_count,
-      'title' => check_plain($res['title']),
-      'signature_count' => wh_petitions_format_number($res['signature_count']),
-      'nice_url' => $res['signature_count'],
-      'petition_link' => l(t('Find out more'), $link, array('attributes' => array('target' => '_top'))),
-      'cols' => 2,
-      'petition_id' => check_plain($res['_id']->__toString()),
-      'target' => '_top',
-      'title_link' => $link,
-    ));
-    $petition_count++;
+      $similar_html .= theme('wh_petitions_display_list_petition', array(
+        'entry_num' => $petition_count,
+        'title' => check_plain($res['title']),
+        'signature_count' => wh_petitions_format_number($res['signature_count']),
+        'nice_url' => $res['signature_count'],
+        'petition_link' => l(t('Find out more'), $link, array('attributes' => array('target' => '_top'))),
+        'cols' => 2,
+        'petition_id' => $petition->getId(),
+        'target' => '_top',
+        'title_link' => $link,
+      ));
+      $petition_count++;
+    }
   }
   /**
    * @todo - Ben - This feature doesn't work in production so take changes with a grain of salt.
@@ -592,6 +604,7 @@ function wh_petitions_create_petition_step_3($form, &$form_state) {
   // Free Tags
   $form['petition_tags'] = array(
     '#type' => 'textfield',
+    '#access' => petitions_data_mongo_reads_are_enabled(),
     '#title' => t('Enter keywords that best describe your petition'),
     '#description' => '<div class="help-text">' . t('Separate keywords by commas.') . ' <span class="character-count">' . t('Limited to 120 characters.') . '</span></div><div class="view-tooltip-tag"><a href="#">Tips for writing good keywords</a><div id="tags-tooltip" class="tooltip display-none no-follow">' . variable_get('wh_petitions_tooltip_tags', '') . '<div class="tip-arrow-up"><img src="' . $url . '/img/tip-arrow-up.gif"></div>
 </div></div>',
@@ -637,24 +650,20 @@ function wh_petitions_create_petition_step_3_validate($form, &$form_state) {
  * Submit handler for step 3 of the create a petition form.
  *
  * Save the the description and keywords to the petition.
- * @TODO: Agnosticize this submit handler so multiple storage systems can act
- * on the data.
  */
 function wh_petitions_create_petition_step_3_submit($form, &$form_state) {
   global $user;
 
   // Add the description and keywords to the petition.
-  $conn = wh_petitions_mongo_petition_connection();
-  $conn->setSlaveOkay(FALSE);
-  $petition = wh_petitions_load_petition($conn, $form_state['petition_id']);
+  $petition_item = PetitionsController::loadObject($form_state['petition_id']);
+  $petition = ($petition_item) ? $petition_item->toLegacyArray() : array();
   if (!empty($petition) && $user->uid == $petition['uid'] && $petition['petition_status'] == WH_PETITION_STATUS_DRAFT) {
     $petition['user_tags'] = array_unique(wh_petitions_generate_keywords(strip_tags($form_state['values']['petition_tags']), ','));
     $petition['body'] = (string)strip_tags($form_state['values']['petition_description']);
     $petition['body_keywords'] = wh_petitions_generate_keywords(strip_tags($form_state['values']['petition_description']));
-    $conn->update(
-      array('_id' => $petition['_id']),
-      array('$set' => array('user_tags' => $petition['user_tags'], 'body' => $petition['body'], 'body_keywords' => $petition['body_keywords']))
-    );
+    $petition_item = PetitionItem::fromLegacyArray($petition);
+    $petition_item->setEntityId($form_state['entity_id']);
+    PetitionsController::save($petition_item);
     $form_state['petition'] = $petition;
 
     module_invoke_all("wh_petitions_petition_body_update", $form_state['petition_id'],
@@ -668,9 +677,6 @@ function wh_petitions_create_petition_step_3_submit($form, &$form_state) {
 
 /**
  * Fourth page of the create a petition form - preview + submit/save/delete
- *
- * @TODO: Agnosticize this submit handler so multiple storage systems
- * can act on the data.
  */
 function wh_petitions_create_petition_step_4($form, &$form_state) {
   global $user;
@@ -682,9 +688,8 @@ function wh_petitions_create_petition_step_4($form, &$form_state) {
   $form['#attributes'] = array('id' => 'create-petition-form-step-4');
 
   // Load the petition
-  $conn = wh_petitions_mongo_petition_connection();
-  $conn->setSlaveOkay(FALSE);
-  $petition = wh_petitions_load_petition($conn, $form_state['petition_id']);
+  $petition_item = PetitionsController::loadObject($form_state['petition_id']);
+  $petition = ($petition_item) ? $petition_item->toLegacyArray() : array();
 
   // Verify we should be here
   if (empty($petition) || $user->uid != $petition['uid'] || $petition['petition_status'] != WH_PETITION_STATUS_DRAFT) {
@@ -692,8 +697,8 @@ function wh_petitions_create_petition_step_4($form, &$form_state) {
   }
 
   // Load variables to display with the petition
-  $petition_id = $petition['_id']->__toString();
-  $timestamp = $petition['_id']->getTimestamp();
+  $petition_id = $petition_item->getId();
+  $timestamp = $petition_item->getCreated();
   $created = date("M d, Y", $timestamp);
   $issues = array();
   if (!empty($petition['issues'])) {
@@ -791,29 +796,24 @@ function wh_petitions_create_petition_step_4($form, &$form_state) {
  * Submit handler for step 4 of the create a petition form.
  *
  * Publish the petition.
- * @TODO: Agnosticize this submit handler so multiple storage systems can act
- * on the data.
  */
 function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
   global $user;
 
   $petition_id = $form_state['petition_id'];
-  $conn = wh_petitions_mongo_petition_connection();
-  $conn->setSlaveOkay(FALSE);
-  $petition = wh_petitions_load_petition($conn, $petition_id);
+  $petition_item = PetitionsController::loadObject($petition_id);
+  $petition = ($petition_item) ? $petition_item->toLegacyArray() : array();
 
   if (!empty($petition) && $user->uid == $petition['uid'] && $petition['petition_status'] == WH_PETITION_STATUS_DRAFT) {
     $petition['petition_status'] = (int)WH_PETITION_STATUS_PRIVATE;
     $petition['published'] = (int)time();
 
-    // Generate a Friendly & Short URL
-    wh_petitions_generate_nice_url($petition);
-    wh_petitions_generate_short_url($petition);
-
     // By default, a user signs their own petition
     $user_load = user_load($user->uid);
 
-    $petition['signature_count'] = 1;
+    // Set the count to 0 as the mongo implementation of SignaturesController::save()
+    // sets the mongo signature number to the petition signature count + 1
+    $petition['signature_count'] = 0;
 
     // Petition should always use the review timeframe, public/review signature counts that are set when the petition is published.
     $petition['public_signatures'] = (int)variable_get('wh_petitions_public_signatures', 20);
@@ -826,7 +826,10 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
       $petition['reached_public'] = (int)time();
     }
 
-    $new_id = wh_petitions_save_petition($conn, $petition);
+    $petition_item = PetitionItem::fromLegacyArray($petition);
+    $petition_item->setEntityId($form_state['entity_id']);
+    PetitionsController::save($petition_item);
+    $new_id = $petition_item->getId();
 
     // Create a new GovDelivery list
     if (!empty($new_id)) {
@@ -835,32 +838,34 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
 
     $form_state['petition'] = $petition;
 
-    /**
-     * @todo: Refactor to actually user the wh_petitions_create_signature() function.
-     */
     $profile = profile2_load_by_user($user_load);
 
-    $signature = array(
-      'petition_id' => (string)$new_id,
-      'ip_address' => (string)ip_address(),
-      'user_agent' => (string)$_SERVER['HTTP_USER_AGENT'],
-      'uid' => (int)$user->uid,
-      'timestamp' => (int)time(),
-      'comment' => '',
-      'abuse_flags' => array(),
-      'status' => 1,
-      'number' => 1,
-      'user' => array(
-        'first_name'  => $profile['main']->field_first_name['und'][0]['value'],
-        'last_name'   => $profile['main']->field_last_name['und'][0]['value'],
-        'city'        => $profile['main']->field_city['und'][0]['value'],
-        'state'       => $profile['main']->field_state['und'][0]['value'],
-        'zip'         => $profile['main']->field_zip['und'][0]['value'],
-        'username'    => $user_load->name,
-        'country'     => $profile['main']->field_country['und'][0]['value'],
-      ),
-    );
-    wh_petitions_save_signature($signature);
+    $signature = new SignatureItem();
+    $signature->setLegacyPetitionId($petition_item->getLegacyId());
+    $signature->setPetitionId($petition_item->getEntityId());
+    $signature->setIpAddress((string) ip_address());
+    $signature->setUserAgent((string) $_SERVER['HTTP_USER_AGENT']);
+    $signature->setUid((int) $user->uid);
+    $signature->setCreated((int) time());
+    if (is_array($profile) && count($profile) > 0) {
+      $first_name = isset($profile['main']->field_first_name[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_first_name[LANGUAGE_NONE][0]['value'] : NULL;
+      $last_name = isset($profile['main']->field_last_name[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_last_name[LANGUAGE_NONE][0]['value'] : NULL;
+      $city = isset($profile['main']->field_city[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_city[LANGUAGE_NONE][0]['value'] : NULL;
+      $state = isset($profile['main']->field_state[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_state[LANGUAGE_NONE][0]['value'] : NULL;
+      $zip = isset($profile['main']->field_zip[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_zip[LANGUAGE_NONE][0]['value'] : NULL;
+
+      $signature->setFirstName($first_name);
+      $signature->setLastName($last_name);
+      $signature->setCity($city);
+      $signature->setState($state);
+      $signature->setZip($zip);
+    }
+    $signature->setUser($user);
+
+    SignaturesController::save($signature);
+
+    // Increment the signature count on the petition now that we've saved it.
+    PetitionsController::incrementSignatureCount($petition_item->getId());
 
     // Add creator's signature
     if (!empty($new_id)) {
@@ -893,9 +898,9 @@ function wh_petitions_create_petition_save_petition($form, &$form_state) {
  */
 function wh_petitions_create_petition_edit_petition($form, &$form_state) {
   // Load the updated petition into the form_state
-  $conn = wh_petitions_mongo_petition_connection();
-  $conn->setSlaveOkay(FALSE);
-  $petition = wh_petitions_load_petition($conn, $form_state['petition_id']);
+  $petition_item = PetitionsController::loadObject($form_state['petition_id']);
+  $petition_item->setEntityId($form_state['entity_id']);
+  $petition = ($petition_item) ? $petition_item->toLegacyArray() : array();
   $form_state['petition'] = $petition;
 
   // Go back to the first page
@@ -914,13 +919,13 @@ function wh_petitions_create_petition_thank_you($form, &$form_state) {
   $form['#attributes'] = array('id' => 'create-petition-form-thank-you');
 
   // Load the petition and display the thank-you message.
-  $conn = wh_petitions_mongo_petition_connection();
-  $conn->setSlaveOkay(FALSE);
-  $petition = wh_petitions_load_petition($conn, $form_state['petition_id']);
+  $petition_item = PetitionsController::loadObject($form_state['petition_id']);
+  $petition = ($petition_item) ? $petition_item->toLegacyArray() : array();
+  $petition_id = $petition_item->getId();
   $date = strtotime('+' . $petition['review_timeframe'] . ' days', $petition['published']);
   $date = date("F d, Y", $date);
   $link = $base_url . '/' . $petition['nice_url'];
-  $email_url = $base_url . '/petition/email/' . check_plain($petition['_id']->__toString());
+  $email_url = $base_url . '/petition/email/' . $petition_id;
 
   $full_link = l($link, $link, array('html' => TRUE, 'attributes' => array('target' => '_top')));
 
@@ -947,12 +952,12 @@ function wh_petitions_create_petition_thank_you($form, &$form_state) {
       'public_needed' => wh_petitions_format_number($petition['public_signatures']),
       'link' => $full_link,
       'short_url' => $short_url,
-      'petition_id' => check_plain($petition['_id']->__toString()),
+      'petition_id' => $petition_id,
       'petition_title' => check_plain($petition['title']),
       'date' => check_plain($date),
       'email_address' => check_plain($email_address),
-      'twitter_link' => wh_petition_tool_twitter_link(check_plain($petition['_id']->__toString()), check_plain($petition['title']), 'petition', '', $petition['short_url'], $petition['nice_url']),
-      'facebook_link' => wh_petition_tool_facebook_link(check_plain($petition['_id']->__toString()), check_plain($petition['title']), 'petition', '', $petition['nice_url']),
+      'twitter_link' => wh_petition_tool_twitter_link($petition_id, check_plain($petition['title']), 'petition', '', $petition['short_url'], $petition['nice_url']),
+      'facebook_link' => wh_petition_tool_facebook_link($petition_id, check_plain($petition['title']), 'petition', '', $petition['nice_url']),
       'email_link' => $email_link,
     )),
   );
@@ -964,15 +969,8 @@ function wh_petitions_create_petition_thank_you($form, &$form_state) {
  * Delete a petition handler.  Save to a separate collection.
  */
 function wh_petitions_create_petition_delete_petition($form, &$form_state) {
-  $conn = wh_petitions_mongo_petition_connection();
-  $conn->setSlaveOkay(FALSE);
-  if (wh_petitions_delete_petition($conn, $form_state['petition_id'])) {
-    // Go to delete petition page
-    drupal_goto('petition/deleted');
-  }
-  else {
-    return '';
-  }
+  PetitionsController::delete($form_state['petition_id']);
+  drupal_goto('petition/deleted');
 }
 
 /****************** OPEN PETITIONS PAGE FILTERS ************************/
@@ -1360,28 +1358,54 @@ function wh_petitions_delete_petition_form($form, &$form_state, $petition_id) {
 function wh_petitions_inappropriate_modal($petition_id) {
   global $user;
   if (!empty($petition_id) && !empty($user->uid)) {
-    // Load the petition
-    $conn = wh_petitions_mongo_petition_connection();
-    $conn->setSlaveOkay(FALSE);
-    $petition = array();
-    $petition = wh_petitions_load_slim_petition($conn, $petition_id, array('abuse_flags', 'petition_status'));
+    if (petitions_data_mysql_writes_are_enabled()) {
+      $node = petition_load_from_legacy_id($petition_id);
+      $lang = $node->language;
 
-    // If it wasn't a valid petition id, exit
-    if (!empty($petition)) {
-      array_push($petition['abuse_flags'], (int)$user->uid);
+      if (!empty($node)) {
+        $abuse_flag = array('target_id' => (int) $user->uid);
+        $is_first_abuse_flag = empty($node->field_abuse_flags[$lang]);
 
-      $conn->update(
-        array('_id' => $petition['_id']),
-        array('$set' => array('abuse_flags' => $petition['abuse_flags'], 'abuse_count' => sizeof($petition['abuse_flags'])))
-      );
+        // Ensure user has not already flagged this petition as inappropriate.
+        if ($is_first_abuse_flag || !in_array($abuse_flag, $node->field_abuse_flags[$lang])) {
+          $node->field_abuse_flags[$lang][] = $abuse_flag;
+          $node->field_abuse_count[$lang][0]['value'] = count($node->field_abuse_flags[$lang]);
+          node_save($node);
+          entity_get_controller('node')->resetCache(array($node->nid));
+        }
+      }
+    }
+
+    if (petitions_data_mongo_writes_are_enabled() || petitions_data_mongo_reads_are_enabled()) {
+      // Load the petition
+      $conn = wh_petitions_mongo_petition_connection();
+      $conn->setSlaveOkay(FALSE);
+      $petition = array();
+      $petition = wh_petitions_load_slim_petition($conn, $petition_id, array('abuse_flags', 'petition_status'));
+
+      // If it wasn't a valid petition id, exit
+      if (!empty($petition)) {
+        if (petitions_data_mongo_writes_are_enabled()) {
+          array_push($petition['abuse_flags'], (int)$user->uid);
+
+          $conn->update(
+            array('_id' => $petition['_id']),
+            array('$set' => array('abuse_flags' => $petition['abuse_flags'], 'abuse_count' => count($petition['abuse_flags'])))
+          );
+        }
+      }
     }
 
     module_invoke_all("wh_petitions_petition_inappropriate", $petition_id);
-
   }
 
   // Redirect to the main site or the petition tool site, depending on where this request came from
+  if (petitions_data_mongo_reads_are_enabled()) {
     drupal_goto($petition['nice_url']);
+  }
+  else {
+    drupal_goto('node/' . $node->nid);
+  }
 }
 
 /**
@@ -1391,13 +1415,9 @@ function wh_petitions_delete_modal($petition_id) {
   global $user;
 
   if (!empty($petition_id) && !empty($user->uid)) {
-    // Load the petition
-    $conn = wh_petitions_mongo_petition_connection();
-    $conn->setSlaveOkay(FALSE);
-    $petition = array();
-    $petition = wh_petitions_load_slim_petition($conn, $petition_id, array('uid'));
-    if ($user->uid == $petition['uid']) {
-      wh_petitions_delete_petition($conn, $petition_id);
+    $petition = PetitionsController::loadObject($petition_id);
+    if ($petition && $user->uid == $petition->getUid()) {
+      PetitionsController::delete($petition_id);
     }
   }
 

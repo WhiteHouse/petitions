@@ -1,17 +1,55 @@
 <?php
+
 /**
  * @file
- * Hooks and code for the Petition module.
+ * Provides a Petition content type.
  */
-
 
 require_once 'includes/petition.inc';
 require_once 'includes/petition.field.inc';
-
-// Load file containing functions relating to MongoDB to MySQL migration.
-// @todo Remove these lines and associated file once MongoDB is depreciated.
 require_once 'includes/petition.mongo2mysql.inc';
 
+// Apache Solr custom field names. Prefixes determine the storage mechanism,
+// e.g., "bs_*" for boolean, single-valued and "sm_" is for string,
+// multi-valued. See the dynamicField definitions in
+// solr-conf/solr-3.x/schema.xml in the apachesolr module for a complete list.
+define('PETITION_SOLR_FIELD_BODY', 'ts_body');
+define('PETITION_SOLR_FIELD_ISSUE_NAMES', 'sm_issue_names');
+define('PETITION_SOLR_FIELD_ISSUE_TIDS', 'im_issue_tids');
+define('PETITION_SOLR_FIELD_LEGACY_ID', 'ss_legacy_id');
+define('PETITION_SOLR_FIELD_LEGACY_PATH', 'ss_legacy_path');
+define('PETITION_SOLR_FIELD_NODE_ID', 'entity_id');
+define('PETITION_SOLR_FIELD_PATH', 'ss_path');
+define('PETITION_SOLR_FIELD_PETITION_STATUS', 'is_petition_status');
+define('PETITION_SOLR_FIELD_RESPONSE_ID', 'is_response_id');
+define('PETITION_SOLR_FIELD_RESPONSE_STATUS', 'is_response_status');
+define('PETITION_SOLR_FIELD_REVIEW_TIMEFRAME', 'is_review_timeframe');
+define('PETITION_SOLR_FIELD_SIGNATURE_COUNT', 'is_signature_count');
+define('PETITION_SOLR_FIELD_SIGNATURE_PUBLIC_THRESHOLD', 'is_signature_public_threshold');
+define('PETITION_SOLR_FIELD_SIGNATURE_RESPONSE_THRESHOLD', 'is_signature_response_threshold');
+define('PETITION_SOLR_FIELD_TIMESTAMP_CREATED', 'ds_created');
+define('PETITION_SOLR_FIELD_TIMESTAMP_PUBLISHED', 'is_timestamp_published');
+define('PETITION_SOLR_FIELD_TIMESTAMP_REACHED_PUBLIC', 'is_timestamp_reached_public');
+define('PETITION_SOLR_FIELD_TIMESTAMP_RESPONSE_ASSOCIATED', 'is_timestamp_response_associated');
+define('PETITION_SOLR_FIELD_TITLE', 'label');
+define('PETITION_SOLR_FIELD_UID', 'is_uid');
+
+/**
+ * Implements hook_init().
+ */
+function petition_init() {
+  global $conf;
+  if (!shunt_is_enabled('petitions_solr_index')) {
+    // Disable Solr indexing of petition nodes.
+    if (isset($conf['apachesolr_environments'])) {
+      foreach ($conf['apachesolr_environments'] as $env => $data) {
+        if (!isset($conf['apachesolr_environments'][$env]['index_bundles']['node']) || !in_array('petition', $conf['apachesolr_environments'][$env]['index_bundles']['node'])) {
+          $conf['apachesolr_environments'][$env]['index_bundles']['node'][] = 'petition';
+        }
+      }
+    }
+  }
+}
 
 /**
  * Implements hook_entity_view().
@@ -75,6 +113,71 @@ function petition_node_view($node, $view_mode, $langcode) {
   }
 }
 
+/**
+ * Implements hook_apachesolr_index_document_build_ENTITY_TYPE().
+ */
+function petition_apachesolr_index_document_build_node(ApacheSolrDocument $document, $entity, $env_id) {
+  if ($entity->type == 'petition') {
+    $document->addField(PETITION_SOLR_FIELD_BODY, $entity->body[LANGUAGE_NONE][0]['safe_value']);
+
+    $issue_tids = array();
+    foreach ($entity->field_petition_issues[LANGUAGE_NONE] as $value) {
+      $issue_tids[] = $value['tid'];
+    }
+    $issues = taxonomy_term_load_multiple($issue_tids);
+    foreach ($issues as $term) {
+      $document->addField(PETITION_SOLR_FIELD_ISSUE_TIDS, (int) $term->tid);
+      $document->addField(PETITION_SOLR_FIELD_ISSUE_NAMES, $term->name);
+    }
+
+    $legacy_id = '';
+    if (!empty($entity->field_legacy_id[LANGUAGE_NONE][0]['value'])) {
+      $legacy_id = $entity->field_legacy_id[LANGUAGE_NONE][0]['value'];
+    }
+    $document->addField(PETITION_SOLR_FIELD_LEGACY_ID, $legacy_id);
+
+    $document->addField(PETITION_SOLR_FIELD_PATH, drupal_get_path_alias("node/{$entity->nid}"));
+
+    $legacy_path = '';
+    if (!empty($entity->field_legacy_path[LANGUAGE_NONE][0]['value'])) {
+      $legacy_path = $entity->field_legacy_path[LANGUAGE_NONE][0]['value'];
+    }
+    $document->addField(PETITION_SOLR_FIELD_LEGACY_PATH, $legacy_path);
+
+    $document->addField(PETITION_SOLR_FIELD_PETITION_STATUS, (int) $entity->field_petition_status[LANGUAGE_NONE][0]['value']);
+
+    if (!empty($entity->field_response_id[LANGUAGE_NONE][0]['target_id'])) {
+      $response_id = $entity->field_response_id[LANGUAGE_NONE][0]['target_id'];
+      $response = node_load($response_id);
+      $document->addField(PETITION_SOLR_FIELD_RESPONSE_ID, (int) $response_id);
+      $document->addField(PETITION_SOLR_FIELD_TIMESTAMP_RESPONSE_ASSOCIATED, (int) $response->created);
+    }
+
+    $document->addField(PETITION_SOLR_FIELD_RESPONSE_STATUS, (int) $entity->field_response_status[LANGUAGE_NONE][0]['value']);
+
+    $document->addField(PETITION_SOLR_FIELD_REVIEW_TIMEFRAME, (int) $entity->field_petition_review_timeframe[LANGUAGE_NONE][0]['value']);
+
+    $signature_count = 0;
+    if (!empty($entity->field_petition_signature_count[LANGUAGE_NONE][0]['value'])) {
+      $signature_count = $entity->field_petition_signature_count[LANGUAGE_NONE][0]['value'];
+    }
+    $document->addField(PETITION_SOLR_FIELD_SIGNATURE_COUNT, $signature_count);
+
+    $document->addField(PETITION_SOLR_FIELD_SIGNATURE_PUBLIC_THRESHOLD, (int) $entity->field_petition_public_signatures[LANGUAGE_NONE][0]['value']);
+
+    $document->addField(PETITION_SOLR_FIELD_SIGNATURE_RESPONSE_THRESHOLD, (int) $entity->field_petition_response_sign[LANGUAGE_NONE][0]['value']);
+
+    if (!empty($entity->field_timestamp_published[LANGUAGE_NONE][0]['value'])) {
+      $timestamp_published = $entity->field_timestamp_published[LANGUAGE_NONE][0]['value'];
+      $document->addField(PETITION_SOLR_FIELD_TIMESTAMP_PUBLISHED, (int) $timestamp_published);
+    }
+
+    if (!empty($entity->field_timestamp_reached_public[LANGUAGE_NONE][0]['value'])) {
+      $timestamp_reached_public = $entity->field_timestamp_reached_public[LANGUAGE_NONE][0]['value'];
+      $document->addField(PETITION_SOLR_FIELD_TIMESTAMP_REACHED_PUBLIC, $timestamp_reached_public);
+    }
+  }
+}
 
 /**
  * Implements hook_entity_view_alter().
@@ -90,6 +193,44 @@ function petition_entity_view_alter(&$build, $type) {
   }
 }
 
+/**
+ * Extracts the legacy IDs from a given set of petition IDs.
+ *
+ * @param array $petition_ids
+ *   An array of petition IDs.
+ *
+ * @return array
+ *   Returns an array of legacy IDs extracted from the given petition IDs.
+ */
+function petition_extract_legacy_ids_from_petition_ids(array $petition_ids) {
+  $legacy_ids = array();
+  foreach ($petition_ids as $id) {
+    if (petition_is_legacy_id($id)) {
+      $legacy_ids[] = $id;
+    }
+  }
+  return $legacy_ids;
+}
+
+/**
+ * Extracts the node IDs (nids) from a given set of petition IDs.
+ *
+ * @param array $petition_ids
+ *   An array of petition IDs.
+ *
+ * @return array
+ *   Returns an array of node IDs (nids) extracted from the given petition
+ *   IDs.
+ */
+function petition_extract_nids_from_petition_ids(array $petition_ids) {
+  $nids = array();
+  foreach ($petition_ids as $id) {
+    if (!petition_is_legacy_id($id)) {
+      $nids[] = $id;
+    }
+  }
+  return $nids;
+}
 
 /**
  * Implements hook_node_info().
@@ -114,14 +255,14 @@ function petition_node_info() {
  * @param array $node
  *   Actual node to update.
  */
-function petition_unpublish($node) {
-  $node->status = NODE_NOT_PUBLISHED;
+function petition_hide($node) {
+  $node->field_petition_status[LANGUAGE_NONE][0]['value'] = WH_PETITION_STATUS_FLAGGED;
   node_save($node);
-  $legacy_id = $node->field_legacy_id['und'][0]['value'];
 
-  $mongo2mysql_function = 'wh_petitions_mongo2mysql_unpublish';
-  if (function_exists($mongo2mysql_function) && !shunt_is_enabled('petition_mysql_save')) {
-    $mongo2mysql_function($legacy_id);
+  $legacy_id = isset($node->field_legacy_id) ? $node->field_legacy_id['und'][0]['value'] : NULL;
+
+  if (isset($legacy_id) && petitions_data_mongo_writes_are_enabled()) {
+    wh_petitions_mongo2mysql_hide($legacy_id);
   }
 }
 
@@ -131,14 +272,35 @@ function petition_unpublish($node) {
  * @param array $node
  *   Actual node to update.
  */
-function petition_publish($node) {
+function petition_show($node) {
   $node->status = NODE_PUBLISHED;
-  node_save($node);
-  $legacy_id = $node->field_legacy_id['und'][0]['value'];
 
-  $mongo2mysql_function = 'wh_petitions_mongo2mysql_publish';
-  if (function_exists($mongo2mysql_function) && !shunt_is_enabled('petition_mysql_save')) {
-    $mongo2mysql_function($legacy_id);
+  // @todo replace this unfortunate field_petition_status logic with a proper domain model.
+  $timestamp_review = strtotime('- ' . $node->field_petition_review_timeframe[LANGUAGE_NONE][0]['value'] . ' days');
+  $timestamp_published = $node->field_timestamp_published[LANGUAGE_NONE][0]['value'];
+  $signature_count = $node->field_petition_signature_count[LANGUAGE_NONE][0]['value'];
+  $public_signatures = $node->field_petition_public_signatures[LANGUAGE_NONE][0]['value'];
+  $response_signatures = $node->field_petition_response_sign[LANGUAGE_NONE][0]['value'];
+
+  if ($timestamp_published < $timestamp_review) {
+    $node->field_petition_status[LANGUAGE_NONE][0]['value'] = WH_PETITION_STATUS_CLOSED;
+  }
+  elseif ($signature_count < $public_signatures) {
+    $node->field_petition_status[LANGUAGE_NONE][0]['value'] = WH_PETITION_STATUS_PRIVATE;
+  }
+  elseif ($signature_count < $response_signatures) {
+    $node->field_petition_status[LANGUAGE_NONE][0]['value'] = WH_PETITION_STATUS_PUBLIC;
+  }
+  elseif ($signature_count >= $response_signatures) {
+    $node->field_petition_status[LANGUAGE_NONE][0]['value'] = WH_PETITION_STATUS_UNDER_REVIEW;
+    $node->field_response_status[LANGUAGE_NONE][0]['value'] = WH_PETITION_RESPONSE_STATUS_PENDING;
+  }
+
+  node_save($node);
+  $legacy_id = isset($node->field_legacy_id) ? $node->field_legacy_id['und'][0]['value'] : NULL;
+
+  if (isset($legacy_id) && petitions_data_mongo_writes_are_enabled()) {
+    wh_petitions_mongo2mysql_show($legacy_id);
   }
 }
 
@@ -160,9 +322,32 @@ function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) 
 
   // Load the node, increment the signature count, save.
   $node = node_load($nid);
-  $signature_count_before = $node->field_petition_signature_count['und'][0]['value'];
+  $lang = $node->language;
+  $signature_count_before = $node->field_petition_signature_count[$lang][0]['value'];
   $signature_count_after = $signature_count_before + $increment;
-  $node->field_petition_signature_count['und'][0]['value'] = $signature_count_after;
+  $node->field_petition_signature_count[$lang][0]['value'] = $signature_count_after;
+
+  // Update to public petition.
+  $reached_response = FALSE;
+  $petition_status = $node->field_petition_status[$lang][0]['value'];
+  $public_signatures = $node->field_petition_public_signatures[$lang][0]['value'];
+  $response_signature_count = $node->field_petition_response_sign[$lang][0]['value'];
+  if ($petition_status == WH_PETITION_STATUS_PRIVATE && $signature_count_after >= $public_signatures) {
+    $node->field_petition_status[$lang][0]['value'] = (int) WH_PETITION_STATUS_PUBLIC;
+    $node->field_timestamp_reached_public[$lang][0]['value'] = (int) time();
+  }
+  // Record the time the petition became eligible for a response.
+  elseif ($petition_status == WH_PETITION_STATUS_PUBLIC && $signature_count_after >= $response_signature_count) {
+    $node->field_petition_status[$lang][0]['value'] = (int) WH_PETITION_STATUS_UNDER_REVIEW;
+    $node->field_response_status[$lang][0]['value'] = (int) WH_PETITION_RESPONSE_STATUS_PENDING;
+    $node->field_timestamp_reached_ready[$lang][0]['value'] = (int) time();
+    $reached_response = TRUE;
+  }
+
+  // Email the creator if the petition is ready for a response.
+  if ($reached_response && !petitions_data_mongo_reads_are_enabled()) {
+    wh_petitions_email_ready_response($petition_id, $node->uid);
+  }
   node_save($node);
 
   // Debug. Log everything.
@@ -208,6 +393,36 @@ function petition_is_legacy_id($id) {
 }
 
 /**
+ * Determines whether a given path is a legacy path or not.
+ *
+ * @param string $path
+ *   The path to test, without a leading forward slash (/).
+ *
+ * @return bool
+ *   TRUE if the given path is a legacy path or FALSE if not.
+ */
+function petition_is_legacy_path($path) {
+  $path_parts = explode('/', $path);
+
+  // A legacy path has exactly three components.
+  if (count($path_parts) !== 3) {
+    return FALSE;
+  }
+
+  // The first component is the string "petition".
+  if ($path_parts[0] !== 'petition') {
+    return FALSE;
+  }
+
+  // The final component is a hash generated by wh_petitions_generate_hash().
+  if (preg_match('/^[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ0123456789]{8}$/', $path_parts[2]) !== 1) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
  * Wrapper around _petition_get_nid() for central exception handling.
  *
  * @param string $petition_id
@@ -223,7 +438,7 @@ function petition_get_nid($petition_id) {
     $nid = _petition_get_nid($petition_id);
   }
   catch (Exception $e) {
-    watchdog('petition', "Error in workflow.\n\n@exception", array(
+    watchdog('petition', "Error getting petition NID.\n\n@exception", array(
       '@exception' => print_r($e, TRUE),
     ), WATCHDOG_ERROR);
   }
@@ -271,4 +486,59 @@ function _petition_get_nid($petition_id) {
   }
 
   return $nid;
+}
+
+/**
+ * Wrapper around _petition_get_legacy_id() for central exception handling.
+ *
+ * @param array $node
+ *   Petition node.
+ *
+ * @return string|false
+ *   Returns mongo id for petition. 0 for not found. FALSE in case of error.
+ */
+function petition_get_legacy_id($node) {
+  $legacy_id = FALSE;
+
+  try {
+    $legacy_id = _petition_get_legacy_id($node);
+  }
+  catch (Exception $e) {
+    watchdog('petition', "Error getting petition legacy ID.\n\n@exception", array(
+      '@exception' => print_r($e, TRUE),
+    ), WATCHDOG_ERROR);
+  }
+
+  return $legacy_id;
+}
+
+/**
+ * Look up legacy ID for a petition node.
+ *
+ * @param array $node
+ *   Petition node.
+ *
+ * @return string|false
+ *   Returns mongo id for petition. 0 for not found. FALSE in case of error.
+ *
+ * @throws Exception
+ *   Throws an exception when the petition is neither a node or a valid nid.
+ */
+function _petition_get_legacy_id($node) {
+  $legacy_id = FALSE;
+
+  if (is_numeric($node) || is_object($node)) {
+    // Load the node if NID was provided.
+    $node = (is_numeric($node) ? node_load($node) : $node);
+  }
+  else {
+    throw new Exception(t('This petition ID is neither a valid node ID nor a node object: !petition',
+      array('!petition' => $node)
+    ));
+  }
+  $legacy_id = $node->field_legacy_id[$node->language][0]['value'];
+  // Return '0' if legacy ID is null.
+  $legacy_id = (!empty($legacy_id) ? $legacy_id : 0);
+
+  return $legacy_id;
 }

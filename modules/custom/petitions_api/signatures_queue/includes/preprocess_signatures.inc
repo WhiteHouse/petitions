@@ -41,7 +41,7 @@
  */
 function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_name, array $options = array()) {
   $watchdog_suffix = _signatures_queue_watchdog_suffix('preprocess_signatures', $job_id, $server_name, $worker_name);
-  $debug = variable_get('signatures_queue_enable_debugging', FALSE);
+  $debug = variable_get('signatures_queue_debug', FALSE);
 
   // Preprocess signatures pending validation.
   _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog_suffix, $debug);
@@ -275,24 +275,28 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
   $query->fields(array_values($fields));
 
   // Add values.
+  $items_added = 0;
   foreach ($sanitized_signatures as $item) {
     // Restrict values to those that correspond to database fields.
     $values = array_intersect_key((array) $item->data, $fields);
 
     // Add the resulting values to the query.
     $query->values($values);
-    petitionslog_event("signatures_queue.data_store.{$table_name}.item_added");
+    $items_added++;
   }
 
   // Execute the query.
   try {
     $query->execute();
+    petitionslog_event("signatures_queue.data_store.{$table_name}.item_added", 'count', $items_added);
   }
   catch (Exception $e) {
+    petitionslog_event('exceptions.signatures_queue.6e13628');
     db_set_active();
-    watchdog('signatures_queue', "Error while attempting db insert. @suffix.\n%error", array(
-      '%error' => $e->getMessage(),
+    watchdog('signatures_queue', 'Error inserting signatures into @table. @suffix. Exception: !e', array(
+      '@table' => $table_name,
       '@suffix' => $watchdog_suffix,
+      '!e' => petitionslog_format_for_watchdog($e),
     ), WATCHDOG_ERROR);
 
     return FALSE;

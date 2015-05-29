@@ -29,5 +29,11 @@ function migrate_mongo2mysql_petsig_migrate_api() {
       ),
     ),
   );
+
+  $sig_depends_on_pet = variable_get('migrate_mongo2mysql_sig_depends_on_pet', 1);
+  if (empty($sig_depends_on_pet)) {
+    unset($api['migrations']['Signature']['dependencies']);
+  }
+
   return $api;
 }

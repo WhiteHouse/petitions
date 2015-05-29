@@ -991,7 +991,7 @@ function wh_petitions_admin_petitions() {
       $featured = '<div id="featured-' . check_plain($id) . '" class="featured" style="display:inline;cursor:pointer;"><a>' . t('Un-Feature') . '</a></div>';
     }
 
-    if (shunt_is_enabled('petition_mysql_save')) {
+    if (!petitions_data_mysql_writes_are_enabled()) {
       // Flag ( Remove from Site )
       $hidden_link = '<div id="remove-lists-' . check_plain($id) . '" class="remove-lists" style="display:inline;cursor:pointer;"><a href="/remove-mongo-petition?petition_id=' . $id . '">' . t('Remove from Site') . '</a></div>';
       if ($res['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
@@ -1106,7 +1106,7 @@ function wh_petitions_admin_petitions() {
     );
   }
 
-  if (!shunt_is_enabled('petition_mysql_save')) {
+  if (petitions_data_mysql_writes_are_enabled()) {
     drupal_set_message(t('MySQL based petitions are enabled, and using this page will introduce inconsistencies between Mongo- and MySQL-based petitions.<br />We recommend that you use the new <a href="@link">MySQL-based petitions moderation tools</a> to keep petitions in sync.', array(
       '@link' => url('admin/moderation-tools'),
     )), 'warning');
@@ -1128,7 +1128,7 @@ function wh_petitions_admin_petitions_settings_form() {
   $form['petitions_settings']['petitions_signing_method'] = array(
     '#type' => 'radios',
     '#title' => t('Signing method'),
-    '#description' => t('The "Registraion required" signing method requires users to explicitly create an account and log in to sign petitions. The "Simplified signing" method allows them to sign via a simple form and to validate their signature via email instead of logging in. A Drupal cache clear is required to make a change in this setting take effect.'),
+    '#description' => t('The "Registraion required" signing method requires users to explicitly create an account and log in to sign petitions. The "Simplified signing" method allows them to sign via a simple form and to validate their signature via email instead of logging in. A Drupal cache clear is required to make a change in this setting take effect. Note: the registration-base signing method has a known security vulnerability: <a href="!url">SA-CONTRIB-2014-060- Petitions - Cross Site Request Forgery (CSRF)</a>', array('!url'=> 'https://www.drupal.org/node/2284571')),
     '#default_value' => variable_get('petitions_signing_method', WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED),
     '#options' => array(
       WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED => t('Registration required'),
@@ -1415,7 +1415,7 @@ function wh_petitions_remove_lists($petition_id) {
     // tolerate it for now.
 
     if ($petition['petition_status'] == WH_PETITION_STATUS_FLAGGED) {
-      $petition = wh_petitions_mongo2mysql_publish($petition_id);
+      $petition = wh_petitions_mongo2mysql_show($petition_id);
       $link = l(t('Remove from site'), 'remove-mongo-petition', array(
         'query' => array('petition_id' => $petition_id),
       ));

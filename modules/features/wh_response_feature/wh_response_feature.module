@@ -1,3 +1,26 @@
 <?php
 
 include_once('wh_response_feature.features.inc');
+
+/**
+ * Implements hook_date_formats().
+ */
+function wh_response_feature_date_formats() {
+  return array(
+    // Creates a new format for a new, custom format type.
+    array(
+      'type' => 'response',
+      'format' => 'F j, Y',
+      'locales' => array(),
+    ),
+  );
+}
+
+/**
+ * Implements hook_date_format_types().
+ */
+function wh_response_feature_date_format_types() {
+  return array(
+    'response' => t('Response'),
+  );
+}

@@ -23,8 +23,6 @@ dependencies[] = wh_zipcodelookup
 dependencies[] = wh_core
 
 
-; Information added by drush on 2013-08-08
 version = ""
 project = "petitions"
-datestamp = "1375992615"
 
