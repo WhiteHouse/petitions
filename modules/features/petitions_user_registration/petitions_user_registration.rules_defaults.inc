@@ -1,7 +1,11 @@
 <?php
+/**
+ * @file
+ * petitions_user_registration.rules_defaults.inc
+ */
 
 /**
- * Implementation of hook_default_rules_configuration().
+ * Implements hook_default_rules_configuration().
  */
 function petitions_user_registration_default_rules_configuration() {
   $items = array();

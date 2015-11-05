@@ -26,6 +26,12 @@ function wh_response_filter_search_standalone() {
  * Callback for the standalone pages that have the search and filter forms.
  */
 function wh_response_filter_results() {
+  $sort = 'desc';
+
+  if (!empty($_POST['filter_sort'])) {
+    $sort = strip_tags($_POST['filter_sort'][0]);
+  }
+
   $issues = array();
   if (!empty($_POST['filter_issues'])) {
     $tmp = check_plain($_POST['filter_issues']);
@@ -47,7 +53,7 @@ function wh_response_filter_results() {
   }
   
   $arr[0] = 'responses';
-  $arr[1] = 'featured';
+  $arr[1] = $sort;
   $arr[2] = 0;
   $arr[3] = 2;
   $url = implode('/', $arr) . '/' . implode('+', $issues) . '/' . $search;
@@ -163,6 +169,7 @@ function wh_response_list_page_search_form($form, &$form_state) {
     '#required' => FALSE,
     '#attributes' => array('onfocus' => array("if(this.value=='" . t('Enter your search terms') . "'){this.value=''};")),    
     '#default_value' => !empty($form_state['values']['filter_search']) ? $form_state['values']['filter_search'] : t('Enter your search terms'),
+    '#autocomplete_path' => 'taxonomy/autocomplete/field_issues',
   );
   
   // Submit Button
@@ -176,5 +183,39 @@ function wh_response_list_page_search_form($form, &$form_state) {
     $form['go']['#attributes'] = array('id' => 'search-go-button', 'class' => array('blue-button'));
   }
     
+  return $form;
+}
+
+/**
+ * Sort form for responses.
+ */
+function wh_response_list_page_sort_form($form, &$form_state) {
+  $form['#attributes'] = array('id' => 'form-item-sort', 'class' => array('response-sort-form'));
+
+  $options['desc'] = 'Newest';
+  $options['asc'] = 'Oldest';
+
+  $form['result_sort'] = array(
+    '#type' => 'select',
+    '#title' => t('Order By:'),
+    '#options' => $options,
+  );
+
+  return $form;
+
+}
+
+/**
+ * Clear form button
+ */
+function wh_response_list_page_clear_form($form, &$form_state) {
+  $form['#attributes'] = array('id' => 'form-item-clear', 'class' => array('response-clear-form'));
+
+  $form['result_clear'] = array(
+    '#type' => 'submit',
+    '#value' => t('clear'),
+    '#executes_submit_callback' => 'whr_response_clear_responses_submit',
+  );
+
   return $form;
 }

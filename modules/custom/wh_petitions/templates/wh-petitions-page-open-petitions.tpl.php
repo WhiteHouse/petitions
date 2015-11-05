@@ -1,10 +1,12 @@
+<div id="petitions-notice-wrapper">
+  <?php print $petition_notice; ?>
+</div>
+
 <div id="filter-list" class="petition-filter">
   <ul class="select-view">
-    <li id="sort-all" <?php if(arg(1) != 'trending' && arg(1) != 'popular' && empty($issues)): ?>class="active"<?php endif; ?>><?php print l(t("All Petitions"), "petitions/all/0/" . $cols . '/' . $issues . '/' . $search); ?></li>
-<!--    
-<li id="sort-trending" <?php if(arg(1) == 'trending'): ?>class="active"<?php endif; ?>><?php print l(t("Trending"), "petitions/trending/0/" . $cols . '/' . $issues . '/' . $search); ?></li>
--->
-    <li id="sort-popular" <?php if(arg(1) == 'popular'): ?>class="active"<?php endif; ?>><?php print l(t("Popular"), "petitions/popular/0/" . $cols . '/' . $issues . '/' . $search); ?></li>
+    <li id="sort-popular" <?php if(arg(1) == 'popular' || arg(1) == NULL): ?>class="active"<?php endif; ?>><?php print l(t("Popular"), "petitions/popular/0/" . $cols . '/' . $issues . '/' . $search); ?></li>
+    <li id="sort-all" <?php if(arg(1) == 'all' && empty($issues)): ?>class="active"<?php endif; ?>><?php print l(t("Recent Petitions"), "petitions/all/0/" . $cols . '/' . $issues . '/' . $search); ?></li>
+
   </ul>
             
   <ul class="filter-list">
@@ -18,6 +20,10 @@
     
     <li class="search">
       <?php print l(t('Search'), 'filter-search', array('attributes' => array("class" => "popup-title no-follow"))); ?>
+    </li>
+
+    <li class="filter-by-clear hide">
+      <?php print $clear_form; ?>
     </li>
   </ul>  
   <div class="drop-down display-none" id="issues-filter-drop">

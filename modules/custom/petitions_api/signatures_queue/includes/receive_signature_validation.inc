@@ -70,12 +70,16 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
     $signature_data = _signatures_queue_validated_signature_data($options['secret_validation_key'], $options['petition_id']);
 
     // Queue validated signatures for next step.
-    $queue = SignaturesQueue::get('validations_queue');
-    $queue->createQueue();
-    $queue->createItem($signature_data);
-    petitionslog_event('signatures_queue.data_store.validations_queue.item_added');
-
-    $return = SIGNATURES_QUEUE_STATUS_OK;
+    try {
+      $queue = SignaturesQueue::get('validations_queue');
+      $queue->createQueue();
+      $queue->createItem($signature_data);
+      petitionslog_event('signatures_queue.data_store.validations_queue.item_added');
+      $return = SIGNATURES_QUEUE_STATUS_OK;
+    }
+    catch (Exception $e) {
+      $return = SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
+    }
   }
   elseif (empty($return)) {
     $return = SIGNATURES_QUEUE_STATUS_NOT_FOUND;

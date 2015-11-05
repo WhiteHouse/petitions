@@ -1,12 +1,16 @@
 <?php
+/**
+ * @file
+ * wh_petition_page.features.menu_custom.inc
+ */
 
 /**
- * Implementation of hook_menu_default_menu_custom().
+ * Implements hook_menu_default_menu_custom().
  */
 function wh_petition_page_menu_default_menu_custom() {
   $menus = array();
 
-  // Exported menu: menu-how-why
+  // Exported menu: menu-how-why.
   $menus['menu-how-why'] = array(
     'menu_name' => 'menu-how-why',
     'title' => 'How & Why',

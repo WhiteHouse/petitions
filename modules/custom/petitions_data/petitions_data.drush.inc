@@ -18,9 +18,17 @@ function petitions_data_drush_command() {
     ),
     'required-arguments' => TRUE,
     'examples' => array(
-      'drush petitions-data-petition-get 50a3fd762f2c88cd65000015' => 'Get a petition.',
+      'drush petitions-data-petition-get 226511' => 'Get a petition.',
     ),
     'aliases' => array('pdpg'),
+  );
+
+  $items['petitions-data-create-test-petition'] = array(
+    'description' => 'Create the long term test petition to use for automated testing if it no longer exists.',
+    'examples' => array(
+      'drush petitions-data-create-test-petition' => 'Create the long term test petition',
+    ),
+    'aliases' => array('pd-create', 'pdctp')
   );
 
   return $items;
@@ -57,4 +65,44 @@ function drush_petitions_data_petition_get() {
  */
 function petitions_data_drush_cache_clear(&$types) {
   $types['petitions'] = 'petitions_data_clear_caches';
+}
+
+/**
+ * Create the long term test petition if it does not exist.
+ */
+function drush_petitions_data_create_test_petition() {
+  $petition_id = '5481d128362c79c931000003';
+
+  $petition = PetitionsController::load($petition_id);
+
+  if (!empty($petition)) {
+    drush_print_r($petition);
+    drush_set_error('PETITIONS_DATA_DRUSH_ERROR_PETITION_EXISTS', 'The Long-term test petition already exists. Nothing to do here.');
+    return;
+  }
+
+  try {
+    $petition = new PetitionItem();
+
+    $petition->setLegacyId($petition_id);
+    $petition->setTitle('Long-term test petition');
+    $petition->setSignaturePublicThreshold(1000000000);
+    $petition->setSignatureThreshold(1000000000);
+    $petition->setStatus(WH_PETITION_STATUS_PRIVATE);
+    $petition->setPublished(time());
+    $petition->setReviewTimeframe(3650);
+    $petition->setBody('This petition should never receive enough signatures to become public or pass the time limit to receive enough signatures for a response.');
+
+    PetitionsController::save($petition);
+
+    // get the petition and display it
+    $petition = PetitionsController::load($petition_id);
+    drush_print('Petition successfully created.');
+    drush_print_r($petition);
+  }
+  catch (Exception $e) {
+    drush_set_error('PETITIONS_DATA_DRUSH_ERROR_PETITION_CREATE',
+      dt('!error: !message', array('!error' => $e->getCode(), '!message' => $e->getMessage())));
+  }
+
 }

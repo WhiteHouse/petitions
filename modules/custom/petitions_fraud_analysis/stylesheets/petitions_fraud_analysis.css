@@ -1,0 +1,32 @@
+/* line 1, ../sass/petitions_fraud_analysis.scss */
+table.fraud-statistics {
+  background: #fff;
+}
+/* line 4, ../sass/petitions_fraud_analysis.scss */
+table.fraud-statistics thead {
+  border-bottom: 1px solid #999;
+}
+/* line 8, ../sass/petitions_fraud_analysis.scss */
+table.fraud-statistics th, table.fraud-statistics td {
+  padding: 3px 12px;
+}
+/* line 12, ../sass/petitions_fraud_analysis.scss */
+table.fraud-statistics th:first-child, table.fraud-statistics td:first-child {
+  padding-left: 6px;
+}
+/* line 16, ../sass/petitions_fraud_analysis.scss */
+table.fraud-statistics th:last-child, table.fraud-statistics td:last-child {
+  padding-right: 6px;
+}
+/* line 19, ../sass/petitions_fraud_analysis.scss */
+table.fraud-statistics td:not(:first-child) {
+  text-align: right;
+}
+/* line 22, ../sass/petitions_fraud_analysis.scss */
+table.fraud-statistics th:not(:first-child) {
+  text-align: center;
+}
+/* line 25, ../sass/petitions_fraud_analysis.scss */
+table.fraud-statistics tr.odd {
+  background-color: #fff;
+}

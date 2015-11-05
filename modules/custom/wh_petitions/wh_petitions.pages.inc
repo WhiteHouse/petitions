@@ -37,9 +37,14 @@ function wh_petitions_show_petitions() {
   $issues_form = drupal_render($issues_form);
   $search_form = drupal_get_form('wh_petitions_list_page_search_form');
   $search_form = drupal_render($search_form);
+  $clear_form = drupal_get_form('wh_petitions_list_page_clear_form');
+  $clear_form = drupal_render($clear_form);
+
+  $petition_notice = "This page contains all petitions that are currently open.<br />Looking for a petition that we've already responded to? " . l('Right this way.', 'responses');
 
   // Theme the petitions page
   return theme('wh_petitions_display_petition_page', array(
+    'petition_notice' => $petition_notice,
     'petitions' => $html,
     'sort' => check_plain($sort),
     'page' => intval($page),
@@ -48,11 +53,22 @@ function wh_petitions_show_petitions() {
     'issues' => implode(' ', $issues),
     'search_form' => $search_form,
     'search' => urlencode($search),
+    'clear_form'=> $clear_form,
     'next_page' => urlencode($next_page),
     'count' => intval($count + (WH_RESPONSE_RESPONSES_PER_PAGE * ($page - 1))),
     'total' => wh_petitions_format_number($total),
   ));
 }
+
+
+/**
+ * Clears responses and resets the form.
+ */
+function wh_petitions_clear_responses_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  $form_state['flag'] = 1;
+}
+
 
 /**
  * Function to retrieve the HTML for the petitions that should show on a given page.  Also sanitizes and modifies the page arguments to make sure they're valid.
@@ -73,8 +89,8 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
   $petitions = array();
 
   // Make sure the sort is a valid option.
-  if (!in_array($sort, array('all', 'trending', 'popular'))) {
-    $sort = 'all';
+  if (!in_array($sort, array('all', 'popular'))) {
+    $sort = 'popular';
   }
 
   // Validate the page and calculate the offset for the query.
@@ -107,6 +123,22 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
   $realtime = empty($search);
   $petitions_query = PetitionsSelectQueryFactory::create($realtime);
   $petitions_query->setIsOpen(TRUE);
+
+  if (!empty($search)) {
+    // Check if search term matches an issue.
+    $vocabulary = taxonomy_vocabulary_machine_name_load('issues');
+    $terms = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+    foreach ($terms as $term) {
+      if (strtolower($search) == strtolower($term->name)) {
+        $issues = array($term->tid);
+        break;
+      }
+    }
+    if ($issues) {
+      // Perform search on both title and issue names.
+      $petitions_query->setPerformTitleIssueQuery(TRUE);
+    }
+  }
 
   // Retrieve petitions with at least one of the issue tid's
   if (!empty($issues)) {
@@ -225,6 +257,8 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
       }
 
       $petitions_query->setTitle($search);
+      // Force order by signature count desc for search queries.
+      $petitions_query->setOrderBy(PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT, PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_DESC);
 
       // Find how many match titles.
       $petitions_execute = $petitions_query->setLimit(WH_PETITION_PETITIONS_PER_PAGE)->setOffset($offset)->execute();
@@ -258,6 +292,10 @@ function wh_petitions_get_petitions(&$sort, &$page, &$cols, &$issues, &$search, 
     }
     // Otherwise, proceed normally.
     else {
+      if (!empty($issues)) {
+        // Force order by signature count desc for issue queries.
+        $petitions_query->setOrderBy(PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT, PetitionsSelectQuery::SELECT_QUERY_ORDER_BY_DESC);
+      }
       $petitions_execute = $petitions_query->setLimit(WH_PETITION_PETITIONS_PER_PAGE)->setOffset($offset)->execute();
       $result = $petitions_execute->getResult();
       $total = $petitions_execute->getCount();
@@ -575,11 +613,6 @@ function wh_petitions_petition_detail($petition_id) {
   $read_rules_link = variable_get('wh_petitions_read_rules_link', '');
   $petition_goals_link = variable_get('wh_petitions_learn_more_link', '');
 
-  $govdelivery_topic = '';
-  if (!empty($petition['govdelivery_id'])) {
-    $govdelivery_topic = $petition['govdelivery_id'];
-  }
-
   // Theme the top petition detail part
   $petition_html = theme('wh_petitions_display_petition_info', array(
     'title' => check_plain($petition['title']),
@@ -603,7 +636,6 @@ function wh_petitions_petition_detail($petition_id) {
     'petition_goals_link' => $petition_goals_link,
     'flagged_text' => $flagged_text,
     'flagged_text_owner' => $flagged_text_owner,
-    'govdelivery' => $govdelivery_topic,
   ));
 
   // See if this user already signed the petition
@@ -1171,7 +1203,7 @@ function wh_petitions_user_dashboard() {
 
   if($result) {
     foreach ($result as $res) {
-      $petition_ids[] = $res->getPetitionId(FALSE);
+      $petition_ids[] = $res->getPetitionId();
     }
 
     $petition_query = PetitionsSelectQueryFactory::create();

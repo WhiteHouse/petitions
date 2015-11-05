@@ -1,0 +1,59 @@
+//
+// Font faces, stacks and sizes.
+//
+
+// Compass' vertical_rhythm extension is a powerful tool to set up a vertical
+// rhythm for your entire page. You can see some of its mixins and functions in
+// use in the normalize.scss file.
+// @see http://compass-style.org/reference/compass/typography/vertical_rhythm/
+
+$base-font-size:   13px; // The font size set on the root html element.
+$base-line-height: 24px; // This line-height determines the basic unit of vertical rhythm.
+
+// Font Weights are declared here.
+$weight-thin: 100;
+$weight-light: 300;
+$weight-normal: 400;
+$weight-semibold: 500;
+$weight-bold: 700;
+$weight-xbold: 900;
+
+// The following font family declarations are based on the Microsoft core web
+// fonts which are common fonts available on most computer systems. The DejaVu
+// and Nimbus Sans fonts are commonly available on Linux systems where the MS
+// fonts are less common. Tahoma and Helvetica are also widely available.
+//
+// A user's web browser will look at the comma-separated list and will
+// attempt to use each font in turn until it finds one that is available
+// on the user's computer. The final "generic" font (sans-serif, serif or
+// monospace) hints at what type of font to use if the web browser doesn't
+// find any of the fonts in the list.
+
+// First, let's create some font stacks.
+$times-new-roman: "Times New Roman", Times, Georgia, "DejaVu Serif", serif;
+$times:           Times, "Times New Roman", Georgia, "DejaVu Serif", serif;
+$georgia:         Georgia, "Times New Roman", "DejaVu Serif", serif;
+
+$verdana:         Verdana, Tahoma, "DejaVu Sans", sans-serif;
+$tahoma:          Tahoma, Verdana, "DejaVu Sans", sans-serif;
+$helvetica:       Helvetica, Arial, "Nimbus Sans L", sans-serif;
+$arial:           Arial, Helvetica, "Nimbus Sans L", sans-serif;
+
+$helvetica-neue: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", $helvetica;
+$whitney: 'Whitney SSm A','Whitney SSm B', $helvetica-neue;
+$hoefler: 'Hoefler Text A', 'Hoefler Text B', $georgia;
+
+
+// For an explanation of why "sans-serif" is at the end of this list, see
+// http://meyerweb.com/eric/thoughts/2010/02/12/fixed-monospace-sizing/
+$courier:         "Courier New", "DejaVu Sans Mono", monospace, sans-serif;
+
+// Now create some variables for the font stacks we want to use on this site.
+$base-font-family: $verdana; // The font family set on the html element.
+$font-body:        $verdana;
+$font-monospace:   $courier;
+
+// Font weights.
+$font-weight-normal: normal;
+$font-weight-bold: 700;
+$font-weight-extra-bold: 900;

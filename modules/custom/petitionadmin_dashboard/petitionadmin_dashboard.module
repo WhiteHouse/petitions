@@ -1,0 +1,117 @@
+<?php
+/**
+ * @file
+ * Code for the Petition Admin Dashboard.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function petitionadmin_dashboard_menu() {
+  $items = array();
+
+  $items['petitionadmin_dashboard'] = array(
+    'title' => 'Petition Admin Dashboard',
+    'description' => 'Overview of petition statistics for last 24 hours',
+    'page callback' => 'petitionadmin_dashboard_generate_stats',
+    'access arguments' => array('access petition reports'),
+  );
+
+  $items['admin/config/system/petitionadmin_dashboard'] = array(
+    'title' => 'Petition Dashboard Report Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('petitionadmin_dashboard_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'petitionadmin_dashboard.admin.inc',
+    'description' => "Configure settings for daily email reports.",
+  );
+  return $items;
+}
+
+/**
+ * Renders daily stats theme template to generate report.
+ *
+ * @return string
+ *   String of rendered template.
+ */
+function petitionadmin_dashboard_generate_stats() {
+  $petition_stats = PetitionsStatistics::getPetitionStatistics();
+
+  $content = theme('petitionadmin_dashboard_daily_stats', (array) $petition_stats);
+  return $content;
+}
+
+/**
+ * Sends dashboard report to recipients set in admin.
+ */
+function petitionadmin_dashboard_send_report() {
+  global $language;
+  $to = variable_get('petitionadmin_dashboard_daily_report_emails', variable_get('site_mail', ''));
+  $params = array();
+
+  drupal_mail('petitionadmin_dashboard', 'daily_report', $to, $language, $params);
+}
+
+/**
+ * Implements hook_mail().
+ */
+function petitionadmin_dashboard_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'daily_report':
+      $message['subject'] = variable_get('petitionadmin_dashboard_daily_report_subject', t('Daily Petitions Report'));
+      $body_text = petitionadmin_dashboard_generate_stats();
+      $message['body'][] = $body_text;
+      $message['headers']['Content-Type'] = 'text/html; charset=UTF-8;';
+      break;
+  }
+}
+/**
+ * Implements hook_theme().
+ */
+function petitionadmin_dashboard_theme($existing, $type, $theme, $path) {
+  return array(
+    'petitionadmin_dashboard_daily_stats' => array(
+      'template' => 'templates/petitionadmin_dashboard-daily-stats',
+    ),
+  );
+}
+
+/**
+ * Implements hook_petitionslog_event().
+ */
+function petitionadmin_dashboard_petitionslog_event($name, $type, $value) {
+  if ($type == 'set' && function_exists('event_log_insert')) {
+    if (in_array($name, petitionadmin_dashboard_get_events_to_log())) {
+      $log = array(
+        'type' => 'node',
+        'operation' => 'insert',
+        'description' => $name,
+        'ref_numeric' => $value,
+      );
+      event_log_insert($log);
+    }
+  }
+}
+
+
+/**
+ * Get events to log for event_log_insert.
+ *
+ * @return array
+ *   Array of events to log
+ */
+function petitionadmin_dashboard_get_events_to_log() {
+  $events_to_log = array(
+    'signatures_queue.workflow.process_signatures.notifications.wh_petitions_admin_signature_threshold_1',
+    'signatures_queue.workflow.process_signatures.notifications.wh_petitions_admin_signature_threshold_2',
+    'signatures_queue.workflow.process_signatures.notifications.wh_petitions_admin_signature_threshold_3',
+    'signatures_queue.data_flow.time_elapsed.received_new_signature__to__initiated_signature_validation',
+  );
+
+  $metrics = PetitionsSelectQueryMysql::getPetitionMetricFieldsMap();
+  foreach ($metrics as $key => $val) {
+    $events_to_log[] = 'signatures_queue.workflow.process_signatures.notifications.petitions_alert_threshold_upper_' . $key;
+    $events_to_log[] = 'signatures_queue.workflow.process_signatures.notifications.petitions_alert_threshold_lower_' . $key;
+  }
+  return $events_to_log;
+}

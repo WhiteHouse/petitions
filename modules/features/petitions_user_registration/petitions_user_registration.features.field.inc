@@ -1,12 +1,16 @@
 <?php
+/**
+ * @file
+ * petitions_user_registration.features.field.inc
+ */
 
 /**
- * Implementation of hook_field_default_fields().
+ * Implements hook_field_default_fields().
  */
 function petitions_user_registration_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'user-user-field_origin'
+  // Exported field: 'user-user-field_origin'.
   $fields['user-user-field_origin'] = array(
     'field_config' => array(
       'active' => '1',
@@ -24,9 +28,10 @@ function petitions_user_registration_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '1000',

@@ -8,7 +8,6 @@ core = 7.x
 
 dependencies[] = advanced_help
 dependencies[] = captcha
-; dependencies[] = coder
 dependencies[] = ctools
 dependencies[] = date
 ; dependencies[] = devel
@@ -21,8 +20,6 @@ dependencies[] = job_scheduler
 dependencies[] = logintoboggan
 ; dependencies[] = memcache
 dependencies[] = metatag
-; dependencies[] = migrate
-; dependencies[] = migrate_extras
 ; dependencies[] = nagios
 dependencies[] = openidadmin
 dependencies[] = profile2
@@ -35,10 +32,8 @@ dependencies[] = views
 ; custom
 ; -----------------
 
-dependencies[] = govdelivery
 dependencies[] = wh_feedback
 
 
 version = ""
 project = "petitions"
-

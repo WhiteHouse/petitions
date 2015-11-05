@@ -1,12 +1,16 @@
 <?php
+/**
+ * @file
+ * taxonomy_sync.feeds_importer_default.inc
+ */
 
 /**
- * Implementation of hook_feeds_importer_default().
+ * Implements hook_feeds_importer_default().
  */
 function taxonomy_sync_feeds_importer_default() {
   $export = array();
 
-  $feeds_importer = new stdClass;
+  $feeds_importer = new stdClass();
   $feeds_importer->disabled = FALSE; /* Edit this to true to make a default feeds_importer disabled initially */
   $feeds_importer->api_version = 1;
   $feeds_importer->id = 'issues_taxonomy';
@@ -28,7 +32,6 @@ function taxonomy_sync_feeds_importer_default() {
     'processor' => array(
       'plugin_key' => 'FeedsTermProcessor',
       'config' => array(
-        'vocabulary' => 'issues',
         'mappings' => array(
           0 => array(
             'source' => 'title',
@@ -58,6 +61,7 @@ function taxonomy_sync_feeds_importer_default() {
         ),
         'update_existing' => '2',
         'input_format' => 'plain_text',
+        'bundle' => 'issues',
       ),
     ),
     'content_type' => '',

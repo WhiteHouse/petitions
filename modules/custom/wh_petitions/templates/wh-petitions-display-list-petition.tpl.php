@@ -3,15 +3,17 @@
     <?php if(!empty($petition_status)): ?>
       <div class="tag-status"><?php print $petition_status; ?></div><!--/tag status-->
     <?php endif; ?>
-    <div class="title">
-      <?php if(!empty($draft)): ?>
-        <?php print l($title, 'petition/create/' . $petition_id, array("html" => TRUE)); ?>   
-      <?php else: ?>
-        <?php $atts = array('html' => TRUE); if (!empty($target)) { $atts['attributes'] = array('target' => $target); } ?>
-        <?php $atts['attributes']['rel'] = 'nofollow'; ?>
-        <?php if (empty($title_link)) { $title_link = $nice_url; } ?>
-        <?php print l($title, $title_link, $atts); ?>      
-      <?php endif; ?>
+    <div class="content">
+      <div class="title">
+        <?php if(!empty($draft)): ?>
+          <?php print l($title, 'petition/create/' . $petition_id, array("html" => TRUE)); ?>
+        <?php else: ?>
+          <?php $atts = array('html' => TRUE); if (!empty($target)) { $atts['attributes'] = array('target' => $target); } ?>
+          <?php $atts['attributes']['rel'] = 'nofollow'; ?>
+          <?php if (empty($title_link)) { $title_link = $nice_url; } ?>
+          <?php print l($title, $title_link, $atts); ?>
+        <?php endif; ?>
+      </div>
     </div>
     <div class="action-bar clearfix">
       <div class="num-sig"><span class="num"><?php print $signature_count; ?></span>&nbsp;&nbsp;<?php print t('Signatures'); ?></div>

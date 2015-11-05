@@ -166,6 +166,11 @@ function signatures_queue_mail($key, &$message, $params) {
       $message['subject'] = _signatures_queue_notify_admin_text('subject', $language, $params);
       $message['body'] = _signatures_queue_notify_admin_text('body', $language, $params);
       break;
+
+    case 'send_fraud_alert':
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      break;
   }
 }
 
@@ -441,7 +446,7 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
     $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
     watchdog('signatures_queue', "Fatal error in workflow. @suffix\n\n@exception", array(
       '@suffix' => $watchdog_suffix,
-      '@exception' => print_r($e, TRUE),
+      '@exception' => $e->getMessage(),
     ), WATCHDOG_ERROR);
     return SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
   }
@@ -464,6 +469,28 @@ function signatures_queue_is_disposable_email($address) {
 }
 
 /**
+ * Determines disposability of a given email address.
+ *
+ * @param string $address
+ *   An email address to test.
+ *
+ * @return object
+ *   Object containing boolean values of various disposable classifications.
+ */
+function signatures_queue_get_email_disposability($address) {
+  libraries_load('disposable_email_checker');
+  $disposability = new stdClass();
+  $disposability->is_disposable = DisposableEmailChecker::is_disposable_email($address);
+  $disposability->is_free_email = DisposableEmailChecker::is_free_email($address);
+  $disposability->is_open_email = DisposableEmailChecker::is_open_email($address);
+  $disposability->is_forwarding_email = DisposableEmailChecker::is_forwarding_email($address);
+  $disposability->is_trash_email = DisposableEmailChecker::is_trash_email($address);
+  $disposability->is_time_bound_email = DisposableEmailChecker::is_time_bound_email($address);
+  $disposability->is_shredder_email = DisposableEmailChecker::is_shredder_email($address);
+  return $disposability;
+}
+
+/**
  * Determines whether a given email address is subaddressed or not.
  *
  * Subaddressed email addresses, also known as plus addresses or tagged
@@ -482,6 +509,39 @@ function signatures_queue_is_subaddressed_email($address) {
   // any string that begins with one or more characters other than an at sign
   // (@), followed by a plus sign (+).
   return (preg_match('/^[^@]+\+/', $address) == 1);
+}
+
+/**
+ * Parses an email address to remove subaddressing and dots in mailbox.
+ *
+ * Subaddressed email addresses, also known as plus addresses or tagged
+ * addresses, have the form username+tag@domain.tld.
+ *
+ * @param string $address
+ *   An email address to test.
+ *
+ * @return string
+ *   Email address without subaddressing or dots in mailbox.
+ *
+ * @see https://en.wikipedia.org/wiki/Email_address#Address_tags
+ */
+function signatures_queue_unsubaddress_email($address) {
+  $address = strtolower($address);
+  $domain_pos = strpos($address, '@');
+
+  // If no @ sign, assume domain was passed in and return as is.
+  if ($domain_pos !== FALSE) {
+    $domain = substr($address, $domain_pos + 1);
+    $mailbox = substr($address, 0, $domain_pos);
+    $mailbox = str_replace('.', '', $mailbox);
+    // Filter out subaddressing.
+    if (signatures_queue_is_subaddressed_email($address)) {
+      $tag_pos = strpos($mailbox, '+');
+      $mailbox = substr($mailbox, 0, $tag_pos);
+    }
+    $address = $mailbox . '@' . $domain;
+  }
+  return $address;
 }
 
 /**

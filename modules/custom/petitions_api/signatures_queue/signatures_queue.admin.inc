@@ -82,7 +82,69 @@ function signatures_queue_configure() {
     '#default_value' => variable_get('signatures_queue_process_signatures_batch_size', SIGNATURES_QUEUE_BATCH_SIZE_DEFAULT),
     '#description' => t('Number of signatures to process in a batch.'),
   );
+  $form['process_signatures']['petitions_alerts'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Petition Alert Settings'),
+    '#description' => t('Fraud alert notification and threshold settings.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => FALSE,
+  );
+  $form['process_signatures']['petitions_alerts']['petitions_alert_enabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable Petition Alert Emailing'),
+    '#default_value' => variable_get('petitions_alert_enabled', FALSE),
+    '#description' => t('Enables emailing of petition fraud alerts.'),
+  );
+  $form['process_signatures']['petitions_alerts']['petitions_alert_signature_threshold'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Signature Threshold'),
+    '#default_value' => variable_get('petitions_alert_signature_threshold', FALSE),
+    '#description' => t('# of signatures before alerting will engage.'),
+  );
+  $form['process_signatures']['petitions_alerts']['petitions_alert_email_address'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Petition Alert Email'),
+    '#default_value' => variable_get('petitions_alert_email_address'),
+    '#description' => t('Email address(es) for petition fraud alerts. Separate multiple addresses with a comma.'),
+  );
+  $form['process_signatures']['petitions_alerts']['petitions_alert_email_throttle'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Petition Alert Email Throttling'),
+    '#default_value' => variable_get('petitions_alert_email_throttle'),
+    '#description' => t('Number of seconds between alerts on a petition.'),
+  );
+  $form['process_signatures']['petitions_alerts']['thresholds'] = array(
+    '#type' => 'item',
+    '#markup' => '<label>Petition Alert Thresholds</label>',
+    '#description' => '&nbsp;&nbsp;&nbsp;' . t('Ratios are from 0.0 to 1.0. Use values of 0 for lower and 1 for upper to disable.'),
+  );
+  $metric_fields = PetitionsSelectQueryMysql::getPetitionMetricFieldsMap();
+  foreach ($metric_fields as $key => $field_params) {
+    $lower_key = 'petitions_alert_threshold_lower_' . $key;
+    $upper_key = 'petitions_alert_threshold_upper_' . $key;
+    $title = $field_params['title'] . ':';
 
+    $form['process_signatures']['petitions_alerts']['petitions_alert_threshold_' . $key] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+      '#attributes' => array('class' => array('container-inline')),
+      '#tree' => FALSE,
+      $lower_key => array(
+        '#type' => 'textfield',
+        '#title' => $title,
+        '#suffix' => ' <= Lower / Upper => ',
+        '#size' => 10,
+        '#default_value' => variable_get($lower_key),
+      ),
+      $upper_key => array(
+        '#type' => 'textfield',
+        '#default_value' => variable_get($upper_key),
+        '#size' => 10,
+      ),
+    );
+  }
   $form['archive_signatures'] = array(
     '#type' => 'fieldset',
     '#title' => t('Step 6: Archive Signatures'),

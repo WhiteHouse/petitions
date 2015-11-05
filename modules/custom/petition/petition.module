@@ -81,13 +81,7 @@ function petition_node_view($node, $view_mode, $langcode) {
       }
     }
 
-    $items = field_get_items("node", $node, "field_petition_signature_count");
-    if ($items) {
-      // @todo Again this looping needs fixing
-      foreach ($items as $item) {
-        $signature_deficit -= (int) $item['value'];
-      }
-    }
+    $signature_deficit -= (int) $node->signature_count;
 
     // Determine if it stilll needs signatures (has a positive deficit) or not.
     if ($signature_deficit > 0) {
@@ -110,6 +104,22 @@ function petition_node_view($node, $view_mode, $langcode) {
             "signatures_needed", $signatures_needed, $content);
 
     $node->content = $content;
+  }
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function petition_node_load($nodes, $types) {
+  foreach ($nodes as $nid => $node) {
+    if ($node->type == 'petition') {
+      $signature_count = db_select('signature_mail', 'sm')
+        ->condition('petition_id', $nid)
+        ->countQuery()
+        ->execute()
+        ->fetchField();
+    }
+    @$node->signature_count = $signature_count;
   }
 }
 
@@ -158,9 +168,13 @@ function petition_apachesolr_index_document_build_node(ApacheSolrDocument $docum
     $document->addField(PETITION_SOLR_FIELD_REVIEW_TIMEFRAME, (int) $entity->field_petition_review_timeframe[LANGUAGE_NONE][0]['value']);
 
     $signature_count = 0;
-    if (!empty($entity->field_petition_signature_count[LANGUAGE_NONE][0]['value'])) {
+    if (!empty($entity->signature_count)) {
+      $signature_count = $entity->signature_count;
+    }
+    elseif (!empty($entity->field_petition_signature_count[LANGUAGE_NONE][0]['value'])) {
       $signature_count = $entity->field_petition_signature_count[LANGUAGE_NONE][0]['value'];
     }
+
     $document->addField(PETITION_SOLR_FIELD_SIGNATURE_COUNT, $signature_count);
 
     $document->addField(PETITION_SOLR_FIELD_SIGNATURE_PUBLIC_THRESHOLD, (int) $entity->field_petition_public_signatures[LANGUAGE_NONE][0]['value']);
@@ -278,7 +292,7 @@ function petition_show($node) {
   // @todo replace this unfortunate field_petition_status logic with a proper domain model.
   $timestamp_review = strtotime('- ' . $node->field_petition_review_timeframe[LANGUAGE_NONE][0]['value'] . ' days');
   $timestamp_published = $node->field_timestamp_published[LANGUAGE_NONE][0]['value'];
-  $signature_count = $node->field_petition_signature_count[LANGUAGE_NONE][0]['value'];
+  $signature_count = $node->signature_count;
   $public_signatures = $node->field_petition_public_signatures[LANGUAGE_NONE][0]['value'];
   $response_signatures = $node->field_petition_response_sign[LANGUAGE_NONE][0]['value'];
 
@@ -323,10 +337,12 @@ function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) 
   // Load the node, increment the signature count, save.
   $node = node_load($nid);
   $lang = $node->language;
+  //Keep the old functionality for debug reasons.
   $signature_count_before = $node->field_petition_signature_count[$lang][0]['value'];
   $signature_count_after = $signature_count_before + $increment;
   $node->field_petition_signature_count[$lang][0]['value'] = $signature_count_after;
-
+  //Use the value from the db.
+  $signature_count_after = $node->signature_count + 1;
   // Update to public petition.
   $reached_response = FALSE;
   $petition_status = $node->field_petition_status[$lang][0]['value'];
@@ -344,16 +360,32 @@ function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) 
     $reached_response = TRUE;
   }
 
-  // Email the creator if the petition is ready for a response.
-  if ($reached_response && !petitions_data_mongo_reads_are_enabled()) {
-    wh_petitions_email_ready_response($petition_id, $node->uid);
+  // Email admin and the creator if the petition is ready for a response.
+  if ($reached_response) {
+    wh_petitions_email_ready_response($nid, $node->uid);
+    watchdog('wh_petitions', 'Petition (@id) Ready for Response Notification Sent.', array('@id' => $nid));
   }
   node_save($node);
+
+  $active_petition_thresholds = array(
+    'wh_petitions_admin_signature_threshold_1' => variable_get('wh_petitions_admin_signature_threshold_1', 25000),
+    'wh_petitions_admin_signature_threshold_2' => variable_get('wh_petitions_admin_signature_threshold_2', 50000),
+    'wh_petitions_admin_signature_threshold_3' => variable_get('wh_petitions_admin_signature_threshold_3', 75000),
+  );
+
+  // Do not count creator's signature.
+  $signature_count_threshold = max(0, $signature_count_after - 1);
+
+  if ($petition_status == WH_PETITION_STATUS_PUBLIC && ($array_key = array_search($signature_count_threshold, $active_petition_thresholds) == TRUE)) {
+    // Send notification email for threshold crossed.
+    wh_petitions_email_signature_threshold_crossed($nid, $signature_count_threshold);
+    petitionslog_event('signatures_queue.workflow.process_signatures.notifications.' . $array_key, 'set', $nid);
+  }
 
   // Debug. Log everything.
   if ($debug) {
     watchdog('petition', 'petition_increment_count() received the following params: petition_id = @petition_id, increment = @increment', array(
-      '@petiton_id' => $petition_id,
+      '@petition_id' => $petition_id,
       '@increment' => $increment,
     ), WATCHDOG_DEBUG);
     watchdog('petition', 'petition_increment_count() increased the signature count from @before to @after', array(
@@ -463,20 +495,15 @@ function _petition_get_nid($petition_id) {
   $nid = FALSE;
 
   if (petition_is_legacy_id($petition_id)) {
-    $query = new EntityFieldQuery();
-    $query->entityCondition("entity_type", "node");
-    $query->entityCondition("bundle", "petition");
-    $query->fieldCondition("field_legacy_id", "value", $petition_id, "=");
-    $results = $query->execute();
+    $result = db_query("SELECT fli.entity_id FROM {field_data_field_legacy_id} fli WHERE fli.field_legacy_id_value = :legacy_id AND fli.entity_type = 'node' AND fli.bundle = 'petition'",
+      array(':legacy_id' => $petition_id))->fetchObject();
 
-    if (!empty($results)) {
-      $info = array_shift($results['node']);
-      $nid = $info->nid;
+    if ($result && isset($result->entity_id)) {
+      $nid = $result->entity_id;
     }
   }
-  elseif (is_numeric($petition_id)) {
-    // Assume if it's numeric, it's a legit nid. (This would be a good place to
-    // make logic more robust if bad IDs start creeping in here somehow.)
+  elseif (intval($petition_id) == $petition_id && intval($petition_id) > 0) {
+    // Assume if the nid is a positive integer it's a legit nid.
     $nid = $petition_id;
   }
   else {
@@ -541,4 +568,212 @@ function _petition_get_legacy_id($node) {
   $legacy_id = (!empty($legacy_id) ? $legacy_id : 0);
 
   return $legacy_id;
+}
+
+/**
+ * Loads the number of unique signatures and IP addresses for a given petition.
+ *
+ * @param int $petition_id
+ *   The ID of the petition.
+ */
+function petition_update_total_unique_ips_and_emails($petition_id) {
+  $nid = petition_get_nid($petition_id);
+  $email_count = db_select('petition_signature_emails')
+    ->condition('petition_id', $nid)
+    ->countQuery()
+    ->execute()
+    ->fetchField();
+
+  $ip_count = db_select('petition_signature_ips')
+    ->condition('petition_id', $nid)
+    ->countQuery()
+    ->execute()
+    ->fetchField();
+
+  PetitionsController::setPetitionFieldValue($nid, 'field_petition_sig_unq_email_act', 'value', $email_count);
+  PetitionsController::setPetitionFieldValue($nid, 'field_petition_val_unq_ip_emails', 'value', $ip_count);
+
+}
+
+/**
+ * Stores an email in the database for use with fraud reporting metrics.
+ *
+ * @param string $petition_id
+ *   The ID of the signed petition.
+ * @param string $email
+ *   The signature's email inbox. This should be an un-subaddressed value.
+ *
+ * @see signatures_queue_unsubaddress_email
+ */
+function petition_add_signature_email($petition_id, $email) {
+  $original_petition_id = $petition_id;
+  $petition_id = petition_get_nid($petition_id);
+  if (!$petition_id) {
+    watchdog(
+      'petition',
+      'Invalid petition ID supplied while saving email :email. Petition ID: :petitionid',
+      array(
+        ':petitionid' => $original_petition_id,
+        ':email' => $email,
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+  try {
+    db_merge('petition_signature_emails')
+      ->key(array(
+        'email' => $email,
+        'petition_id' => $petition_id,
+      ))
+      ->insertFields(array(
+        'email' => $email,
+        'petition_id' => $petition_id,
+      ))
+      ->expression('count', 'count + 1')
+      ->execute();
+  }
+  catch (exception $e) {
+    petitionslog_event('exceptions.petition.220219a');
+    watchdog(
+      'petition',
+      'Problem updating email count in petition :petitionid for email :email. Exception message: :message',
+      array(
+        ':petitionid' => $petition_id,
+        ':email' => $email,
+        ':message' => $e->getMessage(),
+      ),
+      WATCHDOG_ERROR
+    );
+  }
+}
+
+/**
+ * Stores an IP address in the database for use with fraud reporting metrics.
+ *
+ * @param string $petition_id
+ *   The ID of the signed petition.
+ * @param string $ip
+ *   The signature's IP address.
+ */
+function petition_add_signature_ip($petition_id, $ip) {
+  if (empty($ip)) {
+    return;
+  }
+  $original_petition_id = $petition_id;
+  $petition_id = petition_get_nid($petition_id);
+  if (!$petition_id) {
+    watchdog(
+      'petition',
+      'Invalid petition ID supplied while saving IP :ip. Petition ID: :petitionid',
+      array(
+        ':petitionid' => $original_petition_id,
+        ':ip' => $ip,
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+  try {
+    db_merge('petition_signature_ips')
+      ->key(array(
+        'ip' => $ip,
+        'petition_id' => $petition_id,
+      ))
+      ->insertFields(array(
+        'ip' => $ip,
+        'petition_id' => $petition_id,
+      ))
+      ->expression('count', 'count + 1')
+      ->execute();
+  }
+  catch (exception $e) {
+    petitionslog_event('exceptions.petition.566b00e');
+    watchdog(
+      'petition',
+      'Problem updating IP count in petition :petitionid for IP :ip. Exception message: :message',
+      array(
+        ':petitionid' => $petition_id,
+        ':ip' => $ip,
+        ':message' => $e->getMessage(),
+      ),
+      WATCHDOG_ERROR
+    );
+  }
+}
+
+
+/**
+ * Removes a stored email used with fraud reporting metrics from the database.
+ *
+ * @param string $petition_id
+ *   The ID of the signed petition.
+ * @param string $email
+ *   The signature's email inbox. This should be an un-subaddressed value.
+ *
+ * @see signatures_queue_unsubaddress_email
+ */
+function petition_remove_signature_email($petition_id, $email) {
+  try {
+    db_update('petition_signature_emails')
+      ->condition('petition_id', $petition_id)
+      ->condition('email', $email)
+      ->expression('count', 'count - 1')
+      ->execute();
+  }
+  catch (exception $e) {
+    watchdog('petition',
+    'Problem removing email ":email" from petition :petition. Exception thrown: :exception',
+    array(
+      ':email' => $email,
+      ':petition' => $petition_id,
+      ':exception' => $e->getMessage(),
+    ),
+    WATCHDOG_WARNING);
+  }
+}
+
+/**
+ * Removes a stored IP address used with fraud reporting metrics from the database.
+ *
+ * @param string $petition_id
+ *   The ID of the signed petition.
+ * @param string $ip
+ *   The signature's IP address.
+ */
+function petition_remove_signature_ip($petition_id, $ip) {
+  try {
+    db_update('petition_signature_ips')
+      ->condition('petition_id', $petition_id)
+      ->condition('ip', $ip)
+      ->expression('count', 'count - 1')
+      ->execute();
+  }
+  catch (exception $e) {
+    watchdog('petition',
+    'Problem removing IP address ":ip" from petition :petition.  Exception thrown: :exception',
+    array(
+      ':ip' => $ip,
+      ':petition' => $petition_id,
+      ':exception' => $e->getMessage(),
+    ),
+    WATCHDOG_WARNING);
+  }
+}
+
+/**
+ * Check if user exists by email address.
+ *
+ * @param string $email
+ *   Email Address
+ *
+ * @return mixed
+ *   User UID if exists, FALSE otherwise
+ */
+function petition_user_exists_by_mail($email) {
+  $result = db_query("SELECT u.uid FROM {users} u WHERE mail = :mail", array(':mail' => $email))->fetchObject();
+  if ($result) {
+    return $result->uid;
+  }
+  return FALSE;
 }

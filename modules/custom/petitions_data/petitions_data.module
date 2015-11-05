@@ -192,10 +192,10 @@ function petitions_data_get_petition($petition_id) {
       // become stale before the cache expires and lead to unreliable displays.
       if (!empty($petition)) {
         unset($petition['signatureCount'], $petition['signaturesNeeded']);
-      }
 
-      // Cache the result.
-      cache_set("petition:{$petition_id}", $petition, 'cache_petitions_petitions', CACHE_PERMANENT);
+        // Cache the result.
+        cache_set("petition:{$petition_id}", $petition, 'cache_petitions_petitions', CACHE_PERMANENT);
+      }
     }
   }
   return $petition;

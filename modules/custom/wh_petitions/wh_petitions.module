@@ -804,7 +804,7 @@ function wh_petitions_preprocess_node(&$vars) {
     $date_published = date("M d, Y", $date_published);
     $total_needed = $node->field_petition_response_sign[$lang][0]['value'];
     // Count of number of times this petition has been signed.
-    $signature_total = $node->field_petition_signature_count[$lang][0]['value'];
+    $signature_total = isset($node->signature_count) ? $node->signature_count : $node->field_petition_signature_count[$lang][0]['value'];
     // Count of signatures currently displayed on petition page.
     $signature_count = 0;
     $signatures_needed = $total_needed - $signature_total;
@@ -1738,15 +1738,24 @@ function wh_petitions_email_published($petition_id, $uid) {
  * becomes under review ( enough signatures to receive a response )
  */
 function wh_petitions_email_ready_response($petition_id, $uid) {
+  $params = array('petition_id' => $petition_id);
+  $from = variable_get('wh_petitions_email_address', '');
+
+  // Enable this block of code to send ready_response emails to user.
+  /*
   if (!empty($uid)) {
     $user_load = user_load($uid);
 
     if (!empty($user_load)) {
       $email = $user_load->mail;
-      $params = array();
-      $from = variable_get('wh_petitions_email_address', '');
+      drupal_mail('wh_petitions', 'ready_response', $email, language_default(), $params, $from);
     }
   }
+  */
+
+  // Email admins.
+    $emails = variable_get('wh_petitions_admin_ready_response_emails', FALSE);
+    drupal_mail('wh_petitions', 'admin_ready_response', $emails, language_default(), $params, $from);
 }
 
 /**
@@ -1768,6 +1777,26 @@ function wh_petitions_email_receive_response($petition_id, $uid) {
 }
 
 /**
+ * Email admin when a petition crosses signature threshold.
+ *
+ * @param int $petition_id
+ *   Petition ID
+ * @param $signature_threshold_crossed
+ *   Number of signatures crossed.
+ */
+function wh_petitions_email_signature_threshold_crossed($petition_id, $signature_threshold_crossed) {
+  $params = array(
+    'petition_id' => $petition_id,
+    'signature_threshold_crossed' => $signature_threshold_crossed,
+    );
+  $from = variable_get('wh_petitions_email_address', '');
+
+  // Email admins.
+  $emails = variable_get('wh_petitions_admin_signature_threshold_crossed_emails', FALSE);
+  drupal_mail('wh_petitions', 'admin_signature_threshold_crossed', $emails, language_default(), $params, $from);
+}
+
+/**
  * Implements hook_mail().
  *
  * Implements the email messages for when a petition is
@@ -1777,7 +1806,58 @@ function wh_petitions_mail($key, &$message, $params) {
   global $base_url;
   $options['language'] = $message['language'];
   $legacy_id = "";
+  $replacements = array();
 
+  if (in_array($key, array('ready_response', 'admin_ready_response', 'receive_response', 'admin_signature_threshold_crossed'))) {
+    switch($key) {
+      case 'ready_response':
+        $message['subject'] = variable_get('wh_petitions_email_ready_response_subject', '');
+        $message['body'] = array(variable_get('wh_petitions_email_ready_response_text', ''));
+        break;
+
+      case 'admin_ready_response':
+        $message['subject'] = variable_get('wh_petitions_email_admin_ready_response_subject', '');
+        $message['body'] = array(variable_get('wh_petitions_email_admin_ready_response_text', ''));
+        break;
+
+      case 'receive_response':
+        $message['subject'] = variable_get('wh_petitions_email_receive_response_subject', '');
+        $message['body'] = array(variable_get('wh_petitions_email_receive_response_text', ''));
+        break;
+
+      case 'admin_signature_threshold_crossed':
+        $message['subject'] = variable_get('wh_petitions_email_admin_signature_threshold_crossed_subject', '');
+        $message['body'] = array(variable_get('wh_petitions_email_admin_signature_threshold_crossed_text', ''));
+        $replacements['!signature_threshold_crossed'] = $params['signature_threshold_crossed'];
+      break;
+
+      default:
+        watchdog('wh_petitions', 'wh_petitions_mail - No case for @key key', array('@key' => $key));
+        return FALSE;
+    }
+
+    $petition = PetitionsController::loadObject($params['petition_id']);
+    if (!empty($petition)) {
+      $short_url = ($petition->getShortUrl() != '') ? $petition->getShortUrl() : $petition->getNiceUrl();
+      $replacements = array_merge($replacements, array(
+        '!petition_edit_link' => variable_get('petitions_edit_url', $base_url) . '/node/' . $petition->getEntityId() . '/edit',
+        '!petition_title' => check_plain($petition->getTitle()),
+        '!petition_body' => check_plain($petition->getBody()),
+        '!shorturl' => check_plain($short_url),
+      ));
+
+      $message['subject'] = format_string($message['subject'], $replacements);
+      $message['body'][0] = format_string($message['body'][0], $replacements);
+    }
+    else {
+      watchdog('wh_petitions', 'wh_petitions_mail - failed to load petition @petition_id', array('@petition_id' => $params['petition_id']));
+      unset($message);
+      return FALSE;
+    }
+    return TRUE;
+  }
+
+  // @todo This is a poorly written block of code, needs to be redone more like above.
   switch ($key) {
     case 'published':
       $langcode = $message['language']->language;
@@ -1874,10 +1954,7 @@ function wh_petitions_mail($key, &$message, $params) {
           $message['body'][0] = str_replace('!petition_body', check_plain($petition['body'][$petition['language']][0]['value']), $message['body'][0]);
 
           // Replacement for petition_remove_link.
-          $link_path = url('admin/moderation-tools', array(
-            'query' => array('nid' => $nid),
-            'absolute' => TRUE,
-          ));
+          $link_path = petitionadmin_get_admin_url($nid);
           $link = l($link_path, $link_path);
           $message['body'][0] = str_replace('!petition_remove_link', $link, $message['body'][0]);
         }
@@ -1885,20 +1962,6 @@ function wh_petitions_mail($key, &$message, $params) {
       else {
         unset($message);
       }
-      break;
-
-    case 'ready_response':
-      $legacy_id = $params['petition_id'];
-      $langcode = $message['language']->language;
-      $message['subject'] = variable_get('wh_petitions_email_ready_response_subject', '');
-      $message['body'][] = variable_get('wh_petitions_email_ready_response_text', '');
-      break;
-
-    case 'receive_response':
-      $legacy_id = $params['petition_id'];
-      $langcode = $message['language']->language;
-      $message['subject'] = variable_get('wh_petitions_email_receive_response_subject', '');
-      $message['body'][] = variable_get('wh_petitions_email_receive_response_text', '');
       break;
 
     case 'status_change':
@@ -2607,16 +2670,6 @@ function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $u
 
   // Up the signature_count on the petition.
   wh_petitions_increment_signature_count($petition, $connection);
-
-  /*
-   * Check for GovDelivery list and add the topic id if it wasn't
-   * in the petition object previously.
-   */
-  $topic_title = 'petitions_' . $petition['_id']->__toString();
-  $topic_id = '';
-
-  // Add their email to GovDelivery.
-  govdelivery_subscriber_api_add_subscriber($user->mail, $topic_title, $topic_id);
 }
 
 /**

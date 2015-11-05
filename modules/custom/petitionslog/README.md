@@ -75,6 +75,7 @@ The following events are being recorded.
 | `signatures_queue.workflow.initiate_signature_validation.time_elapsed.drupal_mail` | time |
 | `signatures_queue.workflow.receive_new_signatures.email_address.is_disposable.{true|false}` | count |
 | `signatures_queue.workflow.receive_new_signatures.email_address.is_subaddressed.{true|false}` | count |
+| `signatures_queue.workflow.receive_new_signatures.email_address.opt_in.enqueued` | count |
 | `signatures_queue.workflow.receive_new_signatures.api_key.{api_key}.email_address.is_disposable.{true|false}` | count |
 | `signatures_queue.workflow.receive_new_signatures.api_key.{api_key}.email_address.is_subaddressed.{true|false}` | count |
 | `signatures_queue.workflow.receive_new_signatures.api_key.{api_key}.invoked` | count |

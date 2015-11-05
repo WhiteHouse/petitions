@@ -4,8 +4,10 @@ INSTALL.md
 **Contents**
 
 * "Alpha" software status
+* Install MongoDB for local development
 * Installing and configuring Petitions
 * Manual Rules import
+* MongoDB configuration in settings.php
 
 
 "Alpha" software status
@@ -13,13 +15,29 @@ INSTALL.md
 
 "Alpha" means we cannot promise to provide an upgrade path to users who build sites on the current code base.
 
-Our intention is to evolve this code base into an install profile that others can easily reuse, extend and contribute to. This is not the state of the current application, which was made specifically for the White House's particular use cases and hosting environment.
+Later releases will remove this application's dependence on MongoDB. Our intention is to evolve this code base into an install profile that others can easily reuse, extend and contribute to. This is not the state of the current application, which was made specifically for the White House's particular use cases and hosting environment.
 
-These instructions will help you install Drupal, get Drupal talking to MySQL, and let you try out the existing code base.
+These instructions will help you install Drupal, get Drupal talking to MySQL and MongoDB, and let you try out the existing code base.
 
 Where the application still has dependencies on configuration stored in the site's database, these are areas where the install profile remains a work in progress. We will release improvements as we make them on GitHub. In the meanwhile, patches are welcome too.
 
-At times the application may encounter issues due to expecting a MongoDB connection. These issues are artifacts of the previous architecture of the application, and the plan is to remove them in future releases.
+
+Install MongoDB for local development
+-------------------------------------
+
+For local development on Mac OSX with MAMP (similar with XAMPP), install Homebrew, then do this:
+
+```
+$ brew versions mongo
+$ cd /usr/local/Cellar
+$ git checkout dae14ec /usr/local/Library/Formula/mongodb.rb
+$ brew install mongo
+
+$ /Applications/MAMP/bin/php/php5.3.6/bin/pecl install mongo
+$ mkdir /data/db
+$ mongod  # This starts mongo.
+$ mongo   # This starts the mongo client.
+```
 
 
 Installing and configuring Petitions
@@ -39,6 +57,34 @@ drush -y make --no-core --contrib-destination=. drupal-org.make
 
 5) Follow the normal Drupal installation process. When prompted to select
      a profile, select "Petitions." Drupal will rewrite your settings.php file.
+     After it does, you will be prompted to add a snippet like this to the end
+     of settings.php. Do this before you visit your site, otherwise Drupal will
+     be unhappy:
+
+```php
+      // Set mongo configuration
+      $mongo_host = '127.0.0.1';
+      $mongo_db_name = 'petition';
+      $conf['mongodb_connections'] = array(
+        'default' => array('host' => $mongo_host, 'db' => $mongo_db_name),
+        'petition_tool' => array('host' => $mongo_host, 'db' => $mongo_db_name),
+        'petition_tool_archive' => array('host' => $mongo_host, 'db' => $mongo_db_name),
+        'petition_tool_response' => array('host' => $mongo_host, 'db' => $mongo_db_name),
+        'petition_tool_signatures' => array('host' => $mongo_host, 'db' => $mongo_db_name),
+      );
+      $conf['mongodb_collections'] = array(
+        'petitions' => 'petition_tool',
+        'archive_petitions' => 'petition_tool_archive',
+        'petition_response' => 'petition_tool_response',
+        'petition_signatures' => 'petition_tool_signatures',
+      );
+
+      # (Optional):
+      # $conf['mongodb_options'] = array(
+      #   'replicaSet' => 'petitions',
+      #   'timeout' => 1,
+      # );
+```
 
 6) **IMPORTANT!** Configure second database for signature processing:
 
@@ -251,11 +297,3 @@ Import the user_submit rule here (check "Overwrite"):
                                           // "white screen of death" (WSOD) pages.
        ini_set('display_startup_errors', TRUE);
 ```
-
-13) The simplified signing functionality requires 4 cron jobs to be configured:
-* initiate_signature_validation
-* preprocess_signatures
-* process_signatures
-* archive_signatures
-
-These jobs can be executed via drush by using the `signatures-queue-invoke-workflow` command.

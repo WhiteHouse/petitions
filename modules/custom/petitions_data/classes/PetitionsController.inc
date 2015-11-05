@@ -30,6 +30,43 @@ class PetitionsController {
   }
 
   /**
+   * Increment petition node metric count.
+   *
+   * @param int $petition_id
+   *   Node petition ID
+   *
+   * @param string $petition_metric
+   *   Petition Metric constant from PetitionItem class.
+   *
+   * @param bool $decrement
+   *   If TRUE, will decrease metric count by one, otherwise increment.
+   */
+  public static function incrementPetitionMetricCount($petition_id, $petition_metric, $decrement = FALSE) {
+    $petitions_query = new PetitionsSelectQueryMysql();
+    $petitions_query::incrementPetitionMetricCount($petition_id, $petition_metric, $decrement);
+  }
+
+  /**
+   * Bump a petition node's field value up or down by 1.
+   *
+   * @see PetitionsSelectQueryMysql::bumpPetitionField
+   */
+  public static function bumpPetitionField($petition_id, $field_name, $column, $decrement = FALSE) {
+    $petitions_query = new PetitionsSelectQueryMysql();
+    $petitions_query::bumpPetitionField($petition_id, $field_name, $column, $decrement);
+  }
+
+  /**
+   * Sets a petition's field to a value without triggering node save hooks.
+   *
+   * @see PetitionsSelectQueryMysql::setPetitionFieldValue
+   */
+  public static function setPetitionFieldValue($petition_id, $field_name, $column, $value) {
+    $petitions_query = new PetitionsSelectQueryMysql();
+    $petitions_query::setPetitionFieldValue($petition_id, $field_name, $column, $value);
+  }
+
+  /**
    * Deletes a petition.
    *
    * @param int|string $petition_id

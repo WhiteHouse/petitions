@@ -18,3 +18,33 @@ function signature_mail_update_7100() {
   );
   db_change_field('signature_mail', 'user_zip', 'user_zip', $new_schema);
 }
+
+/**
+ * Create signature_mail_removed table.
+ */
+function signature_mail_update_7101() {
+  $schema = signature_mail_schema();
+  db_create_table('signature_mail_removed', $schema['signature_mail_schema']);
+}
+
+/**
+ * Implements hook_schema().
+ */
+function signature_mail_schema() {
+  $signature_mail_schema = drupal_get_schema('signature_mail');
+  $signature_mail_schema['fields']['date_removed'] = array(
+    'description' => 'Date Removed',
+    'type' => 'text',
+    'mysql_type' => 'datetime',
+    'not null' => TRUE,
+  );
+
+  $signature_mail_schema['indexes'] = array(
+    'petition_id' => array('petition_id'),
+    'ip_address' => array('ip_address'),
+  );
+
+  $schema = array();
+  $schema['signature_mail_schema'] = $signature_mail_schema;
+  return $schema;
+}

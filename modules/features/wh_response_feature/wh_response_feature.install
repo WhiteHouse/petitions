@@ -13,3 +13,20 @@ function wh_response_feature_uninstall() {
 function wh_response_feature_update_7001() {
   variable_set('date_format_response', 'F j, Y');
 }
+
+/**
+ * Remove featured field from response and updates response feature.
+ */
+function wh_response_feature_update_7002(&$sandbox) {
+
+  // remote all instances and field definition.
+  if ($instance = field_info_instance('node', 'field_is_featured', 'wh_response')) {
+    field_delete_instance($instance);
+  }
+
+  // Revert feature to exclude field.
+  $feature = features_get_features('wh_response_feature');
+  $components = array_keys($feature->info['features']);
+  features_revert(array('wh_response_feature' => $components));
+
+}

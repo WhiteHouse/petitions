@@ -14,15 +14,9 @@ include_once 'petitionadmin.features.inc';
  * Implements hook_menu_alter().
  */
 function petitionadmin_menu_alter(&$items) {
-  // Hide MySQL-based moderations tools if MySQL functionality isn't enabled.
-  // e.g Hide Mongo2MySql phase 1 and phase 4.
-  if (!(petitions_data_mysql_writes_are_enabled() && petitions_data_mongo_writes_are_enabled())) {
-    unset($items['admin/moderation-tools']);
-  }
-
-  // Show mysql admin tool only when we are in Mongo2MySql phase 4.
-  if (petitions_data_mysql_writes_are_enabled() && !petitions_data_mongo_writes_are_enabled()) {
-
+    // @todo mongo cleanup:  This path is being registered by a mongo page.
+    // When the route is removed this unset becomes un-necessary and should be
+    // removed.
     unset($items['admin/petitions']);
 
     // Update the current petition menu item to point to the new mysql admin
@@ -35,7 +29,6 @@ function petitionadmin_menu_alter(&$items) {
       'type'             => MENU_NORMAL_ITEM,
       'weight' => -10,
     );
-  }
 }
 
 /**
@@ -74,8 +67,8 @@ function petitionadmin_menu() {
   $items['node/%/signatures'] = array(
     'type'             => MENU_LOCAL_TASK,
     'title'            => 'Signatures',
-    'page callback'    => 'views_embed_view',
-    'page arguments'   => array('petitionadmin_signatures', 'page_1', 1),
+    'page callback'    => 'petitionadmin_admin_signatures',
+    'page arguments'   => array(1),
     'access callback'  => '_petitionadmin_access_callback',
     'access arguments' => array(1),
     'weight'           => 50,
@@ -228,21 +221,6 @@ function petitionadmin_download_send_headers($filename) {
 }
 
 /**
- * Renders the signatures entities for a petition.
- *
- * @param null $node
- *   Target petition ID.
- *
- * @return bool|void
- *   Rendered view or nothing.
- */
-function petitionadmin_display_signatures($node = NULL) {
-  if (!empty($node) && is_object($node)) {
-    return views_embed_view('petitions_signatures', 'page_1', $node->nid);
-  }
-}
-
-/**
  * Security access callback for signatures tab and view.
  *
  * @param null $node
@@ -311,4 +289,109 @@ function petitionadmin_views_access_callback($account = NULL) {
   $access = $is_user_authorized  && $is_mongo_off;
 
   return $access;
+}
+
+/**
+ * Builds a link to the administer a specific petition.
+ *
+ * @param int $nid
+ *   The nid of the petition to administer.
+ *
+ * @return string
+ *   A link to the admin page for that petition.
+ */
+function petitionadmin_get_admin_link($nid) {
+  return l(t('Administer This Petition'), petitionadmin_get_admin_url($nid));
+}
+
+/**
+ * Builds the admin url to a specific petition.
+ *
+ * @param int $nid
+ *   The nid of the petition to administer.
+ *
+ * @return string
+ *   A url to the admin page for that petition.
+ */
+function petitionadmin_get_admin_url($nid) {
+  $safe_nid = check_plain($nid);
+  $url_params = array(
+    ':edit_base_url' => variable_get('edit_base_url'),
+    ':adminpath' => 'admin/content/petitions',
+    ':nid' => $safe_nid,
+  );
+
+  if (empty($nid)) {
+    $url = strtr(':edit_base_url/:adminpath', $url_params);
+  }
+
+  // The promote flag is being used to prevent the view from returning results
+  // by default.  If this is changed these querystring params may need to be
+  // updated.
+  else {
+    $url = strtr(':edit_base_url/:adminpath?nid=:nid&promote=All', $url_params);
+  }
+
+  return $url;
+}
+
+/**
+ * Implementation of hook_action_info().
+ */
+function petitionadmin_action_info() {
+  $action = array(
+    'petitionadmin_remove_signature' => array(
+      'label' => t('Remove Signature'),
+      'type' => 'entity',
+      'configurable' => FALSE,
+      'triggers' => array('any'),
+      'behavior' => array('views_property'),
+      'permissions' => array('access content'),
+    ),
+  );
+  return $action;
+}
+
+/**
+ * Move signature from signature_mail to signature_mail_removed.
+ *
+ * @param object $entity
+ *   Signature_mail entity to remove.
+ * @param array $context
+ *   Context.
+ */
+function petitionadmin_remove_signature(&$entity, $context = array()) {
+  // Move signature into removed table or set removal flag.
+  $result = db_query("INSERT IGNORE INTO {signature_mail_removed} (SELECT *, now() FROM {signature_mail} WHERE id=:id)", array(':id' => $entity->id));
+
+  // Delete signature.
+  if ($result) {
+    entity_delete('signature_mail', $entity->id);
+
+    // Update signature count for petition.
+    db_query("UPDATE IGNORE {field_data_field_petition_signature_count} SET field_petition_signature_count_value = field_petition_signature_count_value - 1 WHERE entity_id = :entity_id AND entity_type = 'node' AND bundle = 'petition'", array('entity_id' => $entity->petition_id));
+  }
+}
+
+/**
+ * Callback for node/%/signatures page.
+ *
+ * @param int $petition_id
+ *   Petition ID.
+ *
+ * @return string
+ *   HTML of page.
+ */
+function petitionadmin_admin_signatures($petition_id) {
+  drupal_add_css(drupal_get_path('module', 'petitionadmin') . '/petitionadmin.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
+
+  $removed_emails = db_query('SELECT count(*) FROM {signature_mail_removed} WHERE petition_id=:petition_id', array(':petition_id' => $petition_id))->fetchField();
+
+  $html = '<strong>Download All Signatures</strong><br />
+<a href="/node/' . $petition_id . '/signatures/export/base/download">CSV</a> | <a href="/node/' . $petition_id . '/signatures/export/email/download">Email</a><hr>';
+  $html .= views_embed_view('signature_mail_fraud_data', 'duplicate_ip_addr_sig_block', $petition_id) . '<hr>';
+  $html .= views_embed_view('signature_mail_fraud_data', 'subaddr_signature_emails_block', $petition_id) . '<hr>';
+  $html .= "<h2>Manually Removed Emails: " . $removed_emails . "</h2><hr>";
+  $html .= views_embed_view('petitionadmin_signatures', 'block_1', $petition_id);
+  return $html;
 }

@@ -38,6 +38,18 @@ class PetitionItem {
   protected $responseStatus = WH_PETITION_RESPONSE_STATUS_UNANSWERED;
   protected $userTags;
 
+  // Constant definitions for petition metric fields.
+  const PETITION_SIGNATURE_COUNT_EMAIL_SIGNUPS = 'sig_email_signups';
+  const PETITION_SIGNATURE_COUNT_FREE_EMAILS = 'sig_free_emails';
+  const PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS = 'sig_fwd_emails';
+  const PETITION_SIGNATURE_COUNT_OPEN_EMAILS = 'sig_open_emails';
+  const PETITION_SIGNATURE_COUNT_SHRED_EMAILS = 'sig_shred_emails';
+  const PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS = 'sig_subadr_emails';
+  const PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS = 'sig_tmebnd_emails';
+  const PETITION_SIGNATURE_COUNT_TRASH_EMAILS = 'sig_trash_emails';
+  const PETITION_SIGNATURE_COUNT_UNIQUE_EMAIL_ACCOUNTS = 'sig_unq_email_act';
+  const PETITION_VALIDATION_COUNT_UNIQUE_IP_EMAILS = 'val_unq_ip_emails';
+
   /**
    * Sets abuse flags for the petition.
    *
@@ -220,24 +232,15 @@ class PetitionItem {
   }
 
   /**
-   * Gets a unique identifier for the petition.
-   *
-   * Gets one of the unique identifiers for the petition--either the legacy
-   * (Mongo) ID or the entity (node) ID--according to preference and
-   * availability.
-   *
-   * @param bool $prefer_legacy_id
-   *   TRUE to prefer the legacy (Mongo) ID or FALSE to prefer the entity (node)
-   *   ID. Defaults to TRUE for backward compatibility.
+   * Gets the entity (node) ID for the petition.
    *
    * @return string|int|null
-   *   Returns a legacy (Mongo) petition ID or an entity (node) ID, or NULL if
+   *   Returns a an entity (node) ID, or NULL if
    *   no ID has been set at all.
    */
-  public function getId($prefer_legacy_id = TRUE) {
-    $preferred_id = ($prefer_legacy_id) ? $this->getLegacyId() : $this->getEntityId();
-    $fallback_id = ($prefer_legacy_id) ? $this->getEntityId() : $this->getLegacyId();
-    return ($preferred_id) ? $preferred_id : $fallback_id;
+  public function getId() {
+    // PT-1777 - Previously returned Legacy ID, then Node ID as fallback.
+    return $this->getEntityId();
   }
 
   /**

@@ -46,6 +46,14 @@ function wh_response_show_responses() {
   $search_form = drupal_get_form('wh_response_list_page_search_form');
   $search_form = drupal_render($search_form);
 
+  // Add sort form.
+  $sort_form = drupal_get_form('wh_response_list_page_sort_form');
+  $sort_form = drupal_render($sort_form);
+
+  // Add clear button if issues or search have values.
+  $clear_form = drupal_get_form('wh_response_list_page_clear_form');
+  $clear_form = drupal_render($clear_form);
+
   // Theme the responses page.
   return theme('wh_response_display_responses_page', array(
     'responses' => $html,
@@ -60,6 +68,8 @@ function wh_response_show_responses() {
     'count' => intval($count + (WH_RESPONSE_RESPONSES_PER_PAGE * ($page - 1))),
     'total' => intval($total),
     'no_responses' => FALSE,
+    'sort_form' => $sort_form,
+    'clear_form' => $clear_form,
   ));
 }
 
@@ -80,12 +90,6 @@ function wh_response_get_responses(&$sort, &$page, &$cols, &$issues, &$search, &
   $count = 0;
   $responses = array();
 
-  // Make sure the sort is a valid option.
-  if (!in_array($sort, array('featured'))) {
-    $sort = 'featured';
-    drupal_set_title(t('Featured Responses'));
-  }
-
   // Validate the page and calculate the offset for the query.
   $page = intval($page);
   if ($page <= 0) {
@@ -98,6 +102,21 @@ function wh_response_get_responses(&$sort, &$page, &$cols, &$issues, &$search, &
     $cols = 2;
   }
 
+  $search = trim(strip_tags(urldecode($search)));
+
+  $issue_tid_search = '';
+  // Check if search term matches an issue.
+  if (!empty($search)) {
+    $vocabulary = taxonomy_vocabulary_machine_name_load('issues');
+    $terms = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+    foreach ($terms as $term) {
+      if (strtolower($search) == strtolower($term->name)) {
+        $issue_tid_search = $term->tid;
+        break;
+      }
+    }
+  }
+
   // Issues.
   if (!empty($issues)) {
     $issues = explode(" ", $issues);
@@ -107,35 +126,51 @@ function wh_response_get_responses(&$sort, &$page, &$cols, &$issues, &$search, &
   }
 
   // Search.
-  $search = trim(strip_tags(urldecode($search)));
   $keywords = explode(' ', $search);
 
   // Query.
   $query = db_select('node', 'n', array('target' => 'slave'));
   $query->innerJoin('field_data_field_petition_count', 'c', 'n.nid = c.entity_id');
   $query->addField('c', 'field_petition_count_value', 'field_petition_count_value');
-  $query->fields('n', array('nid', 'title'))
+  $query->fields('n', array('nid', 'title', 'created'))
     ->condition('n.type', 'wh_response')
     ->condition('n.status', 0, '<>');
 
-  if ($sort == 'featured') {
-    $query->innerJoin('field_data_field_is_featured', 'f', 'n.nid = f.entity_id');
-    $query->addField('f', 'field_is_featured_value', 'field_is_featured_value');
-    $query->orderBy('c.field_petition_count_value', 'DESC')
-      ->orderBy('n.title', 'ASC')
-      ->condition('f.field_is_featured_value', 1);
+  switch ($sort) {
+    case 'desc':
+    case 'asc':
+      $query->orderBy('n.created', strtoupper($sort));
+      break;
+
+    case 'count_title':
+      $query->orderBy('c.field_petition_count_value', 'DESC')
+        ->orderBy('n.title', 'ASC');
+      break;
+
+    default:
+      $query->orderBy('n.created', 'DESC');
   }
-  else {
-    $query->orderBy('c.field_petition_count_value', 'DESC')
-      ->orderBy('n.title', 'ASC');
+
+  if (!empty($search) || !empty($issues)) {
+    $query->leftJoin('field_data_field_issues', 'i', 'n.nid = i.entity_id');
   }
 
   if (!empty($search)) {
-    $query->where("upper(n.title) LIKE upper(:search)", array(':search' => '%' . $search . '%'));
+    $query->leftJoin('field_data_field_petition_id', 'fpi', 'n.nid = fpi.entity_id');
+    $query->leftJoin('node', 'petition_node', 'petition_node.nid = fpi.field_petition_id_target_id');
+    $search_query = array(
+      'condition' => 'upper(n.title) LIKE upper(:search) OR upper(petition_node.title) LIKE upper(:search)',
+      'arguments' => array(':search' => '%' . $search . '%'),
+    );
+    if ($issue_tid_search != '') {
+      $search_query['condition'] .= ' OR i.field_issues_tid = :issue_search_id';
+      $search_query['arguments'][':issue_search_id'] = $issue_tid_search;
+    }
+    $query->where($search_query['condition'], $search_query['arguments']);
+    $query->distinct(TRUE);
   }
 
   if (!empty($issues)) {
-    $query->innerJoin('field_data_field_issues', 'i', 'n.nid = i.entity_id');
     $query->condition('i.field_issues_tid', $issues, 'IN');
     $query->distinct(TRUE);
   }
@@ -148,6 +183,7 @@ function wh_response_get_responses(&$sort, &$page, &$cols, &$issues, &$search, &
       'cols' => check_plain($cols),
       'nid' => check_plain($res['nid']),
       'title' => l($res['title'], 'node/' . $res['nid'], array('attributes' => array('rel' => 'nofollow'))),
+      'creation_date' => check_plain(date('F d, Y', $res['created'])),
       'response_link' => l(t('Read Full Response'), 'node/' . $res['nid'])
     ));
     $count++;
@@ -158,7 +194,6 @@ function wh_response_get_responses(&$sort, &$page, &$cols, &$issues, &$search, &
     $query->range();
     $total = $query->countQuery()->execute()->fetchField();
   }
-
   // We want something to occupy the place in the url in case there are no issues.
   if (empty($issues)) {
     $issues = array(0);
@@ -324,4 +359,12 @@ function wh_response_email_response_thank_you($nid) {
   }
   print $html;
   exit;
+}
+
+/**
+ * Clears responses and resets the form.
+ */
+function whr_response_clear_responses_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  $form_state['flag'] = 1;
 }

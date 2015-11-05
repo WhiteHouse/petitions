@@ -1,0 +1,99 @@
+<?php
+/**
+ * @file
+ * Define the schema definition for our signature mail fraud data entity.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function signature_mail_fraud_data_schema() {
+  $schema = array();
+  $schema['signature_mail_fraud_data'] = array(
+    'description' => "The base table for signature mail fraud data storage",
+    'fields' => array(
+      'signature_mail_id' => array(
+        'description' => 'Signature ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'petition_id' => array(
+        'description' => 'ID of the petition node that this entity belongs to',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'email' => array(
+        'description' => 'Email',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'unsub_email' => array(
+        'description' => 'Unsubaddressed Email',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'is_free_email' => array(
+        'description' => 'Free email provider domain',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_open_email' => array(
+        'description' => 'Open email provider domain',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_forwarding_email' => array(
+        'description' => 'Forwarding email provider domain',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_trash_email' => array(
+        'description' => 'Trash email provider domain',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_time_bound_email' => array(
+        'description' => 'Time bound email provider domain',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_shredder_email' => array(
+        'description' => 'Shredder email provider domain',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'ip_address' => array(
+        'description' => 'IP Address',
+        'type' => 'varchar',
+        'mysql_type' => 'varbinary(16)',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'petition_id' => array('petition_id'),
+      'unsub_email' => array('unsub_email'),
+      'ip_address' => array('ip_address'),
+    ),
+    'primary key' => array('signature_mail_id'),
+  );
+
+  return $schema;
+}

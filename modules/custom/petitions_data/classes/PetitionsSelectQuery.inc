@@ -43,6 +43,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   protected $orderByFieldsMap;
   protected $orderByDirMap;
   protected $uid;
+  protected $performTitleIssueQuery = FALSE;
 
   /**
    * These constants are used by the setOrderBy function.
@@ -73,7 +74,8 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    */
   public function __construct() {
     parent::__construct();
-    // Merge petition specific order by fields with common order by fields from SelectQueryBase.
+    // Merge petition specific order by fields with common order by fields from
+    // SelectQueryBase.
     $this->setValidOrderByFields(array_merge($this->getValidOrderByFields(), $this->getValidPetitionsOrderByFields()));
   }
 
@@ -942,6 +944,31 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
     return $this;
   }
 
+
+  /**
+   * Get accessor for $this->performTitleIssueQuery.
+   *
+   * @return bool
+   *   Whether to query both title and issue fields.
+   */
+  protected function getPerformTitleIssueQuery() {
+    return $this->performTitleIssueQuery;
+  }
+
+  /**
+   * Set accessor for $this->performTitleIssueQuery.
+   *
+   * @param bool $value
+   *   Whether to query both title and issue fields.
+   *
+   * @return PetitionsSelectQuery
+   *   Returns current instance of object.
+   */
+  public function setPerformTitleIssueQuery($value) {
+    $this->performTitleIssueQuery = $value;
+    return $this;
+  }
+
   /**
    * Parses the various status-related filters to get resulting status codes.
    *
@@ -991,6 +1018,12 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
     }
     elseif ($this->getStatus() == 'closed') {
       $included_statuses = $this->removeStatusesFromArray(wh_petitions_open_statuses(), $included_statuses);
+    }
+    elseif ($this->getStatus() == 'pending response') {
+      $included_statuses = array_intersect($included_statuses, array(WH_PETITION_STATUS_UNDER_REVIEW));
+    }
+    elseif ($this->getStatus() == 'responded') {
+      $included_statuses = array_intersect($included_statuses, array(WH_PETITION_STATUS_REVIEWED));
     }
 
     return $included_statuses;

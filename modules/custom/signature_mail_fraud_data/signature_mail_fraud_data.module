@@ -1,0 +1,184 @@
+<?php
+
+/**
+ * @file
+ * Definition of the signature mail fraud type entity, and helper functions.
+ */
+
+include_once 'signature_mail_fraud_data.features.inc';
+
+/**
+ * Implements hook_entity_info().
+ */
+function signature_mail_fraud_data_entity_info() {
+  $entity_type_info = array();
+
+  $entity_type_info['signature_mail_fraud_data'] = array(
+    'label' => t('Signature Mail Fraud Data'),
+    'base table' => 'signature_mail_fraud_data',
+    'entity class' => 'Entity',
+    'controller class' => 'EntityAPIController',
+    'module' => 'signature_mail_fraud_data',
+    'fieldable' => FALSE,
+    'entity keys' => array(
+      'id' => 'signature_mail_id',
+    ),
+    'bundles' => array(),
+    'static cache' => FALSE,
+    'entity cache' => FALSE,
+  );
+  return $entity_type_info;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function signature_mail_fraud_data_entity_property_info_alter(&$info) {
+  $info['signature_mail_fraud_data']['properties']['signature_mail_id']['type'] = 'signature_mail';
+  $info['signature_mail_fraud_data']['properties']['petition_id']['type'] = 'node';
+
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function signature_mail_fraud_data_views_pre_render(&$view) {
+  if (
+    ($view->name == 'signature_mail_fraud_data' && $view->current_display == 'duplicate_ip_addr_sig_block') ||
+    ($view->name == 'petitionadmin_signatures' && $view->current_display == 'block_1')
+  ) {
+
+    $field = 'signature_mail_fraud_data_ip_address';
+    if ($view->name == 'petitionadmin_signatures' && $view->current_display == 'block_1') {
+      $field = 'signature_mail_fraud_data_signature_mail_ip_address';
+    }
+
+    // Convert varbinary(16) IP address to string.
+    for ($i = 0; $i < count($view->result); $i++) {
+      if ($ip = $view->result[$i]->$field) {
+        $l = strlen($ip);
+        if ($l == 4 or $l == 16) {
+          $view->result[$i]->$field = inet_ntop($ip);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function signature_mail_fraud_data_views_query_alter(&$view, &$query) {
+  if ($view->name == 'petitionadmin_signatures' && $view->current_display == 'block_1') {
+    foreach ($query->where as $key => $val) {
+      if (count($val['conditions']) && $val['conditions'][0]['field'] == 'signature_mail_fraud_data_signature_mail.ip_address') {
+        $query->where[$key]['conditions'][0]['value'] = inet_pton($query->where[$key]['conditions'][0]['value']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_views_exposed_form_alter().
+ */
+function signature_mail_fraud_data_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  // Fixes reset button from redirecting to homepage.
+  if ($form['#id'] == 'views-exposed-form-petitionadmin-signatures-block-1') {
+    $form['#action'] = '';
+  }
+}
+
+/**
+ * Update/Insert data for a signature_mail node into fraud table.
+ *
+ * @param int $signature_mail_id
+ *   Signature mail ID
+ * @param int $petition_id
+ *   Petition ID
+ * @param string $email
+ *   Email address
+ * @param string $ip_address
+ *   IP Address (v4 or v6 format)
+ */
+function signature_mail_fraud_data_update_data($signature_mail_id, $petition_id, $email, $ip_address) {
+  $disposability = signatures_queue_get_email_disposability($email);
+  $unsub_email = signatures_queue_unsubaddress_email($email);
+  $ip_address_binary = 0;
+  if (!empty($ip_address) && strlen($ip_address) > 7) {
+    $ip_address_binary = inet_pton($ip_address);
+  }
+
+  $values = array(
+    'signature_mail_id' => $signature_mail_id,
+    'petition_id' => $petition_id,
+    'email' => $email,
+    'unsub_email' => $unsub_email,
+    'is_free_email' => $disposability->is_free_email,
+    'is_open_email' => $disposability->is_open_email,
+    'is_forwarding_email' => $disposability->is_forwarding_email,
+    'is_trash_email' => $disposability->is_trash_email,
+    'is_time_bound_email' => $disposability->is_time_bound_email,
+    'is_shredder_email' => $disposability->is_shredder_email,
+    'ip_address' => $ip_address_binary,
+  );
+
+  $entities = entity_load('signature_mail_fraud_data', array($signature_mail_id));
+  if (!$entities) {
+    $entity = entity_create('signature_mail_fraud_data', $values);
+    $entity->save();
+  }
+  else {
+    $entity = array_shift($entities);
+
+    unset($values['signature_mail_id']);
+    unset($values['petition_id']);
+    foreach ($values as $key => $val) {
+      $entity->$key = $val;
+    }
+    $entity->save();
+  }
+}
+
+/**
+ * Populate fraud data for a petition's signatures.
+ *
+ * @param int $petition_id
+ *   Petition id to process.
+ */
+function signature_mail_fraud_data_update_petition_sig_data($petition_id) {
+  $query = db_select('signature_mail', 'sm')
+    ->fields('sm', array('id', 'ip_address'))
+    ->fields('u', array('mail'))
+    ->condition('petition_id', $petition_id, '=');
+
+  $query->join('users', 'u', 'sm.uid = u.uid');
+  $result = $query->execute();
+
+  while ($row = $result->fetchAssoc()) {
+    signature_mail_fraud_data_update_data($row['id'], $petition_id, $row['mail'], $row['ip_address']);
+  }
+}
+
+/**
+ * Populate fraud data for open petitions.
+ */
+function signature_mail_fraud_data_populate_open_petitions() {
+  $petition_obj = PetitionsSelectQueryFactory::create();
+  $petition_obj->setStatus("open");
+  $petitions = $petition_obj->execute()->getResultObjects();
+  echo "Found " . count($petitions) . " open petitions, processing...\n";
+  foreach ($petitions as $petition) {
+    // Check to see if we already have data (resuming).
+    $petition_id = $petition->getEntityId();
+    $data_count = db_query('SELECT count(*) FROM {signature_mail_fraud_data} WHERE petition_id=:petition_id', array(':petition_id' => $petition_id))->fetchField();
+    if (!$data_count) {
+      echo "... processing {$petition_id} ";
+      signature_mail_fraud_data_update_petition_sig_data($petition_id);
+      echo "... completed!\n";
+    }
+    else {
+      echo "... skipped {$petition_id}, data exists\n";
+    }
+  }
+}
+

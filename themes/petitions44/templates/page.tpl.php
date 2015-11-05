@@ -50,77 +50,77 @@
 <?php endif; ?>
 
 <div id="<?php echo rtrim($fortyfour_page_wrapper_class) . '-page' ?>" class="page-wrapper">
-  <div class="center-on-page clearfix" id="page-inner">
-  <div id="wh-header" class="clearfix">
-    <?php if ($fortyfour_header): ?>
-      <?php print render($fortyfour_header); ?>
-    <?php endif; ?>
-    <?php if ($fortyfour_mainnav): ?>
-      <?php print render($fortyfour_mainnav); ?>
-    <?php endif; ?>
-    <?php if ($page['takeover']): ?>
-      <div class="takeover"><?php print render($page['takeover']); ?></div>
-    <?php endif; ?>
-    <?php if ($page['header']): ?>
-      <?php print render($page['header']); ?>
-    <?php endif; ?>
-  </div><!--wh-header-->
+  <div id="page-inner" class="clearfix">
 
-<div id="petition-header" class="clearfix">
-  <div class="col-1">
-    <a class="intro" href="<?php print $base_path ?>">
-      <?php print t("We the people: your voice in our government"); ?>
-    </a>
-    <!--/intro-->
-    <?php if ($main_menu): ?>
-        <?php print theme('links__system_main_menu', array(
-          'links' => $main_menu,
-          'attributes' => array(
-            'id' => 'main-menu-links',
-            'class' => array('links', 'user-state-links', 'clearfix'),
-          ),
-        )); ?>
-    <?php endif; ?>
-    <!--/petition-nav-->
-  </div>
-  <!--/col 1-->
+    <div id="wh-header" class="grid-container clearfix">
+      <?php if ($fortyfour_header): ?>
+        <?php print render($fortyfour_header); ?>
+      <?php endif; ?>
+      <?php if ($page['takeover']): ?>
+        <div class="takeover"><?php print render($page['takeover']); ?></div>
+      <?php endif; ?>
+      <?php if ($page['header']): ?>
+        <?php print render($page['header']); ?>
+      <?php endif; ?>
+    </div><!--wh-header-->
 
-  <div class="col-2">
-    <div class="text">
-      <?php if ($petitions44_help_text): ?>
-        <?php print $petitions44_help_text; ?>
-      <?php endif; ?>
+    <div id="content-wrapper" class="grid-container clearfix">
+      <div id="petition-header" class="clearfix">
+        <div class="col-1">
+          <a class="intro" href="<?php print $base_path ?>">
+            <?php print t("We the people: your voice in our government"); ?>
+          </a>
+          <!--/intro-->
+          <?php if ($main_menu): ?>
+              <?php print theme('links__system_main_menu', array(
+                'links' => $main_menu,
+                'attributes' => array(
+                  'id' => 'main-menu-links',
+                  'class' => array('links', 'user-state-links', 'clearfix'),
+                ),
+              )); ?>
+          <?php endif; ?>
+          <!--/petition-nav-->
+        </div>
+        <!--/col 1-->
+
+        <div class="col-2">
+          <div class="text">
+            <?php if ($petitions44_help_text): ?>
+              <?php print $petitions44_help_text; ?>
+            <?php endif; ?>
+          </div>
+          <!--/text-->
+          <div class="share-link link-wrapper">
+            <span class="view-my-link">
+              <a href="http://www.whitehouse.gov/feedback-petitions" class="wh-feedback-link no-follow" target="_blank">Share Your Feedback</a>
+            </span>
+          </div>
+          <div class="link-wrapper">
+            <?php if ($secondary_menu): ?>
+              <?php print theme('links__system_secondary_menu', array(
+                'links' => $secondary_menu,
+                'attributes' => array(
+                  'id' => 'secondary-menu-links',
+                  'class' => array(
+                    'secondary-links',
+                    'user-state-links',
+                    'inline',
+                    'clearfix',
+                  ),
+                ),
+              )); ?>
+            <?php endif; ?>
+          </div>
+          <!--/link wrapper-->
+        </div>
+        <!--/col 2-->
+      </div>
+      <!--/petition header-->
     </div>
-    <!--/text-->
-    <div class="share-link link-wrapper">
-      <span class="view-my-link">
-        <a href="http://www.whitehouse.gov/feedback-petitions" class="wh-feedback-link no-follow" target="_blank">Share Your Feedback</a>
-      </span>
-    </div>
-    <div class="link-wrapper">
-      <?php if ($secondary_menu): ?>
-        <?php print theme('links__system_secondary_menu', array(
-          'links' => $secondary_menu,
-          'attributes' => array(
-            'id' => 'secondary-menu-links',
-            'class' => array(
-              'secondary-links',
-              'user-state-links',
-              'inline',
-              'clearfix',
-            ),
-          ),
-        )); ?>
-      <?php endif; ?>
-    </div>
-    <!--/link wrapper-->
-  </div>
-  <!--/col 2-->
-</div>
-<!--/petition header-->
 
 <?php if (!$is_front): ?>
-  <div id="main">
+  <div id="main" class="grid-container clearfix">
 <?php endif; ?>
 
     <?php if (!empty($is_not_cached)): ?>

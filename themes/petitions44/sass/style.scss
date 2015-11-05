@@ -76,12 +76,12 @@ body{
   height:100%;
   margin:0;
   padding:0;
-  background: none;
+  background: #F4F4F4;
 }
 
 
 #petition-page {
- 	background: url(../img/wh_home_new_header.jpg) no-repeat scroll top center;
+  background: none #FFF;
  /* background:url(../img/bg-main-one.jpg) center top no-repeat; */
   min-height: 1000px; /* Revised from 100% on site */
   margin: 0;
@@ -149,7 +149,8 @@ body.petition #page-inner {position: relative;}
   padding: 0;
 }
 
-.section-how-why #petition-inner #main-content-wrapper {
+.section-how-why #petition-inner #main-content-wrapper,
+.node-type-wh-petitions-page #petition-inner #main-content-wrapper {
   width: 100%;
 }
 
@@ -201,11 +202,11 @@ body.petition #page-inner {position: relative;}
   margin-bottom: 0px;
 }
 
-#wh-footer {
-  background-image: url(../img/wh_home_footer.jpg);
-  background-position: 0px 0px;
-  position:relative;
-}
+/****** Footer Styles in "footer" partial ******/
+@import 'footer';
+
+
+/****** Right Rail ******/
 #petition-inner .right-rail .container {
   width: 238px;
 }
@@ -627,6 +628,10 @@ permanent solution will need to be created in the future. */
   font-size: 1.333em;
 }
 
+.petition-landing-wrapper {
+  border-bottom: none !important;
+}
+
 .petition-list {
   margin-bottom: 10px;
 }
@@ -657,7 +662,13 @@ permanent solution will need to be created in the future. */
   line-height: 1.2em;
 }
 
-h1.title  {
+.petition-list .entry .creation-date {
+  font-size: 1.167em;
+  font-family: Arial, sans-serif;
+  margin: 10px 0 0;
+}
+
+h1.title , .petition-list .entry .title a {
   color: #333333;
 }
 
@@ -675,30 +686,29 @@ h1.title  {
    /*float: left;*/
 }
 
-.petition-list .entry .title a {
+.petition-list .entry .content {
   background: #f6f6f6;
   display: block;
   color: #333;
   padding: 16px;
   border: 1px solid #dbdbdb;
-      border-top-right-radius: 5px;
--moz-border-radius-topright: 5px;
--webkit-border-radius-topright: 5px;
+  border-top-right-radius: 5px;
+  -moz-border-radius-topright: 5px;
+  -webkit-border-radius-topright: 5px;
   border-top-left-radius: 5px;
--moz-border-radius-topleft: 5px;
--webkit-border-radius-topleft: 5px;
-width: auto;
+  -moz-border-radius-topleft: 5px;
+  -webkit-border-radius-topleft: 5px;
+  width: auto;
+  height: auto;
 }
 
-.petition-list .col-2 .entry .title a {
-  height: 120px;
+.petition-list .col-2 .entry .content {
+  height: 140px;
 }
 
-.petition-list .entry .title a:hover {
-  text-decoration: underline;
+.petition-list .entry .content .title a:hover {
   color: #000;
   background: #FFF;
-  border: 1px solid #e6e6e6;
 }
 
 .petition-list .petitions .entry .action-bar,
@@ -737,7 +747,7 @@ text-shadow:0 1px 0 #ffffff;
 text-shadow:0 1px 0 #ffffff;
 }
 
-petition-list .responses .col-2 .response-entry .action-bar, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
+.petition-list .responses .col-2 .response-entry .action-bar, #create-petition-form-step-2 .petition-list .response-entry .action-bar {
     background: url(../img/bg-petitions-action-bar.png) no-repeat 0 0;
     text-indent: -9000px;
     display: block;
@@ -1128,6 +1138,12 @@ a.show-more-responses-bar:hover
    margin-bottom: 15px;
 }
 
+#petitions-notice-wrapper {
+  padding-bottom: 20px;
+  text-align: center;
+  display: block;
+}
+
 .petition-filter, .response-filter {
   background:url(../img/sprite.gif) no-repeat 0 -133px;
   height: 55px;
@@ -1165,6 +1181,18 @@ a.show-more-responses-bar:hover
   left: 225px;
   padding: 0px;
   top:25px;
+}
+
+.section-responses #issues-filter-drop {
+  left: 74px;
+}
+
+.section-responses .form-dirty #issues-filter-drop {
+  left: -23px;
+}
+
+.section-petitions .form-dirty #issues-filter-drop {
+  left: 161px;
 }
 
 #issues-filter-top {
@@ -1303,6 +1331,18 @@ line-height: 0;
   top:25px;
 }
 
+.section-responses #search-drop {
+  left: 217px;
+}
+
+.section-responses .form-dirty #search-drop {
+  left: 119px;
+}
+
+.section-petitions .form-dirty #search-drop {
+  left: 306px;
+}
+
 #search-drop div.close-button, .modal a.close-button,
 #share-this-petition #report-petition-overlay span.close-button,
 .delete-petition-overlay a.close-button
@@ -1317,6 +1357,9 @@ line-height: 0;
   cursor: pointer;
 }
 
+#search-drop div.close-button {
+  color: transparent;
+}
 #share-this-petition #report-petition-overlay span.close-button,
 .delete-petition-overlay a.close-button {
   padding: 4px 20px 2px 0;
@@ -1344,15 +1387,22 @@ line-height: 0;
     top:45px;
 }
 
+// wrapper div for search field
+div.form-item-filter-search {
+  background:url(../img/sprite.gif) no-repeat 0 -936px;
+  width: 452px !important;
+  height: 57px;
+}
+
 #search-drop input#edit-filter-search {
- background:url(../img/sprite.gif) no-repeat 0 -936px;
- height: 38px;
- width: 440px;
- padding: 10px 0 11px 15px;
- border: none;
- font-weight: bold;
- font-size:   1.333em;
- outline: none;
+  background: none;
+  height: 40px;
+  width: 428px !important;
+  padding-left: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 1.333em;
+  outline: none;
 }
 
 #search-drop .form-item {
@@ -1408,7 +1458,8 @@ line-height: 0;
  {
   background: url(../img/bg-fuz-line-bar.png) no-repeat 60px 0;
   float: right;
-  width: 270px;
+  min-width: 270px;
+  max-width: 508px;
   display: block;
   height: 37px;
   margin: -7px 0 0 0;
@@ -1513,6 +1564,47 @@ li.view-one-column a.active, li.view-one-column a.active:hover {
 
 .response-filter li.view-one-column a.active {
   background: url(../img/icons-filter-view.gif) no-repeat -139px 0;
+}
+
+.filter-by-sort {
+  padding: 0 5px 0 5px;
+}
+
+/** Clear form button **/
+
+.filter-by-clear {
+  padding: 2px 0;
+  margin: 8px 8px 0 4px;
+}
+
+#petition-inner form#form-item-clear {
+  padding: 0px;
+}
+
+.response-clear-form,
+.petitions-clear-form {
+  margin: 0;
+  padding: 0;
+}
+
+.response-clear-form #edit-result-clear,
+.petitions-clear-form #edit-result-clear {
+  border: 1px solid #a3a3a3 !important;
+  padding: 2px 10px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+
+#form-item-sort .form-item-result-sort label {
+  float: left;
+  padding: 2px 5px 0 0;
+  color: #535353;
+}
+
+#form-item-sort, .form-item-result-sort {
+  padding: 5px 0 0 0  !important;
+  margin: 0;
 }
 
 li.view-one-column a {
@@ -2670,6 +2762,10 @@ input#submit-comment-with-sig {
   font-size:  1.833em;
 }
 
+.petition-response .response-date {
+  margin-top: 1em;
+}
+
 img.response-call {
   position: absolute;
   top: -19px;
@@ -3322,7 +3418,7 @@ a#button-view-white-house-petitions {
   padding:0 0 20px 0;
 }
 #form-item-search-drop  {
-  margin: 25px 0 0 20px;
+  margin: 25px 0 0 5px;
 }
 #petition-inner #form-item-issues-filter {
   padding: 0px;
@@ -3538,6 +3634,71 @@ input#edit-delete {
   padding:0px;
 }
 
+/**
+* Petition and Response Autocomplete styles
+**/
+
+.page-responses #autocomplete,
+.page-petitions #autocomplete {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px;
+  background: #FFF;
+  border: 1px solid #d2d2d2;
+}
+
+.page-responses #autocomplete ul li,
+.page-petitions #autocomplete ul li {
+  clear: both;
+  padding: 10px;
+  font-weight: normal;
+  font-size: 1.333em;
+  display: inline-block;
+  width: 420px;
+}
+
+.page-responses #autocomplete ul li:hover {
+  background-color: #336699;
+}
+
+.page-petitions #autocomplete ul li:hover {
+  background-color: #669900;
+}
+
+.page-responses #autocomplete ul li:first-child,
+.page-petitions #autocomplete ul li:first-child {
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+
+}
+
+.page-responses #autocomplete ul li:last-child,
+.page-petitions #autocomplete ul li:last-child {
+  -moz-border-radius-bottomleft: 5px;
+  -moz-border-radius-bottomright: 5px;
+  -webkit-border-bottom-left-radius: 5px;
+  -webkit-border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.page-responses #autocomplete ul li div,
+.page-petitions #autocomplete ul li div {
+  display: inline-block;
+  word-wrap: break-word;      /* IE 5.5-7 */
+  white-space: -moz-pre-wrap; /* Firefox 1.0-2.0 */
+  white-space: pre-wrap;      /* current browsers */
+}
+
+.page-responses #autocomplete .autocomplete-list-item-type,
+.page-petitions #autocomplete .autocomplete-list-item-type {
+  font-weight: bold;
+}
 /**** Sign in Create Account Page ****/
 
 #sign-in-or-create-account {}
@@ -3729,6 +3890,7 @@ li#profile-info a:hover span, #your-comments a:hover span {text-decoration: unde
 }
 #eegister-content #edit-email-updates-wrapper input.form-checkbox {
 }
+
 /* User Registration */
 
 .webform-client-form #webform-component-policy_comment #edit-submitted-policy-comment-wrapper label span,
@@ -4787,7 +4949,7 @@ text-transform:uppercase;
                 .method-request .request-body,
                 .method-response .response-body,
                 .implementations .implementation-bundle .implementation,
-                .method-errors. method-error {
+                .method-errors .method-error {
                   border: 1px solid #f2f3f5;
                   padding: 5px 5px;
                 }
@@ -4887,3 +5049,20 @@ text-transform:uppercase;
     }
   }
 }
+
+/* Petitions Api Key Request Form */
+
+.node-type-wh-petitions-page #petition-inner form {
+  left: 200px;
+  position: relative;
+}
+
+#petitions-api-keys-submission-form {
+  #edit-terms-of-user {
+    label.option {
+      display: inline;
+    }
+  }
+}
+
+@import 'whr-header';

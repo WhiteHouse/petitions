@@ -35,8 +35,6 @@ For installation instructions, see INSTALL.md.
 
 NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience. The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 themeing conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
 
-Keys for the write API are issued, validated, and rate limited by a third-party service.
-
 ## Roadmap
 
 Have an idea or question about future features for We the People? Let us know by opening a ticket on GitHub, emailing us directly at wethepeople@who.eop.gov, or tweeting @WHWeb.
@@ -52,19 +50,6 @@ The codebase is released as-is and currently supports a specific, standalone web
 *Generic Theme*
 
 The current codebase replicates the theme used on the White House website. In the future, we would like to provide a generic, "white label" Drupal 7 theme.
-
-*Streamline Petition Signing Workflow*
-
-The current workflow for a new user to sign a petition involves 1. creating a user account, 2. verifying the email address used to create the account by clicking a link in an email set to it and 3. returning to the petition to click to sign.
-The new workflow will start with 1. clicking to sign a petition and adding an email address, and 2. verifying the signature via email. Signing a petition will not require Drupal users logging into the site.
-
-*API Development*
-
-We would like to develop a set of read-only API methods that would allow users to retrieve data on open petitions. We would also like to develop API methods that would allow users to sign a petition via a third party website, but with some level of verification that confirms a valid email address to potentially receive a response. Developing these methods would greatly expand the appeal of this tool, allowing other organizations to control the user experience and flow for petitions within their own environment while still registering verified signatures against a We the People threshold.
-
-*Improved Social Media Integration*
-
-The current platform allows basic sharing of petitions, responses and other content on the site via social media platforms like Facebook and Twitter. In the future, we would like reduce the friction of signing a petition by making it possible to sign a petition in the context of a social network (e.g. by “liking” an object on facebook).
 
 *Mobile interface*
 

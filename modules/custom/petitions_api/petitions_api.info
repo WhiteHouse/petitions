@@ -15,5 +15,3 @@ dependencies[] = wh_petitions
 features[ctools][] = services:services:3
 features[features_api][] = api:1
 features[services_endpoint][] = api_v1
-files[] = tests/PetitionsApiBaseTestCase.test
-files[] = tests/PetitionsApiRecieveSignaturesTestCase.test

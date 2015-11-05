@@ -60,6 +60,58 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
     self::SELECT_QUERY_ORDER_BY_FIELD_DATE_REACHED_PUBLIC => array('field' => 'field_timestamp_reached_public', 'column' => 'value'),
   );
 
+  protected static $petitionMetricFieldsMap = array(
+    PetitionItem::PETITION_SIGNATURE_COUNT_EMAIL_SIGNUPS => array(
+      'table' => 'field_petition_sig_email_signups',
+      'field' => 'field_petition_sig_email_signups_value',
+      'title' => 'Email Signups',
+    ),
+    PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS => array(
+      'table' => 'field_petition_sig_free_emails',
+      'field' => 'field_petition_sig_free_emails_value',
+      'title' => 'Free Email Addresses',
+    ),
+    PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS => array(
+      'table' => 'field_petition_sig_fwd_emails',
+      'field' => 'field_petition_sig_fwd_emails_value',
+      'title' => 'Forwarding Email Addresses',
+    ),
+    PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS => array(
+      'table' => 'field_petition_sig_open_emails',
+      'field' => 'field_petition_sig_open_emails_value',
+      'title' => 'Open Email Addresses',
+    ),
+    PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS => array(
+      'table' => 'field_petition_sig_shred_emails',
+      'field' => 'field_petition_sig_shred_emails_value',
+      'title' => 'Shred Email Addresses',
+    ),
+    PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS => array(
+      'table' => 'field_petition_sig_subadr_emails',
+      'field' => 'field_petition_sig_subadr_emails_value',
+      'title' => 'Subaddressed Email Addresses',
+    ),
+    PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS => array(
+      'table' => 'field_petition_sig_tmebnd_emails',
+      'field' => 'field_petition_sig_tmebnd_emails_value',
+      'title' => 'Time Bound Email Addresses',
+    ),
+    PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS => array(
+      'table' => 'field_petition_sig_trash_emails',
+      'field' => 'field_petition_sig_trash_emails_value',
+      'title' => 'Trash Email Addresses',
+    ),
+    PetitionItem::PETITION_SIGNATURE_COUNT_UNIQUE_EMAIL_ACCOUNTS => array(
+      'table' => 'field_petition_sig_unq_email_act',
+      'field' => 'field_petition_sig_unq_email_act_value',
+      'title' => 'Unique Email Accounts',
+    ),
+    PetitionItem::PETITION_VALIDATION_COUNT_UNIQUE_IP_EMAILS => array(
+      'table' => 'field_petition_val_unq_ip_emails',
+      'field' => 'field_petition_val_unq_ip_emails_value',
+      'title' => 'Unique Email IP Addresses',
+    ),
+  );
 
   /**
    * Constructor.
@@ -385,7 +437,7 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
    * Adds the status argument to the query.
    */
   protected function addStatusToQuery() {
-    $include_statuses = static::parseStatus();
+    $include_statuses = $this->parseStatus();
 
     if ($include_statuses) {
       $this->query->fieldCondition('field_petition_status', 'value', $include_statuses, 'IN');
@@ -400,7 +452,7 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
   /**
    * Gets a petition ID from a given petition URL.
    *
-   * @param $url
+   * @param string $url
    *   The URL to get a petition ID from.
    *
    * @return mixed|false
@@ -501,6 +553,13 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
       $short_url = isset($node->field_short_url[LANGUAGE_NONE][0]['value']) ? $node->field_short_url[LANGUAGE_NONE][0]['value'] : NULL;
       $body = isset($node->body[LANGUAGE_NONE][0]['value']) ? $node->body[LANGUAGE_NONE][0]['value'] : '';
 
+      $signature_count = db_select('signature_mail', 'sm')
+        ->condition('petition_id', $node->nid)
+        ->countQuery()
+        ->execute()
+        ->fetchField();
+      @$node->signature_count = $signature_count;
+
       $petition
         ->setEntityId($node->nid)
         ->setLegacyId($legacy_id)
@@ -515,7 +574,7 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
 
         ->setShortUrl($short_url)
         ->setReviewTimeframe($node->field_petition_review_timeframe[LANGUAGE_NONE][0]['value'])
-        ->setSignatureCount((int) $node->field_petition_signature_count[LANGUAGE_NONE][0]['value'])
+        ->setSignatureCount((int) $node->signature_count)
         ->setSignatureThreshold((int) $node->field_petition_response_sign[LANGUAGE_NONE][0]['value'])
         ->setStatus($node->field_petition_status[LANGUAGE_NONE][0]['value'])
         ->setResponse($response)
@@ -539,6 +598,178 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
     $this->setResultObjects($result_objects);
     $this->setResult($result_arrays);
     $this->setCount($this->resultsetCount);
+  }
+
+  /**
+   * Increment petition node metric count.
+   *
+   * @param int $petition_id
+   *   Node petition ID
+   *
+   * @param string $petition_metric
+   *   Petition Metric constant from PetitionItem class.
+   *
+   * @param bool $decrement
+   *   If TRUE, will decrease metric count by one, otherwise increment.
+   */
+  public static function incrementPetitionMetricCount($petition_id, $petition_metric, $decrement = FALSE) {
+    if (isset(self::$petitionMetricFieldsMap[$petition_metric])) {
+      $nid = petition_get_nid($petition_id);
+      if (!$nid) {
+        watchdog('petitions_data', 'incrementPetitionMetricCount - Could not get petition nid for !id', array(
+          '!id' => $petition_id,
+        ));
+        return;
+      }
+
+      $table_name = self::$petitionMetricFieldsMap[$petition_metric]['table'];
+      $field_name = self::$petitionMetricFieldsMap[$petition_metric]['field'];
+      $count_mod = $decrement ? ' - 1' : ' + 1';
+      $result = db_update('field_data_' . $table_name)
+        ->expression($field_name, $field_name . $count_mod)
+        ->condition('entity_id', $nid)
+        ->execute();
+
+      if (!$result && !$decrement) {
+        // If no rows updated, create a new row for the field with count = 1.
+        $node = node_load($nid);
+        if ($node) {
+          $fields = array(
+            'entity_type' => 'node',
+            'bundle' => $node->type,
+            'deleted' => 0,
+            'entity_id' => $node->nid,
+            'revision_id' => $node->vid,
+            'language' => $node->language,
+            'delta' => 0,
+            $field_name => 1,
+          );
+          // DB insert used to skip apachesolr hooks to trigger node reindexing.
+          db_insert('field_data_' . $table_name)->fields($fields)->execute();
+          db_insert('field_revision_' . $table_name)->fields($fields)->execute();
+        }
+        else {
+          watchdog('petitions_data', 'incrementPetitionMetricCount - Could not load petition_id !id', array(
+            '!id' => $petition_id,
+          ));
+        }
+      }
+      elseif ($result) {
+        // If node update was successful, update revision table as well.
+        db_update('field_revision_' . $table_name)
+          ->expression($field_name, $field_name . $count_mod)
+          ->condition('entity_id', $nid)
+          ->execute();
+      }
+    }
+    else {
+      watchdog('petitions_data', 'incrementPetitionMetricCount - invalid metric: !metric', array(
+        '!metric' => $petition_metric,
+      ));
+    }
+  }
+
+  /**
+   * Getter for petitionMetricFieldsMap.
+   *
+   * @return array
+   *   Array of petition metric field mappings.
+   */
+  public static function getPetitionMetricFieldsMap() {
+    return self::$petitionMetricFieldsMap;
+  }
+
+  /**
+   * Bump a petition node's field value up or down by 1.
+   *
+   * Performs update without triggering node save hooks.
+   *
+   * @param int $petition_id
+   *   Node petition ID
+   * @param string $field_name
+   *   Field name to bump, ie. "field_petition_last_alert".
+   * @param string $column
+   *   Column containing the value, ie. "value"
+   * @param bool $decrement
+   *   If TRUE, will decrement field otherwise increment by default.
+   */
+  public static function bumpPetitionField($petition_id, $field_name, $column, $decrement = FALSE) {
+    $nid = petition_get_nid($petition_id);
+    if (!$nid) {
+      watchdog('petitions_data', 'bumpPetitionField - Could not get petition nid for !id', array(
+        '!id' => $petition_id,
+      ));
+      return;
+    }
+
+    $value_column = $field_name . '_' . $column;
+    $data_table = 'field_data_' . $field_name;
+    $revision_table = 'field_revision_' . $field_name;
+    $count_mod = $decrement ? ' - 1' : ' + 1';
+
+    $result = db_update('field_data_' . $field_name)
+      ->expression($value_column, $value_column . $count_mod)
+      ->condition('entity_id', $nid)
+      ->execute();
+
+    if (!$result && !$decrement) {
+      // If no rows updated, create a new row for the field with count = 1.
+      $node = node_load($nid);
+      if ($node) {
+        $fields = array(
+          'entity_type' => 'node',
+          'bundle' => $node->type,
+          'deleted' => 0,
+          'entity_id' => $node->nid,
+          'revision_id' => $node->vid,
+          'language' => $node->language,
+          'delta' => 0,
+          $value_column => 1,
+        );
+        // DB insert used to skip apachesolr hooks to trigger node reindexing.
+        db_insert($data_table)->fields($fields)->execute();
+        db_insert($revision_table)->fields($fields)->execute();
+      }
+      else {
+        watchdog('petitions_data', 'bumpPetitionField - Could not load petition_id !id', array(
+          '!id' => $petition_id,
+        ));
+      }
+    }
+    elseif ($result) {
+      // If node update was successful, update revision table as well.
+      db_update($revision_table)
+        ->expression($value_column, $value_column . $count_mod)
+        ->condition('entity_id', $nid)
+        ->execute();
+    }
+  }
+
+  /**
+   * Sets a petition's field to a value without triggering node save hooks.
+   *
+   * @param int $petition_id
+   *   Node petition ID
+   * @param string $field_name
+   *   Field name to bump, ie. "field_petition_last_alert".
+   * @param string $column
+   *   Column containing the value, ie. "value"
+   * @param string $value
+   *   Value to set column to
+   */
+  public static function setPetitionFieldValue($petition_id, $field_name, $column, $value) {
+    $nid = petition_get_nid($petition_id);
+    if (!$nid) {
+      watchdog('petitions_data', 'setPetitionFieldValue - Could not get petition nid for !id', array(
+        '!id' => $petition_id,
+      ));
+      return;
+    }
+
+    $node = node_load($nid);
+    $node->{$field_name}[LANGUAGE_NONE][0][$column] = $value;
+    field_attach_update('node', $node);
+    entity_get_controller('node')->resetCache(array($node->nid));
   }
 
 }

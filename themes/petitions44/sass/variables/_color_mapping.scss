@@ -1,0 +1,20 @@
+/**
+ * Map color values to their use cases for the theme.
+ */
+
+// Light gray background, such as for the footer.
+$gray-background: $color-gray-lightest;
+// Slightly darker gray border.
+$gray-border: $color-gray-light;
+// Footer active link color;
+$active-link: $color-blue3;
+// Lighter grey color for utility links in footer.
+$utility-menu-link-color: $color-gray40;
+// Header background color.
+$header-background: rgba($color-blue4,0.82);
+// Header nav border.
+$header-nav-border: rgba($color-blue5,0.44);
+// Slogan color.
+$slogan-text: $gray80;
+// Desktop search color
+$search-desktop-text: $color-blue6;

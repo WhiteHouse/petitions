@@ -1,11 +1,15 @@
 <?php
+/**
+ * @file
+ * taxonomy_sync.features.inc
+ */
 
 /**
- * Implementation of hook_ctools_plugin_api().
+ * Implements hook_ctools_plugin_api().
  */
 function taxonomy_sync_ctools_plugin_api() {
   list($module, $api) = func_get_args();
   if ($module == "feeds" && $api == "feeds_importer_default") {
-    return array("version" => 1);
+    return array("version" => "1");
   }
 }

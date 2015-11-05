@@ -7,7 +7,6 @@ core = 7.x
 ; --------
 
 ; depends on:
-;  mongodb
 ;  taxonomy
 ;  wh_petitions
 ;
@@ -26,7 +25,6 @@ dependencies[] = wh_petition_reporting
 dependencies[] = wh_petition_tool
 
 ; depends on:
-;  mongodb
 ;  pathauto
 ;  taxonomy
 ;  taxonomy_sync

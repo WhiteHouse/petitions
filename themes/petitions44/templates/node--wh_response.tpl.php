@@ -69,7 +69,7 @@
  * - $is_front: Flags true when presented in the front page.
  * - $logged_in: Flags true when the current user is a logged-in member.
  * - $is_admin: Flags true when the current user is an administrator.
- * 
+ *
  * - $issues_form: Rendered form for wh_response_list_page_issues_form
  * - $search_form: Rendered form for wh_response_list_page_search_form
  * - $petition_count: Number of petitions that this node is responding to.
@@ -104,7 +104,7 @@
       <?php print $agency_seal; ?>
       <span class="official"><?php print t('Official !agency_name Response to', array('!agency_name' => $agency_name)); ?></span>
       <?php if ($petition_count > 0): ?>
-        <span class="petition-title"><?php print $petition_title; ?>       
+        <span class="petition-title"><?php print $petition_title; ?>
           <?php if ($petition_count > 1): ?>
             <a href="" class="no-follow" id="more-petitions">
             <?php if ($petition_count == 2): ?>
@@ -117,18 +117,20 @@
         </span><!--/petition title-->
       <?php endif; ?>
     </div><!--/response author-org-->
-                             
+    <div class="response-date">
+      <?php printf('This response was published on %s.', format_date($node->created, 'response')); ?>
+    </div>
     <h1 class="title"><?php print $title; ?></h1>
-    
+
     <?php if (!empty($video)): ?>
       <div class="media"><?php print $video; ?></div>
     <?php endif; ?>
     <?php if (!empty($audio)): ?>
       <div class="media"><?php print $audio; ?></div>
-    <?php endif; ?>  
-      
+    <?php endif; ?>
+
     <?php print $body; ?>
-  </div><!--/petition response-->            
+  </div><!--/petition response-->
 
   <div id="share-this-petition">
     <ul>
@@ -138,8 +140,8 @@
     </ul>
   </div><!--/share this petition-->
 </div><!--/petition detail-->
-              
-<?php if ($petition_count > 0): ?>              
+
+<?php if ($petition_count > 0): ?>
   <div class="petition-list clearfix">
     <div class="response-applies-msg">
       <?php if ($petition_count == 1): ?>
@@ -148,7 +150,7 @@
         <?php print t('The above response applies to the following !count petitions', array('!count' => $petition_count)); ?>
       <?php endif; ?>
     </div><!--/response applies-msg-->
-              
+
     <div class="full-page-list" id="petitions">
       <?php print $petition_html; ?>
     </div><!--full-page-list-->

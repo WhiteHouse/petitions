@@ -89,11 +89,7 @@ function petitionevents_mail_additions(&$message, $context) {
     $nid = $context['nid'];
 
     // Replacement for petition_remove_link.
-    $path = url('admin/moderation-tools', array(
-      'query' => array('nid' => $nid),
-      'absolute' => TRUE,
-    ));
-    $link = l($path, $path);
+    $link = petitionadmin_get_admin_link($nid);
     $message = str_replace('!petition_remove_link', $link, $message);
     $message = str_replace('!petition_nid', $nid, $message);
   }
@@ -124,5 +120,5 @@ function petitionevents_get_administer_link() {
     $node_id = 0;
   }
 
-  return l(t('Administer This Petition'), 'admin/moderation-tools', array('query' => array('nid' => $node_id)));
+  return petitionadmin_get_admin_link($node_id);
 }

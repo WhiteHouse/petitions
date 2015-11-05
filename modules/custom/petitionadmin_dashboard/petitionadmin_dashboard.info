@@ -1,0 +1,14 @@
+name = Petition Admin Dashboard
+description = Petitions: Administrative Dashboard
+core = 7.x
+package = Petitions
+php = 5.2.4
+version = 7.x-1.1
+project = petitionadmin_dashboard
+dependencies[] = ctools
+dependencies[] = date_views
+dependencies[] = petition
+dependencies[] = petitionevents
+dependencies[] = event_log
+files[] = classes/PetitionsStatistics.inc
+configure = admin/config/system/petitionadmin_dashboard

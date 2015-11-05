@@ -248,3 +248,72 @@ function wh_petitions_update_7106(&$sandbox) {
     ->condition('name', 'wh_petitions', '=')
     ->execute();
 }
+
+/**
+ * Initialize ready response email settings.
+ */
+function wh_petitions_update_7107(&$sandbox) {
+  variable_set('wh_petitions_admin_ready_response_emails', 'wethepeople@whitehouse.gov');
+  variable_set('wh_petitions_admin_ready_response_subject', 'Petition ready for response');
+  variable_set('wh_petitions_admin_ready_response_text', "The petition titled \"!petition_title\" has passed the number of signatures necessary for a response.
+
+You can review the petition here:
+!petition_edit_link
+
+=================
+
+TITLE:
+!petition_title
+
+BODY:
+!petition_body
+
+=================");
+}
+
+/**
+ * Initialize signature threshold email settings.
+ */
+function wh_petitions_update_7108(&$sandbox) {
+  variable_set('wh_petitions_admin_signature_threshold_crossed_emails', 'wethepeople@whitehouse.gov');
+  variable_set('wh_petitions_email_admin_signature_threshold_crossed_subject', 'Petition passed !signature_threshold_crossed signatures');
+  variable_set('wh_petitions_email_admin_signature_threshold_crossed_text', "The petition titled \"!petition_title\" has passed !signature_threshold_crossed signatures.
+You can review the petition here:<br />
+!petition_edit_link
+=================
+TITLE:
+!petition_title
+BODY:
+!petition_body
+================="
+  );
+
+  $threshold_default_levels = array(
+    '1' => 25000,
+    '2' => 50000,
+    '3' => 75000,
+  );
+
+  foreach ($threshold_default_levels as $key => $value) {
+    variable_set('wh_petitions_admin_signature_threshold_' . $key, $value);
+  }
+
+  // Fix for variable naming, wh_petitions_email_admin_ready_response_text vs
+  // wh_petitions_admin_ready_response_text.
+  variable_set('wh_petitions_email_admin_ready_response_subject', 'Petition ready for response');
+  variable_set('wh_petitions_email_admin_ready_response_text', "The petition titled \"!petition_title\" has passed the number of signatures necessary for a response.
+
+You can review the petition here:
+!petition_edit_link
+
+=================
+
+TITLE:
+!petition_title
+
+BODY:
+!petition_body
+
+=================");
+
+}

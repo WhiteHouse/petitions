@@ -202,6 +202,7 @@ function _signatures_queue_add_md5_evaluation_keys(array $signatures) {
 function _signatures_queue_send_validation_emails(array $signatures, $watchdog_suffix) {
   global $base_url;
   $signatures_mailed = array('sent' => array(), 'not sent' => array());
+  $total_sigs_initiated_elapsed = array();
 
   // NOTE: We're calling drupal_mail() one-by-one, but we're not sure if this is
   // the best solution here. If the cost charged by our email provider is
@@ -214,6 +215,14 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
 
     // Log time elapsed since passing through previous workflow.
     $elapsed = signatures_queue_get_microtime_elapsed_since($signature->data['timestamp_received_new_signature']);
+
+    if (isset($total_sigs_initiated_elapsed[$signature->data['petition_id']])) {
+      $total_sigs_initiated_elapsed[$signature->data['petition_id']] = $total_sigs_initiated_elapsed[$signature->data['petition_id']] + $elapsed;
+    }
+    else {
+      $total_sigs_initiated_elapsed[$signature->data['petition_id']] = $elapsed;
+    }
+
     petitionslog_event('signatures_queue.data_flow.time_elapsed.received_new_signature__to__initiated_signature_validation', 'time', $elapsed);
 
     $to = $signature->data['email'];
@@ -245,6 +254,26 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
       petitionslog_event('exceptions.signatures_queue.286e111');
       // Mailing errors should be logged by active mail system.
       $signatures_mailed['not sent'][] = $signature;
+    }
+  }
+
+  if (function_exists('event_log_insert')) {
+    $event_name = 'signatures_queue.data_flow.time_elapsed.received_new_signature__to__initiated_signature_validation';
+    if (in_array($event_name, petitionadmin_dashboard_get_events_to_log())) {
+      $avg_sigs_initiated_elapsed = array();
+      foreach ($total_sigs_initiated_elapsed as $petition_id => $total_sig_initiated_elapsed) {
+        $avg_sigs_initiated_elapsed[$petition_id] = $total_sig_initiated_elapsed / count($total_sigs_initiated_elapsed[$petition_id]);
+      }
+      foreach ($avg_sigs_initiated_elapsed as $petition_id => $time_elapsed) {
+        $log = array(
+          'type' => 'node',
+          'operation' => 'insert',
+          'description' => $event_name,
+          'ref_numeric' => $petition_id,
+          'info' => (string) $time_elapsed,
+        );
+        event_log_insert($log);
+      }
     }
   }
 

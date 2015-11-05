@@ -38,36 +38,36 @@ Drupal.behaviors.accordian = {
 }
 Drupal.behaviors.listHover = {
   attach: function(context) {
-  $(".petition-list .find-out a, .petition-list .view a").hover(
+  $("body.page-petitions .petition-list .find-out a").hover(
     function() {
-      $(this).parents('.entry').find('.title a').css('background-color','#fff');
+      $(this).parents('.entry').find('.content').css('background-color','#fff');
     },
     function() {
-      $(this).parents('.entry').find('.title a').css('background-color','#f6f6f6');
+      $(this).parents('.entry').find('.content').css('background-color','#f6f6f6');
     }
   );
-  $(".petition-list .title a").hover(
+  $("body.page-petitions .petition-list .content").hover(
     function() {
-      $(this).parents('.entry').find('.title a').css('background-color','#fff');
+      $(this).css('background-color','#fff');
     },
     function() {
-      $(this).parents('.entry').find('.title a').css('background-color','#f6f6f6');
+      $(this).css('background-color','#f6f6f6');
     }
   );
   $(".petition-list .response-entry .action-bar").hover(
     function() {
-      $(this).parents('.response-entry').find('.title a').css('background-color','#fff');
+      $(this).parents('.response-entry').find('.content').css('background-color','#fff');
     },
     function() {
-      $(this).parents('.response-entry').find('.title a').css('background-color','#f6f6f6');
+      $(this).parents('.response-entry').find('.content').css('background-color','#f6f6f6');
     }
   );
-  $(".petition-list .response-entry .title a").hover(
+  $(".petition-list .response-entry .content").hover(
     function() {
-      $(this).parents('.response-entry').find('.title a').css('background-color','#fff');
+      $(this).css('background-color','#fff');
     },
     function() {
-      $(this).parents('.response-entry').find('.title a').css('background-color','#f6f6f6');
+      $(this).css('background-color','#f6f6f6');
     }
   );
   }
@@ -118,6 +118,7 @@ Drupal.behaviors.issuesSubmit = {
   attach: function(context) {
     $("#filter-list #issues-filter-drop #form-item-issues-filter").unbind();
     $('#filter-list #issues-filter-drop #form-item-issues-filter').submit(function() {
+      setLastAction('issuesSubmit');
       var issues = retrieveIssues();
       var cols = retrieveCols();
       var sort = retrieveSort();
@@ -125,12 +126,15 @@ Drupal.behaviors.issuesSubmit = {
         sort = 'all';
         $('#filter-list #sort-trending').removeClass('active');
       }
+      // display clear button if it exists.
+      $('.filter-by-clear').removeClass('hide');
+      $('#filter-list').addClass('form-dirty');
 
       // Construct URL
       var begin = '/petitions/more/'+sort+'/';
       var type = 'petitions';
       if($(this).hasClass('response-issue-form')) {
-        var begin = '/responses/more/featured/';
+        var begin = '/responses/more/' + retrieveResponseSort() + '/';
         var type = 'responses';
       }
       var url = begin + "0/"+cols+"/"+issues+"/%20/";
@@ -172,14 +176,20 @@ Drupal.behaviors.searchSubmit = {
   attach: function(context) {
     $('#filter-list #search-drop #form-item-search-drop').unbind();
     $('#filter-list #search-drop #form-item-search-drop').submit(function() {
+      setLastAction('searchSubmit');
+
       var search = retrieveSearch();
       var cols = retrieveCols();
+
+      // display clear button if it exists.
+      $('.filter-by-clear').removeClass('hide');
+      $('#filter-list').addClass('form-dirty');
 
       // Construct URL
       var begin = '/petitions/more/all/';
       var type = 'petitions';
       if($(this).hasClass('response-search-form')) {
-        var begin = '/responses/more/featured/';
+        var begin = '/responses/more/' + retrieveResponseSort() + '/';
         var type = 'responses';
       }
       else {
@@ -222,6 +232,30 @@ Drupal.behaviors.searchSubmit = {
     });
   }
 }
+Drupal.behaviors.sortSelect = {
+  attach: function(context) {
+    $('#form-item-sort select').unbind();
+    $('#form-item-sort select').change(function () {
+        var last_action = getLastAction();
+        if (last_action == 'oneColToggle') {
+          $('.filter-list li.view-one-column').click();
+        }
+        else if (last_action == 'twoColToggle') {
+          $('.filter-list li.view-two-column').click();
+        }
+        else if (last_action == 'issuesSubmit') {
+          $('#filter-list #issues-filter-drop #form-item-issues-filter').submit();
+        }
+        else if (last_action == 'searchSubmit') {
+          $('#filter-list #search-drop #form-item-search-drop').submit();
+        }
+        else {
+          // Default to two column.
+          $('.filter-list li.view-two-column').click();
+        }
+      });
+    }
+}
 Drupal.behaviors.oneColToggle = {
   attach: function(context) {
     $('.filter-list li.view-one-column').unbind();
@@ -234,7 +268,17 @@ Drupal.behaviors.oneColToggle = {
       var type = 'petitions';
       if ($(this).parents('.response-filter').size() > 0) {
         var type = 'responses';
-        var url = '/responses/more/'+sort+"/1/1/"+issues+"/"+search+"/";
+        var url = '/responses/more/'+retrieveResponseSort()+"/1/1/"+issues+"/"+search+"/";
+
+        if (issues != 0) {
+          setLastAction('issuesSubmit');
+        }
+        else if (unescape(search) != ' ') {
+          setLastAction('searchSubmit');
+        }
+        else {
+          setLastAction('oneColToggle');
+        }
       }
       else {
         var url = '/petitions/more/'+sort+"/1/1/"+issues+"/"+search+"/";
@@ -274,8 +318,19 @@ Drupal.behaviors.twoColToggle = {
       // Construct URL
       var type = 'petitions';
       if ($(this).parents('.response-filter').size() > 0) {
+
         var type = 'responses';
-        var url = '/responses/more/'+sort+"/1/2/"+issues+"/"+search+"/";
+        var url = '/responses/more/'+retrieveResponseSort()+"/1/2/"+issues+"/"+search+"/";
+
+        if (issues != 0) {
+          setLastAction('issuesSubmit');
+        }
+        else if (unescape(search) != ' ') {
+          setLastAction('searchSubmit');
+        }
+        else {
+          setLastAction('twoColToggle');
+        }
       }
       else {
         var url = '/petitions/more/'+sort+"/1/2/"+issues+"/"+search+"/";
@@ -353,7 +408,7 @@ Drupal.behaviors.moreResponses = {
         $('.show-more-responses-bar').addClass('display-none');
         $('.loading-more-petitions-bar').removeClass('display-none');
 
-        var response_sort = retrieveSort();
+        var response_sort = retrieveResponseSort();
         var response_cols = retrieveCols();
         var response_issues = retrieveIssues();
         var response_search = retrieveSearch();
@@ -984,6 +1039,79 @@ function retrieveCols() {
   return cols;
 }
 
+function retrieveResponseSort() {
+  var sort = (jQuery)("#edit-result-sort").val();
+  if (typeof sort == 'undefined') {
+    sort = 'all';
+  }
+  return sort;
+}
+
+function setLastAction(action) {
+  var previous_action = window.globalLastAction;
+  var previous_action_type;
+  var action_type;
+
+  window.globalLastAction = action;
+
+  // Column toggles should not update sort options.
+
+  if (previous_action == 'twoColToggle' || previous_action == 'oneColToggle') {
+    previous_action_type = 'colToggle';
+  }
+  else {
+    previous_action_type = previous_action;
+  }
+
+  if (action == 'twoColToggle' || action == 'oneColToggle') {
+    action_type = 'colToggle';
+  }
+  else {
+    action_type = action;
+  }
+
+  // If we are switching from a search to issue filter for example, update sort options.
+  if (typeof previous_action == 'undefined' || previous_action_type != action_type) {
+    updateSortOptions();
+  }
+}
+
+function setInitialAction() {
+  window.globalLastAction = 'twoColToggle';
+}
+function getLastAction() {
+  return window.globalLastAction;
+}
+
+function updateSortOptions() {
+  // Include Most Relevant as option based on last action.
+  if (getLastAction() == 'issuesSubmit' || getLastAction() == 'searchSubmit') {
+    var newOptions = {
+      'count_title': 'Most Relevant',
+      'desc': 'Newest',
+      'asc': 'Oldest'
+    };
+  }
+  else {
+    var newOptions = {
+      'desc': 'Newest',
+      'asc': 'Oldest'
+    };
+  }
+
+  (jQuery)("#edit-result-sort").find('option').remove();
+  (jQuery).each(newOptions, function(val, text) {
+    var index;
+    if (index++ == 0) {
+      option_to_add = "<option SELECTED value=" + val + ">" + text + "</option>";
+    }
+    else {
+      option_to_add = "<option value=" + val + ">" + text + "</option>";
+    }
+    (jQuery)("#edit-result-sort").append(option_to_add);
+  });
+}
+
 function retrieveSort() {
   var sort = '';
   var sort_text = (jQuery)("ul.select-view .active a").html();
@@ -1070,3 +1198,5 @@ var thanksmessagedisplayed = false;
     }
   }
 }) (jQuery);
+
+setInitialAction();

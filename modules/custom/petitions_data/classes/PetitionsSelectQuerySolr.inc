@@ -25,6 +25,41 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
   protected $sortString = '';
 
   /**
+   * OrderBy ASC/DESC mapping
+   *
+   * @var array
+   */
+  protected $orderByDirMap = array(
+    self::SELECT_QUERY_ORDER_BY_ASC => 'asc',
+    self::SELECT_QUERY_ORDER_BY_DESC => 'desc',
+  );
+
+  /**
+   * OrderBy Solr Field mapping
+   *
+   * Maps Order By constants to appropriate database column name.
+   *
+   * @var array
+   *   An array containing 'field' elements.
+   */
+  protected $orderByFieldsMap = array(
+    self::SELECT_QUERY_ORDER_BY_FIELD_ID => array('field' => PETITION_SOLR_FIELD_NODE_ID),
+    self::SELECT_QUERY_ORDER_BY_FIELD_TITLE => array('field' => PETITION_SOLR_FIELD_TITLE),
+    self::SELECT_QUERY_ORDER_BY_FIELD_DATE_CREATED => array('field' => PETITION_SOLR_FIELD_TIMESTAMP_CREATED),
+    self::SELECT_QUERY_ORDER_BY_FIELD_PUBLISHED => array('field' => PETITION_SOLR_FIELD_TIMESTAMP_PUBLISHED),
+    self::SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT => array('field' => PETITION_SOLR_FIELD_SIGNATURE_COUNT),
+    self::SELECT_QUERY_ORDER_BY_FIELD_DATE_REACHED_PUBLIC => array('field' => PETITION_SOLR_FIELD_TIMESTAMP_REACHED_PUBLIC),
+  );
+
+  /**
+   * Constructor.
+   */
+  public function __construct() {
+    parent::__construct();
+    $this->setOrderBy(self::SELECT_QUERY_ORDER_BY_FIELD_DATE_CREATED, self::SELECT_QUERY_ORDER_BY_DESC);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function execute() {
@@ -256,14 +291,34 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
    * Adds the sort argument to the query.
    */
   protected function addSortToQuery() {
-    $this->sortString = PETITION_SOLR_FIELD_TIMESTAMP_CREATED . ' desc';
+    if (!$this->getOrderBy()) {
+      return;
+    }
+    foreach ($this->getOrderBy() as $order_by) {
+      $field = $order_by->field;
+      $order_by_dir = $order_by->direction;
+      if (!$this->isValidOrderByField($field)) {
+        throw new Exception('addOrderByToQuery - Not a valid field: ' . $field);
+      }
+      if (!$this->isValidOrderByDirection($order_by_dir)) {
+        throw new Exception('addOrderByToQuery - Not a valid direction: ' . $order_by_dir);
+      }
+
+      if (in_array($field, $this->getValidPetitionsOrderByFields())) {
+        $mapped_field = $this->orderByFieldsMap[$field]['field'];
+        $mapped_dir = $this->orderByDirMap[$order_by_dir];
+        $this->sortString = $mapped_field . ' ' . $mapped_dir;
+        // Currently allow only one sort field.
+        break;
+      }
+    }
   }
 
   /**
    * Adds the status argument to the query.
    */
   protected function addStatusToQuery() {
-    $include_statuses = static::parseStatus();
+    $include_statuses = $this->parseStatus();
 
     if ($include_statuses) {
       $status_expression = implode(' OR ', $include_statuses);
@@ -279,7 +334,16 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
    * Adds the title argument to the query.
    */
   protected function addTitleToQuery() {
-    if ($this->getTitle()) {
+    if ($this->getPerformTitleIssueQuery() && $title = $this->getTitle() && $issue_ids = $this->getIssueIDs()) {
+      $tid_expression = implode(' OR ', $issue_ids);
+      // Search both title and issue name fields.
+      $query_params = array(
+        PETITION_SOLR_FIELD_TITLE => $this->getTitle(),
+        PETITION_SOLR_FIELD_ISSUE_TIDS => $tid_expression,
+      );
+      $this->addQueryOrParams($query_params);
+    }
+    elseif ($this->getTitle()) {
       $this->addQueryParam(PETITION_SOLR_FIELD_TITLE, $this->getTitle(), FALSE);
     }
   }
@@ -288,7 +352,7 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
    * Adds the issues argument to the query.
    */
   protected function addIssuesToQuery() {
-    if ($this->getIssueIDs()) {
+    if (!$this->getPerformTitleIssueQuery() && $this->getIssueIDs()) {
       $tid_expression = implode(' OR ', $this->getIssueIDs());
       $this->params['fq'][] = PETITION_SOLR_FIELD_ISSUE_TIDS . ":({$tid_expression})";
     }
@@ -344,6 +408,26 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
   }
 
   /**
+   * Adds multiple Solr search parameter to be OR'd together.
+   *
+   * @param array $field_values
+   *   Array containing field and values to query that will OR'd together.
+   * @param bool $exact
+   *   Whether to require an exact match (a filter query) or not (an ordinary
+   *   query). A filter query can be cached, so an exact search is more
+   *   performant. Defaults to FALSE.
+   */
+  private function addQueryOrParams($field_values, $exact = FALSE) {
+    $query = '';
+    foreach ($field_values as $field => $value) {
+      $query .= $this->params['q'][] = "({$field}:{$value}) OR ";
+    }
+    $query = substr($query, 0, -4);
+
+    $this->params['q'][] = $query;
+  }
+
+  /**
    * Executes the query.
    *
    * @return object
@@ -351,6 +435,14 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
    */
   protected function executeQuery() {
     $query = new SolrBaseQuery('petitions_data', apachesolr_get_solr(), $this->params, $this->sortString);
+    // Make Solr aware of sorting fields that are available.
+    foreach ($this->orderByFieldsMap as $order_by) {
+      $query->setAvailableSort($order_by['field'], array(
+        'title' => t($order_by['field']),
+        'default' => 'asc',
+      ));
+    }
+
     $result = $query->search();
     // @todo Handle a non-200 response code.
     return $result->response;

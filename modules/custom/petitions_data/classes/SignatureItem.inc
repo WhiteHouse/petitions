@@ -467,33 +467,12 @@ class SignatureItem {
   /**
    * Gets the canonical ID of the petition.
    *
-   * If there is a legacy petition ID, that is used, for API backward
-   * compatibility.
-   *
-   * @param bool $legacy_primary
-   *   When TRUE, will return legacyPetitionId first otherwise fallback to petitionId if null.
-   *   When FALSE, will return petitionId first otherwise fallback to legacyPetitionId if null.
-   *
    * @return string
-   *   The petition id to which this signature belongs.
+   *   The petition node id to which this signature belongs.
    */
-  public function getPetitionId($legacy_primary = TRUE) {
-    if ($legacy_primary) {
-      if (!is_null($this->legacyPetitionId)) {
-        return $this->legacyPetitionId;
-      }
-      else {
-        return $this->petitionId;
-      }
-    }
-    else {
-      if (!is_null($this->petitionId)) {
-        return $this->petitionId;
-      }
-      else {
-        return $this->legacyPetitionId;
-      }
-    }
+  public function getPetitionId() {
+    // PT-1777 - Previously returned Legacy ID, then Node ID as fallback.
+    return $this->petitionId;
   }
 
   /**

@@ -40,3 +40,10 @@ function petitionadmin_update_7001() {
     }
   }
 }
+
+/**
+ * PT-1695 - Revert petitionadmin feature.
+ */
+function petitionadmin_update_7002() {
+  features_revert(array('petitionadmin' => array('views_view')));
+}

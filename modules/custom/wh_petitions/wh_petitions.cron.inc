@@ -123,11 +123,7 @@ function wh_petitions_close_petitions() {
         ->condition('n.status', 0, '<>');  
       $query->innerJoin('field_data_field_issues', 'i', 'n.nid = i.entity_id');
       $query->condition('i.field_issues_tid', $issue->tid);
-      // Featured
-      $query->innerJoin('field_data_field_is_featured', 'f', 'n.nid = f.entity_id');
-      $query->addField('f', 'field_is_featured_value', 'field_is_featured_value');
-      $query->condition('f.field_is_featured_value', 1);          
-      
+
       $total = $query->countQuery()->execute()->fetchField();
       $issues[$issue->tid] = $total;
     }

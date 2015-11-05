@@ -45,7 +45,7 @@ function api_errors_throw_error($status_code, $developer_message, $user_message 
   // can't return a 500 error in the HTTP header, only in the response body.
   if (substr($status_code, 0, 1) == 5) {
     $response_params = array(
-      'developer_message' => "{$status_code}: {$developer_message}",
+      'developer_message' => "{$status_code} : {$developer_message}",
       'status_code' => $status_code,
       'error_code' => $error_code,
       'more_info' => $more_info,

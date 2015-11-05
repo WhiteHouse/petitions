@@ -156,10 +156,7 @@ function wh_response_block_view($delta) {
         ->fields('n', array('nid', 'title'))
         ->condition('n.type', 'wh_response')
         ->condition('n.status', 0, '<>');
-      $query->innerJoin('field_data_field_is_featured', 'f', 'n.nid = f.entity_id');
-      $query->addField('f', 'field_is_featured_value', 'field_is_featured_value');
-      $query->orderRandom()
-        ->condition('f.field_is_featured_value', 1);
+      $query->orderRandom();
       $result = $query->range(0, 1)
         ->execute();
 
@@ -1019,7 +1016,7 @@ function wh_response_preprocess_node(&$vars) {
       foreach ($petitions as $petition) {
         for ($i = 0; $i < count($response_objs); $i++) {
           // We want the node ID if we have it.
-          $id = $petition->getId(FALSE);
+          $id = $petition->getId();
           if ($response_objs[$i]['petition'] == $id) {
             $response_objs[$i]['title'] = $petition->getTitle();
             $response_objs[$i]['signature_count'] = $petition->getSignatureCount();
@@ -1195,7 +1192,7 @@ function wh_response_delete_petition_response($petition_id, $response_id) {
   $timeframe = $petition->field_petition_review_timeframe[$language][0]['value'];
   $timestamp = strtotime('- ' . $timeframe . ' days');
 
-  $signature_count = $petition->field_petition_signature_count[$language][0]['value'];
+  $signature_count = $petition->signature_count;
   $response_signature_count = $petition->field_petition_response_sign[$language][0]['value'];
   // If the number of signatures required to receive a response has been
   // surpassed, flag the petition for review.

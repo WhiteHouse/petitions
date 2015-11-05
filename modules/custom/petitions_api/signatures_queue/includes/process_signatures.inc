@@ -57,6 +57,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
   $query->addField('v', 'petition_id', 'validated_petition_id');
   $query->addField('v', 'timestamp_received_signature_validation');
   $query->addField('v', 'timestamp_preprocessed_validation');
+  $query->addField('v', 'client_ip');
 
   $result = $query->execute();
 
@@ -106,6 +107,19 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       $item['signature_id'] = $signature_id;
       // Increment signature count.
       PetitionsController::incrementSignatureCount($item['petition_id']);
+
+      $disposability = signatures_queue_get_email_disposability($item['email']);
+      $disposability->is_free_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS) : NULL;
+      $disposability->is_open_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS) : NULL;
+      $disposability->is_forwarding_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS) : NULL;
+      $disposability->is_trash_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS) : NULL;
+      $disposability->is_time_bound_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS) : NULL;
+      $disposability->is_shredder_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS) : NULL;
+      signatures_queue_is_subaddressed_email($item['email']) ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS) : NULL;
+      // PT-1721 performs unique email / ip count updates inside of _signatures_queue_process_signatures_save_signature().
+      _signatures_queue_process_signatures_compare_thresholds($item['petition_id']);
+
+      signature_mail_fraud_data_update_data($signature_id, $item['petition_id'], $item['email'], $item['client_ip']);
     }
     // If it's a new signature, but no new signature was created...
     elseif ($new_signature && empty($signature_id)) {
@@ -159,6 +173,7 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
         'zip' => $item['zip'],
         'petition_id' => $item['petition_id'],
       );
+      PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_EMAIL_SIGNUPS);
       module_invoke_all('petition_signatory_opt_in', $signatory);
     }
 
@@ -265,16 +280,11 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
  *   Returns TRUE if petition is valid, FALSE if not.
  */
 function _signatures_queue_process_signatures_valid_petition($petition_id, $debug = FALSE) {
-  // Make sure petition exists and is signable.
-  // @todo This should really use the logic in PetitionItem::isSignable(). And
-  // PetitionItem::isSignable should really be updated to honor the signatures
-  // queue grace period if passed in as a param. But getting that to work
-  // will take some refactoring. For now, just try to load the petition. If
-  // you can't load it, you shouldn't be able to sign it. It was likely
-  // been removed/unpublished by an administrator because it violates terms of
-  // service.
-  $petition = petitions_data_get_petition($petition_id);
-  if (!$petition) {
+  // Make sure petition exists.
+  $nid = petition_get_nid($petition_id);
+  $petition_found = db_query("SELECT n.nid FROM {node} n WHERE n.type = 'petition' AND n.nid = :nid", array(':nid' => $nid))->fetchObject();
+
+  if (!$petition_found) {
     if ($debug) {
       watchdog('signatures_queue', 'Invalid petition: id = @id', array(
         '@id' => $petition_id,
@@ -297,7 +307,8 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
  *   Returns a Drupal user object.
  */
 function _signatures_queue_process_signatures_create_user($item) {
-  if ($user = user_load_by_mail($item['email'])) {
+  if ($uid = petition_user_exists_by_mail($item['email'])) {
+    $user = user_load($uid);
     return $user;
   }
 
@@ -325,7 +336,11 @@ function _signatures_queue_process_signatures_create_user($item) {
       $profile->field_zip[LANGUAGE_NONE][0]['value'] = $item['zip'];
       // Invoke petitions_signatures_display_location() for format location.
       if (module_exists('petitions_signatures_display')) {
-        $location = petitions_signatures_display_location($item['zip']);
+        $location = FALSE;
+        if (!empty($item['zip']) && strlen($item['zip']) == 5 && is_numeric($item['zip'])) {
+          $location = petitions_signatures_display_location($item['zip']);
+        }
+
         if (is_array($location)) {
           $loc = reset($location);
           $profile->field_city[LANGUAGE_NONE][0]['value'] = $loc['city'];
@@ -567,8 +582,16 @@ function _signatures_queue_process_signatures_save_signature(array $item, $user,
     ->setCreated($item['timestamp_received_new_signature'])
     ->setUid($user->uid)
     ->setUser($user)
-    ->setZip($item['zip']);
+    ->setZip($item['zip'])
+    ->setIpAddress($item['client_ip']);
   $signature = SignaturesController::save($signature);
+
+  // Store metrics for fraud reporting.
+  $email = signatures_queue_unsubaddress_email($item['email']);
+  petition_add_signature_email($item['petition_id'], $email);
+  petition_add_signature_ip($item['petition_id'], $item['client_ip']);
+
+  petition_update_total_unique_ips_and_emails($item['petition_id']);
 
   if ($debug) {
     if ($signature->getId() !== NULL) {
@@ -580,4 +603,117 @@ function _signatures_queue_process_signatures_save_signature(array $item, $user,
 
   return $signature->getId();
 
+}
+
+/**
+ * Evaluates petition metrics against alert thresholds.
+ *
+ * @param string $petition_id
+ *   Signature data that has worked its way down the pipeline through the
+ *   signature queue.
+ */
+function _signatures_queue_process_signatures_compare_thresholds($petition_id) {
+  $petition_id = petition_get_nid($petition_id);
+  $petition_metric_fields_map = PetitionsSelectQueryMysql::getPetitionMetricFieldsMap();
+  $metrics = array();
+  $petitions_alert_signature_threshold = variable_get('petitions_alert_signature_threshold', 0);
+
+  // Only run this if the email throttle is set, otherwise will run every time.
+  if (variable_get('petitions_alert_enabled', FALSE) && variable_get('petitions_alert_email_throttle') && $petitions_alert_signature_threshold) {
+    $current_time = time();
+    $time_threshold = $current_time - variable_get('petitions_alert_email_throttle');
+
+    $signature_count = db_select('signature_mail', 'sm')
+      ->condition('petition_id', $petition_id)
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+
+    // EntityFieldQuery won't show NULL field_petition_last_alert rows.
+    $q = db_select('node', 'n');
+    $q->fields('n')
+      ->fields('pla', array('field_petition_last_alert_value'))
+      ->fields('trp', array('field_timestamp_reached_public_value'))
+      ->fields('psc', array('field_petition_signature_count_value'))
+      ->condition('n.nid', $petition_id, '=')
+      ->condition('trp.field_timestamp_reached_public_value', 'NULL', '<>')
+      ->condition('psc.field_petition_signature_count_value', $petitions_alert_signature_threshold, '>=');
+    $q->leftJoin('field_data_field_petition_last_alert', 'pla', 'pla.entity_id = n.nid');
+    $q->leftJoin('field_data_field_timestamp_reached_public', 'trp', 'trp.entity_id = n.nid');
+    $q->leftJoin('field_data_field_petition_signature_count', 'psc', 'psc.entity_id = n.nid');
+
+    foreach ($petition_metric_fields_map as $metric_name => $field_mapping) {
+      $table_name = 'field_data_' . $field_mapping['table'];
+      $q->leftJoin($table_name, NULL, $table_name . '.entity_id = n.nid');
+      $q->fields($table_name, array($field_mapping['field']));
+    }
+    $r = $q->execute();
+
+    if ($r->rowCount()) {
+      $results = $r->fetchAllAssoc('nid');
+      $result = array_shift($results);
+      // Subtract signer's signature from signature count.
+      $signature_count = $signature_count - 1;
+      $last_alert = $result->field_petition_last_alert_value;
+      if ($last_alert == NULL || $last_alert <= $time_threshold) {
+        foreach ($petition_metric_fields_map as $metric_name => $field_mapping) {
+          $ratio = $result->$field_mapping['field'] / $signature_count;
+          $metric_var = 'petitions_alert_threshold_upper_' . $metric_name;
+          $bound = variable_get($metric_var);
+          if (!empty($bound) && $ratio > $bound) {
+            $metrics[] = $metric_var;
+          }
+
+          $metric_var = 'petitions_alert_threshold_lower_' . $metric_name;
+          $bound = variable_get($metric_var);
+          if (!empty($bound) && $ratio < $bound) {
+            $metrics[] = $metric_var;
+          }
+        }
+        if ($metrics) {
+          // Send an email for thresholds crossed.
+          _signatures_queue_process_send_fraud_alert($result, $metrics, $current_time);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Send email alert about fraud metric thresholds crossed.
+ *
+ * @param object $node
+ *   Petition Node to alert on.
+ * @param array $metrics
+ *   Array of metric thresholds crossed.
+ * @param int $time
+ *   Time of fraud alert processing.
+ */
+function _signatures_queue_process_send_fraud_alert($node, $metrics, $time) {
+  global $base_url;
+  global $language;
+  $petition_title = $node->title;
+  $url = $base_url . '/node/' . $node->nid . '/analysis';
+
+  $email_address = variable_get('petitions_alert_email_address');
+
+  $subject = variable_get("petitions_alert_email_subject");
+  $params['subject'] = t($subject, array('!title' => $petition_title));
+
+  $body = variable_get("petitions_alert_email_body");
+  $params['body'] = t($body, array(
+      '!title' => $petition_title,
+      '!metrics' => implode("\n", $metrics),
+      '!url' => $url,
+    )
+  );
+
+  $message = drupal_mail('signatures_queue', 'send_fraud_alert', $email_address, $language, $params);
+  if ($message['result']) {
+    PetitionsController::setPetitionFieldValue($node->nid, 'field_petition_last_alert', 'value', $time);
+  }
+
+  foreach ($metrics as $metric) {
+    petitionslog_event('signatures_queue.workflow.process_signatures.notifications.' . $metric, 'set', $node->nid);
+  }
 }

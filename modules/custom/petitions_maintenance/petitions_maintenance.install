@@ -137,3 +137,23 @@ function petitions_maintenance_update_7310(&$sandbox) {
   module_enable(array('transliteration'));
   variable_set('pathauto_transliterate', 1);
 }
+
+/**
+ * PT-1782: Install eopsf_petitions and dependencies.
+ */
+function petitions_maintenance_update_7311() {
+  $modules = array(
+    'logger',
+    'eopsf',
+    'eopsf_petitions',
+  );
+  module_enable($modules);
+}
+
+/**
+ * PT-1774: Enable Petitionsadmin dashboard.
+ */
+function petitions_maintenance_update_7312(&$sandbox) {
+  module_enable(array('event_log', 'petitionadmin_dashboard'));
+  variable_set('event_log_enable_cli', 1);
+}

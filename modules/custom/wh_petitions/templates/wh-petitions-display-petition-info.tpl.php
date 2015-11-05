@@ -31,9 +31,6 @@
       <div class="issues"><strong><?php print t("Petition Creator Keywords:"); ?></strong> <?php print $user_tags; ?></div>
       <div class="issues"><strong><?php print t("Private Keywords:"); ?></strong> <?php print $private_tags; ?></div>
       <?php if($reached_ready): ?><div class="issues"><strong><?php print t("Became Ready For Response:"); ?></strong> <?php print $reached_ready; ?></div><?php endif; ?>
-      <?php if (!empty($govdelivery)): ?>
-        <div class="issues"><strong><?php print t("GovDelivery Topic:"); ?></strong> <?php print $govdelivery; ?></div>
-      <?php endif; ?>
       <div class="issues"><?php print $admin_link; ?></div>
     <?php endif; ?>
 

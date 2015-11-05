@@ -101,6 +101,8 @@
  *   http://drupal.org/node/223440 and http://drupal.org/node/1089656
  */
 
+include_once('petitions44.favicon.php');
+
 /**
  * Preprocesses the wrapping HTML.
  *
@@ -137,6 +139,19 @@ function petitions44_preprocess_html(&$vars) {
     ),
   );
   drupal_add_html_head($meta_og_img_secure, 'meta_og_img_secure');
+
+  // Adding noiframe meta tag.
+  $noframe_head_elements = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'name' => 'X-Frame-Options',
+      'value' => 'SAMEORIGIN',
+    ),
+  );
+
+  drupal_add_html_head($noframe_head_elements, 'noiframe');
+  drupal_add_http_header('X-Frame-Options', 'SAMEORIGIN');
+
 
 }
 
@@ -243,3 +258,8 @@ function _petitions44_help_text() {
 function template_preprocess_services_documentation_version(&$vars) {
   $vars['left_nav'] = wh_petition_tool_left_nav();
 }
+
+/**
+ * Add Typography.com CSS to theme.
+ */
+drupal_add_css('//cloud.typography.com/6570712/721006/css/fonts.css', 'external');

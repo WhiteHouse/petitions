@@ -3,7 +3,7 @@
 <?php else: ?>
 <div class="response-filter" id="filter-list">
   <ul class="select-view">
-    <li class="active featured"><div><?php print t("Featured Responses"); ?></div></li>
+    <li class="active featured"></li>
   </ul>
   <ul class="filter-list">
     <?php if ($cols == 2) $atts = array('attributes' => array('class' => 'active no-follow')); else $atts = array('attributes' => array('class' => 'no-follow')); ?>
@@ -15,6 +15,12 @@
     </li>
     <li class="search">
       <?php print l(t('Search'), 'filter-search/responses', array('attributes' => array("class" => "popup-title no-follow"))); ?>
+    </li>
+    <li class="filter-by-sort">
+      <?php print $sort_form; ?>
+    </li>
+    <li class="filter-by-clear hide">
+      <?php print $clear_form; ?>
     </li>
   </ul>
 

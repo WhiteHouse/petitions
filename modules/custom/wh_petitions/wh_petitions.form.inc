@@ -356,10 +356,7 @@ function wh_petitions_create_petition_step_1_submit($form, &$form_state) {
     $petition = ($petition_item) ? $petition_item->toLegacyArray() : array();
 
     // Make sure we got a petition and that the creator is the current user, and that it's a draft.
-    if (!empty($petition) && $user->uid == $petition['uid'] && $petition['petition_status'] == WH_PETITION_STATUS_DRAFT) {
-      $petition['_id'] = new MongoId($form_state['petition_id']);
-    }
-    else {
+    if (!empty($petition) && ($user->uid != $petition['uid'] || $petition['petition_status'] != WH_PETITION_STATUS_DRAFT)) {
       $petition = array();
     }
   }
@@ -831,11 +828,6 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
     PetitionsController::save($petition_item);
     $new_id = $petition_item->getId();
 
-    // Create a new GovDelivery list
-    if (!empty($new_id)) {
-      govdelivery_subscriber_api_add_topic('petitions_' . $new_id);
-    }
-
     $form_state['petition'] = $petition;
 
     $profile = profile2_load_by_user($user_load);
@@ -866,11 +858,6 @@ function wh_petitions_create_petition_step_4_submit($form, &$form_state) {
 
     // Increment the signature count on the petition now that we've saved it.
     PetitionsController::incrementSignatureCount($petition_item->getId());
-
-    // Add creator's signature
-    if (!empty($new_id)) {
-      govdelivery_subscriber_api_add_subscriber($user->mail, 'petitions_' . $new_id);
-    }
 
     // Send an email to the creator
     if (!empty($new_id)) {
@@ -1109,6 +1096,7 @@ function wh_petitions_list_page_search_form($form, &$form_state) {
     '#required' => FALSE,
     '#attributes' => array('onfocus' => array("if(this.value=='" . t('Enter your search terms') . "'){this.value=''};")),
     '#default_value' => !empty($form_state['values']['filter_search']) ? $form_state['values']['filter_search'] : t('Enter your search terms'),
+    '#autocomplete_path' => 'taxonomy/autocomplete/field_issues',
   );
 
   // Submit Button
@@ -1116,6 +1104,21 @@ function wh_petitions_list_page_search_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => t('Go'),
     '#attributes' => array('id' => 'search-go-button', 'class' => array('button')),
+  );
+
+  return $form;
+}
+
+/**
+ * Clear form button
+ */
+function wh_petitions_list_page_clear_form($form, &$form_state) {
+  $form['#attributes'] = array('id' => 'form-item-clear', 'class' => array('petitions-clear-form'));
+
+  $form['result_clear'] = array(
+    '#type' => 'submit',
+    '#value' => t('clear'),
+    '#executes_submit_callback' => 'wh_petitions_clear_responses_submit',
   );
 
   return $form;

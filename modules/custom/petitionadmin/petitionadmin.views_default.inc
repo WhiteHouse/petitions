@@ -236,63 +236,6 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
-    'action::node_assign_owner_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_delete_item' => array(
-      'selected' => 0,
-      'postpone_processing' => 1,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_script_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_make_sticky_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 1,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_make_unsticky_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 1,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_modify_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-      'settings' => array(
-        'show_all_tokens' => 1,
-        'display_values' => array(
-          '_all_' => '_all_',
-        ),
-      ),
-    ),
-    'action::views_bulk_operations_argument_selector_action' => array(
-      'selected' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-      'settings' => array(
-        'url' => '',
-      ),
-    ),
     'action::petitionevents_hide_petition_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
@@ -302,62 +245,6 @@ Please submit the filters to get your first result set.';
     ),
     'action::petitionevents_show_petition_action' => array(
       'selected' => 1,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_promote_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 1,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_publish_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_unpromote_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 1,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_save_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::system_send_email_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_unpublish_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_unpublish_by_keyword_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::pathauto_node_update_action' => array(
-      'selected' => 0,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 0,
@@ -833,6 +720,7 @@ Please submit the filters to get your first result set.';
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Petitions - Signatures';
+  $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'none';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -971,11 +859,7 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['header']['area']['id'] = 'area';
   $handler->display->display_options['header']['area']['table'] = 'views';
   $handler->display->display_options['header']['area']['field'] = 'area';
-  $handler->display->display_options['header']['area']['content'] = '<strong>Download All Signatures</strong><br />
-CSV | Email<br />
-<hr />
-<br />
-<h4><strong>Filters</strong></h4><br />';
+  $handler->display->display_options['header']['area']['content'] = '<h4><strong>Filters</strong></h4><br />';
   $handler->display->display_options['header']['area']['format'] = 'full_html';
   /* Relationship: Signature Mail: Uid */
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
@@ -986,6 +870,30 @@ CSV | Email<br />
   $handler->display->display_options['relationships']['petition_id']['table'] = 'signature_mail';
   $handler->display->display_options['relationships']['petition_id']['field'] = 'petition_id';
   $handler->display->display_options['relationships']['petition_id']['required'] = TRUE;
+  /* Relationship: Signature Mail: Signature Mail Fraud Data */
+  $handler->display->display_options['relationships']['signature_mail_fraud_data']['id'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['relationships']['signature_mail_fraud_data']['table'] = 'signature_mail';
+  $handler->display->display_options['relationships']['signature_mail_fraud_data']['field'] = 'signature_mail_fraud_data';
+  /* Field: Bulk operations: Signature Mail */
+  $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'signature_mail';
+  $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['label'] = '';
+  $handler->display->display_options['fields']['views_bulk_operations']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '0';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['row_clickable'] = 1;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '1000';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+    'action::petitionadmin_remove_signature' => array(
+      'selected' => 1,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 1,
+      'override_label' => 0,
+      'label' => '',
+    ),
+  );
   /* Field: Signature Mail: Signature mail ID */
   $handler->display->display_options['fields']['id']['id'] = 'id';
   $handler->display->display_options['fields']['id']['table'] = 'signature_mail';
@@ -1020,12 +928,11 @@ CSV | Email<br />
 <strong>Legacy ID:</strong> [legacy_id]<br />
 <strong>Petition ID:</strong> [petition_id]<br />
 <strong>Legacy Petition ID:</strong> [legacy_petition_id]<br />';
-  /* Field: Signature Mail: Uid */
+  /* Field: User: Uid */
   $handler->display->display_options['fields']['uid']['id'] = 'uid';
-  $handler->display->display_options['fields']['uid']['table'] = 'signature_mail';
+  $handler->display->display_options['fields']['uid']['table'] = 'users';
   $handler->display->display_options['fields']['uid']['field'] = 'uid';
-  $handler->display->display_options['fields']['uid']['label'] = 'UID';
-  $handler->display->display_options['fields']['uid']['separator'] = '';
+  $handler->display->display_options['fields']['uid']['relationship'] = 'uid';
   /* Field: User: Data */
   $handler->display->display_options['fields']['data']['id'] = 'data';
   $handler->display->display_options['fields']['data']['table'] = 'users';
@@ -1033,18 +940,11 @@ CSV | Email<br />
   $handler->display->display_options['fields']['data']['relationship'] = 'uid';
   $handler->display->display_options['fields']['data']['exclude'] = TRUE;
   $handler->display->display_options['fields']['data']['format'] = 'serialized';
-  /* Field: User: Link */
-  $handler->display->display_options['fields']['view_user']['id'] = 'view_user';
-  $handler->display->display_options['fields']['view_user']['table'] = 'users';
-  $handler->display->display_options['fields']['view_user']['field'] = 'view_user';
-  $handler->display->display_options['fields']['view_user']['relationship'] = 'uid';
-  $handler->display->display_options['fields']['view_user']['hide_alter_empty'] = FALSE;
-  $handler->display->display_options['fields']['view_user']['text'] = 'User';
-  /* Field: Signature Mail: User_username */
-  $handler->display->display_options['fields']['user_username']['id'] = 'user_username';
-  $handler->display->display_options['fields']['user_username']['table'] = 'signature_mail';
-  $handler->display->display_options['fields']['user_username']['field'] = 'user_username';
-  $handler->display->display_options['fields']['user_username']['label'] = 'Username';
+  /* Field: Signature Mail Fraud Data: Email */
+  $handler->display->display_options['fields']['email']['id'] = 'email';
+  $handler->display->display_options['fields']['email']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['fields']['email']['field'] = 'email';
+  $handler->display->display_options['fields']['email']['relationship'] = 'signature_mail_fraud_data';
   /* Field: Signature Mail: User_first_name */
   $handler->display->display_options['fields']['user_first_name']['id'] = 'user_first_name';
   $handler->display->display_options['fields']['user_first_name']['table'] = 'signature_mail';
@@ -1085,11 +985,12 @@ CSV | Email<br />
   $handler->display->display_options['fields']['user_agent']['table'] = 'signature_mail';
   $handler->display->display_options['fields']['user_agent']['field'] = 'user_agent';
   $handler->display->display_options['fields']['user_agent']['label'] = 'User Agent';
-  /* Field: Signature Mail: Ip_address */
-  $handler->display->display_options['fields']['ip_address']['id'] = 'ip_address';
-  $handler->display->display_options['fields']['ip_address']['table'] = 'signature_mail';
-  $handler->display->display_options['fields']['ip_address']['field'] = 'ip_address';
-  $handler->display->display_options['fields']['ip_address']['label'] = 'IP Address';
+  /* Field: Signature Mail Fraud Data: Ip_address */
+  $handler->display->display_options['fields']['ip_address_1']['id'] = 'ip_address_1';
+  $handler->display->display_options['fields']['ip_address_1']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['fields']['ip_address_1']['field'] = 'ip_address';
+  $handler->display->display_options['fields']['ip_address_1']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['fields']['ip_address_1']['label'] = 'IP Address';
   /* Contextual filter: Signature Mail: Petition_id */
   $handler->display->display_options['arguments']['petition_id']['id'] = 'petition_id';
   $handler->display->display_options['arguments']['petition_id']['table'] = 'signature_mail';
@@ -1099,6 +1000,11 @@ CSV | Email<br />
   $handler->display->display_options['arguments']['petition_id']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['petition_id']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['petition_id']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['petition_id']['specify_validation'] = TRUE;
+  $handler->display->display_options['arguments']['petition_id']['validate']['type'] = 'node';
+  $handler->display->display_options['arguments']['petition_id']['validate_options']['types'] = array(
+    'petition' => 'petition',
+  );
   /* Filter criterion: Signature Mail: Legacy_id */
   $handler->display->display_options['filters']['legacy_id']['id'] = 'legacy_id';
   $handler->display->display_options['filters']['legacy_id']['table'] = 'signature_mail';
@@ -1375,325 +1281,334 @@ CSV | Email<br />
     15 => 0,
     3 => 0,
   );
+  /* Filter criterion: Signature Mail Fraud Data: Ip_address */
+  $handler->display->display_options['filters']['ip_address']['id'] = 'ip_address';
+  $handler->display->display_options['filters']['ip_address']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['ip_address']['field'] = 'ip_address';
+  $handler->display->display_options['filters']['ip_address']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['ip_address']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['ip_address']['expose']['operator_id'] = 'ip_address_op';
+  $handler->display->display_options['filters']['ip_address']['expose']['label'] = 'IP Address (v4 or v6)';
+  $handler->display->display_options['filters']['ip_address']['expose']['operator'] = 'ip_address_op';
+  $handler->display->display_options['filters']['ip_address']['expose']['identifier'] = 'ip_address';
+  $handler->display->display_options['filters']['ip_address']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    4 => 0,
+    5 => 0,
+    6 => 0,
+    7 => 0,
+    8 => 0,
+    9 => 0,
+    10 => 0,
+    11 => 0,
+    12 => 0,
+    13 => 0,
+    14 => 0,
+    15 => 0,
+    3 => 0,
+  );
+  /* Filter criterion: Signature Mail Fraud Data: Unsub_email */
+  $handler->display->display_options['filters']['unsub_email']['id'] = 'unsub_email';
+  $handler->display->display_options['filters']['unsub_email']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['unsub_email']['field'] = 'unsub_email';
+  $handler->display->display_options['filters']['unsub_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['unsub_email']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['unsub_email']['expose']['operator_id'] = 'unsub_email_op';
+  $handler->display->display_options['filters']['unsub_email']['expose']['label'] = 'Unsubaddressed Email';
+  $handler->display->display_options['filters']['unsub_email']['expose']['description'] = 'Email address without user+tag@gmail.com ie. user@gmail.com';
+  $handler->display->display_options['filters']['unsub_email']['expose']['operator'] = 'unsub_email_op';
+  $handler->display->display_options['filters']['unsub_email']['expose']['identifier'] = 'unsub_email';
+  $handler->display->display_options['filters']['unsub_email']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    4 => 0,
+    5 => 0,
+    6 => 0,
+    7 => 0,
+    8 => 0,
+    9 => 0,
+    10 => 0,
+    11 => 0,
+    12 => 0,
+    13 => 0,
+    14 => 0,
+    15 => 0,
+    3 => 0,
+  );
+  /* Filter criterion: Signature Mail Fraud Data: Is_forwarding_email */
+  $handler->display->display_options['filters']['is_forwarding_email']['id'] = 'is_forwarding_email';
+  $handler->display->display_options['filters']['is_forwarding_email']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_forwarding_email']['field'] = 'is_forwarding_email';
+  $handler->display->display_options['filters']['is_forwarding_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_forwarding_email']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['is_forwarding_email']['expose']['operator_id'] = 'is_forwarding_email_op';
+  $handler->display->display_options['filters']['is_forwarding_email']['expose']['label'] = 'Is_forwarding_email';
+  $handler->display->display_options['filters']['is_forwarding_email']['expose']['operator'] = 'is_forwarding_email_op';
+  $handler->display->display_options['filters']['is_forwarding_email']['expose']['identifier'] = 'is_forwarding_email';
+  $handler->display->display_options['filters']['is_forwarding_email']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    4 => 0,
+    5 => 0,
+    6 => 0,
+    7 => 0,
+    8 => 0,
+    9 => 0,
+    10 => 0,
+    11 => 0,
+    12 => 0,
+    13 => 0,
+    14 => 0,
+    15 => 0,
+    3 => 0,
+  );
+  $handler->display->display_options['filters']['is_forwarding_email']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['is_forwarding_email']['group_info']['label'] = 'Is Forwarding Email';
+  $handler->display->display_options['filters']['is_forwarding_email']['group_info']['identifier'] = 'is_forwarding_email';
+  $handler->display->display_options['filters']['is_forwarding_email']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Yes',
+      'operator' => '=',
+      'value' => array(
+        'value' => '1',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    2 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+  );
+  /* Filter criterion: Signature Mail Fraud Data: Is_free_email */
+  $handler->display->display_options['filters']['is_free_email']['id'] = 'is_free_email';
+  $handler->display->display_options['filters']['is_free_email']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_free_email']['field'] = 'is_free_email';
+  $handler->display->display_options['filters']['is_free_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_free_email']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['is_free_email']['expose']['operator_id'] = 'is_free_email_op';
+  $handler->display->display_options['filters']['is_free_email']['expose']['label'] = 'Is_free_email';
+  $handler->display->display_options['filters']['is_free_email']['expose']['operator'] = 'is_free_email_op';
+  $handler->display->display_options['filters']['is_free_email']['expose']['identifier'] = 'is_free_email';
+  $handler->display->display_options['filters']['is_free_email']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['is_free_email']['group_info']['label'] = 'Is Free Email';
+  $handler->display->display_options['filters']['is_free_email']['group_info']['identifier'] = 'is_free_email';
+  $handler->display->display_options['filters']['is_free_email']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Yes',
+      'operator' => '=',
+      'value' => array(
+        'value' => '1',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    2 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+  );
+  /* Filter criterion: Signature Mail Fraud Data: Is_open_email */
+  $handler->display->display_options['filters']['is_open_email']['id'] = 'is_open_email';
+  $handler->display->display_options['filters']['is_open_email']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_open_email']['field'] = 'is_open_email';
+  $handler->display->display_options['filters']['is_open_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_open_email']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['is_open_email']['expose']['operator_id'] = 'is_open_email_op';
+  $handler->display->display_options['filters']['is_open_email']['expose']['label'] = 'Is_open_email';
+  $handler->display->display_options['filters']['is_open_email']['expose']['operator'] = 'is_open_email_op';
+  $handler->display->display_options['filters']['is_open_email']['expose']['identifier'] = 'is_open_email';
+  $handler->display->display_options['filters']['is_open_email']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['is_open_email']['group_info']['label'] = 'Is Open Email';
+  $handler->display->display_options['filters']['is_open_email']['group_info']['identifier'] = 'is_open_email';
+  $handler->display->display_options['filters']['is_open_email']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Yes',
+      'operator' => '=',
+      'value' => array(
+        'value' => '1',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    2 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+  );
+  /* Filter criterion: Signature Mail Fraud Data: Is_shredder_email */
+  $handler->display->display_options['filters']['is_shredder_email']['id'] = 'is_shredder_email';
+  $handler->display->display_options['filters']['is_shredder_email']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_shredder_email']['field'] = 'is_shredder_email';
+  $handler->display->display_options['filters']['is_shredder_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_shredder_email']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['is_shredder_email']['expose']['operator_id'] = 'is_shredder_email_op';
+  $handler->display->display_options['filters']['is_shredder_email']['expose']['label'] = 'Is_shredder_email';
+  $handler->display->display_options['filters']['is_shredder_email']['expose']['operator'] = 'is_shredder_email_op';
+  $handler->display->display_options['filters']['is_shredder_email']['expose']['identifier'] = 'is_shredder_email';
+  $handler->display->display_options['filters']['is_shredder_email']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['is_shredder_email']['group_info']['label'] = 'Is Shredder Email';
+  $handler->display->display_options['filters']['is_shredder_email']['group_info']['identifier'] = 'is_shredder_email';
+  $handler->display->display_options['filters']['is_shredder_email']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Yes',
+      'operator' => '=',
+      'value' => array(
+        'value' => '1',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    2 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+  );
+  /* Filter criterion: Signature Mail Fraud Data: Is_time_bound_email */
+  $handler->display->display_options['filters']['is_time_bound_email']['id'] = 'is_time_bound_email';
+  $handler->display->display_options['filters']['is_time_bound_email']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_time_bound_email']['field'] = 'is_time_bound_email';
+  $handler->display->display_options['filters']['is_time_bound_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_time_bound_email']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['is_time_bound_email']['expose']['operator_id'] = 'is_time_bound_email_op';
+  $handler->display->display_options['filters']['is_time_bound_email']['expose']['label'] = 'Is_time_bound_email';
+  $handler->display->display_options['filters']['is_time_bound_email']['expose']['operator'] = 'is_time_bound_email_op';
+  $handler->display->display_options['filters']['is_time_bound_email']['expose']['identifier'] = 'is_time_bound_email';
+  $handler->display->display_options['filters']['is_time_bound_email']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['is_time_bound_email']['group_info']['label'] = 'Is Time Bound Email';
+  $handler->display->display_options['filters']['is_time_bound_email']['group_info']['identifier'] = 'is_time_bound_email';
+  $handler->display->display_options['filters']['is_time_bound_email']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Yes',
+      'operator' => '=',
+      'value' => array(
+        'value' => '1',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    2 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+  );
+  /* Filter criterion: Signature Mail Fraud Data: Is_trash_email */
+  $handler->display->display_options['filters']['is_trash_email']['id'] = 'is_trash_email';
+  $handler->display->display_options['filters']['is_trash_email']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_trash_email']['field'] = 'is_trash_email';
+  $handler->display->display_options['filters']['is_trash_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_trash_email']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['is_trash_email']['expose']['operator_id'] = 'is_trash_email_op';
+  $handler->display->display_options['filters']['is_trash_email']['expose']['label'] = 'Is_trash_email';
+  $handler->display->display_options['filters']['is_trash_email']['expose']['operator'] = 'is_trash_email_op';
+  $handler->display->display_options['filters']['is_trash_email']['expose']['identifier'] = 'is_trash_email';
+  $handler->display->display_options['filters']['is_trash_email']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['is_trash_email']['group_info']['label'] = 'Is Trash Email';
+  $handler->display->display_options['filters']['is_trash_email']['group_info']['identifier'] = 'is_trash_email';
+  $handler->display->display_options['filters']['is_trash_email']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => 'Yes',
+      'operator' => '=',
+      'value' => array(
+        'value' => '1',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    2 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    3 => array(
+      'title' => '',
+      'operator' => '=',
+      'value' => array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+  );
 
-  /* Display: Page */
-  $handler = $view->new_display('page', 'Page', 'page_1');
-  $handler->display->display_options['defaults']['header'] = FALSE;
-  /* Header: Global: Text area */
-  $handler->display->display_options['header']['area']['id'] = 'area';
-  $handler->display->display_options['header']['area']['table'] = 'views';
-  $handler->display->display_options['header']['area']['field'] = 'area';
-  $handler->display->display_options['header']['area']['content'] = '<strong>Download All Signatures</strong><br />
-<a href="/node/[petition_id]/signatures/export/base/download">CSV</a> | <a href="/node/[petition_id]/signatures/export/email/download">Email</a><br />
-<hr />
-<br />
-<h4><strong>Filters</strong></h4><br />';
-  $handler->display->display_options['header']['area']['format'] = 'full_html';
-  $handler->display->display_options['header']['area']['tokenize'] = TRUE;
-  $handler->display->display_options['path'] = 'node/%/signature';
-  $handler->display->display_options['menu']['title'] = 'Signatures';
-  $handler->display->display_options['menu']['description'] = 'Manage signatures for the Petition.';
-  $handler->display->display_options['menu']['weight'] = '15';
-  $handler->display->display_options['menu']['name'] = 'management';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  /* Display: Petition Signatures Admin */
+  $handler = $view->new_display('block', 'Petition Signatures Admin', 'block_1');
   $export['petitionadmin_signatures'] = $view;
-
-  $view = new view();
-  $view->name = 'petitions';
-  $view->description = '';
-  $view->tag = 'default';
-  $view->base_table = 'node';
-  $view->human_name = 'Petitions Moderation';
-  $view->core = 7;
-  $view->api_version = '3.0';
-  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
-  /* Display: Master */
-  $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Petitions Moderation';
-  $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'administer petition tool hub settings';
-  $handler->display->display_options['cache']['type'] = 'none';
-  $handler->display->display_options['query']['type'] = 'views_query';
-  $handler->display->display_options['exposed_form']['type'] = 'basic';
-  $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '50';
-  $handler->display->display_options['style_plugin'] = 'table';
-  /* Relationship: Content revision: User */
-  $handler->display->display_options['relationships']['uid']['id'] = 'uid';
-  $handler->display->display_options['relationships']['uid']['table'] = 'node_revision';
-  $handler->display->display_options['relationships']['uid']['field'] = 'uid';
-  $handler->display->display_options['relationships']['uid']['label'] = 'Last Petition Editor';
-  /* Relationship: Content: Author */
-  $handler->display->display_options['relationships']['uid_1']['id'] = 'uid_1';
-  $handler->display->display_options['relationships']['uid_1']['table'] = 'node';
-  $handler->display->display_options['relationships']['uid_1']['field'] = 'uid';
-  $handler->display->display_options['relationships']['uid_1']['label'] = 'Author Relationship';
-  /* Field: Content: Nid */
-  $handler->display->display_options['fields']['nid']['id'] = 'nid';
-  $handler->display->display_options['fields']['nid']['table'] = 'node';
-  $handler->display->display_options['fields']['nid']['field'] = 'nid';
-  $handler->display->display_options['fields']['nid']['label'] = '';
-  $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
-  /* Field: Bulk operations: Content */
-  $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
-  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'node';
-  $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '0';
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
-    'action::node_assign_owner_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_delete_item' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_script_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_make_sticky_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_make_unsticky_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_modify_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-      'settings' => array(
-        'show_all_tokens' => 1,
-        'display_values' => array(
-          '_all_' => '_all_',
-        ),
-      ),
-    ),
-    'action::views_bulk_operations_argument_selector_action' => array(
-      'selected' => 0,
-      'skip_confirmation' => 1,
-      'override_label' => 1,
-      'label' => 'Unpublish',
-      'settings' => array(
-        'url' => 'unpublish-petition',
-      ),
-    ),
-    'action::node_promote_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_publish_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_unpromote_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::petitionevents_hide_petition_action' => array(
-      'selected' => 1,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::petitionevents_show_petition_action' => array(
-      'selected' => 1,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_save_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::system_send_email_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_unpublish_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::node_unpublish_by_keyword_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::pathauto_node_update_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-  );
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* Field: Content: Published */
-  $handler->display->display_options['fields']['status']['id'] = 'status';
-  $handler->display->display_options['fields']['status']['table'] = 'node';
-  $handler->display->display_options['fields']['status']['field'] = 'status';
-  $handler->display->display_options['fields']['status']['not'] = 0;
-  /* Field: Content: Signature count */
-  $handler->display->display_options['fields']['field_petition_signature_count']['id'] = 'field_petition_signature_count';
-  $handler->display->display_options['fields']['field_petition_signature_count']['table'] = 'field_data_field_petition_signature_count';
-  $handler->display->display_options['fields']['field_petition_signature_count']['field'] = 'field_petition_signature_count';
-  $handler->display->display_options['fields']['field_petition_signature_count']['settings'] = array(
-    'thousand_separator' => ' ',
-    'prefix_suffix' => 1,
-  );
-  /* Field: Content: Petition Status */
-  $handler->display->display_options['fields']['field_petition_status']['id'] = 'field_petition_status';
-  $handler->display->display_options['fields']['field_petition_status']['table'] = 'field_data_field_petition_status';
-  $handler->display->display_options['fields']['field_petition_status']['field'] = 'field_petition_status';
-  /* Field: Content: Abuse Flags */
-  $handler->display->display_options['fields']['field_abuse_flags']['id'] = 'field_abuse_flags';
-  $handler->display->display_options['fields']['field_abuse_flags']['table'] = 'field_data_field_abuse_flags';
-  $handler->display->display_options['fields']['field_abuse_flags']['field'] = 'field_abuse_flags';
-  $handler->display->display_options['fields']['field_abuse_flags']['settings'] = array(
-    'link' => 0,
-  );
-  $handler->display->display_options['fields']['field_abuse_flags']['delta_offset'] = '0';
-  /* Field: Content revision: Updated date */
-  $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
-  $handler->display->display_options['fields']['timestamp']['table'] = 'node_revision';
-  $handler->display->display_options['fields']['timestamp']['field'] = 'timestamp';
-  $handler->display->display_options['fields']['timestamp']['date_format'] = 'long';
-  /* Field: Content: Abuse Count */
-  $handler->display->display_options['fields']['field_abuse_count']['id'] = 'field_abuse_count';
-  $handler->display->display_options['fields']['field_abuse_count']['table'] = 'field_data_field_abuse_count';
-  $handler->display->display_options['fields']['field_abuse_count']['field'] = 'field_abuse_count';
-  $handler->display->display_options['fields']['field_abuse_count']['settings'] = array(
-    'thousand_separator' => ' ',
-    'prefix_suffix' => 1,
-  );
-  /* Field: Global: Custom text */
-  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['table'] = 'views';
-  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['label'] = 'Actions';
-  $handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href = "/unpublish_petition/[nid]&destination=/admin/structure">Unpublish</a>';
-  /* Field: User: Rendered User */
-  $handler->display->display_options['fields']['rendered_entity']['id'] = 'rendered_entity';
-  $handler->display->display_options['fields']['rendered_entity']['table'] = 'views_entity_user';
-  $handler->display->display_options['fields']['rendered_entity']['field'] = 'rendered_entity';
-  $handler->display->display_options['fields']['rendered_entity']['relationship'] = 'uid';
-  $handler->display->display_options['fields']['rendered_entity']['label'] = 'Last Edited By';
-  $handler->display->display_options['fields']['rendered_entity']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['rendered_entity']['link_to_entity'] = 1;
-  $handler->display->display_options['fields']['rendered_entity']['view_mode'] = 'full';
-  $handler->display->display_options['fields']['rendered_entity']['bypass_access'] = 0;
-  /* Field: User: Name */
-  $handler->display->display_options['fields']['name']['id'] = 'name';
-  $handler->display->display_options['fields']['name']['table'] = 'users';
-  $handler->display->display_options['fields']['name']['field'] = 'name';
-  $handler->display->display_options['fields']['name']['relationship'] = 'uid_1';
-  $handler->display->display_options['fields']['name']['label'] = 'Author';
-  $handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
-  /* Sort criterion: Content: Post date */
-  $handler->display->display_options['sorts']['created']['id'] = 'created';
-  $handler->display->display_options['sorts']['created']['table'] = 'node';
-  $handler->display->display_options['sorts']['created']['field'] = 'created';
-  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* Filter criterion: Content: Type */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'petition' => 'petition',
-  );
-  /* Filter criterion: Content: Short URL (field_short_url) */
-  $handler->display->display_options['filters']['field_short_url_value']['id'] = 'field_short_url_value';
-  $handler->display->display_options['filters']['field_short_url_value']['table'] = 'field_data_field_short_url';
-  $handler->display->display_options['filters']['field_short_url_value']['field'] = 'field_short_url_value';
-  $handler->display->display_options['filters']['field_short_url_value']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_short_url_value']['expose']['operator_id'] = 'field_short_url_value_op';
-  $handler->display->display_options['filters']['field_short_url_value']['expose']['label'] = 'Short URL';
-  $handler->display->display_options['filters']['field_short_url_value']['expose']['operator'] = 'field_short_url_value_op';
-  $handler->display->display_options['filters']['field_short_url_value']['expose']['identifier'] = 'field_short_url_value';
-  $handler->display->display_options['filters']['field_short_url_value']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-  );
-  /* Filter criterion: Content: Nid */
-  $handler->display->display_options['filters']['nid']['id'] = 'nid';
-  $handler->display->display_options['filters']['nid']['table'] = 'node';
-  $handler->display->display_options['filters']['nid']['field'] = 'nid';
-  $handler->display->display_options['filters']['nid']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['nid']['expose']['operator_id'] = 'nid_op';
-  $handler->display->display_options['filters']['nid']['expose']['label'] = 'Petition ID';
-  $handler->display->display_options['filters']['nid']['expose']['operator'] = 'nid_op';
-  $handler->display->display_options['filters']['nid']['expose']['identifier'] = 'nid';
-  $handler->display->display_options['filters']['nid']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-  );
-
-  /* Display: Page */
-  $handler = $view->new_display('page', 'Page', 'moderation_tools');
-  $handler->display->display_options['path'] = 'admin/moderation-tools';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Petitions Moderation';
-  $handler->display->display_options['menu']['weight'] = '-10';
-  $handler->display->display_options['menu']['name'] = 'management';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-  $export['petitions'] = $view;
 
   return $export;
 }

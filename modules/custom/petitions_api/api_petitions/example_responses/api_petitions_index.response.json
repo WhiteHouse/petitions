@@ -43,96 +43,90 @@
   },
   "results": [
     {
-      "id": "50a3fd762f2c88cd65000015",
-      "type": "petition",
-      "title": "Secure resources and funding, and begin construction of a Death Star by 2016.",
-      "body": "Those who sign here petition the United States government to secure funding and resources, and begin construction on a Death Star by 2016.\r\n\r\nBy focusing our defense resources into a space-superiority platform and weapon system such as a Death Star, the government can spur job creation in the fields of construction, engineering, space exploration, and more, and strengthen our national defense.\r\n\r\n",
-      "issues": [
-        {
-          "id": "12",
-          "name": "Defense"
-        },
-        {
-          "id": "97",
-          "name": "Job Creation"
-        },
-        {
-          "id": "139",
-          "name": "Science and Space Policy"
-        }
-      ],
-      "signatureThreshold": 25000,
-      "signatureCount": 34435,
-      "signaturesNeeded": 0,
-      "url": "https://petitions.whitehouse.gov/petition/secure-resources-and-funding-and-begin-construction-death-star-2016/wlfKzFkN",
-      "deadline": 1355516534,
-      "status": "responded",
-      "response": {
-        "id": "716",
-        "url": "https://petitions.whitehouse.gov/response/isnt-petition-response-youre-looking",
-        "associationTime": "1357944472"
-      },
-      "created": 1352924534,
-      "isSignable": false,
-      "isPublic": true
-    },
-    {
-      "id": "50a3ee296ce61c7f7100000b",
+      "id": "226511",
       "type": "petition",
       "title": "Ban the practice of circumcising individuals under the age of 18.",
       "body": "Circumcision is a barbaric tribal practice that amounts to child abuse. Before any individual under go any permanent body modification such as tattooing or sex reassignment surgery they must be considered old enough to understand the consequences. You cannot understand the ramifications of this act to your physical being until after puberty, when your genitals have fully developed. ",
       "issues": [
         {
-          "id": "4",
+          "id": 4,
           "name": "Civil Rights and Liberties"
         },
         {
-          "id": "25",
+          "id": 25,
           "name": "Health Care"
         },
         {
-          "id": "28",
+          "id": 28,
           "name": "Human Rights"
         }
       ],
       "signatureThreshold": 25000,
       "signatureCount": 3085,
       "signaturesNeeded": 21915,
-      "url": "https://petitions.whitehouse.gov/petition/ban-practice-circumcising-individuals-under-age-18/DbCyTjRH",
-      "deadline": 1355512617,
+      "url": "https://petitions.whitehouse.gov/petition/ban-practice-circumcising-individuals-under-age-18",
+      "deadline": 1355512735,
       "status": "closed",
-      "response": null,
-      "created": 1352920617,
+      "response": [
+
+      ],
+      "created": 1352920735,
       "isSignable": false,
       "isPublic": true
     },
     {
-      "id": "50a3e438adfd95740f000011",
+      "id": "224306",
       "type": "petition",
       "title": "Remove HEMP (Non-Psychoactive Cannabis) from the Federal governments banned substance list. Make it Legal to Grow in USA",
       "body": "There is no reason for it to be illegal. It won't make you high. It is Not Marijuana, and it alone could make enough oil to free the nation. Hemp is the most versatile plant in the Universe, its strong enough to make rope, and diverse enough to make oil. This plant will grow almost everywhere with very little maintenance and without watering.And it is insect resistant naturally. It grows quickly and the steps to turn it into gasoline are very simple. We could replace our need for anything other than hemp in a matter of Months, not years.\r\n\r\nFuel:\r\n\r\n* Hemp can produce 10 times more methanol than corn. \r\n* Hemp is Earth's number-one biomass resource; it is capable of producing 10 tons per acre in four months.\r\n",
       "issues": [
         {
-          "id": "1",
+          "id": 1,
           "name": "Agriculture"
         },
         {
-          "id": "3",
+          "id": 3,
           "name": "Budget and Taxes"
         },
         {
-          "id": "20",
+          "id": 20,
           "name": "Environment"
         }
       ],
       "signatureThreshold": 25000,
       "signatureCount": 5091,
       "signaturesNeeded": 19909,
-      "url": "https://petitions.whitehouse.gov/petition/remove-hemp-non-psychoactive-cannabis-federal-governments-banned-substance-list-make-it-legal-grow/yr51rXsx",
-      "deadline": 1355510072,
+      "url": "https://petitions.whitehouse.gov/petition/remove-hemp-non-psychoactive-cannabis-federal-governments-banned-substance-list-make-it",
+      "deadline": 1355510348,
       "status": "closed",
-      "response": null,
-      "created": 1352918072,
+      "response": [
+
+      ],
+      "created": 1352918348,
+      "isSignable": false,
+      "isPublic": true
+    },
+    {
+      "id": "224016",
+      "type": "petition",
+      "title": "Stop the US Diversity Immigrant Visa (Lottery) Program - \"The USA's Open Door Welfare Program\"...",
+      "body": "Millions of Americans don't realize what's going on in this country.\r\nAnyone can fill out an online application form, then \"WIN\" the right to come to this country and claim all the benefits. The LOTTERY makes available up to 55,000 diversity visas annually, drawn from random selection BY COMPUTER; they are just WINNING\" permanent resident status based on no qualifications!\r\nAs a result, government officials are admitting millions of immigrants each year who are dependent on Medicaid, child care benefits, foster care, energy assistance, education assistance, nutritional welfare programs and other medical and health benefits.\r\nWe cant afford for our government to promote a policy that encourages immigrants to apply for a green card Lottery and \"WIN\"- NOT DESERVE the right to become USA citizen!",
+      "issues": [
+        {
+          "id": 29,
+          "name": "Immigration"
+        }
+      ],
+      "signatureThreshold": 25000,
+      "signatureCount": 2819,
+      "signaturesNeeded": 22181,
+      "url": "https://petitions.whitehouse.gov/petition/stop-us-diversity-immigrant-visa-lottery-program-usas-open-door-welfare-program",
+      "deadline": 1355509876,
+      "status": "closed",
+      "response": [
+
+      ],
+      "created": 1352917876,
       "isSignable": false,
       "isPublic": true
     }

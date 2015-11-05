@@ -194,7 +194,6 @@ function signature_entity_info() {
       'base table' => $full_name,
       'entity class' => "Entity",
       'controller class' => "EntityAPIController",
-      'access callback' => 'entity_access',
       'module' => $info['module'],
       'fieldable' => FALSE,
       'entity keys' => array(

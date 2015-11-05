@@ -174,11 +174,6 @@ function petitionslog_log_query($type, QueryAlterableInterface $query) {
 /**
  * Formats data for logging via watchdog.
  *
- * This function tries to determine where data will be logged and formats it
- * accordingly--collapsing data structures to a single line for log files (which
- * truncate multiline output) but expanding them for easier reading with
- * (multiline-capable) dblog.
- *
  * @param mixed $data
  *   An arbitrary array or object to be formatted readably for logging.
  *
@@ -188,21 +183,5 @@ function petitionslog_log_query($type, QueryAlterableInterface $query) {
  * @see watchdog()
  */
 function petitionslog_format_for_watchdog($data) {
-  // Use pretty printing if dblog is enabled.
-  if (module_exists('dblog')) {
-    if (is_string($data)) {
-      return "<blockquote><pre>{$data}</pre></blockquote>";
-    }
-    // JSON_PRETTY_PRINT is only available since PHP 5.4.0.
-    elseif (defined('JSON_PRETTY_PRINT')) {
-      return '<blockquote><pre>' . json_encode($data, JSON_PRETTY_PRINT) . '</pre></blockquote>';
-    }
-    else {
-      return '<blockquote><pre>' . print_r($data, TRUE) . '</pre></blockquote>';
-    }
-  }
-  // Otherwise, use (compressed) JSON to get it all on a single line.
-  else {
-    return json_encode($data);
-  }
+  return json_encode($data);
 }

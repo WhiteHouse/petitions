@@ -1,0 +1,15 @@
+name = Signature Mail Fraud Data
+description = An entity type to store fraud data on signatures
+core = 7.x
+package = petitions
+php = 5.2.4
+version = 7.x-1.0
+dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = petition
+dependencies[] = signature_mail
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = signature_mail_fraud_data
+mtime = 1443547395

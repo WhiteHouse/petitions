@@ -411,6 +411,77 @@ BODY:
     '#required' => TRUE,
   );
 
+  $form['petition_admin']['wh_petitions_admin_ready_response_emails'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Ready for Response Notification Email Addresses'),
+    '#description' => t('Enter a comma-separated list of email addresses who should be notified when a petition passes the ready for response threshold.'),
+    '#default_value' => variable_get('wh_petitions_admin_ready_response_emails'),
+    '#required' => FALSE,
+  );
+  $form['petition_admin']['wh_petitions_email_admin_ready_response_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject for the email sent when a petition receives enough signatures to pass the ready for response threshold.'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_admin_ready_response_subject'),
+    '#required' => TRUE,
+  );
+  $form['petition_admin']['wh_petitions_email_admin_ready_response_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Text for the email sent when a petition receives enough signatures to pass the ready for response threshold.'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_admin_ready_response_text'),
+    '#required' => TRUE,
+  );
+
+
+  $form['petition_admin']['admin_signature_thresholds'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Petition Signature Admin Notification Thresholds'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $form['petition_admin']['admin_signature_thresholds']['wh_petitions_admin_signature_threshold_crossed_emails'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Signature Threshold Crossed Notification Email Addresses'),
+    '#description' => t('Enter a comma-separated list of email addresses who should be notified when a petition crosses one of the 4 defined thresholds.'),
+    '#default_value' => variable_get('wh_petitions_admin_signature_threshold_crossed_emails'),
+    '#required' => TRUE,
+  );
+
+  $threshold_default_levels = array(
+    '1' => 25000,
+    '2' => 50000,
+    '3' => 75000,
+  );
+
+  foreach ($threshold_default_levels as $key => $value) {
+
+    $form['petition_admin']['admin_signature_thresholds']['wh_petitions_admin_signature_threshold_' . $key] = array(
+      '#type' => 'textfield',
+      '#title' => t('Threshold Level @level', array('@level' => $key)),
+      '#description' => t('The number of signatures on a petition which will trigger the notification.'),
+      '#default_value' => variable_get('wh_petitions_admin_signature_threshold_' . $key, $value),
+      '#required' => TRUE,
+    );
+  }
+
+  $form['petition_admin']['admin_signature_thresholds']['wh_petitions_email_admin_signature_threshold_crossed_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject for the email sent when a petition receives enough signatures to pass the threshold.'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_admin_signature_threshold_crossed_subject'),
+    '#required' => TRUE,
+  );
+
+  $form['petition_admin']['admin_signature_thresholds']['wh_petitions_email_admin_signature_threshold_crossed_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Text for the email sent when a petition receives enough signatures to pass the threshold.'),
+    '#description' => '',
+    '#default_value' => variable_get('wh_petitions_email_admin_signature_threshold_crossed_text'),
+    '#required' => TRUE,
+  );
+
   // Settings related to petition administration.
   $form['mongo2mysql'] = array(
     '#type' => 'fieldset',
@@ -1128,7 +1199,7 @@ function wh_petitions_admin_petitions_settings_form() {
   $form['petitions_settings']['petitions_signing_method'] = array(
     '#type' => 'radios',
     '#title' => t('Signing method'),
-    '#description' => t('The "Registraion required" signing method requires users to explicitly create an account and log in to sign petitions. The "Simplified signing" method allows them to sign via a simple form and to validate their signature via email instead of logging in. A Drupal cache clear is required to make a change in this setting take effect. Note: the registration-base signing method has a known security vulnerability: <a href="!url">SA-CONTRIB-2014-060- Petitions - Cross Site Request Forgery (CSRF)</a>', array('!url'=> 'https://www.drupal.org/node/2284571')),
+    '#description' => t('The "Registraion required" signing method requires users to explicitly create an account and log in to sign petitions. The "Simplified signing" method allows them to sign via a simple form and to validate their signature via email instead of logging in. A Drupal cache clear is required to make a change in this setting take effect.'),
     '#default_value' => variable_get('petitions_signing_method', WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED),
     '#options' => array(
       WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED => t('Registration required'),

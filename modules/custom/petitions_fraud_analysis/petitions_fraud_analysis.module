@@ -1,0 +1,117 @@
+<?php
+/**
+ * Module to provide analysis tab for petition nodes with fraud statistics.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function petitions_fraud_analysis_menu() {
+  $items['node/%node/analysis'] = array(
+    'title' => 'Analysis',
+    'description' => 'View fraud statics analysis',
+    'page callback' => 'petitions_fraud_analysis_view_page',
+    'page arguments' => array(1),
+    'access callback' => 'petitions_fraud_analysis_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 60,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function petitions_fraud_analysis_permission() {
+  return array(
+    'access petition analysis tab' => array(
+      'title' => t('Access petition analysis tab'),
+      'description' => t('Access the petition analysis tab with statistics on signature fraud.'),
+    ),
+  );
+}
+
+/**
+ * Access callback for the analysis tab on petition nodes.
+ *
+ * @param $node
+ *   The node being viewed.
+ */
+function petitions_fraud_analysis_access($node) {
+  if ($node->type != 'petition') {
+    return FALSE;
+  }
+
+  return user_access('access petition analysis tab');
+}
+
+/**
+ * Creates statistics page content for petition node Analysis tab.
+ *
+ * @param $node
+ *   The node being viewed.
+ */
+function petitions_fraud_analysis_view_page($node) {
+  $output = array();
+  $output['tab_title'] = array(
+    '#type' => 'markup',
+    '#markup' => 'Fraud Statistics',
+    '#prefix' => '<h2>',
+    '#suffix' => '</h2>',
+  );
+  $output['#attached']['css'] = array(drupal_get_path('module', 'petitions_fraud_analysis') . '/stylesheets/petitions_fraud_analysis.css');
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  $signature_count = $node->signature_count;
+
+  $output['total_signatures'] = array(
+    '#type' => 'markup',
+    '#markup' => t("Total signatures on this petition (excluding creator's): @total", array('@total' => number_format($signature_count))),
+    '#prefix' => '<h3>',
+    '#suffix' => '</h3>',
+  );
+
+  $counts['Signatures: Email Signups'] = $wrapper->field_petition_sig_email_signups->raw();
+  $counts['Signatures: Free email addresses'] = $wrapper->field_petition_sig_free_emails->raw();
+  $counts['Signatures: Forwarding email addresses'] = $wrapper->field_petition_sig_fwd_emails->raw();
+  $counts['Signatures: Open email addresses'] = $wrapper->field_petition_sig_open_emails->raw();
+  $counts['Signatures: Shred email addresses'] = $wrapper->field_petition_sig_shred_emails->raw();
+  $counts['Signatures: Sub-addressed email addresses'] = $wrapper->field_petition_sig_subadr_emails->raw();
+  $counts['Signatures: Time-bound email addresses'] = $wrapper->field_petition_sig_tmebnd_emails->raw();
+  $counts['Signatures: Trash email addresses'] = $wrapper->field_petition_sig_trash_emails->raw();
+  $counts['Signatures: Unique email accounts'] = $wrapper->field_petition_sig_unq_email_act->raw();
+  $counts['Validations: Unique IP addresses'] = $wrapper->field_petition_val_unq_ip_emails->raw();
+
+  if ($signature_count > 0) {
+    $rows = array();
+    foreach ($counts as $label => $value) {
+      $value = $value ? $value : 0;
+      $percent = sprintf("%.2f%%", ($value / $signature_count) * 100);
+      $rows[] = array($label, $value, $percent);
+    }
+
+    $output['statistics_table'] = array(
+      '#theme' => 'table',
+      '#rows' => $rows,
+      '#header' => array('Statistic', 'Count', '%'),
+      '#sticky' => FALSE,
+      '#attributes' => array(
+        'class' => array('fraud-statistics'),
+      ),
+    );
+  }
+  else {
+    $output['no_data'] = array(
+      '#type' => 'markup',
+      '#markup' => 'This petition has not been signed by anyone other than the creator. No statistics to report',
+      '#prefix' => '<div class="messages warning">',
+      '#suffix' => '</div>',
+    );
+  }
+
+  return $output;
+
+}

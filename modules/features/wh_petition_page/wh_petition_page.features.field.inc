@@ -1,19 +1,23 @@
 <?php
+/**
+ * @file
+ * wh_petition_page.features.field.inc
+ */
 
 /**
- * Implementation of hook_field_default_fields().
+ * Implements hook_field_default_fields().
  */
 function wh_petition_page_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'node-wh_petitions_page-body'
+  // Exported field: 'node-wh_petitions_page-body'.
   $fields['node-wh_petitions_page-body'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(
-        '0' => 'node',
+        0 => 'node',
       ),
       'field_name' => 'body',
       'foreign keys' => array(
@@ -26,11 +30,14 @@ function wh_petition_page_field_default_fields() {
       ),
       'indexes' => array(
         'format' => array(
-          '0' => 'format',
+          0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
-      'settings' => array(),
+      'settings' => array(
+        'profile2_private' => FALSE,
+      ),
       'translatable' => '1',
       'type' => 'text_with_summary',
     ),

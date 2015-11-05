@@ -305,75 +305,6 @@ function wh_response_feature_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-wh_response-field_is_featured'.
-  $fields['node-wh_response-field_is_featured'] = array(
-    'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_is_featured',
-      'foreign keys' => array(),
-      'indexes' => array(
-        'value' => array(
-          0 => 'value',
-        ),
-      ),
-      'locked' => '0',
-      'module' => 'list',
-      'settings' => array(
-        'allowed_values' => array(
-          0 => '0',
-          1 => '1',
-        ),
-        'allowed_values_function' => '',
-      ),
-      'translatable' => '1',
-      'type' => 'list_boolean',
-    ),
-    'field_instance' => array(
-      'bundle' => 'wh_response',
-      'default_value' => array(
-        0 => array(
-          'value' => 0,
-        ),
-      ),
-      'deleted' => '0',
-      'description' => '',
-      'display' => array(
-        'default' => array(
-          'label' => 'hidden',
-          'module' => 'list',
-          'settings' => array(),
-          'type' => 'list_default',
-          'weight' => '8',
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'node',
-      'field_name' => 'field_is_featured',
-      'label' => 'Featured Response',
-      'required' => 0,
-      'settings' => array(
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'options',
-        'settings' => array(
-          'display_label' => 1,
-        ),
-        'type' => 'options_onoff',
-        'weight' => '9',
-      ),
-    ),
-  );
-
   // Exported field: 'node-wh_response-field_issues'.
   $fields['node-wh_response-field_issues'] = array(
     'field_config' => array(
@@ -1016,7 +947,6 @@ function wh_response_feature_field_default_fields() {
   t('Audio Embed');
   t('Body');
   t('Enter the name of the agency who is responding to this petition ( i.e. White House, Department of Energy )');
-  t('Featured Response');
   t('Issues');
   t('Media');
   t('Petition Count');

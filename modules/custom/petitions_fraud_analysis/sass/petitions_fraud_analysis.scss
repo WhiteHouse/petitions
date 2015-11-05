@@ -1,0 +1,29 @@
+table.fraud-statistics {
+  background: #fff;
+
+  thead {
+    border-bottom: 1px solid #999;
+  }
+
+  th, td {
+    padding: 3px 12px;
+  }
+
+  th:first-child, td:first-child {
+    padding-left: 6px;
+  }
+
+  th:last-child, td:last-child {
+    padding-right: 6px;
+  }
+  td:not(:first-child) {
+    text-align: right;
+  }
+  th:not(:first-child) {
+    text-align: center;
+  }
+  tr.odd {
+    background-color: #fff;
+  }
+
+}

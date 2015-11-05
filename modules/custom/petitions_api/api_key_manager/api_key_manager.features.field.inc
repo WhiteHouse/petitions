@@ -63,6 +63,76 @@ function api_key_manager_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'field_api_key_manager_desc',
       'label' => 'Application Description',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '5',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-key-field_api_key_manager_email'.
+  $fields['node-key-field_api_key_manager_email'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_api_key_manager_email',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+        'profile2_private' => FALSE,
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'key',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 10,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_api_key_manager_email',
+      'label' => 'Email',
       'required' => 1,
       'settings' => array(
         'text_processing' => '0',
@@ -75,7 +145,7 @@ function api_key_manager_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '32',
+        'weight' => '2',
       ),
     ),
   );
@@ -133,6 +203,76 @@ function api_key_manager_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'field_api_key_manager_feedback',
       'label' => 'Feedback',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '10',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-key-field_api_key_manager_first_name'.
+  $fields['node-key-field_api_key_manager_first_name'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_api_key_manager_first_name',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+        'profile2_private' => FALSE,
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'key',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 8,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_api_key_manager_first_name',
+      'label' => 'First Name',
       'required' => 1,
       'settings' => array(
         'text_processing' => '0',
@@ -145,7 +285,7 @@ function api_key_manager_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '38',
+        'weight' => '0',
       ),
     ),
   );
@@ -215,7 +355,77 @@ function api_key_manager_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '36',
+        'weight' => '8',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-key-field_api_key_manager_last_name'.
+  $fields['node-key-field_api_key_manager_last_name'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_api_key_manager_last_name',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+        'profile2_private' => FALSE,
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'key',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 9,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_api_key_manager_last_name',
+      'label' => 'Last Name',
+      'required' => 1,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '1',
       ),
     ),
   );
@@ -273,7 +483,7 @@ function api_key_manager_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'field_api_key_manager_name',
       'label' => 'Application Name',
-      'required' => 1,
+      'required' => 0,
       'settings' => array(
         'text_processing' => '0',
         'user_register_form' => FALSE,
@@ -285,7 +495,7 @@ function api_key_manager_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '31',
+        'weight' => '4',
       ),
     ),
   );
@@ -343,7 +553,7 @@ function api_key_manager_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'field_api_key_manager_org',
       'label' => 'Organization',
-      'required' => 1,
+      'required' => 0,
       'settings' => array(
         'text_processing' => '0',
         'user_register_form' => FALSE,
@@ -355,7 +565,7 @@ function api_key_manager_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '34',
+        'weight' => '7',
       ),
     ),
   );
@@ -425,7 +635,7 @@ function api_key_manager_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '35',
+        'weight' => '3',
       ),
     ),
   );
@@ -495,7 +705,7 @@ function api_key_manager_field_default_fields() {
         'module' => 'options',
         'settings' => array(),
         'type' => 'options_select',
-        'weight' => '37',
+        'weight' => '9',
       ),
     ),
   );
@@ -553,7 +763,7 @@ function api_key_manager_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'field_api_key_manager_url',
       'label' => 'Application URL',
-      'required' => 1,
+      'required' => 0,
       'settings' => array(
         'text_processing' => '0',
         'user_register_form' => FALSE,
@@ -565,7 +775,7 @@ function api_key_manager_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '33',
+        'weight' => '6',
       ),
     ),
   );
@@ -576,6 +786,7 @@ function api_key_manager_field_default_fields() {
   t('Application Key');
   t('Application Name');
   t('Application URL');
+  t('Email');
   t('Enter the URL to your application.');
   t('Enter the description of your application.');
   t('Enter the full name of your application.');
@@ -583,6 +794,8 @@ function api_key_manager_field_default_fields() {
   t('Enter the reason for the status of the key. If approving the key, "Approved" is a sufficient reason.');
   t('Enter your phone number.');
   t('Feedback');
+  t('First Name');
+  t('Last Name');
   t('Organization');
   t('Phone Number');
   t('Status');
