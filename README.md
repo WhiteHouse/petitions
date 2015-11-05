@@ -1,12 +1,12 @@
 # We The People petitions application
 
-Drupal 7 code base used to build an application that lets users create and sign petitions.
+Drupal 7 code base used to build an application that allows users to create and sign petitions.
 
 This application is under active development and will continue to be modified and improved over time. The current release is an "alpha".
 
 ## Goals
 
-President Obama is committed to creating the most open and participatory government in our nation’s history, and this petitioning platform is a key part of that initiative. In September, 2011, the White House launched [We the People](http://petitions.whitehouse.gov), a powerful and simple way to petition the Obama Administration to take action on a range of issues. If a petition gathers a minimum number of signatures in a defined amount of time, policy officials review it and publish an official response.
+President Obama is committed to creating the most open and participatory government in our nation’s history, and this petitioning platform is a key part of that initiative. In September of 2011, the White House launched [We the People](http://petitions.whitehouse.gov), a powerful and simple way to petition the Obama Administration to take action on a range of issues. If a petition gathers a minimum number of signatures in a defined amount of time, policy officials review it and publish an official response.
 
 *Among our commitments, we’re launching a new online tool -- called “We the People” -- to allow Americans to directly petition the White House, and we’ll share that technology so any government in the world can enable its citizens to do the same.*
 
@@ -33,7 +33,9 @@ Visitors can sign petitions. Petitions that receive a designated number of signa
 
 For installation instructions, see INSTALL.md.
 
-NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience. The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 themeing conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
+NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience. The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 theming conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
+
+Keys for the write API are issued, validated, and rate limited by a third-party service.
 
 Keys for the write API are issued, validated, and rate limited by a third-party service.
 
@@ -86,6 +88,6 @@ The project utilizes code licensed under the terms of the GNU General Public Lic
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 2 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY, without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
