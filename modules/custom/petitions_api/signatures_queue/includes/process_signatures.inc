@@ -108,14 +108,14 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       // Increment signature count.
       PetitionsController::incrementSignatureCount($item['petition_id']);
 
-      $disposability = signatures_queue_get_email_disposability($item['email']);
+      $disposability = disposable_email_get_email_disposability($item['email']);
       $disposability->is_free_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS) : NULL;
       $disposability->is_open_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS) : NULL;
       $disposability->is_forwarding_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS) : NULL;
       $disposability->is_trash_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS) : NULL;
       $disposability->is_time_bound_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS) : NULL;
       $disposability->is_shredder_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS) : NULL;
-      signatures_queue_is_subaddressed_email($item['email']) ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS) : NULL;
+      disposable_email_is_subaddressed_email($item['email']) ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS) : NULL;
       // PT-1721 performs unique email / ip count updates inside of _signatures_queue_process_signatures_save_signature().
       _signatures_queue_process_signatures_compare_thresholds($item['petition_id']);
 
@@ -587,7 +587,7 @@ function _signatures_queue_process_signatures_save_signature(array $item, $user,
   $signature = SignaturesController::save($signature);
 
   // Store metrics for fraud reporting.
-  $email = signatures_queue_unsubaddress_email($item['email']);
+  $email = disposable_email_unsubaddress_email($item['email']);
   petition_add_signature_email($item['petition_id'], $email);
   petition_add_signature_ip($item['petition_id'], $item['client_ip']);
 
