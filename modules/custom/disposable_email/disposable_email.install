@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ *
+ * Verify the disposable_email_checker library is available.
+ */
+
+function disposable_email_requirements($phase) {
+  $requirements = array();
+  // Ensure translations do not break at install time
+  $t = get_t();
+
+  $requirements['disposable_email_checker'] = array(
+    'title' => $t('Disposable Email Checker'),
+  );
+
+  $libraries = libraries_get_libraries();
+  if (isset($libraries['disposable_email_checker'])) {
+    $requirements['disposable_email_checker']['value'] = $t('Installed');
+    $requirements['disposable_email_checker']['severity'] = REQUIREMENT_OK;
+  }
+  else {
+    $requirements['disposable_email_checker']['value'] = $t('Not Installed');
+    $requirements['disposable_email_checker']['severity'] = REQUIREMENT_ERROR;
+    $requirements['disposable_email_checker']['description'] = $t('Please install the disposable_email_checker library %url.', array('%url' => 'https://github.com/vboctor/disposable_email_checker.git'));
+  }
+
+  return $requirements;
+}

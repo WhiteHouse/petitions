@@ -198,8 +198,8 @@ function _signatures_queue_enqueue_item(array $item) {
  *   _signatures_queue_build_new_queue_item().
  */
 function _signatures_queue_log_signatory_details($api_key, $petition_id, array $signature) {
-  $is_disposable = signatures_queue_is_disposable_email($signature['email']) ? 'true' : 'false';
-  $is_subaddressed = signatures_queue_is_subaddressed_email($signature['email']) ? 'true' : 'false';
+  $is_disposable = disposable_email_is_disposable_email($signature['email']) ? 'true' : 'false';
+  $is_subaddressed = disposable_email_is_subaddressed_email($signature['email']) ? 'true' : 'false';
 
   // Log in aggregate, per API key, and per petition ID metrics.
   $metric_prefixes = array(

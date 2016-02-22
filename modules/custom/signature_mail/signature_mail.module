@@ -32,16 +32,16 @@ function signature_mail_entity_delete($entity, $type) {
       ->execute()
       ->fetchField();
 
-    $disposability = signatures_queue_get_email_disposability($signature_email);
+    $disposability = disposable_email_get_email_disposability($signature_email);
     $disposability->is_free_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS, TRUE) : NULL;
     $disposability->is_open_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS, TRUE) : NULL;
     $disposability->is_forwarding_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS, TRUE) : NULL;
     $disposability->is_trash_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS, TRUE) : NULL;
     $disposability->is_time_bound_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS, TRUE) : NULL;
     $disposability->is_shredder_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS, TRUE) : NULL;
-    signatures_queue_is_subaddressed_email($signature_email) ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS, TRUE) : NULL;
+    disposable_email_is_subaddressed_email($signature_email) ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS, TRUE) : NULL;
 
-    $email = signatures_queue_unsubaddress_email($signature_email);
+    $email = disposable_email_unsubaddress_email($signature_email);
     petition_remove_signature_email($petition_id, $email);
     petition_remove_signature_ip($petition_id, $entity->ip_address);
     petition_update_total_unique_ips_and_emails($petition_id);
