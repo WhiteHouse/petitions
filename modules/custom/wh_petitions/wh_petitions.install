@@ -317,3 +317,25 @@ BODY:
 =================");
 
 }
+
+/**
+ * PT-1833: Removing obsolete variables.
+ */
+function wh_petitions_update_7109() {
+  variable_del('wh_petitions_homepage_left');
+  variable_del('wh_petitions_homepage_center');
+  variable_del('wh_petitions_homepage_right');
+  variable_del('wh_petitions_homepage_content');
+  variable_del('wh_petitions_top_right_text');
+
+  variable_del('petitions_homepage_petition_hero');
+  variable_del('petitions_homepage_easy_steps');
+  variable_del('petitions_homepage_introductory_video');
+  variable_del('petitions_homepage_aside_flag');
+  variable_del('petitions_homepage_featured_responses_flag');
+  variable_del('petitions_homepage_featured_responses');
+  variable_del('petitions_homepage_recent_petitions_flag');
+  variable_del('petitions_homepage_twitter_flag');
+  variable_del('petitions_homepage_twitter');
+  variable_del('petitions_homepage_more_from_the_whitehouse');
+}

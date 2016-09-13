@@ -5,3 +5,49 @@
  */
 
 include_once 'petition_pages.features.inc';
+
+/**
+ * Implements hook_block_view_alter().
+ */
+function petition_pages_block_view_alter(&$data, $block) {
+  if ($block->module == 'views' && isset($data['content']) && isset($data['subject'])) {
+    switch ($data['subject']) {
+      case 'Popular Petitions':
+        // Add popular petitions JS if block view is on page.
+        $data['content']['#attached']['js'] = array(
+          array(
+            'data' => array(
+              'popularPetitions' => array(
+                'ajax_delay' => (int) variable_get('popular_petitions_refresh_delay', 0),
+              ),
+            ),
+            'type' => 'setting',
+          ),
+          drupal_get_path('module', 'petition_pages') . '/js/popular_petitions.js',
+        );
+
+        // Done here because view Custom Link doesn't allow anchors.
+        $more_link = array(
+          '#theme' => 'html_tag',
+          '#tag' => 'div',
+          '#value' => l(t('View more popular petitions'), '/', array('fragment' => 'signapetition')),
+          '#attributes' => array(
+            'class' => array(
+              'more-link',
+            ),
+          ),
+        );
+        $data['content']['#markup'] = $data['content']['#markup'] . drupal_render($more_link);
+        break;
+
+      case 'Sign a Petition':
+        $data['content']['#prefix'] = '<a name="signapetition"></a>';
+        break;
+
+      case 'Petitions With Updates':
+        $data['content']['#prefix'] = '<a name="petitionswithupdates"></a>';
+        break;
+    }
+
+  }
+}

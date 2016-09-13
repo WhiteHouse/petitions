@@ -10,6 +10,7 @@
  */
 class PetitionItem {
 
+  protected $type;
   protected $entityId;
   protected $legacyId;
   protected $uid;
@@ -316,6 +317,34 @@ class PetitionItem {
    */
   public function getEntityId() {
     return $this->entityId;
+  }
+
+  /**
+   * Sets the issues the petition is tagged with.
+   *
+   * @param array[] $type
+   *   An array of type arrays, containing the following key/value pairs:
+   *   - id: The type id.
+   *   - name: The type name.
+   *
+   * @return $this
+   */
+  public function setType($type) {
+    $this->type = $type;
+
+    return $this;
+  }
+
+  /**
+   * Gets the type the petition is tagged with.
+   *
+   * @return array[]
+   *   An array of type arrays, containing the following key/value pairs:
+   *   - id: The type id.
+   *   - name: The type name.
+   */
+  public function getType() {
+    return $this->type;
   }
 
   /**
@@ -988,6 +1017,7 @@ class PetitionItem {
       'type' => 'petition',
       'title' => petitions_data_sanitize_output($this->getTitle()),
       'body' => petitions_data_sanitize_output($this->getBody()),
+      'petition_type' => $this->getType(),
       'issues' => $this->getIssues(),
       'signatureThreshold' => $this->getSignatureThreshold(),
       'signatureCount' => $this->getSignatureCount(),
@@ -1003,9 +1033,9 @@ class PetitionItem {
       // @todo An array transformation is not the right place to implement this
       //   kind of business logic. Find a better place for it.
       'created' => $this->getPublished(),
-
       'isSignable' => $this->isSignable(),
       'isPublic' => $this->isPublic(),
+      'reachedPublic' => $this->getReachedPublic(),
     );
 
     return $output;
@@ -1029,6 +1059,10 @@ class PetitionItem {
     foreach ((array) $this->getIssues() as $issue) {
       $issues[] = array('tid' => $issue['id']);
     }
+    $petition_type = array();
+    foreach ((array) $this->getType() as $type) {
+      $petition_type[] = array('tid' => $type['id']);
+    }
 
     $node_status = !in_array($this->getStatus(), wh_petitions_unpublished_statuses());
 
@@ -1043,6 +1077,7 @@ class PetitionItem {
       'field_abuse_count' => array(LANGUAGE_NONE => array(0 => array('value' => count($abuse_flags)))),
       'field_abuse_flags' => array(LANGUAGE_NONE => $abuse_flags),
       'field_legacy_id' => array(LANGUAGE_NONE => array(0 => array('value' => $this->getLegacyId()))),
+      'field_petition_type' => array(LANGUAGE_NONE => $petition_type),
       'field_petition_issues' => array(LANGUAGE_NONE => $issues),
       'field_petition_public_signatures' => array(LANGUAGE_NONE => array(0 => array('value' => $this->getSignaturePublicThreshold()))),
       // 'field_petition_related_petitions' corresponds to an unused Mongo field
@@ -1112,12 +1147,18 @@ class PetitionItem {
       $issues[] = $issue['id'];
     }
 
+    $petition_type = array();
+    foreach ((array) $this->getIssues() as $type) {
+      $petition_type[] = $type['id'];
+    }
+
     $values = array(
       'uid' => $this->getUid(),
       'title' => $this->getTitle(),
       'title_keywords' => $this->getTitleKeywords(),
       'body' => $this->getBody(),
       'body_keywords' => $this->getBodyKeywords(),
+      'petition_type' => $petition_type,
       'issues' => $issues,
       'user_tags' => $this->getUserTags(),
       'private_tags' => $this->getPrivateTags(),
@@ -1180,6 +1221,18 @@ class PetitionItem {
       }
     }
 
+    $petition_type = $legacy_array['petition_type'];
+    $types = taxonomy_term_load_multiple($petition_type);
+    $type = array();
+    if ($types) {
+      foreach ($types as $tid => $term) {
+        $type[] = array(
+          'id' => $tid,
+          'name' => petitions_data_sanitize_output($term->name),
+        );
+      }
+    }
+
     // Create the object. A few notes on omitted fields:
     // - A legacy array doesn't have an entity ID for setId().
     // - Body and title keywords are generated dynamically on output rather than
@@ -1197,6 +1250,7 @@ class PetitionItem {
       ->setClosed($legacy_array['closed'])
       ->setCreated($legacy_array['created'])
       ->setFeatured($legacy_array['featured'])
+      ->setType($type)
       ->setIssues($issues_array)
 
       // In a legacy array, the nice URL and legacy path are the same thing.

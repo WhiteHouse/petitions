@@ -22,4 +22,5 @@ files[] = wh_petitions.generate.inc
 files[] = wh_petitions.module
 files[] = wh_petitions.pages.inc
 files[] = wh_petitions.tokens.inc
-files[] = wh_petitions_removal.inc
+files[] = includes/wh_petitions.helper.inc
+files[] = includes/wh_petitions.create.form.inc

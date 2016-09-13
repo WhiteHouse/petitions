@@ -21,11 +21,8 @@ function _api_validations_resource_index($api_key, $petition_id, $mock, $offset,
 
   // Check for the required key.
   if (empty($api_key) || !api_key_manager_valid_key($api_key)) {
-    $status_code = 401;
-    $developer_message = t("Invalid key.");
-    $user_message = t("The key provided is not valid.");
     $error_code = 85;
-    $more_info = t('See the documentation: !url/developers#validations-index-error-401', array('!url' => $website_url));
+    list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 

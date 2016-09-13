@@ -1,0 +1,52 @@
+//Homepage specific styles
+
+.front, .page-responses {
+  h1.title,
+  #content p {
+    text-align: center;
+  }
+  #content-top h1.title {
+    @include media($mobile-max-width){
+      font-size: $h2-font-size;
+      margin-bottom: 10px;
+    }
+    padding-bottom: 0px;
+    @include media($desktop) {
+      margin-bottom: 15px;
+      margin-top: 0;
+    }
+  }
+  a.button {
+    margin: 0;
+  }
+  h2,
+  h3,
+  p {
+    color: $mine-shaft;
+    margin-top: 0;
+  }
+  h3 {
+    font-size: $h4-font-size-mobile;
+    @include media($desktop) {
+      font-size: $h3-font-size;
+    }
+  }
+}
+
+.open-petitions {
+  h2 {
+    margin-bottom: .5em;
+    @include media($mobile-max-width) {
+      font-size: $h1-font-size-mobile;
+    }
+  }
+  .view-header p {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+}
+
+.responses-link {
+  margin-bottom: 40px;
+  text-align: center;
+}

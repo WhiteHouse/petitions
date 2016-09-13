@@ -70,7 +70,7 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
     }
     catch (Exception $e) {
       watchdog('petitions_data', 'Exception in PetitionsSelectQuerySolr::execute(): !e', array(
-        '!e' => petitionslog_format_for_watchdog($e),
+        '!e' => petition_format_for_watchdog($e),
       ));
     }
     return $this;
@@ -304,13 +304,11 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
         throw new Exception('addOrderByToQuery - Not a valid direction: ' . $order_by_dir);
       }
 
-      if (in_array($field, $this->getValidPetitionsOrderByFields())) {
-        $mapped_field = $this->orderByFieldsMap[$field]['field'];
-        $mapped_dir = $this->orderByDirMap[$order_by_dir];
-        $this->sortString = $mapped_field . ' ' . $mapped_dir;
-        // Currently allow only one sort field.
-        break;
-      }
+      $mapped_field = $this->orderByFieldsMap[$field]['field'];
+      $mapped_dir = $this->orderByDirMap[$order_by_dir];
+      $this->sortString = $mapped_field . ' ' . $mapped_dir;
+      // Currently allow only one sort field.
+      break;
     }
   }
 
@@ -460,11 +458,23 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
     $result_arrays = array();
     foreach ($response->docs as $doc) {
       $issues = array();
-      foreach ($doc->{PETITION_SOLR_FIELD_ISSUE_TIDS} as $delta => $tid) {
-        $issues[] = array(
-          'id' => $tid,
-          'name' => petitions_data_sanitize_output($doc->{PETITION_SOLR_FIELD_ISSUE_NAMES}[$delta]),
-        );
+      if (!empty($doc->{PETITION_SOLR_FIELD_ISSUE_TIDS})) {
+        foreach ($doc->{PETITION_SOLR_FIELD_ISSUE_TIDS} as $delta => $tid) {
+          $issues[] = array(
+            'id' => $tid,
+            'name' => petitions_data_sanitize_output($doc->{PETITION_SOLR_FIELD_ISSUE_NAMES}[$delta]),
+          );
+        }
+      }
+
+      $types = array();
+      if (!empty($doc->{PETITION_SOLR_FIELD_TYPE_TIDS})) {
+        foreach ($doc->{PETITION_SOLR_FIELD_TYPE_TIDS} as $delta => $tid) {
+          $types[] = array(
+            'id' => $tid,
+            'name' => petitions_data_sanitize_output($doc->{PETITION_SOLR_FIELD_TYPE_NAMES}[$delta]),
+          );
+        }
       }
 
       $petition_response = array();
@@ -492,6 +502,7 @@ class PetitionsSelectQuerySolr extends PetitionsSelectQuery {
         ->setLegacyId($doc->{PETITION_SOLR_FIELD_LEGACY_ID})
         ->setTitle(static::sanitizeSolrString($doc->{PETITION_SOLR_FIELD_TITLE}))
         ->setBody(static::sanitizeSolrString($doc->{PETITION_SOLR_FIELD_BODY}))
+        ->setType($types)
         ->setIssues($issues)
         ->setNiceUrl($doc->{PETITION_SOLR_FIELD_PATH})
         ->setReviewTimeframe($doc->{PETITION_SOLR_FIELD_REVIEW_TIMEFRAME})

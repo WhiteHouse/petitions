@@ -1,0 +1,403 @@
+/**
+ * Menu mixins.
+ *
+ * Adapted from USDS menu styles: https://github.com/18F/web-design-standards
+ */
+@mixin unstyled-menu-list() {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+
+  h2.title {
+    display: none;
+  }
+
+  li {
+    font-size: $base-font-size;
+    display: list-item;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    &:before {
+      display: none;
+    }
+    &:after {
+      display: none;
+    }
+    a {
+      padding: 5px 20px;
+      display: block;
+      &.active {
+        color: $color-primary-darker;
+        font-weight: $font-bold;
+      }
+    }
+  }
+}
+
+@mixin sidebar-nav() {
+  @include unstyled-menu-list();
+  li {
+    font-size: $h4-font-size;
+
+    > a {
+      border: none;
+      color: $mine-shaft;
+      display: block;
+      font-family: $font-sans;
+      line-height: 1;
+      background-color: transparent;
+      border-bottom: 1px solid $mine-shaft;
+      padding: {
+        bottom: 1rem;
+        left: 1.8rem;
+        right: 1rem;
+        top: 1rem;
+      }
+      &.active {
+        border-left: 4px solid $color-primary-darker;
+        padding-left: 1.4rem;
+      }
+      &:hover {
+        background-color: $color-gray-lightest;
+        color: $color-primary-darker;
+        text-decoration: none;
+      }
+      &:focus {
+        position: relative;
+        z-index: 1;
+      }
+      &:active {
+        color: $color-primary-darker;
+        text-decoration: underline;
+      }
+    }
+    &:last-child {
+      > a {
+        border-bottom: none;
+      }
+    }
+  }
+}
+
+/**
+ * Menu Styles.
+ */
+#sidebar-top,
+#sidebar-bottom {
+  .block-menu,
+  .block-anchor-links-block-1 {
+    @include unstyled-menu-list();
+    background-color: $color-link-water;
+    padding: 15px 0;
+    a, a:visited {
+      color: $mine-shaft;
+    }
+
+    @include media($desktop){
+      padding: 0;
+      @include sidebar-nav();
+      background-color: transparent;
+    }
+  }
+}
+
+/**
+ * Footer menus
+ */
+%footer-menu {
+  h2.title {
+    display: none;
+  }
+  ul.menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  li.leaf {
+    margin: 0;
+    padding: 0;
+    color: white;
+    position: relative;
+
+    @include media($desktop) {
+      text-align: right;
+    }
+    a {
+      color: white;
+      display: inline;
+      overflow: hidden;
+      width: 100%;
+      font-weight: 300;
+      padding: 0;
+
+      &:visited, &:hover, &:active{
+        color: white;
+      }
+    }
+  }
+
+}
+
+.block-menu-footer-menu {
+  @extend %footer-menu;
+  li.leaf {
+    display: block;
+    @include media($desktop) {
+      display: inline-block;
+    }
+    &.fa {
+      a {
+        font-family: $font-sans;
+        padding-left: 1em + em($gutter-outer);
+        @include media($desktop) {
+          padding-left: 1.4em;
+        }
+      }
+      &:before {
+        @include vertical-center(absolute);
+        left: 0;
+        z-index: 1;
+        pointer-events: none;
+
+        @include media($desktop) {
+          // Center is lower than desired for the inline-block display. Shift
+          // the icon up slightly.
+          margin-top: -2px;
+        }
+      }
+    }
+
+    a {
+      display: block;
+      border-bottom: 1px white solid;
+      position: relative;
+      left: -$gutter-outer;
+      padding: 0.5em $gutter-outer;
+      box-sizing: content-box;
+      float: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-weight: 700;
+      font-size: inherit;
+      line-height: $base-line-height;
+
+      @include media($desktop) {
+        position: static;
+        display: inline-block;
+        width: auto;
+        border: 0;
+        margin: 0;
+        padding: 0 1em 0 0;
+      }
+    }
+  }
+
+  .visitor-account{
+    a {
+      background-color: $color-cool-blue;
+      @include media($desktop) {
+        background-color: transparent;
+      }
+    }
+    &:before {
+      margin-right: .4em;
+    }
+    &.visitor-account-sign-out {
+      .not-logged-in & {
+        display: none;
+      }
+    }
+    &.visitor-account-sign-in {
+      .logged-in & {
+        display: none;
+      }
+    }
+  }
+}
+
+.block-menu-corner-links {
+  @extend %footer-menu;
+
+  ul.menu {
+    @include clearfix();
+    @include media($desktop) {
+      text-align: right;
+    }
+  }
+  li.leaf {
+    font-size: $small-font-size;
+    &.white-house-twitter, &.rss-feed {
+      display: inline;
+    }
+    a {
+      &:link, &:visited {
+        color: $color-footer-link-gray;
+      }
+      &:hover {
+        color: white;
+      }
+      &.social-share {
+        color: white;
+        &:hover {
+          color: $color-cool-blue-lighter;
+        }
+        &:before {
+          margin: 0 .5em 0 0;
+          font-size: 20px;
+          @include media($desktop) {
+            margin: 0 0 0 .5em;
+          }
+        }
+      }
+    }
+  }
+}
+
+//Main menu styles
+.main-menu {
+  li a {
+    color: $white;
+    text-transform: uppercase;
+  }
+}
+
+#header #navigation {
+  background-color: transparent;
+  float: right;
+  margin-top: 15px;
+
+  li {
+    letter-spacing: 1px;
+    display: block;
+    float: left;
+  }
+
+  @include media($mobile-max-width) {
+    margin-top: 20px;
+    ul {
+      margin-left: 0;
+    }
+  }
+}
+
+.menu--user {
+  display: none;
+  @include media($desktop) {
+    display: inline-block;
+    float: right;
+    padding: 6px 0;
+    ul {
+      list-style-type: none;
+    }
+  }
+}
+
+//Displays the Sign a Petition and Create a Petition links only on desktop
+a.menu__link--desktop {
+  display: none;
+  margin-left: 0;
+  @include media($desktop){
+    display: block;
+    margin-left: 25px;
+  }
+}
+
+a.menu__link--mobile {
+  display: block;
+  margin-left: 25px;
+  @include media($desktop) {
+    display: none;
+    margin-left: 0;
+  }
+}
+
+//Sign in and Sign out icons
+a.sign-out {
+  &:before {
+    content: "\f08b";
+    font-family: 'FontAwesome';
+    margin-right: 5px;
+    display: inline-block;
+  }
+
+  &:hover:before {
+    text-decoration: none;
+  }
+}
+
+a.sign-in {
+  &:before {
+    content: "\f090";
+    font-family: 'FontAwesome';
+    margin-right: 5px;
+    display: inline-block;
+  }
+  &:hover::before{
+    text-decoration: none;
+  }
+}
+
+.dashboard-menu {
+  @include span-columns($grid-columns);
+  padding-top: 40px;
+  text-align: right;
+
+  .dashboard-menu-label {
+    color: $mine-shaft;
+  }
+  ul {
+    @include unstyled-menu-list();
+    display: inline;
+    li {
+      display: inline;
+      a {
+        display: inline-block;
+        line-height: 1.2em;
+        padding: 0 0.5em;
+        border-right: 1px solid $mine-shaft;
+        &.active,
+        &.active-trail {
+          color: $mine-shaft;
+          font-weight: normal;
+          text-decoration: underline;
+        }
+      }
+      &:last-child {
+        a {
+          border-right: none;
+          padding-right: 0;
+        }
+      }
+    }
+  }
+
+  @include media($desktop) {
+    padding-top: 50px;
+    li:first-child {
+      display: none;
+    }
+
+    // Override the standard 60px padding on #content-top when the dashboard
+    // menu is present.
+    & + #content-top{
+      padding-top: 50px;
+    }
+  }
+
+  @include media($mobile-max-width) {
+    text-align: center;
+    .dashboard-menu-label {
+      display: none;
+    }
+    li:first-child{
+      display: block;
+      font-weight: $font-bold;
+
+      a {
+        border-right: none;
+      }
+    }
+  }
+}

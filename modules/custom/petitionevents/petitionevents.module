@@ -96,29 +96,3 @@ function petitionevents_mail_additions(&$message, $context) {
 
   $message = str_replace('!petition_title', $title, $message);
 }
-
-/**
- * Extract mongo id from short url, then grab corresponding node id.
- */
-function petitionevents_get_administer_link() {
-  if (arg(0) == 'petition') {
-    $mongo_id = petition_load_mongo2mysql_from_url(current_path());
-    $node = petition_load_from_legacy_id($mongo_id['_id']);
-  }
-
-  if (arg(0) == 'node') {
-    $node = node_load(arg(1));
-  }
-
-  $is_node_loaded = $node != NULL;
-  if ($is_node_loaded) {
-    $node_id = $node->nid;
-  }
-
-  else {
-    watchdog('petitionevents', "Unable to locate a MySQL Petition for current page.");
-    $node_id = 0;
-  }
-
-  return petitionadmin_get_admin_link($node_id);
-}

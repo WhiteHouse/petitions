@@ -21,13 +21,14 @@ define('PETITIONS_SIGNATURES_DISPLAY_MODE_INITIALS_ONLY', 2);
 function petitions_signatures_display_menu() {
   $items = array();
 
-  $items['admin/config/petitions/signatures'] = array(
+  $items['admin/petitions/settings/signatures_display'] = array(
     'title' => 'Signatures Display',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('petitions_signatures_display_configure'),
     'access arguments' => array('administer site configuration'),
     'file' => 'petitions_signatures_display.admin.inc',
     'description' => "Configure signatures display.",
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
@@ -173,25 +174,29 @@ function petitions_signatures_display_form_alter(&$form, &$form_state, $form_id)
  * Form validation callback.
  */
 function petitions_signatures_display_location_validate($form, &$form_state) {
-  $zipcode = $form_state['values']['profile_main']['field_zip'][LANGUAGE_NONE][0]['value'];
-  $location = petitions_signatures_display_location($zipcode);
-  $city = isset($location[0]['city']) ? $location[0]['city'] : '';
-  $state = isset($location[0]['state']) ? $location[0]['state'] : '';
-  if (isset($location[0]['country']) && $location[0]['country'] == 'us') {
-    $country = 'United States';
-  }
-  else {
-    $country = $form_state['values']['profile_main']['field_country'][LANGUAGE_NONE][0]['value'];
-  }
+  $zipcode = isset($form_state['values']['profile_main']['field_zip'][LANGUAGE_NONE][0]['value']) ? $form_state['values']['profile_main']['field_zip'][LANGUAGE_NONE][0]['value'] : FALSE;
 
-  $values = array(
-    'field_city' => $city,
-    'field_state' => $state,
-    'field_country' => $country,
-  );
+  // Since location lookup is based on zip, don't proceed without it.
+  if ($zipcode) {
+    $location = petitions_signatures_display_location($zipcode);
+    $city = isset($location[0]['city']) ? $location[0]['city'] : '';
+    $state = isset($location[0]['state']) ? $location[0]['state'] : '';
+    if (isset($location[0]['country']) && $location[0]['country'] == 'us') {
+      $country = 'United States';
+    }
+    else {
+      $country = $form_state['values']['profile_main']['field_country'][LANGUAGE_NONE][0]['value'];
+    }
 
-  foreach ($values as $key => $value) {
-    form_set_value($form['profile_main'][$key], array(LANGUAGE_NONE => array(0 => array('value' => $value))), $form_state);
+    $values = array(
+      'field_city' => $city,
+      'field_state' => $state,
+      'field_country' => $country,
+    );
+
+    foreach ($values as $key => $value) {
+      form_set_value($form['profile_main'][$key], array(LANGUAGE_NONE => array(0 => array('value' => $value))), $form_state);
+    }
   }
 }
 
@@ -201,33 +206,35 @@ function petitions_signatures_display_location_validate($form, &$form_state) {
 function petitions_signatures_display_profile2_view_alter(&$build, $type) {
   $display = variable_get('petitions_signatures_display_profile_location', 'petitions_signatures_display_profile_user_city_state');
   if ($display == 'petitions_signatures_display_profile_db_city_state') {
-    $zipcode = $build['field_zip']['#items'][0]['value'];
-    $location = petitions_signatures_display_location($zipcode);
-    $city = $location[0]['city'];
-    $state = $location[0]['state'];
-    if ($location[0]['country'] == 'us') {
-      $country = 'United States';
-    }
-    else {
-      $country = $build['field_country']['#items'][0]['value'];
-    }
+    if (isset($build['field_zip']['#items'][0]['value'])) {
+      $zipcode = $build['field_zip']['#items'][0]['value'];
+      $location = petitions_signatures_display_location($zipcode);
+      $city = $location[0]['city'];
+      $state = $location[0]['state'];
+      if ($location[0]['country'] == 'us') {
+        $country = 'United States';
+      }
+      else {
+        $country = $build['field_country']['#items'][0]['value'];
+      }
 
-    if ($city) {
-      $build['field_city'][0]['#markup'] = $city;
-    }
-    else {
-      unset($build['field_city']);
-    }
+      if ($city) {
+        $build['field_city'][0]['#markup'] = $city;
+      }
+      else {
+        unset($build['field_city']);
+      }
 
-    if ($state) {
-      $build['field_state'][0]['#markup'] = $state;
-    }
-    else {
-      unset($build['field_state']);
-    }
+      if ($state) {
+        $build['field_state'][0]['#markup'] = $state;
+      }
+      else {
+        unset($build['field_state']);
+      }
 
-    if ($build['field_country']['#items'][0]['value']) {
-      $build['field_country'][0]['#markup'] = $country;
+      if ($build['field_country']['#items'][0]['value']) {
+        $build['field_country'][0]['#markup'] = $country;
+      }
     }
   }
 }

@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall routines for the wh_petition_page module.
+ */
+
+/**
+ * PT-1912: Enable link and revert feature.
+ */
+function wh_petition_page_update_7001() {
+  module_enable(array('link'));
+}
+
+/**
+ * PT-1928: Merge "page" and "basic page" content types, delete "article".
+ */
+function wh_petition_page_update_7002() {
+  $feature = features_get_features('wh_petition_page');
+  $components = array_keys($feature->info['features']);
+  features_revert(array('wh_petition_page' => $components));
+
+  $site_paths = array(
+    'frontpage' => variable_get('site_frontpage'),
+    '403' => variable_get('site_403'),
+    '404' => variable_get('site_404'),
+  );
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'page')
+    ->addMetaData('account', user_load(1));
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    foreach ($result['node'] as $node_info) {
+      $nid = $node_info->nid;
+      $path = path_load('node/' . $nid);
+      $old_node = node_load($nid);
+      $new_node = clone $old_node;
+      unset($new_node->vid);
+      unset($new_node->nid);
+      unset($new_node->revision_uid);
+      unset($new_node->revision_timestamp);
+      $new_node->type = 'wh_petitions_page';
+      $new_node->path['pathauto'] = FALSE;
+      node_save($new_node);
+      unset($path['pid']);
+      $new_path = 'node/' . $new_node->nid;
+      if (in_array($path['source'], $site_paths)) {
+        foreach ($site_paths as $variable => $value) {
+          if ($path['source'] == $value) {
+            variable_set('site_' . $variable, $new_path);
+          }
+        }
+      }
+      $path['source'] = $new_path;
+      path_save($path);
+      node_delete($old_node->nid);
+      unset($old_node);
+    }
+  }
+
+  $types = array(
+    'article',
+    'page',
+  );
+  foreach ($types as $type) {
+    node_type_delete($type);
+    variable_del('node_preview_' . $type);
+  }
+  node_types_rebuild();
+  menu_rebuild();
+}

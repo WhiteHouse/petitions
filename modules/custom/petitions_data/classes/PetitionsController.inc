@@ -11,41 +11,6 @@
  * Provides methods for interacting with Petition data objects.
  */
 class PetitionsController {
-
-  /**
-   * Increments the signature count for a given petition.
-   *
-   * @param string|int $petition_id
-   *   A petition ID.
-   */
-  public static function incrementSignatureCount($petition_id) {
-    // Increment in MongoDB.
-    if (petitions_data_mongo_writes_are_enabled()) {
-      wh_petitions_mongo2mysql_increment_count($petition_id);
-    }
-    // Increment in MySQL.
-    if (petitions_data_mysql_writes_are_enabled()) {
-      petition_increment_count($petition_id, 1);
-    }
-  }
-
-  /**
-   * Increment petition node metric count.
-   *
-   * @param int $petition_id
-   *   Node petition ID
-   *
-   * @param string $petition_metric
-   *   Petition Metric constant from PetitionItem class.
-   *
-   * @param bool $decrement
-   *   If TRUE, will decrease metric count by one, otherwise increment.
-   */
-  public static function incrementPetitionMetricCount($petition_id, $petition_metric, $decrement = FALSE) {
-    $petitions_query = new PetitionsSelectQueryMysql();
-    $petitions_query::incrementPetitionMetricCount($petition_id, $petition_metric, $decrement);
-  }
-
   /**
    * Bump a petition node's field value up or down by 1.
    *

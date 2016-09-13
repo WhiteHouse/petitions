@@ -1,0 +1,191 @@
+/**
+ * Mixins
+ * ------
+ * Mixins allow you to define styles that can be re-used
+ * throughout the stylesheet without needing to resort to
+ * non-semantic classes like .float-left. Mixins can also
+ * contain full CSS rules, and anything else allowed
+ * elsewhere in a Sass document. They can even take
+ * arguments which allows you to produce a wide variety
+ * of styles with very few mixins.
+ *
+ * For complete documentation:
+ * Sass mixins:		http://sass-lang.com/docs/yardoc/file.scss_REFERENCE.html#mixins
+ * Bourbon mixins: 	http://bourbon.io/docs/
+ */
+
+// Import variables for use in Mixins.
+@import "_variables.scss";
+
+// Rounded corners mixin.
+@mixin border-radius($top: 10px, $right: $top, $bottom: $top, $left: $right) {
+  border-radius: $top $right $bottom $left;
+  -moz-border-radius: $top $right $bottom $left;
+  -webkit-border-top-left-radius: $top;
+  -webkit-border-top-right-radius: $right;
+  -webkit-border-bottom-right-radius: $bottom;
+  -webkit-border-bottom-left-radius: $left;
+}
+
+@mixin outer-container-padding($pad: 1em) {
+  @include outer-container();
+  padding-left: $pad;
+  padding-right: $pad;
+}
+
+@mixin inset-border($inset: 1px, $border-width: 1px, $border-color: $color-primary) {
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    z-index: -1;
+    margin: $inset;
+    border: $border-width solid $border-color;
+    width: auto;
+    height: auto;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    box-sizing: border-box;
+  }
+}
+
+/* element-invisible as defined by http://snook.ca/archives/html_and_css/hiding-content-for-accessibility */
+@mixin element-invisible {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+}
+
+//Styles placeholder text
+@mixin placeholder {
+    &::-webkit-input-placeholder {
+        @content;
+    }
+
+    &:-moz-placeholder { /* Firefox 18- */
+        @content;
+    }
+
+    &::-moz-placeholder {  /* Firefox 19+ */
+        @content;
+    }
+
+    &:-ms-input-placeholder {
+        @content;
+    }
+}
+
+/* Reset top/bottom margins on text elements.
+ *
+ * The reset-child-margins() mixin will target first and last elements included
+ * in the $text-reset-elements config variable, and then zero the top/bottom
+ * margin on the child element in favor of margin or padding set element including the mixin.
+ * This is useful to prevent a child element from adding additional space
+ * above or below its parent.
+ */
+@mixin reset-first-child-margins() {
+  @each $element in $text-reset-elements {
+    & > #{$element}:first-child {
+      margin-top: 0;
+    }
+  }
+}
+@mixin reset-last-child-margins() {
+  @each $element in $text-reset-elements {
+    & > #{$element}:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+@mixin reset-text-margins() {
+  @include reset-first-child-margins();
+  @include reset-last-child-margins();
+}
+
+@mixin reset-field-text-margins() {
+  .field:first-child{
+    .field-items{
+      .field-item:first-child {
+        @include reset-first-child-margins();
+      }
+    }
+  }
+  .field:last-child{
+    .field-items{
+      .field-item:last-child {
+        @include reset-last-child-margins();
+      }
+    }
+  }
+}
+
+@mixin reset-block-text-margins() {
+  .block {
+    @include reset-text-margins();
+    @include reset-field-text-margins();
+  }
+}
+
+@mixin reset-all-text-margins() {
+  @each $element in $text-reset-elements {
+    #{$element} {
+      margin: 0;
+    }
+  }
+}
+
+/**
+ * Layout mixins.
+ */
+@mixin vertical-padding($direction: null) {
+  @if $direction {
+    padding-#{$direction}: $vertical-padding;
+    @include media($desktop) {
+      padding-#{$direction}: $vertical-padding-desktop;
+    }
+  }
+  @else {
+    padding-top: $vertical-padding;
+    padding-bottom: $vertical-padding;
+    @include media($desktop) {
+      padding-top: $vertical-padding-desktop;
+      padding-top: $vertical-padding-desktop;
+    }
+  }
+}
+
+/**
+ * Vertically center an element.
+ */
+@mixin vertical-center($position: absolute) {
+  position: $position;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+/**
+ * Adds button styles to an element.
+ */
+
+@mixin button() {
+  @include border-radius(5px);
+  background-color: $atlantis;
+  color: $white;
+  border: none;
+  padding: 0.25em;
+  margin: 10px 0;
+  &:hover {
+    background-color: $sushi;
+  }
+  &:link{
+    text-decoration: none;
+  }
+}

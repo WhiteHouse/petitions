@@ -35,7 +35,7 @@ abstract class SelectQueryBase {
   const SELECT_QUERY_ORDER_BY_FIELD_TITLE = 'TITLE';
   const SELECT_QUERY_ORDER_BY_FIELD_DATE_CREATED = 'DATE_CREATED';
 
-  protected $validOrderByDirections = array(
+  protected static $validOrderByDirections = array(
     self::SELECT_QUERY_ORDER_BY_ASC,
     self::SELECT_QUERY_ORDER_BY_DESC,
   );
@@ -285,27 +285,13 @@ abstract class SelectQueryBase {
   }
 
   /**
-   * Getter accessor for $this->validOrderByDirections.
+   * Getter accessor for self::$validOrderByDirections.
    *
    * @return array
    *   The array of validOrderByFields
    */
-  public function getValidOrderByDirections() {
-    return $this->validOrderByDirections;
-  }
-
-  /**
-   * Set accessor for $this->validOrderByDirections.
-   *
-   * @param array $order_by_dirs
-   *   Array of valid directions.
-   *
-   * @return SelectQueryBase
-   *   Returns current instance of object.
-   */
-  protected function setValidOrderByDirections($order_by_dirs) {
-    $this->validOrderByDirections = $order_by_dirs;
-    return $this;
+  public static function getValidOrderByDirections() {
+    return self::$validOrderByDirections;
   }
 
   /**
@@ -331,7 +317,7 @@ abstract class SelectQueryBase {
    *   TRUE if direction is valid
    */
   protected function isValidOrderByDirection($direction) {
-    return in_array($direction, $this->validOrderByDirections);
+    return in_array($direction, self::$validOrderByDirections);
   }
 
   /**

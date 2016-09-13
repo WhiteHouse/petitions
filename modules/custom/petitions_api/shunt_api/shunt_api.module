@@ -65,12 +65,8 @@ function shunt_api_services_request_preprocess_alter(&$controller, &$args, $opti
  * Replacement callback for all resources when shunt is enabled.
  */
 function shunt_api_resource_callback() {
-  $status_code = 500;
-  $developer_message =  t("We're sorry, this service is currently unavailable.");
-  $user_message = t("We're sorry, this service is currently unavailable.");
   $error_code = 73;
-  $more_info = t('See issue #!code on github: https://github.com/whitehouse/petitions/issues/!code', array('!code' => $error_code));
-
+  list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
   return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
 }
 

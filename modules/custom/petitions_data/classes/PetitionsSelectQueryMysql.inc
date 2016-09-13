@@ -65,51 +65,61 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
       'table' => 'field_petition_sig_email_signups',
       'field' => 'field_petition_sig_email_signups_value',
       'title' => 'Email Signups',
+      'include_in_metadata' => TRUE,
     ),
     PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS => array(
       'table' => 'field_petition_sig_free_emails',
       'field' => 'field_petition_sig_free_emails_value',
       'title' => 'Free Email Addresses',
+      'include_in_metadata' => TRUE,
     ),
     PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS => array(
       'table' => 'field_petition_sig_fwd_emails',
       'field' => 'field_petition_sig_fwd_emails_value',
       'title' => 'Forwarding Email Addresses',
+      'include_in_metadata' => TRUE,
     ),
     PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS => array(
       'table' => 'field_petition_sig_open_emails',
       'field' => 'field_petition_sig_open_emails_value',
       'title' => 'Open Email Addresses',
+      'include_in_metadata' => TRUE,
     ),
     PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS => array(
       'table' => 'field_petition_sig_shred_emails',
       'field' => 'field_petition_sig_shred_emails_value',
       'title' => 'Shred Email Addresses',
+      'include_in_metadata' => TRUE,
     ),
     PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS => array(
       'table' => 'field_petition_sig_subadr_emails',
       'field' => 'field_petition_sig_subadr_emails_value',
       'title' => 'Subaddressed Email Addresses',
+      'include_in_metadata' => TRUE,
     ),
     PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS => array(
       'table' => 'field_petition_sig_tmebnd_emails',
       'field' => 'field_petition_sig_tmebnd_emails_value',
       'title' => 'Time Bound Email Addresses',
+      'include_in_metadata' => TRUE,
     ),
     PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS => array(
       'table' => 'field_petition_sig_trash_emails',
       'field' => 'field_petition_sig_trash_emails_value',
       'title' => 'Trash Email Addresses',
+      'include_in_metadata' => TRUE,
     ),
     PetitionItem::PETITION_SIGNATURE_COUNT_UNIQUE_EMAIL_ACCOUNTS => array(
       'table' => 'field_petition_sig_unq_email_act',
       'field' => 'field_petition_sig_unq_email_act_value',
       'title' => 'Unique Email Accounts',
+      'include_in_metadata' => FALSE,
     ),
     PetitionItem::PETITION_VALIDATION_COUNT_UNIQUE_IP_EMAILS => array(
       'table' => 'field_petition_val_unq_ip_emails',
       'field' => 'field_petition_val_unq_ip_emails_value',
       'title' => 'Unique Email IP Addresses',
+      'include_in_metadata' => FALSE,
     ),
   );
 
@@ -135,7 +145,7 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
     }
     catch (Exception $e) {
       watchdog('petitions_data', 'Exception in PetitionsSelectQueryMySQL::execute(): !e', array(
-        '!e' => petitionslog_format_for_watchdog($e),
+        '!e' => petition_format_for_watchdog($e),
       ));
     }
     return $this;
@@ -542,6 +552,13 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
         }, $node->field_petition_issues[LANGUAGE_NONE]);
       }
 
+      $petition_types = array();
+      if (!empty($node->field_petition_type[LANGUAGE_NONE])) {
+        $petition_types = array_map(function ($element) {
+          return $element['tid'];
+        }, $node->field_petition_type[LANGUAGE_NONE]);
+      }
+
       $petition = new PetitionItem();
       // Make sure we have a legacy ID before we assign it.
       $legacy_id = (is_array($node->field_legacy_id) && isset($node->field_legacy_id[LANGUAGE_NONE])) ? (string) $node->field_legacy_id[LANGUAGE_NONE][0]['value'] : NULL;
@@ -565,7 +582,8 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
         ->setLegacyId($legacy_id)
         ->setTitle($node->extraFields->title)
         ->setBody($body)
-        ->setIssues($this->formatReturnIssues($issue_tids))
+        ->setType($this->formatReturnTerms($petition_types))
+        ->setIssues($this->formatReturnTerms($issue_tids))
 
         // Since path aliases are cached, using url() for this value here will
         // ultimately be much more performant (not to mention less complex) than
@@ -598,75 +616,6 @@ class PetitionsSelectQueryMysql extends PetitionsSelectQuery {
     $this->setResultObjects($result_objects);
     $this->setResult($result_arrays);
     $this->setCount($this->resultsetCount);
-  }
-
-  /**
-   * Increment petition node metric count.
-   *
-   * @param int $petition_id
-   *   Node petition ID
-   *
-   * @param string $petition_metric
-   *   Petition Metric constant from PetitionItem class.
-   *
-   * @param bool $decrement
-   *   If TRUE, will decrease metric count by one, otherwise increment.
-   */
-  public static function incrementPetitionMetricCount($petition_id, $petition_metric, $decrement = FALSE) {
-    if (isset(self::$petitionMetricFieldsMap[$petition_metric])) {
-      $nid = petition_get_nid($petition_id);
-      if (!$nid) {
-        watchdog('petitions_data', 'incrementPetitionMetricCount - Could not get petition nid for !id', array(
-          '!id' => $petition_id,
-        ));
-        return;
-      }
-
-      $table_name = self::$petitionMetricFieldsMap[$petition_metric]['table'];
-      $field_name = self::$petitionMetricFieldsMap[$petition_metric]['field'];
-      $count_mod = $decrement ? ' - 1' : ' + 1';
-      $result = db_update('field_data_' . $table_name)
-        ->expression($field_name, $field_name . $count_mod)
-        ->condition('entity_id', $nid)
-        ->execute();
-
-      if (!$result && !$decrement) {
-        // If no rows updated, create a new row for the field with count = 1.
-        $node = node_load($nid);
-        if ($node) {
-          $fields = array(
-            'entity_type' => 'node',
-            'bundle' => $node->type,
-            'deleted' => 0,
-            'entity_id' => $node->nid,
-            'revision_id' => $node->vid,
-            'language' => $node->language,
-            'delta' => 0,
-            $field_name => 1,
-          );
-          // DB insert used to skip apachesolr hooks to trigger node reindexing.
-          db_insert('field_data_' . $table_name)->fields($fields)->execute();
-          db_insert('field_revision_' . $table_name)->fields($fields)->execute();
-        }
-        else {
-          watchdog('petitions_data', 'incrementPetitionMetricCount - Could not load petition_id !id', array(
-            '!id' => $petition_id,
-          ));
-        }
-      }
-      elseif ($result) {
-        // If node update was successful, update revision table as well.
-        db_update('field_revision_' . $table_name)
-          ->expression($field_name, $field_name . $count_mod)
-          ->condition('entity_id', $nid)
-          ->execute();
-      }
-    }
-    else {
-      watchdog('petitions_data', 'incrementPetitionMetricCount - invalid metric: !metric', array(
-        '!metric' => $petition_metric,
-      ));
-    }
   }
 
   /**

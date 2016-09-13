@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "responseInfo": {
+      "status": "404",
+      "developerMessage:": "404 Not Found : Response {response_id} not found.",
+      "userMessage": "The response that you requested does not exist.",
+      "errorCode": "84",
+      "moreInfo": "See the documentation: https://petitions.whitehouse.gov/developers#responses-retrieve-error-404"
+    }
+  }
+}

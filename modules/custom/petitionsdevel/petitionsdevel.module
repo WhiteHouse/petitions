@@ -6,24 +6,319 @@
  */
 
 /**
- * Implements hook_init().
+ * Generate dummy random petitions with signatures.
+ *
+ * @param int $num
+ *   Number of petitions to create.
+ * @param int $max_num_sigs
+ *   Max numbers of signatures per petition.
  */
-function petitionsdevel_init() {
-  // Conditionally break all connections to MongoDB to simulate service
-  // disconnection or outage. Any Mongo-dependent functionality should fail when
-  // this happens.
-  if (shunt_is_enabled('mongodb_connection')) {
-    variable_del('mongodb_connections');
-    variable_del('mongodb_collections');
-    variable_del('mongodb_options');
+function petitionsdevel_generate_petitions($num = 25, $max_num_sigs = 20) {
+  $sig_public_threshold = 5;
+  $sig_review_threshold = 10;
+
+  // Grab some users.
+  $query = db_select('users', 'u');
+  $query->fields('u', array('uid'));
+  $query->condition('u.uid', 0, '!=');
+  $query->orderBy('u.uid');
+  $query->range(0, $max_num_sigs + 1);
+  $result = $query->execute();
+  $users = $result->fetchAll();
+
+  $max_num_sigs = min($max_num_sigs, count($users) - 1);
+
+  $petitions_created_ids = array();
+
+  for ($i = 1; $i <= $num; $i++) {
+    $num_signatures = rand(2, $max_num_sigs);
+    $issues_array = array();
+    $vocabulary = taxonomy_vocabulary_machine_name_load('Issues');
+    $issues = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+
+    if ($issues) {
+      foreach ($issues as $tid => $term) {
+        if (rand(0, 1)) {
+          $issues_array[] = array(
+            'id' => $tid,
+            'name' => petitions_data_sanitize_output($term->name),
+          );
+        }
+      }
+    }
+    // Load a random user to create petition with, 1st 4 users.
+    $petition_uid = $users[rand(0, min(3, count($users) - 1))]->uid;
+    $user = user_load($petition_uid);
+    $description = _petitionsdevel_generate_random_paragraph(800);
+
+    $petition_item = new PetitionItem();
+
+    if ($num_signatures > $sig_review_threshold) {
+      $status = WH_PETITION_STATUS_UNDER_REVIEW;
+      $petition_item->setReachedReady((int) time() - rand(0, 604800));
+    }
+    elseif ($num_signatures > $sig_public_threshold) {
+      if (rand(0, 1)) {
+        // Generate some closed petitions that didn't reach review threshold.
+        $status = WH_PETITION_STATUS_CLOSED;
+        $petition_item->setClosed((int) time() - rand(0, 604800));
+      }
+      else {
+        $status = WH_PETITION_STATUS_PUBLIC;
+      }
+    }
+    else {
+      // Create some petitions as draft status so node status will be set to 0.
+      if ($user->uid == 1 && rand(0, 1)) {
+        $status = WH_PETITION_STATUS_DRAFT;
+      }
+      else {
+        $status = WH_PETITION_STATUS_PRIVATE;
+      }
+
+      // Only add signatures if public/under review.
+      $num_signatures = 1;
+    }
+
+    $title = t('(DUMMY) [@status - UID: @uid] - @title',
+      array(
+        '@status' => wh_petitions_display_status_name($status),
+        '@uid' => $user->uid,
+        '@title' => _petitionsdevel_generate_random_word_string(5, 15),
+      )
+    );
+
+    $petition_item->setUid((int) $user->uid);
+    $petition_item->setTitle((string) trim(strip_tags($title)));
+    $petition_item->setBody((string) trim(strip_tags($description)));
+    $petition_item->setIssues($issues_array);
+    $petition_item->setStatus((int) $status);
+    $petition_item->setResponseStatus((int) WH_PETITION_RESPONSE_STATUS_UNANSWERED);
+    $petition_item->setSignatureCount($num_signatures);
+    $petition_item->setPublished((int) time() - rand(0, 604800));
+
+    $petition_item->setSignaturePublicThreshold($sig_public_threshold);
+    $petition_item->setSignatureThreshold($sig_review_threshold);
+    $petition_item->setReviewTimeframe((int) variable_get('wh_petitions_review_timeframe', 30));
+
+    if ($num_signatures > $sig_public_threshold) {
+      $petition_item->setReachedPublic((int) time() - rand(0, 604800));
+    }
+
+    PetitionsController::save($petition_item);
+
+    // Self sign petition.
+    for ($sigs = 1; $sigs <= $num_signatures; $sigs++) {
+      if ($sigs > 1) {
+        // Use a semi-random list of users to sign with.
+        $user_uid = $users[$sigs];
+        $user_load = user_load($user_uid->uid);
+      }
+      else {
+        $user_load = $user;
+      }
+      $profile = profile2_load_by_user($user_load);
+
+      $signature = new SignatureItem();
+      $signature->setPetitionId($petition_item->getEntityId());
+      $signature->setIpAddress((string) ip_address());
+      $signature->setUserAgent((string) $_SERVER['HTTP_USER_AGENT']);
+      $signature->setUid((int) $user_load->uid);
+      $signature->setCreated((int) time() - rand(0, 604800));
+      if (is_array($profile) && count($profile) > 0) {
+        $first_name = isset($profile['main']->field_first_name[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_first_name[LANGUAGE_NONE][0]['value'] : NULL;
+        $last_name = isset($profile['main']->field_last_name[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_last_name[LANGUAGE_NONE][0]['value'] : NULL;
+        $city = isset($profile['main']->field_city[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_city[LANGUAGE_NONE][0]['value'] : NULL;
+        $state = isset($profile['main']->field_state[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_state[LANGUAGE_NONE][0]['value'] : NULL;
+        $zip = isset($profile['main']->field_zip[LANGUAGE_NONE][0]['value']) ? $profile['main']->field_zip[LANGUAGE_NONE][0]['value'] : NULL;
+
+        $signature->setFirstName($first_name);
+        $signature->setLastName($last_name);
+        $signature->setCity($city);
+        $signature->setState($state);
+        $signature->setZip($zip);
+      }
+      $signature->setUser($user_load);
+
+      SignaturesController::save($signature);
+    }
+
+    module_invoke_all('petition_signatures_updated', $petition_item->getEntityId());
+
+    $petitions_created_ids[] = $petition_item->getEntityId();
+
+  }
+  print_r($petitions_created_ids);
+}
+
+/**
+ * Remove generated petitions.
+ */
+function petitionsdevel_remove_petitions() {
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid'));
+  $query->condition('n.type', 'petition');
+  $query->condition('n.title', '(DUMMY)%', 'LIKE');
+  $result = $query->execute();
+  $petition_uids = $result->fetchAll();
+  if ($petition_uids) {
+    foreach ($petition_uids as $petition_uid) {
+      node_delete($petition_uid->nid);
+    }
+  }
+
+}
+
+/**
+ * Generate Petition Responses.
+ *
+ * @param int $num
+ *   Number of responses to generate.
+ */
+function petitionsdevel_generate_responses($num = 25) {
+  $query = db_select('node', 'n');
+  $query->join('field_data_field_petition_status', 'fps', 'fps.entity_id = n.nid');
+  $query->fields('n', array('nid', 'title'));
+  $query->condition('n.title', '(DUMMY)%', 'LIKE');
+  $query->condition('fps.field_petition_status_value', WH_PETITION_STATUS_UNDER_REVIEW);
+  $query->condition('n.status', 1);
+  $query->range(0, $num);
+  $result = $query->execute();
+  $petition_results = $result->fetchAll();
+
+  if ($petition_results) {
+    $vocabulary = taxonomy_vocabulary_machine_name_load('issues');
+    $issues = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+    $issues_array = array();
+
+    $vocabulary = taxonomy_vocabulary_machine_name_load('wh_response_media');
+    $medias = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+
+    foreach ($petition_results as $petition_result) {
+      $issue_item = reset($issues);
+      $issues_array[$issue_item->tid] = $issue_item->tid;
+
+      foreach ($issues as $tid => $term) {
+        if (rand(0, 1)) {
+          $issues_array[$tid] = $tid;
+        }
+      }
+
+      $media_item = reset($medias);
+      $media = $media_item->tid;
+      foreach ($medias as $tid => $term) {
+        if (rand(0, 1)) {
+          $media = $tid;
+          break;
+        }
+      }
+
+      $node = entity_create('node', array('type' => 'wh_response'));
+      $node->uid = 1;
+      $node->status = 1;
+
+      $node_wrapper = entity_metadata_wrapper('node', $node);
+
+      $title = preg_replace('/^\(DUMMY\) \[.*\] - /', '', $petition_result->title);
+      $body = _petitionsdevel_generate_random_word_string(20, 30);
+
+      $node_wrapper->field_petition_id->set(array($petition_result->nid));
+      $node_wrapper->field_agency_name->set('White House');
+      $node_wrapper->field_response_media->set($media);
+      $node_wrapper->field_issues->set($issues_array);
+      $node_wrapper->title->set(t('(DUMMY) [PID: @pid] - Response To: @title', array('@pid' => $petition_result->nid, '@title' => $title)));
+      $node_wrapper->body->set(array('value' => $body));
+      $node_wrapper->created->set((int) time() - rand(0, 604800));
+
+      $node_wrapper->save();
+
+      // Update the dummy node title as Reviewed.
+      $petition = node_load($petition_result->nid);
+      $petition->title = str_replace('Under Review', 'Reviewed', $petition->title);
+      $petition->title = str_replace('Public', 'Reviewed', $petition->title);
+      node_save($petition);
+      entity_get_controller('node')->resetCache(array($petition->nid));
+    }
   }
 }
 
 /**
- * Implements hook_shunt().
+ * Remove petition responses.
  */
-function petitionsdevel_shunt() {
-  return array(
-    'mongodb_connection' => t('Trip this shunt to break the connection to MongoDB.'),
-  );
+function petitionsdevel_remove_responses() {
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid'));
+  $query->condition('n.type', 'wh_response');
+  $query->condition('n.title', '(DUMMY)%', 'LIKE');
+  $result = $query->execute();
+  $petition_uids = $result->fetchAll();
+  if ($petition_uids) {
+    foreach ($petition_uids as $petition_uid) {
+      node_delete($petition_uid->nid);
+    }
+  }
+}
+
+/**
+ * Generate random petition oriented word string.
+ *
+ * @param int $min_num_words
+ *   Max num of words to use.
+ * @param int $max_num_words
+ *   Min of words to use.
+ *
+ * @return string
+ *   String containing random words within param boundaries.
+ */
+function _petitionsdevel_generate_random_word_string($min_num_words = 5, $max_num_words = 20) {
+  $word_src = <<<HDOC
+Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.
+-The First Amendment, United States Constitution The right to petition your government is guaranteed by the First Amendment of the United States Constitution. We the People provides a new way to petition the Obama Administration to take action on a range of important issues facing our country. We created We the People because we want to hear from you. If a petition gets enough support, White House staff will review it, ensure it’s sent to the appropriate policy experts, and issue an official response.
+The idea of petitioning the White House or the government isn’t new, but this online platform is. Since the White House has never featured anything like this, we expect to make some adjustments to improve the platform based on how people use the system and your feedback. We may change the signature threshold so that the workload for responding to petitions in a timely fashion is manageable. You can always view the current signature thresholds on the Terms of Participation page.
+As we make adjustments to how the system works, we’ll keep you posted on those changes using the White House blog, and you can see all blog posts related to We the People. And if you have any specific suggestions to improve We the People please let us know.
+HDOC;
+
+  $word_src = preg_replace('/[^a-zA-Z ]/', '', $word_src);
+  $word_string = '';
+
+  $num_words = rand($min_num_words, $max_num_words);
+  $words = explode(" ", $word_src);
+  for ($i = 0; $i < $num_words; $i++) {
+    if (!$i) {
+      $word = ucfirst($words[rand(0, count($word_src) - 1)]);
+    }
+    else {
+      $word = strtolower($words[rand(0, count($word_src) - 1)]);
+    }
+    $word_string .= $word . ' ';
+    shuffle($words);
+  }
+  return trim($word_string);
+}
+
+/**
+ * Generate random paragraph of text.
+ *
+ * @param int $max_chars
+ *   Max num of chars for paragraph.
+ * @param int $num_paragraphs
+ *   Number of paragraphs to generate.
+ *
+ * @return string
+ *   String of text.
+ */
+function _petitionsdevel_generate_random_paragraph($max_chars = 800, $num_paragraphs = 3) {
+  $paragraph = '';
+  for ($i = 0; $i < $num_paragraphs; $i++) {
+    $paragraph .= _petitionsdevel_generate_random_word_string();
+    if ($i != $num_paragraphs - 1) {
+      $paragraph .= ".\r\n\r\n";
+    }
+  }
+  while (strlen($paragraph) < $max_chars) {
+    $paragraph .= " " . _petitionsdevel_generate_random_word_string();
+  }
+
+  $paragraph = substr($paragraph, 0, $max_chars);
+  return $paragraph;
 }

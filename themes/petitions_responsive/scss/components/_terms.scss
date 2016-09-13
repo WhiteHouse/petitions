@@ -1,0 +1,63 @@
+/**
+ * Taxonomy term base styling.
+ */
+@mixin termTag($color: inherit, $tag-size: $base-font-size) {
+  @include reset-text-margins();
+  display: inline-block;
+  position: relative;
+  padding: 0;
+  margin: 0;
+  line-height: $tag-size;
+  &:before {
+    @include vertical-center();
+    content:'\f02b';
+    font-family: FontAwesome;
+    font-size: $tag-size;
+    color: $color;
+    display: inline-block;
+    left: 0;
+  }
+  &:first-child{
+    padding: 0 0 0 $tag-size;
+  }
+  &:last-child {
+    margin-right: 0;
+  }
+  @include media($desktop) {
+    margin: 0 rem(10px) 0 0;
+    padding: 0 0 0 $tag-size;
+  }
+}
+
+.field-name-field-petition-issues {
+  .field-items {
+    line-height: 1em;
+  }
+  .field-item{
+    color: $scorpion;
+    @include termTag();
+    @include media($mobile-max-width) {
+      margin-left: $base-font-size / 4;
+      &:not(:first-child){
+        padding-left: 0;
+        &:before {
+          display: none;
+        }
+      }
+      &:not(:last-child) {
+        &:after {
+          content: ',';
+          display: inline;
+          //@include verticalCenter();
+        }
+      }
+
+      h6 {
+        display: inline;
+      }
+    }
+    h6 {
+      color: inherit;
+    }
+  }
+}

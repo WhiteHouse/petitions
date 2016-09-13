@@ -29,10 +29,6 @@
  * @return int
  *   Returns one of the following status codes indicating the workflow outcome:
  *     - SIGNATURES_QUEUE_STATUS_OK
- *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
- *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
- *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
- *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
@@ -46,7 +42,7 @@ function _signatures_queue_initiate_signature_validation($job_id, $server_name, 
 
   // Return if there's nothing to do.
   if (empty($signatures)) {
-    petitionslog_event('signatures_queue.workflow.initiate_signature_validation.caught_up');
+    logger_event('signatures_queue.workflow.initiate_signature_validation.caught_up');
     return SIGNATURES_QUEUE_STATUS_OK;
   }
 
@@ -118,11 +114,12 @@ function _signatures_queue_retrieve_submitted_signatures($watchdog_suffix, $batc
 
     $signatures[] = $item;
   }
+  logger_event('signatures_queue.data_store.signatures_submitted_queue.batch', 'gauge', count($signatures));
 
   // Debugging.
   if ($debug) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Records retrieved from signatures_submitted_queue: !signatures. @suffix', array(
-      '!signatures' => petitionslog_format_for_watchdog($signatures),
+      '!signatures' => petition_format_for_watchdog($signatures),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_DEBUG);
   }
@@ -223,7 +220,7 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
       $total_sigs_initiated_elapsed[$signature->data['petition_id']] = $elapsed;
     }
 
-    petitionslog_event('signatures_queue.data_flow.time_elapsed.received_new_signature__to__initiated_signature_validation', 'time', $elapsed);
+    logger_event('signatures_queue.data_flow.time_elapsed.received_new_signature__to__initiated_signature_validation', 'time', $elapsed);
 
     $to = $signature->data['email'];
 
@@ -237,21 +234,21 @@ function _signatures_queue_send_validation_emails(array $signatures, $watchdog_s
     $params = array('signature info' => $signature->data);
     try {
       $event = 'signatures_queue.workflow.initiate_signature_validation.time_elapsed.drupal_mail';
-      petitionslog_reusable_timer_start($event);
+      petition_reusable_timer_start($event);
       $message = drupal_mail('signatures_queue', 'initiate_signature_validation', $to, $language, $params);
-      $elapsed = petitionslog_reusable_timer_read_and_destroy($event);
-      petitionslog_event($event, 'time', $elapsed);
+      $elapsed = petition_reusable_timer_read_and_destroy($event);
+      logger_event($event, 'time', $elapsed);
       if ($message['result']) {
         $signatures_mailed['sent'][] = $signature;
       }
       else {
-        petitionslog_event('exceptions.signatures_queue.ef6b8ea');
+        logger_event('exceptions.signatures_queue.ef6b8ea');
         // Mailing errors should be logged by active mail system.
         $signatures_mailed['not sent'][] = $signature;
       }
     }
     catch (Exception $e) {
-      petitionslog_event('exceptions.signatures_queue.286e111');
+      logger_event('exceptions.signatures_queue.286e111');
       // Mailing errors should be logged by active mail system.
       $signatures_mailed['not sent'][] = $signature;
     }
@@ -336,11 +333,11 @@ function _signatures_queue_advance_successful_signatures(array $signatures, $wat
 
     // Add the signature to "signatures_pending_validation_queue".
     $pending_validation_queue->createItem($record);
-    petitionslog_event('signatures_queue.data_store.signatures_pending_validation_queue.item_added');
+    logger_event('signatures_queue.data_store.signatures_pending_validation_queue.item_added');
 
     // Remove it from "signatures_submitted_queue".
     $submitted_queue->deleteItem($signature);
-    petitionslog_event('signatures_queue.data_store.signatures_submitted_queue.item_removed');
+    logger_event('signatures_queue.data_store.signatures_submitted_queue.item_removed');
   }
   $count_submitted_queue = $submitted_queue->numberOfItems();
   _signatures_queue_data_store_size_event('signatures_submitted_queue', $count_submitted_queue);

@@ -1,0 +1,141 @@
+// Header CSS
+// --------
+//   Adds styles for the page header.
+//   Compare this with default CSS found in the system module's stylesheet (a copy
+//   of which is in drupal5-reference.css, line 510.)
+
+#header {
+  position: relative;
+  width: 100%;
+  background-color: $color-primary-darkest;
+}
+
+#header-mobile-bg {
+  height: 0;
+  @include media($mobile-max-width) {
+    position: absolute;
+    top: -63px;
+    height: 100%;
+    width: 100%;
+    background-image: url("../images/wtp_header_large.jpg");
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: $color-primary-darkest;
+    z-index: -1;
+
+    &:before {
+      content: '\a';
+      white-space: pre;
+      position: relative;
+    }
+  }
+}
+
+.header-container {
+  max-width: none;
+  margin-top: 37px;
+  background-color: $color-primary-darkest;
+  @include media($mobile-max-width) {
+    margin-top: 63px;
+  }
+  @include media($desktop) {
+    background-color: transparent;
+    background-image: url("../images/wtp_header_large.jpg");
+    background-size: cover;
+    background-position: center;
+    margin-top: 0;
+  }
+}
+
+.header-region {
+  position: relative;
+  padding-top: 15px;
+  padding-bottom: 10px;
+
+  @include media($desktop) {
+    padding-top: 200px;
+    padding-bottom: 0;
+    #navigation ul {
+      margin-left: 0;
+    }
+  }
+}
+
+//Logo styles
+.logo {
+  display: inline-block;
+  @include media($desktop) {
+    margin-bottom: 18px;
+  }
+}
+
+.logo--mobile{
+  img {
+      display: block;
+    }
+  @include media($desktop) {
+    display: none;
+  }
+}
+
+.logo--desktop {
+  display: none;
+  @include media($desktop) {
+    display: block;
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  }
+}
+
+//Tagline styles
+
+.tagline {
+  background-color: $atlantis;
+  position: relative;
+
+  .container {
+    position: relative;
+
+    &:after {
+      content: '';
+      border: 11px solid;
+      border-color: $atlantis transparent transparent $atlantis;
+      position: absolute;
+      left: $gutter-outer;
+      @include media($desktop) {
+        left: $gutter-outer-desktop;
+      }
+    }
+  }
+
+  .menu--user {
+    a:link, a:visited {
+      color: $color-primary-darkest;
+    }
+  }
+}
+
+.tagline--mobile {
+  padding: 10px 0;
+  img {
+    display: block;
+  }
+  @include media($desktop) {
+    display: none;
+  }
+}
+
+.tagline--desktop {
+  display: none;
+  @include media($desktop) {
+    display: inline-block;
+    margin: 6px 0;
+    padding: 5px 0 0 0;
+    img {
+      display: block;
+    }
+  }
+}

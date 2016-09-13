@@ -101,11 +101,15 @@ function signature_mail_fraud_data_form_views_exposed_form_alter(&$form, &$form_
  *   IP Address (v4 or v6 format)
  */
 function signature_mail_fraud_data_update_data($signature_mail_id, $petition_id, $email, $ip_address) {
-  $disposability = signatures_queue_get_email_disposability($email);
-  $unsub_email = signatures_queue_unsubaddress_email($email);
+  $disposability = disposable_email_get_email_disposability($email);
+  $unsub_email = disposable_email_unsubaddress_email($email);
   $ip_address_binary = 0;
   if (!empty($ip_address) && strlen($ip_address) > 7) {
     $ip_address_binary = inet_pton($ip_address);
+  }
+  if (!$email_domain = substr(strrchr($email, '@'), 1)) {
+    // Convert FALSE to an empty string.
+    $email_domain = '';
   }
 
   $values = array(
@@ -120,6 +124,7 @@ function signature_mail_fraud_data_update_data($signature_mail_id, $petition_id,
     'is_time_bound_email' => $disposability->is_time_bound_email,
     'is_shredder_email' => $disposability->is_shredder_email,
     'ip_address' => $ip_address_binary,
+    'email_domain' => $email_domain,
   );
 
   $entities = entity_load('signature_mail_fraud_data', array($signature_mail_id));

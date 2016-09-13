@@ -24,7 +24,7 @@ class SignaturesSelectQueryMongo extends SignaturesSelectQuery {
       $collection = mongodb_collection('petition_signatures');
     }
     catch (Exception $e) {
-      petitionslog_event('exception.petitions_data.c968b66');
+      logger_event('exception.petitions_data.c968b66');
     }
     $this->setCollection($collection);
   }

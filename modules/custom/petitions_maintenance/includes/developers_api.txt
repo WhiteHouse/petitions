@@ -1,0 +1,63 @@
+<a name="overview"></a>
+<h2>About the API</h2>
+<p>In 2014, We the People officially launched a "write" version of the Petitions Application Programming Interface, or "API."Using our API, you can bring We the People petitions to third-party platforms (including other petition services, personal blogs, and websites) in order to spread the word and help gather even more signatures. Any signatures collected this way, once validated, will count towards the signature threshold needed for a petition to receive an official White House response. Think of our API as a valuable tool for building community support around an initiative -- it can help get a petition in front of more eyes, more quickly, with exciting results. </p>
+
+<p>See <a href="https://www.whitehouse.gov/blog/2014/06/03/hackathon-here-white-house" target="_blank">examples of how others have used We the People API</a>. Use of the write-API methods is governed by an additional <a href="#api-terms">Terms of Use</a>, and you will need <a href="/developers/apply">an API key</a> to begin.</p>
+
+<h3><a href="/developers/get-code" target="_blank">GET API RESOURCES NOW</a></h3>
+
+<p>To learn more about open data and open source projects at the White House, visit <a href="http://www.whitehouse.gov/developers">WhiteHouse.gov/developers</a>&nbsp;or follow <a href="http://twitter.com/whweb">@WHWeb</a>.</p>
+
+<p><a href="http://www.whitehouse.gov/developers/feedback">Contact us</a> if you have any questions about the API.</p>
+
+<hr />
+<a name="sandbox"></a>
+<h2>Sandbox</h2>
+<p>Need a place to test out the API? Start with <a href="https://sandbox.petitions.whitehouse.gov">the Sandbox</a>! This environment exists for developers to experiment with building out a new API integration or visualization. Go ahead, play around without worrying about production errors.</p>
+
+<p>There are four petitions with a static expiration date - you can build a form that will submit test signatures to one of those petitions using the API.  If your code is correct, you will be able to submit signatures <a href="https://sandbox.api.whitehouse.gov/">using the API base URL</a> and receive the expected acceptance response back from the API.</p>
+<p>Please note: <strong>Petitions on the Sandbox site are NOT submitted to the We the People platform.</strong> They will not get Administration responses, no matter how many signatures they garner. </p>
+
+
+<hr />
+<a name="api-terms"></a>
+<h2>Application Programming Interface (API) Terms of Use Agreement</h2>
+<p>There are some basic terms that developers and their users will need to follow. We have tried to make these rules as straightforward as possible, but if you have questions or comments, <a href="http://www.whitehouse.gov/developers/feedback">you can write to us here</a>.</p>
+
+<p>The White House offers read and write access to its We the People petitions platform (&quot;We the People&quot;) through an Application Programming Interface (&quot;API&quot;). Your permission to use the API is conditioned on your acceptance of and adherence to this API Terms of Use Agreement, as well as the WhiteHouse.gov <a href="http://www.whitehouse.gov/privacy">Privacy Policy</a> and the We the People <a href="https://petitions.whitehouse.gov/how-why/terms-participation">Terms of Participation</a> and <a href="https://petitions.whitehouse.gov/how-why/moderation-policy">Moderation Policy</a> (collectively the &quot;Agreements&quot;). You should review each document comprising the Agreements before you use the We the People API. Any data collected through the We the People API, as well as all content, documentation, code, and related materials made available to you through the We the People API, is subject to these Agreements.</p>
+<p>The We the People API expands the options for participating in We the People; it does not displace current methods of creating petitions or obtaining signatures on petitions directly on the We the People website or other means of communication with the White House, such as mailing or emailing the White House through the White House Office of Correspondence at <a href="http://www.whitehouse.gov/contact">www.whitehouse.gov/contact</a>. Developers and users who are not willing to agree to the We the People API&#39;s Terms of Use may still participate in We the People via <a href="https://petitions.whitehouse.gov">https://petitions.whitehouse.gov</a>, subject to We the People&#39;s <a href="https://petitions.whitehouse.gov/how-why/terms-participation">Terms of Participation</a>, <a href="https://petitions.whitehouse.gov/how-why/moderation-policy">Moderation Policy</a>, and <a href="http://www.whitehouse.gov/privacy">Privacy Policy</a>.</p>
+<h3>Attribution</h3>
+<p>Developers leveraging the We the People write-API for a tool, service, or application (&quot;app&quot;) must present the following notice to users before a user submits a signature through the API: <strong><em>&quot;This app uses the We the People API, but is neither endorsed nor certified by the White House.&quot;</em></strong> You may use White House and We the People names and logos to identify the source of API content; you may not, however, use White House or We the People names and logos in any other way, including in a manner that conveys the false impression that the White House has endorsed any message, product, service, or entity (not-for-profit, commercial or otherwise).</p>
+<h3>Permissible Use and Right to Limit </h3>
+<p>You may use the We the People API&#39;s read methods to develop apps to search, display, analyze, retrieve, view, and otherwise acquire information from We the People data, subject to the parameters set forth in this Agreement. You may also use the API&#39;s write methods to submit signatures to WhiteHouse.gov in order to promote specific We the People petitions and reach the <a href="https://petitions.whitehouse.gov/how-why/terms-participation">required signature threshold for a response</a>.</p>
+<p>Use of the API&#39;s write methods requires that a key be submitted when those methods are called. <a href="http://www.whitehouse.gov/webform/apply-access-we-people-write-api">To request a key for the write-API, click here</a>.</p>
+<h3>User Conduct</h3>
+<p>Developers and users leveraging the We the People API should be mindful of maintaining the integrity of the petitions process, as well as the stability of We the People and their own applications. Individual users issuing requests in excess of current threshold levels may experience degraded performance and may be blocked entirely. Please review the <a href="http://petitions.whitehouse.gov/developers">API documentation</a> for more details including current usage thresholds.</p>
+<p>In accordance with the We the People <a href="https://petitions.whitehouse.gov/how-why/terms-participation">Terms of Participation</a> and <a href="https://petitions.whitehouse.gov/how-why/moderation-policy">Moderation Policy</a>, you may not collect or submit data obtained through use of this API for the purpose of posting:</p>
+<ul>
+    <li>Threats of unlawful violence or harm to any individual or group;</li>
+    <li>Obscene, vulgar, or lewd material;</li>
+    <li>Defamatory or fraudulent statements;</li>
+    <li>Terms commonly understood to constitute profanity or abusive or degrading slurs or epithets;</li>
+    <li>Information invading an individual&#39;s privacy; or</li>
+    <li>Information that if published would violate criminal law or give rise to civil liability.</li>
+</ul>
+<p>In connection with your use of the API on your website, you may not make false representations with respect to data obtained or submitted through this API, including:</p>
+<ul>
+    <li>Representing that a petition or any other content generated using the We the People API was authored or endorsed by the White House, the President, his staff or his Administration, including for the purpose of fundraising.</li>
+    <li>Using the We the People API in order to gather email addresses or other data under false pretenses, including under the pretense of participating in We the People, without intending to submit such information through the write-API;</li>
+    <li>Falsely attributing signature data being submitted through the write-API; or</li>
+    <li>Misleading users about the content or status of a We the People petition in order to obtain their signatures.</li>
+</ul>
+<p><strong>Right to Limit and Access Termination</strong></p>
+<p>In order to ensure the security and stability of the We the People API, to promote equal access to all users, to prevent abuse, and to enhance compliance with the We the People Agreements, use of the API is subject to certain limitations on access, calls, and use as set forth in this Agreement and the <a href="https://petitions.whitehouse.gov/developers">API documentation</a>. Access determinations will be made pursuant to the guidelines set forth in the Agreements, without regard to viewpoint or organizational affiliation.</p>
+<p>If the White House or We the People administrators reasonably believe that you have violated or attempted to violate the Agreements, the White House may temporarily or permanently revoke your access to the write-API by deactivating your API key, disabling your We the People user account, removing any petition you have created, or removing your signature from any petition created by another user. The White House may also block access from IP addresses, keys, or other identifying traits that it has reasonable belief are using automated systems or bulk processes to create petition signatures.</p>
+<p>If your access to the API is revoked, you may <a href="http://www.whitehouse.gov/developers/feedback">contact the White House</a> for additional information or reconsideration of this determination. Termination of use or access to the We the People API in no way precludes your organization or petition signatories from contacting the White House. You may still access or create and sign petitions on We the People via <a href="https://petitions.whitehouse.gov">https://petitions.whitehouse.gov</a>; you may <a href="http://www.whitehouse.gov/contact">submit comments or questions to the White House here</a>; or you may contact the White House through other means of communication.</p>
+<h3>Privacy</h3>
+<p>Data submitted through the We the People API is subject to the Presidential Records Act and may be archived.</p>
+<p>Signature data may pass through third-party systems when the API is used to submit signatures to We the People. The White House uses a third-party service to generate API keys, validate calls to certain API methods, and manage signature submissions. Once a signature submission has been successfully received, the White House relies on a third-party service to send signature verification emails. To learn more about the White House&#39;s use of third-party sites and services, please review our <a href="http://www.whitehouse.gov/privacy">Privacy Policy</a>.</p>
+<p>You must post and abide by an appropriate privacy policy in your We the People API Implementation. In particular, if your We the People API Implementation enables you or any party to gain access to information about users of the We the People API, including but not limited to personally identifiable information (PII) or non-personally identifiable usage information (such as petitions signed), your privacy policy should describe your use and retention of this information.</p>
+<h3>Changes </h3>
+<p>The White House reserves the right, at its sole discretion, to modify or replace this Terms of Use Agreement, in whole or in part. Your continued use of or access to the API following posting of any changes to this Agreement constitutes acceptance of those modified Terms.</p>
+<h3>Other Terms and Conditions </h3>
+	<p>In no event will the White House be liable for any special, incidental, or consequential damages related to your use of the API; or for interruption of use or loss or corruption of data. You agree to indemnify and hold harmless the White House, its contractors, employees, agents, and the like from and against any and all claims and expenses, including attorney&#39;s fees, arising out of your use of the API, including but not limited to violation of this Terms of Use Agreement. The White House makes no warranty that the API and its data will be error free or that access thereto will be continuous or uninterrupted. The White House reserves the right to discontinue the API, or any portion or feature, at any time and at its sole discretion.</p>

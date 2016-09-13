@@ -1,0 +1,340 @@
+/**
+ * About Default Styles
+ * ---------------------
+ * default.css is used to establish general rules, browser reset, or admin user interface styles.
+ * Browser Reset
+ * -------------
+ * For a more complete reset, go to http://developer.yahoo.com/yui/reset/
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+// Clear Floats Without Structural Markup
+// ---------------------------------------
+// http://www.positioniseverything.net/easyclearing.html
+
+.clearfix {
+  display: inline-block;
+
+  &:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
+}
+
+// Hides from IE-mac \
+* html .clearfix {
+  height: 1%;
+}
+
+.clearfix {
+  display: block;
+}
+
+// End hide from IE-mac
+
+// clear classes
+.clearleft, .clearl, .cleft {
+  clear: left;
+}
+
+.clearright, .clearr, .cright {
+  clear: right;
+}
+
+.clear, .clearboth, .clearall {
+  clear: both;
+}
+
+// Float classes
+.floatleft, .fleft, .floatl {
+  float: left;
+  margin: 0 10px 5px 0;
+}
+
+.floatright, .fright, .floatr {
+  float: right;
+  margin: 0 0 5px 10px;
+}
+
+// "Skip to Main Content" link
+// ---------------------------
+// This link useful for both visually impaired people and those with mobility impairments
+// who cannot use a mouse. http://www.webaim.org/techniques/css/invisiblecontent/
+
+#skip a {
+  &:link, &:hover, &:visited {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  &:active, &:focus {
+    position: static;
+    width: auto;
+    height: auto;
+  }
+}
+
+// bug fix with views 2 edit links.
+div.view div.views-admin-links {
+  width: auto;
+}
+
+// Rollover edit links for blocks.
+div.block {
+  position: relative;
+
+  .edit {
+    display: none;
+    position: absolute;
+    right: -20px;
+    top: -5px;
+    z-index: 40;
+    padding: 3px 8px 0;
+    font-size: 10px;
+    line-height: 16px;
+    background-color: white;
+    border: 1px solid #cccccc;
+
+    //let's get fancy!
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-box-shadow: 0 1px 3px #888888;
+    -webkit-box-shadow: (-1px) 1px 2px #666666;
+
+    a {
+      display: block;
+      border: 0;
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  &:hover .edit {
+    display: block;
+  }
+}
+
+
+
+// Font styles.
+body {
+  margin: 0;
+
+  // Setting up font size, leading and font family
+  //  http://www.markboulton.co.uk/journal/comments/five-simple-steps-to-better-typography
+  font-size: $font-size;
+  line-height: 1.5em;
+  font-family: $font-sans;
+}
+
+// Links
+a {
+  &:link, &:visited {
+    color: $matisse;
+    text-decoration: none;
+  }
+}
+
+a {
+  &:hover, &:active {
+    color: red;
+    text-decoration: underline;
+  }
+}
+
+// Titles.
+#site-name {
+  font-size: 2.2em;
+  line-height: 1.3em;
+  font-weight: 300;
+  padding: 0 0 0.5em;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.3em;
+}
+
+h1 {
+  font-size: 2.2em;
+  font-weight: 300;
+  padding: 0 0 0.5em;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.8em;
+  font-weight: 300;
+  margin-bottom: 0.75em;
+}
+
+h3 {
+  font-size: 1.4em;
+  margin-bottom: 1em;
+}
+
+h4 {
+  font-size: 1.2em;
+  margin-bottom: 0.8em;
+}
+
+h5 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+h6 {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+// Paragraph styles.
+p {
+  margin: 0 0 1em 0;
+}
+
+// List styles.
+ul, ol {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+// Table styles.
+table {
+  width: 100%;
+}
+
+tr.even,
+tr.odd {
+  td {
+    padding: 10px 5px;
+  }
+}
+
+tr.odd {
+  background-color: white;
+}
+
+// Code.
+pre, code, tt {
+  font: 1em "andale mono", "lucida console", monospace;
+  line-height: 1.5;
+}
+
+pre {
+  background-color: #efefef;
+  display: block;
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #aaaaaa;
+}
+
+// List styles.
+ul {
+  list-style-type: disc;
+
+  ul {
+    list-style-type: circle;
+
+    ul {
+      list-style-type: square;
+
+      ul {
+        list-style-type: circle;
+      }
+    }
+  }
+}
+
+ol {
+  list-style-type: decimal;
+
+  ol {
+    list-style-type: lower-alpha;
+
+    ol {
+      list-style-type: decimal;
+    }
+  }
+}
+
+// Abbreviation.
+abbr {
+  border-bottom: 1px dotted #666666;
+  cursor: help;
+  white-space: nowrap;
+}
+
+// UI improvments.
+#edit-title {
+  font-size: 24px;
+  width: 99%;
+}
+
+#system-themes-form img {
+  width: 100px;
+}
+
+.form-item .description {
+  font-style: italic;
+  line-height: 1.2em;
+  font-size: 0.8em;
+  margin-top: 5px;
+  color: #777777;
+}
+
+#edit-delete {
+  color: #cc0000;
+}
+
+// Console, style from slate theme.
+div.messages {
+  padding: 9px;
+  margin: 1em 0;
+  color: #003366;
+  background: #bbddff;
+  border: 1px solid #aaccee;
+}
+
+div.warning {
+  color: #884400;
+  background: #ffee66;
+  border-color: #eedd55;
+}
+
+div.error {
+  color: white;
+  background: #ee6633;
+  border-color: #dd5522;
+}
+
+div.status {
+  color: #336600;
+  background: #ccff88;
+  border-color: #bbee77;
+}
+
+// Region Colors. delete when starting a new theme.
+#header, #footer,
+#sidebar-first,
+#sidebar-second,
+#navigation {
+  background: rgba(#aaa, 0.2);
+}
+
+//Adds bold style
+.bold {
+  font-weight: $font-bold;
+}

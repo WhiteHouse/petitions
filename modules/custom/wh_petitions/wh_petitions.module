@@ -11,6 +11,8 @@
 // refactored throughout the code base.
 require_once dirname(__FILE__) . '/wh_petitions.mongo2mysql.inc';
 
+module_load_include('inc', 'wh_petitions', 'includes/wh_petitions.helper');
+
 /**
  * @todo: Note: Trending used to be a link on the /petitions page.
  * This has been commented out, but the code is still here because we're
@@ -43,229 +45,6 @@ require_once dirname(__FILE__) . '/wh_petitions.mongo2mysql.inc';
  * -Petition receives X reports of abuse, made flagged status.
  *  Only available via direct url.
  */
-
-/********************* STATUSES ************************/
-
-/**
- * Constants for Petition Statuses
- */
-
-/**
- * Saved as a draft, only visible to creator
- */
-define('WH_PETITION_STATUS_DRAFT', 0);
-
-/**
- * Published, but does not have the required number of
- * signatures to become public, only visible by direct url
- */
-define('WH_PETITION_STATUS_PRIVATE', 1);
-
-/**
- * Has the required number of signatures to become public,
- * visible everywhere on site
- */
-define('WH_PETITION_STATUS_PUBLIC', 2);
-
-/**
- * Did not receive the required number of signatures to receive a
- * response, only visible by direct url
- */
-define('WH_PETITION_STATUS_CLOSED', 3);
-
-/**
- * Has received the required number of signatures, visible on site
- */
-define('WH_PETITION_STATUS_UNDER_REVIEW', 4);
-
-/**
- * Has received a response
- */
-define('WH_PETITION_STATUS_REVIEWED', 5);
-
- /**
-  * Has been removed from lists by administrative action on the dashboard.
-  * This may have been prompted by it exceeding the threshold for the number of
-  * abuse flags.  It shows on the dashboard as "removed".
-  */
-define('WH_PETITION_STATUS_FLAGGED', 6);
-
-/**
- * Returns an array of status id's that are to be treated as signable.
- *
- * If a petition has an actual status (not the friendly display status) that
- * is contained in the array returned by this function, it can be considered
- * 'signable' and  may be returned as such by the API.  The following statuses
- * are considered signable:
- *  - WH_PETITION_STATUS_PRIVATE: Is signable but only visible by direct link.
- *  - WH_PETITION_STATUS_PUBLIC: Is public and signable.
- *  - WH_PETITION_STATUS_UNDER_REVIEW: Has reached enough signatures for a
- *    response, but has not been responded to, so can get more signatures.
- *
- * @return array
- *   Array of petition status id's considered signable
- */
-function wh_petitions_signable_statuses() {
-  return array(
-    WH_PETITION_STATUS_PRIVATE,
-    WH_PETITION_STATUS_PUBLIC,
-    WH_PETITION_STATUS_UNDER_REVIEW,
-  );
-}
-
-/**
- * Returns an array of status IDs that are all the possible statuses.
- *
- * @return array
- *   Array of petition all defined petitions status IDs.
- */
-function wh_petitions_all_statuses() {
-  return array(
-    WH_PETITION_STATUS_DRAFT,
-    WH_PETITION_STATUS_PRIVATE,
-    WH_PETITION_STATUS_PUBLIC,
-    WH_PETITION_STATUS_CLOSED,
-    WH_PETITION_STATUS_UNDER_REVIEW,
-    WH_PETITION_STATUS_REVIEWED,
-    WH_PETITION_STATUS_FLAGGED,
-  );
-}
-
-/**
- * Returns an array of status id's that are to be treated as public.
- *
- * If a petition has an actual status (not the friendly display status) that
- * is contained in the array returned by this function, it can be considered
- * 'public' and  may be returned as such by the API.  The following statuses are
- * considered public:
- *  - WH_PETITION_STATUS_PUBLIC: By definition this is public.
- *  - WH_PETITION_STATUS_UNDER_REVIEW:  No action has been taken on this.
- *  - WH_PETITION_STATUS_REVIEWED: Has been reviewed and responded to.
- *  - WH_PETITION_STATUS_CLOSED: Is closed but should still be visible.
- *
- * @return array
- *   Array of petition status id's considered public.
- */
-function wh_petitions_public_statuses() {
-  return array(
-    WH_PETITION_STATUS_PUBLIC,
-    WH_PETITION_STATUS_UNDER_REVIEW,
-    WH_PETITION_STATUS_REVIEWED,
-    WH_PETITION_STATUS_CLOSED,
-  );
-}
-
-/**
- * Returns an array of status id's that indicate an "open" petition.
- *
- * @return array
- *   Array of petition status id's considered open.
- */
-function wh_petitions_open_statuses() {
-  return array(
-    WH_PETITION_STATUS_PUBLIC,
-    WH_PETITION_STATUS_UNDER_REVIEW
-  );
-}
-
-/**
- * Returns an array of status id's that are to be treated as unpublished.
- *
- * @return array
- *   Array of petition status id's considered unpublished.
- */
-function wh_petitions_unpublished_statuses() {
-  return array(
-    WH_PETITION_STATUS_FLAGGED,
-    WH_PETITION_STATUS_DRAFT
-  );
-}
-
-/**
- * Constants for Response Statuses
- */
-
-// Petition has not been reviewed.
-define('WH_PETITION_RESPONSE_STATUS_UNANSWERED', 0);
-
-// Petition is awaiting action.
-define('WH_PETITION_RESPONSE_STATUS_PENDING', 1);
-
-// Petition has been responded to.
-define('WH_PETITION_RESPONSE_STATUS_ANSWERED', 2);
-
-/**
- * Misc Constants
- */
-
-// Petitions to display per page on the Open Petitions page.
-define('WH_PETITION_PETITIONS_PER_PAGE', 20);
-
-define('WH_PETITION_NICE_URL', 'petition/[petition:title]');
-
-/**
- * Petitions signing methods
- */
-
-/**
- * Registration required.
- */
-define('WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED', 0);
-
-/**
- * Simplified signing.
- */
-define('WH_PETITIONS_SIGNING_METHOD_SIMPLIFIED_SIGNING', 1);
-
-/**
- * Returns the title associated with a status.
- */
-function wh_petitions_display_status_name($status_id, $type = 'petition') {
-  switch ($type) {
-    case 'petition':
-      switch ($status_id) {
-        case WH_PETITION_STATUS_DRAFT:
-          return t('Draft');
-
-        case WH_PETITION_STATUS_PRIVATE:
-          return t('Private');
-
-        case WH_PETITION_STATUS_PUBLIC:
-          return t('Public');
-
-        case WH_PETITION_STATUS_CLOSED:
-          return t('Archived');
-
-        case WH_PETITION_STATUS_UNDER_REVIEW:
-          return t('Under Review');
-
-        case WH_PETITION_STATUS_REVIEWED:
-          return t('Reviewed');
-
-        case WH_PETITION_STATUS_FLAGGED:
-          return t('Removed');
-
-        default:
-          return '';
-      }
-    case 'response':
-      switch ($status_id) {
-        case WH_PETITION_RESPONSE_STATUS_UNANSWERED:
-          return t('Unanswered');
-
-        case WH_PETITION_RESPONSE_STATUS_PENDING:
-          return t('Awaiting Action');
-
-        case WH_PETITION_RESPONSE_STATUS_ANSWERED:
-          return t('Responded');
-
-        default:
-          return '';
-      }
-    default:
-      return '';
-  }
-}
 
 /********************* DRUPAL HOOKS / BLOCKS ************************/
 
@@ -312,94 +91,35 @@ function wh_petitions_preprocess(&$variables, $hook) {
  */
 function wh_petitions_menu() {
   // Admin - Petition Tool Settings.
-  $items['admin/config/system/petitions'] = array(
-    'title' => 'Petition Tool Settings',
-    'description' => 'Manage petition settings and text.',
+  $items['admin/petitions/settings/threshold_blocks'] = array(
+    'title' => 'Petition Thresholds/Block Settings',
+    'description' => 'Manage petition threshold settings and text.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wh_petitions_admin_petition_settings'),
     'access arguments' => array('administer petition settings'),
-    'weight' => -10,
+    'weight' => 10,
     'file' => 'wh_petitions.admin.inc',
-    'type' => MENU_NORMAL_ITEM,
-  );
-
-  // Admin - Petition Tool Main Settings.
-  $items['admin/config/system/petitions/main'] = array(
-    'title' => 'Petition Tool Settings',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'type' => MENU_LOCAL_TASK,
   );
 
   // Admin - Petition Tool Email Settings.
-  $items['admin/config/system/petitions/email'] = array(
-    'title' => 'Petition Tool Email Settings',
-    'description' => 'Manage petition emails .',
+  $items['admin/petitions/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Manage email notification templates users receive',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wh_petitions_admin_petition_email_settings'),
     'access arguments' => array('administer petition settings'),
-    'weight' => 10,
+    'weight' => 20,
     'file' => 'wh_petitions.admin.inc',
     'type' => MENU_LOCAL_TASK,
   );
 
-  // Admin - Petition Dashboard.
-  $items['admin/petitions'] = array(
-    'title' => 'Petitions',
-    'description' => 'Administer petitions.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wh_petitions_admin_petitions'),
-    'access arguments' => array('administer petitions'),
-    'weight' => -10,
-    'file' => 'wh_petitions.admin.inc',
-    'type' => MENU_NORMAL_ITEM,
-  );
-  $items['admin/petitions/petitions'] = array(
-    'title' => 'Petitions',
+  // Admin - Petition Tool Email Settings.
+  $items['admin/petitions/settings/user_emails'] = array(
+    'title' => 'User Notification Emails',
+    'description' => 'Manage petitions email notification templates users receive',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-  // Admin - Petition Dashboard.
-  $items['admin/petitions/download_signatures/%'] = array(
-    'title' => 'Download Signatures',
-    'description' => 'Download petition signatures.',
-    'page callback' => 'wh_petitions_download_signatures_run_batch',
-    'page arguments' => array(3),
-    'access arguments' => array('administer petitions'),
     'weight' => -10,
-    'file' => 'wh_petitions.admin.inc',
-  );
-
-  // Admin - Petition Dashboard.
-  $items['admin/petitions/download_signatures/%/%'] = array(
-    'title' => 'Download Signatures',
-    'description' => 'Download petition signatures.',
-    'page callback' => 'wh_petitions_download_signatures_run_batch',
-    'page arguments' => array(3, 4),
-    'access arguments' => array('administer petitions'),
-    'weight' => -10,
-    'file' => 'wh_petitions.admin.inc',
-  );
-
-  // Admin - Petition Dashboard.
-  $items['admin/petitions/download_signatures_finish/%/%'] = array(
-    'title' => 'Download Signatures',
-    'description' => 'Download petition signatures.',
-    'page callback' => 'wh_petitions_download_signatures',
-    'page arguments' => array(3, 4),
-    'access arguments' => array('administer petitions'),
-    'weight' => -10,
-    'file' => 'wh_petitions.admin.inc',
-  );
-
-  // Admin - Petition Dashboard.
-  $items['admin/petitions/settings'] = array(
-    'title' => 'Settings',
-    'description' => 'Administer petitions.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wh_petitions_admin_petitions_settings_form'),
-    'access arguments' => array('administer petitions'),
-    'weight' => 10,
-    'file' => 'wh_petitions.admin.inc',
-    'type' => MENU_LOCAL_TASK,
   );
 
   // Admin - Petition Removal.
@@ -502,68 +222,15 @@ function wh_petitions_menu() {
     'file' => 'wh_petitions.pages.inc',
   );
 
-  // Iframe with the create a petition form inside.
-  $items['petitions/create'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_petitions_create_petition_iframe_html',
-    'page arguments' => array(),
-    'access arguments' => array('access content'),
-    'file' => 'wh_petitions.form.inc',
-    'weight' => 1,
-  );
-
   // Create A Petition Form ( access control done in callback function ).
   $items['petition/create'] = array(
     'title' => 'Create a Petition',
-    'description' => 'A menu link to create a petition section.',
-    'page callback' => 'wh_petitions_create_petition_iframe',
+    'description' => 'A menu link to create a petition.',
+    'page callback' => 'drupal_get_form',
     'page arguments' => array('wh_petitions_create_petition'),
     'access arguments' => array('access content'),
-    'file' => 'wh_petitions.form.inc',
-    'weight' => 16,
-    'menu_name' => 'petitions-menu',
-  );
-
-  // Open Petitions section.
-  $items['petitions'] = array(
-    'title' => 'Open Petitions',
-    'description' => 'A menu link to open petitions sections.',
-    'page callback' => 'wh_petitions_show_petitions',
-    'page arguments' => array(),
-    'access arguments' => array('access content'),
-    'file' => 'wh_petitions.pages.inc',
-    'weight' => 17,
-    'menu_name' => 'petitions-menu',
-  );
-
-  // User Dashboard ( access control done in page callback function ).
-  $items['dashboard'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_petitions_user_dashboard',
-    'access arguments' => array('access content'),
-    'file' => 'wh_petitions.pages.inc',
-  );
-
-  // More Signatures AJAX call.
-  $items['signatures/more/%/%/%/%'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_petitions_more_signatures',
-    'page arguments' => array(2, 3, 4, 5),
-    'access arguments' => array('access content'),
-    'file' => 'wh_petitions.pages.inc',
-  );
-
-  // More Signatures AJAX call (no last_id argument).
-  $items['signatures/more/%/%/%'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_petitions_more_signatures',
-    'page arguments' => array(2, 3, NULL, 4),
-    'access arguments' => array('access content'),
-    'file' => 'wh_petitions.pages.inc',
+    'file' => 'includes/wh_petitions.create.form.inc',
+    'type' => MENU_CALLBACK,
   );
 
   // More Petitions AJAX call.
@@ -611,26 +278,6 @@ function wh_petitions_menu() {
     'title' => '',
     'description' => '',
     'page callback' => 'wh_petitions_sign_modal',
-    'page arguments' => array(2),
-    'access arguments' => array('access content'),
-    'file' => 'wh_petitions.form.inc',
-  );
-
-  // Add Comment Form.
-  $items['petition/add/comment/%'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_petitions_add_comment_form',
-    'page arguments' => array(3),
-    'access arguments' => array('access content'),
-    'file' => 'wh_petitions.form.inc',
-  );
-
-  // Add Comment AJA callback.
-  $items['petition/comment/%'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_petitions_add_comment',
     'page arguments' => array(2),
     'access arguments' => array('access content'),
     'file' => 'wh_petitions.form.inc',
@@ -729,11 +376,6 @@ function wh_petitions_theme() {
       'arguments' => array(),
       'template' => 'templates/wh-petitions-page-archived',
     ),
-    // User Dashboard page.
-    'wh_petitions_user_dashboard' => array(
-      'arguments' => array(),
-      'template' => 'templates/wh-petitions-page-user-dashboard',
-    ),
     // Signatures display on a petition detail page.
     'wh_petitions_display_signatures' => array(
       'arguments' => array(),
@@ -744,11 +386,6 @@ function wh_petitions_theme() {
     'wh_petitions_display_petition_info' => array(
       'arguments' => array(),
       'template' => 'templates/wh-petitions-display-petition-info',
-    ),
-    // Open Petitions page.
-    'wh_petitions_display_petition_page' => array(
-      'arguments' => array(),
-      'template' => 'templates/wh-petitions-page-open-petitions',
     ),
     // List view display of a petition.
     'wh_petitions_display_list_petition' => array(
@@ -769,6 +406,22 @@ function wh_petitions_theme() {
     'wh_petition_title' => array(
       'render element' => 'element',
     ),
+    // Generates the share_links for petitions pages.
+    'petitions_share_links' => array(
+      'variables' => array('title' => NULL, 'nid' => NULL, 'url' => NULL, 'short_url' => NULL),
+      'render element' => 'share_links',
+    ),
+    // Generate the petition title preface.
+    'petition_preface' => array(
+      'variables' => array('node' => NULL),
+    ),
+    // Generate the petition attribution text.
+    'petition_attribution' => array(
+      'variables' => array('node' => NULL),
+    ),
+    'multicolumn_options' => array(
+      'render element' => 'form',
+    ),
   );
 }
 
@@ -782,13 +435,11 @@ function wh_petitions_preprocess_node(&$vars) {
   global $base_url;
   if ($vars['node']->type == 'petition') {
     $logged_in = ($user->uid > 0) ? TRUE : FALSE;
-    $login_required = (variable_get('petitions_signing_method', WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED) == WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED) ? TRUE : FALSE;
 
     $node = $vars['node'];
     $lang = $node->language;
     $nid = $node->nid;
     $petition_title = $node->title;
-    drupal_set_title($node->title);
     $body = $node->body[$lang][0]['value'];
     $short_url = empty($node->field_short_url[$lang][0]['value']) ? '' : $node->field_short_url[$lang][0]['value'];
     // Set as published date, or FALSE if empty.
@@ -801,13 +452,10 @@ function wh_petitions_preprocess_node(&$vars) {
     $review_timeframe_days = $node->field_petition_review_timeframe[$lang][0]['value'];
     $end_date = strtotime('+' . $review_timeframe_days . ' days', $date_published);
     $end_date = date("F d, Y", $end_date);
-    $date_published = date("M d, Y", $date_published);
+    $date_published = _wh_petitions_date_published($node);
     $total_needed = $node->field_petition_response_sign[$lang][0]['value'];
-    // Count of number of times this petition has been signed.
-    $signature_total = isset($node->signature_count) ? $node->signature_count : $node->field_petition_signature_count[$lang][0]['value'];
-    // Count of signatures currently displayed on petition page.
-    $signature_count = 0;
-    $signatures_needed = $total_needed - $signature_total;
+    $signatures_needed = $total_needed - $node->signature_count;
+
     // Initialize some variables we'll set later.
     $agency_name = '';
     $agency_seal = '';
@@ -819,6 +467,8 @@ function wh_petitions_preprocess_node(&$vars) {
     $flagged = FALSE;
     $archived = FALSE;
     $responded = FALSE;
+    $date_responded = FALSE;
+
     $path = drupal_get_path_alias('node/' . $nid);
     if ($signatures_needed < 0) {
       $signatures_needed = 0;
@@ -860,7 +510,7 @@ function wh_petitions_preprocess_node(&$vars) {
         $response = node_load($node->field_response_id[$lang][0]['target_id']);
         if (!empty($response) && $response->status > 0) {
           $response_title = check_plain($response->title);
-          $response_body = $response->body[$response->language][0]['safe_value'];
+          $response_body = check_plain($response->body[$response->language][0]['value']);
 
           $agency_name = '';
           if (!empty($response->field_agency_name[$response->language][0]['value'])) {
@@ -899,6 +549,10 @@ function wh_petitions_preprocess_node(&$vars) {
                 break;
             }
           }
+          // Set date responded to as response created date.
+          if (!empty($response->created)) {
+            $date_responded = date('M d, Y', $response->created);
+          }
         }
       }
     }
@@ -917,12 +571,7 @@ function wh_petitions_preprocess_node(&$vars) {
         $reached_ready = date('M d, Y', $node->field_timestamp_reached_ready[$lang][0]['value']);
       }
 
-      if (petitions_data_mysql_writes_are_enabled() && function_exists("petitionevents_get_administer_link")) {
-        $admin_link = petitionevents_get_administer_link();
-      }
-      elseif ($legacy_id) {
-        $admin_link = l(t('Administer This Petition'), 'admin/petitions/' . check_plain($legacy_id), array('attributes' => array('classes' => array('no-follow'))));
-      }
+      $admin_link = petitionadmin_get_admin_link($node->nid);
     }
 
     $flagged_text = '';
@@ -948,41 +597,8 @@ function wh_petitions_preprocess_node(&$vars) {
       }
     }
     // Show the signature form for petitions that haven't been signed by this user and are available to be signed.
-    $comment_form = '';
     $why_text = '';
-    // Do not display a form if user already signed it.
-    if ($already_signed) {
-      $signature_form = '';
-    }
-    // Petition hasn't been signed.
-    else {
-      // Check if login is required or if simplified login is on.
-      switch ($login_required) {
-        case TRUE:
-          // Prepare a button that will appear grayed out if the user is not logged in and the login/registration is required to sign.
-          if (!$logged_in) {
-            $signature_form = l('Sign This Petition', 'user/login', array('attributes' => array('id' => 'button-sign-this-petition')));
-            $why_text = variable_get('wh_petitions_tooltip_why', '');
-          }
-          // Display a direct sign button if user is authenticated and login is required to sign the petition.
-          elseif (in_array($petition_status, array(WH_PETITION_STATUS_PRIVATE, WH_PETITION_STATUS_PUBLIC, WH_PETITION_STATUS_UNDER_REVIEW))) {
-            module_load_include('inc', 'wh_petitions', 'wh_petitions.form');
-            $signature_form = drupal_get_form('wh_petitions_sign_petition_form', $petition_id);
-            $signature_form = drupal_render($signature_form);
-            $comment_form = drupal_get_form('wh_petitions_comment_petition_form', $petition_id);
-            $comment_form = drupal_render($comment_form);
-          }
-          else {
-            $signature_form = '';
-          }
-          break;
-        case FALSE:
-        default:
-          // Hide form in favor of displaying a side rail block version.
-          $signature_form = '';
-          break;
-      }
-    }
+    $signature_form = '';
 
     // Set the 'Report as Inappropriate' link if it should appear.  Should appear on public/private/under review
     $reported_link = variable_get('wh_petitions_reported_as_inappropriate_link', '');
@@ -1010,41 +626,30 @@ function wh_petitions_preprocess_node(&$vars) {
       $has_share_bar = FALSE;
     }
 
-    // Get the signatures to display
-    $has_more = TRUE;
-    $signature_html = '';
-    $page = 1;
-    $sigs_per_page = 20;
-    $last_id = '';
-    if (!empty($_GET['page'])) {
-      $get_page = preg_replace('/[^0-9]/', '', $_GET['page']);
-      if (is_int((int) $get_page)) {
-        $page = intval($get_page);
-        $sigs_per_page = 19;
-        $last_id = preg_replace('/[^a-zA-Z0-9]/', '', $_GET['last']);
-      }
-    }
+    // Call the share_links render array.
+    $share_links = theme('petitions_share_links', array('node' => $node));
+    $vars['content']['share_links'] = array(
+      '#theme' => 'container',
+      '#attributes' => array(
+        'class' => array('petition-share-links'),
+      ),
+      '#children' => render($share_links),
+    );
 
     module_load_include('inc', 'wh_petitions', 'wh_petitions.pages');
 
-    $signatures = wh_petitions_get_signatures($petition_id, $node->uid, $page, $has_more, FALSE, $signature_total, $last_id);
-    $last_id = '';
-    $previously_found_creator = '0';
-    if (!empty($signatures)) {
-      $last_id = $signatures[(sizeof($signatures) -1)]['id'];
-      $previously_found_creator = $signatures[(sizeof($signatures) -1)]['previously_found_creator'];
+    $profile = profile2_load_by_user($user);
+    $fields = array('first_name', 'last_name');
+    $user_fields = array();
+    foreach ($fields as $f) {
+      if (!empty($profile['main']->{'field_' . $f}[LANGUAGE_NONE][0]['value'])) {
+        $user_fields[$f] = $profile['main']->{'field_' . $f}[LANGUAGE_NONE][0]['value'];
+      }
     }
 
-    $signature_html = theme('wh_petitions_display_signatures', array(
-      'signatures' => $signatures,
-      'petition_id' => check_plain($petition_id),
-      'page' => $page,
-      'has_more' => $has_more,
-      'sigs_per_page' => $sigs_per_page,
-      'last_id' => $last_id,
-      'nice_url' => $path,
-      'previously_found_creator' => $previously_found_creator,
-    ));
+    $first_initial = isset($user_fields['first_name']) ? strtoupper($user_fields['first_name'][0]) : '';
+    $last_initial = isset($user_fields['last_name']) ? strtoupper($user_fields['last_name'][0]) : '';
+    $creator_initials = $first_initial . '.' . $last_initial .'.';
 
     $return_destination = drupal_get_destination();
     $return_destination = preg_replace('/\?.*/', '', $return_destination);
@@ -1056,6 +661,7 @@ function wh_petitions_preprocess_node(&$vars) {
     $vars['short_url'] = $short_url;
     $vars['issues'] = $issues;
     $vars['date_published'] = $date_published;
+    $vars['date_responded'] = $date_responded;
     $vars['flagged'] = $flagged;
     $vars['responded'] = $responded;
     $vars['archived'] = $archived;
@@ -1067,11 +673,10 @@ function wh_petitions_preprocess_node(&$vars) {
     $vars['end_date'] = check_plain($end_date);
     $vars['total_needed'] = wh_petitions_format_number($total_needed);
     $vars['signatures_needed'] = wh_petitions_format_number($signatures_needed);
-    $vars['signature_count'] = wh_petitions_format_number(count($signatures));
-    $vars['signature_total'] = wh_petitions_format_number($signature_total);
+    $vars['signature_count'] = wh_petitions_format_number($node->signature_count);
+    $vars['signature_total'] = wh_petitions_format_number($node->signature_count);
     $vars['already_signed'] = $already_signed;
     $vars['signature_form'] = $signature_form;
-    $vars['comment_form'] = $comment_form;
     $vars['why_text'] = $why_text;
     $vars['inappropriate_form'] = $inappropriate_form;
     $vars['inappropriate_link'] = $inappropriate_link;
@@ -1079,7 +684,6 @@ function wh_petitions_preprocess_node(&$vars) {
     $vars['reported_link'] = $reported_link;
     $vars['petition_goals_link'] = $petition_goals_link;
     $vars['has_share_bar'] = $has_share_bar;
-    $vars['login_required'] = $login_required;
     $vars['logged_in'] = $logged_in;
     $vars['response_title'] = $response_title;
     $vars['response_body'] = $response_body;
@@ -1087,11 +691,47 @@ function wh_petitions_preprocess_node(&$vars) {
     $vars['response_video'] = $response_video;
     $vars['agency_name'] = $agency_name;
     $vars['agency_seal'] = $agency_seal;
-    $vars['twitter_link'] = wh_petition_tool_twitter_link(check_plain($petition_id), check_plain($petition_title), 'petition', '', $short_url, $path);
-    $vars['facebook_link'] = wh_petition_tool_facebook_link(check_plain($petition_id), check_plain($petition_title), 'petition', '', $path);
     $vars['path_to_petitions44'] = $base_url . '/' . drupal_get_path('theme', 'petitions44');
     $vars['return_destination'] = $return_destination;
-    $vars['signature_html'] = $signature_html;
+
+    // Call the share_links render array.
+    $vars['share_links'] = theme('petitions_share_links', array('node' => $node));
+    $vars['creator_initials'] = $creator_initials;
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK()
+ */
+function wh_petitions_preprocess_page(&$vars) {
+  // Remove title from Create Petition form page
+  if (
+      isset($vars['page']['content']['system_main']) &&
+      isset($vars['page']['content']['system_main']['#form_id']) &&
+      $vars['page']['content']['system_main']['#form_id'] == 'wh_petitions_create_petition'
+  ) {
+    drupal_set_title('');
+  }
+
+  // Add the creator attribution to the page $title_suffix.
+  if (isset($vars['node']) && $vars['node']->type == 'petition') {
+    $vars['title_suffix'] = theme('petition_attribution', array('node' => $vars['node']));
+    $vars['title_prefix'] = theme('petition_preface', array('node' => $vars['node']));
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK()
+ */
+function wh_petitions_preprocess_link(&$vars) {
+  // Add destination parameter to login links.
+  if ($vars['path'] == 'user/login') {
+    if (empty($vars['options']['query']['destination'])) {
+      $destination_path = drupal_get_path_alias();
+      if (!empty($destination_path) && $destination_path != '/') {
+        $vars['options']['query']['destination'] = $destination_path;
+      }
+    }
   }
 }
 
@@ -1115,10 +755,6 @@ function wh_petitions_block_info() {
   );
   $blocks['wh_petitions_create_account'] = array(
     'info' => 'Create a WH Account',
-    'cache' => DRUPAL_CACHE_GLOBAL,
-  );
-  $blocks['wh_petitions_create_petition'] = array(
-    'info' => 'Create Petition Button',
     'cache' => DRUPAL_CACHE_GLOBAL,
   );
   $blocks['wh_petitions_back_to_top'] = array(
@@ -1174,12 +810,6 @@ function wh_petitions_block_view($delta) {
     case 'wh_petitions_create_account':
       $block['subject'] = t('Create a WH Account');
       $block['content'] = variable_get('wh_petitions_create_account_block_text', '');
-      break;
-
-    // Create A Petition.
-    case 'wh_petitions_create_petition':
-      $block['subject'] = '';
-      $block['content'] = l(t('Create A Petition'), 'petition/create', array('attributes' => array('class' => array('button'), 'id' => 'button-create-a-petition')));
       break;
 
     case 'wh_petitions_back_to_top':
@@ -1305,22 +935,6 @@ function wh_petitions_block_view($delta) {
 }
 
 /**
- * Implements hook_block_view_alter().
- */
-function wh_petitions_block_view_alter(&$data, $block) {
-  switch ($block->delta) {
-    // Control the petitionssignatureform_form block visibility.
-    case 'petitionssignatureform_form':
-      $login_required = (variable_get('petitions_signing_method', WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED) == WH_PETITIONS_SIGNING_METHOD_REGISTRATION_REQUIRED) ? TRUE : FALSE;
-
-      if ($login_required) {
-        unset($data['content']);
-      }
-      break;
-  }
-}
-
-/**
  * Implements hook_info().
  */
 function wh_petitions_hook_info() {
@@ -1332,78 +946,87 @@ function wh_petitions_hook_info() {
 }
 
 /**
- * List un-notified compliant petitions.
- *
- * Pulls a list of petitions with more signatures than the compliance review
- * threshold and which have not been sent compliance review notifications.
+ * Check a petition node for review threshold main sent.
+ * @param $nid
+ *   Petition Node ID.
+ * @param bool $send_email
+ *   If set to FALSE, will not send email - will only update sent flag.
  */
-function wh_petitions_compliance_review_threshold_check($threshold, $compliance_reviewer_emails) {
-  if ($compliance_reviewer_emails && (int) $threshold) {
-    if (petitions_data_mongo_reads_are_enabled()) {
-      // The to-be-deprecated mongo version of this function.
-      wh_petitions_mongo2mysql_compliance_review_threshold_check($threshold, $compliance_reviewer_emails);
-    }
-    else {
-      // @mongo2mysql: Relatively simple query, written while mysql
-      // api is still in development. Would be better to utilize
-      // the PetitionSelectQuery class when it's ready.
-      $petition_status = array(
-        WH_PETITION_STATUS_DRAFT,
-        WH_PETITION_STATUS_PRIVATE,
-        WH_PETITION_STATUS_PUBLIC,
-      );
+function _wh_petitions_compliance_review_threshold_check_node($nid, $send_email = TRUE) {
+  $node = node_load($nid);
+  $emails_to = variable_get('wh_petitions_compliance_reviewer_emails', FALSE);
+  $threshold = (int) variable_get('wh_petitions_compliance_review_threshold', FALSE);
+  $email_sent = isset($node->field_review_threshold_mail_sent) ? (int) $node->field_review_threshold_mail_sent[LANGUAGE_NONE][0]['value'] : 0;
+  $petition_status = (int) $node->field_petition_status[LANGUAGE_NONE][0]['value'];
 
-      $sub_query = db_or();
-      $sub_query->isNull('review_threshold_mail_sent.field_review_threshold_mail_sent_value');
-      $sub_query->condition('review_threshold_mail_sent.field_review_threshold_mail_sent_value', 0, '=');
-
-      $query = db_select('node', 'n');
-      $query->leftJoin('field_data_field_petition_signature_count', 'petition_signature_count', 'petition_signature_count.entity_id = n.nid');
-      $query->leftJoin('field_data_field_review_threshold_mail_sent', 'review_threshold_mail_sent', 'review_threshold_mail_sent.entity_id = n.nid');
-      $query->leftJoin('field_data_field_petition_status', 'petition_status', 'petition_status.entity_id = n.nid');
-
-      $query->addField('n', 'nid', 'nid');
-      $query->addField('petition_signature_count', 'field_petition_signature_count_value', 'signature_count');
-
-      $query->condition('petition_signature_count.field_petition_signature_count_value', $threshold, '>=');
-      $query->condition($sub_query);
-      $query->condition('petition_status.field_petition_status_value', $petition_status, 'IN');
-
-      $notification_list = $query->execute()->fetchAllAssoc('nid');
-
-      foreach ($notification_list as $notification_nid => $notification) {
-        $petition = node_load($notification_nid);
-
-        $message = drupal_mail('wh_petitions', 'review_threshold_passed', $compliance_reviewer_emails, language_default(),
+  // Check if no email has been sent, sig count above threshold, is signable.
+  // Since petition can become Under Review prior, wh_petitions_signable_statuses is ok.
+  if (!$email_sent && ($node->signature_count >= $threshold) && in_array($petition_status, wh_petitions_signable_statuses())) {
+    try {
+      if ($send_email) {
+        drupal_mail('wh_petitions', 'review_threshold_passed', $emails_to, language_default(),
           array(
-            'petition' => (array) $petition,
+            'petition' => (array) $node,
           )
         );
-
-        $legacy_id = check_plain($petition->field_legacy_id[$petition->language][0]['value']);
-
-        // Set the Review Threshold Mail Sent field on the petition
-        // node so we know the mail has been sent.
-        $review_threshold_mail_sent = time();
-        $petition->field_review_threshold_mail_sent[$petition->language][0]['value'] = $review_threshold_mail_sent;
-        node_save($petition);
-
-        // Mongo2mysql: This condition checks if we are still writing to mongo.
-        $update_mongo_petition = ((petitions_data_mongo_writes_are_enabled()) && (!empty($legacy_id)));
-        if ($update_mongo_petition) {
-          $petition_connection = wh_petitions_mongo_petition_connection();
-          $petition_mongo = wh_petitions_load_slim_petition($petition_connection, $legacy_id, array('body'));
-
-          $petition_connection->update(
-            array('_id' => $petition_mongo['_id']),
-            array('$set' => array('review_threshold_mail_sent' => (int) $review_threshold_mail_sent))
-          );
-        }
-
       }
-      watchdog('wh_petitions', 'Petition (@id) Review Threshold Notification Sent.', array('@id' => $notification_nid));
+
+      // Save only field_review_threshold_mail_sent value so we don't clobber any multithread node updates.
+      $node = new stdClass();
+      $node->nid = $nid;
+      $node->type = 'petition';
+      $node->field_review_threshold_mail_sent[LANGUAGE_NONE][0]['value'] = time();
+      field_attach_update('node', $node);
+      field_attach_presave('node', $node);
+      // Clear the static loading cache.
+      entity_get_controller('node')->resetCache(array($node->nid));
+    }
+    catch (Exception $e) {
+      watchdog('wh_petitions', 'Error sending compliance review threshold email for petition (@id). Exception: @exception', array(
+        '@id' => $nid,
+        '@exception' => petition_format_for_watchdog($e),
+
+      ), WATCHDOG_ERROR);
     }
   }
+}
+
+/**
+ * Pulls a list of petitions with more signatures than the compliance review
+ * threshold and which have not been sent compliance review notifications.
+ *
+ * @param bool $send_email
+ *   If set to FALSE, will not send emails - will only update sent flag.
+ *
+ * @return int
+ *   Count of petitions meeting criteria for compliance review.
+ */
+function _wh_petitions_compliance_review_threshold_check($send_email = TRUE) {
+  $threshold = (int) variable_get('wh_petitions_compliance_review_threshold', FALSE);
+  $sub_query = db_or();
+  $sub_query->isNull('review_threshold_mail_sent.field_review_threshold_mail_sent_value');
+  $sub_query->condition('review_threshold_mail_sent.field_review_threshold_mail_sent_value', 0, '=');
+
+  $query = db_select('node', 'n');
+  $query->leftJoin('field_data_field_petition_signature_count', 'petition_signature_count', 'petition_signature_count.entity_id = n.nid');
+  $query->leftJoin('field_data_field_review_threshold_mail_sent', 'review_threshold_mail_sent', 'review_threshold_mail_sent.entity_id = n.nid');
+  $query->leftJoin('field_data_field_petition_status', 'petition_status', 'petition_status.entity_id = n.nid');
+
+  $query->addField('n', 'nid', 'nid');
+  $query->addField('petition_signature_count', 'field_petition_signature_count_value', 'signature_count');
+
+  $query->condition('petition_signature_count.field_petition_signature_count_value', $threshold, '>=');
+  $query->condition($sub_query);
+  $query->condition('petition_status.field_petition_status_value', wh_petitions_signable_statuses(), 'IN');
+
+  $notification_list = $query->execute()->fetchAllAssoc('nid');
+
+  if ($notification_list) {
+    foreach ($notification_list as $notification_nid => $notification) {
+      _wh_petitions_compliance_review_threshold_check_node($notification_nid, $send_email);
+    }
+  }
+  return count($notification_list);
 }
 
 /**
@@ -1671,49 +1294,15 @@ function wh_petitions_similar_petitions(&$conn, $petition_id) {
  *
  * Include the function to close any open petitions that
  * have exceeded the limit for amount of days to be open.
- * This function also updates the trending petitions and the counts
- * of how many petitions/responses are related to each issue term.
+ * Also run the function to update the counts of how many petitions/responses
+ * are related to each issue term.
  */
 function wh_petitions_cron() {
   module_load_include('inc', 'wh_petitions', 'wh_petitions.cron');
   wh_petitions_close_petitions();
-
-  $email = variable_get('wh_petitions_compliance_reviewer_emails', FALSE);
-  $threshold = (int) variable_get('wh_petitions_compliance_review_threshold', FALSE);
-  wh_petitions_compliance_review_threshold_check($threshold, $email);
+  wh_petitions_update_issue_counts();
 }
 
-/**
- * Helper function to format a number correctly.
- *
- * Helper function to format a number correctly.
- * (no decimals, commas for thousands-separators)
- */
-function wh_petitions_format_number($number) {
-  return number_format(intval($number), 0, '.', ',');
-}
-
-/**
- * Format description for petition detail.
- *
- * Helper function to format a description on the petition
- * detail and preview pages ( step 4 - create a petition )
- */
-function wh_petitions_format_description($description) {
-  if (!empty($description)) {
-    // Consolidate newlines.
-    $description = preg_replace('/[\r\n]+/', "\n", $description);
-    $arr = explode("\n", $description);
-
-    $new_description = '';
-    foreach ($arr as $line) {
-      $new_description .= '<p>' . check_plain(trim($line)) . '</p>';
-    }
-    $description = $new_description;
-  }
-
-  return $description;
-}
 
 /**
  * Emails the creator of a petition when their petition is published.
@@ -2084,7 +1673,7 @@ function wh_petitions_mongo_petition_connection() {
     $collection = mongodb_collection('petitions');
   }
   catch (Exception $e) {
-    petitionslog_event('exception.wh_petitions.0ba11dd');
+    logger_event('exception.wh_petitions.0ba11dd');
   }
 
   if (!petitions_data_mongo_reads_are_enabled()) {
@@ -2108,7 +1697,7 @@ function wh_petitions_mongo_archive_petition_connection() {
     $collection = mongodb_collection('archive_petitions');
   }
   catch (Exception $e) {
-    petitionslog_event('exception.wh_petitions.d918789');
+    logger_event('exception.wh_petitions.d918789');
   }
 
   if (!petitions_data_mongo_reads_are_enabled()) {
@@ -2132,7 +1721,7 @@ function wh_petitions_mongo_petition_signatures_connection() {
     $collection = mongodb_collection('petition_signatures');
   }
   catch (Exception $e) {
-    petitionslog_event('exception.wh_petitions.1616017');
+    logger_event('exception.wh_petitions.1616017');
   }
 
   if (!petitions_data_mongo_reads_are_enabled()) {
@@ -2161,7 +1750,7 @@ function wh_petitions_save_petition(&$collection, $petition) {
     $petition['uid'] = (int) $petition['uid'];
     if ($petition['created'] == 0) {
       $petition['created'] = (int) time();
-      petitionslog_event('petition.created');
+      logger_event('petition.created');
     }
     $collection->save($petition);
     petitions_data_freshen_cached_petition($petition['_id']);
@@ -2362,40 +1951,6 @@ function wh_petitions_load_petition_title(&$collection, $petition_id) {
 }
 
 /**
- * Generate keywords for fields.
- *
- * Generate keywords for title_keywords, body_keywords and
- * keywords ( public and private ) fields.
- *
- * @param string $string
- *   String to extract keywords from.
- * @param string $delimiter
- *   String to use as a delimiter for character analysis.
- *
- * @return array
- *   An indexed array of keywords.
- */
-function wh_petitions_generate_keywords($string, $delimiter = ' ') {
-  $words = array();
-
-  if (!empty($string)) {
-    $arr = explode($delimiter, $string);
-    foreach ($arr as $word) {
-      // Strip all nonalphanumeric, whitespace, etc.
-      if ($delimiter != ' ') {
-        $word = trim(preg_replace('/[^A-Za-z0-9\s]/', '', $word));
-      }
-      else {
-        $word = preg_replace('/[^A-Za-z0-9]/', '', $word);
-      }
-      array_push($words, (string) strtolower(trim($word)));
-    }
-  }
-
-  return $words;
-}
-
-/**
  * Generate a nice url for this petition using pathauto URL cleaning.
  *
  * @param array $petition
@@ -2426,26 +1981,6 @@ function wh_petitions_generate_nice_url(&$petition) {
   $petition['nice_url'] = $alias;
 }
 
-/**
- * Generate URL obfuscation string.
- *
- * Generate a random 8-char hash to append to the end of the
- * url for obfuscation.
- *
- * @param int $length
- *   Length of random string
- */
-function wh_petitions_generate_hash($length = 8) {
-  $characters = 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ0123456789';
-  $count = mb_strlen($characters) - 1;
-  $hash = '';
-
-  for ($i = 0; $i < $length; $i++) {
-    $hash .= $characters[mt_rand(0, $count)];
-  }
-
-  return $hash;
-}
 
 /**
  * Check to see if the same alias exists for a different Petition.
@@ -2495,6 +2030,9 @@ function wh_petitions_default_petition() {
     // Array of previous petition object ids;
     // only admins can edit a non-draft petition.
     'body_revisions'    => array(),
+
+    // Array of petition types.
+    'petition_type'     => array(),
 
     // Array of taxonomy term IDs.
     'issues'            => array(),
@@ -2582,7 +2120,7 @@ function wh_petitions_admin_log($acting_user, $entity_type, $entity_acted_upon) 
     $collection = mongodb_collection('admin_log');
   }
   catch (Exception $e) {
-    petitionslog_event('exception.wh_petitions.3bc99b3');
+    logger_event('exception.wh_petitions.3bc99b3');
   }
 
   switch ($entity_type) {
@@ -2692,23 +2230,6 @@ function wh_petitions_sign_petition($petition_id, $user_id, $ip_address = '', $u
  *   ID of created signature or FALSE on failure.
  */
 function wh_petitions_create_signature($petition, $user, $signature_collection_connection, $ip_address = '', $user_agent = '', $timestamp = FALSE) {
-  // If petition is being signed through simplified signing, skip validation
-  // checks confirming petition is signable, defer to signatures_queue module's
-  // preprocess and process checks.
-  $active_signing_method = variable_get('petitions_signing_method', NULL);
-  if ($active_signing_method != WH_PETITIONS_SIGNING_METHOD_SIMPLIFIED_SIGNING) {
-    // Simplified signing is not enabled. Perform legacy validation checks
-    // before counting signature. Can only sign petitions that are open--that
-    // is, private, public, or under review.
-    if ($petition['petition_status'] != WH_PETITION_STATUS_PRIVATE && $petition['petition_status'] != WH_PETITION_STATUS_PUBLIC && $petition['petition_status'] != WH_PETITION_STATUS_UNDER_REVIEW) {
-      watchdog('wh_petitions', 'Unable to create signature on @petition due to invalid petition status (@status).', array(
-        '@petition' => $petition['_id'],
-        '@status' => $petition['petition_status'],
-      ));
-      return FALSE;
-    }
-  }
-
   // Check if signature_id exists.
   if ($signature_id = wh_petitions_get_signature_id($petition['_id'], $user->uid)) {
     watchdog('wh_petitions', 'unable to create signature, user @user has already signed @petition', array('@petition' => $petition['_id'], '@user' => $user->uid));
@@ -2874,4 +2395,210 @@ function wh_petitions_admin_paths() {
     'remove-mongo-petition' => TRUE,
   );
   return $paths;
+}
+
+/**
+ * Generates share links for petitions, including Facebook, Twitter and Email.
+ *
+ * @param array $vars
+ *   Passes $node object only.
+ *
+ * @return array
+ *   Render array of the share links.
+ */
+function theme_petitions_share_links($vars) {
+  if(empty($vars['node'])) return array();
+
+  $node = $vars['node'];
+  $title = check_plain($node->title);
+  $nid = $node->nid;
+  $lang = $node->language;
+  $url = drupal_get_path_alias('node/' . $nid);
+  $short_url = empty($node->field_short_url[$lang][0]['value']) ? '' : $node->field_short_url[$lang][0]['value'];
+
+  $share_links = array(
+    'share_links' => array(
+      'facebook_link' => array(
+        '#markup' => wh_petition_tool_facebook_link($nid, check_plain($title), 'petition', '', $url),
+      ),
+      array('#markup' => '&nbsp;'),
+      'email_link' => array(
+        '#markup' => wh_petition_tool_email_link(
+          t('Email'),
+          t('Will you add your name to this petition?'),
+          t("I wanted to let you know about a We the People petition and ask for your support. Will you add your name to mine? If this petition gets 100,000 signatures within 30 days of its creation, the White House will review it and respond!\r\rYou can view and sign the petition here:\r\r@title\r@path\r\rThanks for raising your voice!",
+            array(
+              '@title' => check_plain($title),
+              '@path' => url(
+                $url,
+                array('absolute' => TRUE)
+              ),
+            )
+          )
+        ),
+      ),
+      array('#markup' => '&nbsp;'),
+      'twitter_link' => array(
+        '#markup' => wh_petition_tool_twitter_link($nid, check_plain($title), 'petition', '', $short_url, $url),
+      ),
+    ),
+  );
+
+  return $share_links;
+}
+
+
+/**
+ * Add column divs to checkbox/radio elements.
+ *
+ * @param array $element
+ *   Form element.
+
+ * @return string
+ *   Rendered output.
+ */
+function theme_multicolumn_options($element) {
+  $stripped_element = array_values($element);
+  $element = $stripped_element[0];
+
+// Initialize variables.
+  $output = '';
+  $total_columns = $element['#multicolumn_numcols'];
+  $total_options = count($element['#options']);
+  $options_per_column = ceil($total_options / $total_columns);
+  $keys = array_keys($element['#options']);
+
+  // Start wrapper div.
+  $output .= '<div class="multicolumn-options-wrapper">';
+  $current_column = 1;
+  $current_option = 0;
+
+  while ($current_column <= $total_columns) {
+    // Start column div.
+    $output .= '<div class="multicolumn-options-column">';
+
+    // Keep looping through until the maximum options per column are reached,
+    // or you run out of options.
+    while ($current_option < $options_per_column * $current_column &&
+      $current_option < $total_options) {
+
+      // Output as either check or radio button depending on the element type.
+      $output .= drupal_render($element[$keys[$current_option]]);
+      $current_option++;
+    }
+
+    // End column div.
+    $output .= '</div>';
+    $current_column++;
+  }
+
+  // End wrapper div.
+  $output .= '</div>';
+
+  return $output;
+}
+
+/**
+ * Default theme implementation for petition_preface.
+ */
+function theme_petition_preface($variables) {
+  $preface = '';
+
+  if (isset($variables['node']) && $variables['node']->type == 'petition') {
+    if ($field_petition_type = field_get_items('node', $variables['node'], 'field_petition_type')) {
+      $term = taxonomy_term_load($field_petition_type[0]['tid']);
+      $petition_type = $term->name;
+
+      $preface = array(
+        '#theme' => 'html_tag',
+        '#tag' => 'h6',
+        '#value' => t('We the people ask the federal government to @type:', array('@type' => $petition_type)),
+        '#attributes' => array(
+          'class' => array('petition-preface'),
+        )
+      );
+    }
+  }
+
+  return $preface;
+}
+
+/**
+ * Default theme implementation for petition_attribution.
+ */
+function theme_petition_attribution($variables) {
+  if (isset($variables['node'])) {
+    $creator_initials = _wh_petitions_creator_initials($variables['node']);
+    $date_published = _wh_petitions_date_published($variables['node']);
+
+    $attribution = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'h4',
+      '#value' => t('Created @initials on @date', array(
+          '@initials' => $creator_initials,
+          '@date' => $date_published
+        )),
+      '#attributes' => array(
+        'class' => array('petition-attribution'),
+      )
+    );
+
+    return $attribution;
+  }
+}
+
+/**
+ * Get the first and last initials of a node's author.
+ *
+ * @param $node
+ *   A node object
+ *
+ * @return FALSE|string
+ *   First and last initials, or false if unavailable.
+ */
+function _wh_petitions_creator_initials($node) {
+  if($user = profile2_load_by_user($node->uid)){
+    $user_fields = array();
+    $fields = array('first_name', 'last_name');
+    foreach ($fields as $f) {
+      if (!empty($user['main']->{'field_' . $f}[LANGUAGE_NONE][0]['value'])) {
+        $user_fields[$f] = $user['main']->{'field_' . $f}[LANGUAGE_NONE][0]['value'];
+      }
+    }
+    $first_initial = isset($user_fields['first_name']) ? strtoupper($user_fields['first_name'][0]) : FALSE;
+    $last_initial = isset($user_fields['last_name']) ? strtoupper($user_fields['last_name'][0]) : FALSE;
+    $creator_initials = ($first_initial && $last_initial) ? "by {$first_initial}.{$last_initial}." : FALSE;
+
+    return $creator_initials;
+  }
+
+  return false;
+}
+
+/**
+ * Retrieve and format a node's published date.
+ *
+ * @param obj $node
+ *   A Drupal node object.
+ *
+ * @return string
+ */
+function _wh_petitions_date_published($node) {
+  if($date = $node->field_timestamp_published[LANGUAGE_NONE][0]['value']){
+    return date("F d, Y", $date);
+  };
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function wh_petitions_form_alter(&$form, &$form_state, $form_id) {
+  $form['#validate'][] = '_wh_petitions_add_field_error_labels';
+}
+
+/**
+ * Implements hook_petition_signatures_updated().
+ */
+function wh_petitions_petition_signatures_updated($nid) {
+  _wh_petitions_compliance_review_threshold_check_node($nid);
 }

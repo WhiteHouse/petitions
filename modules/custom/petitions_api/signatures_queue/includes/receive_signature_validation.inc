@@ -34,17 +34,16 @@
  * @return int
  *   Returns one of the following status codes indicating the workflow outcome:
  *     - SIGNATURES_QUEUE_STATUS_OK
- *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
- *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
- *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
- *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
+ *     - SIGNATURES_QUEUE_ERROR_FAILED_VALIDATION
+ *     - SIGNATURES_QUEUE_ERROR_SIGNATURE_NOT_FOUND
+ *     - SIGNATURES_QUEUE_ERROR_SERVICE_NOT_AVAILABLE
  *
  * @see signatures_queue_invoke_workflow()
  */
 function _signatures_queue_receive_signature_validation($job_id, $server_name, $worker_name, array $options = array()) {
   // Make sure required URL arguments are present.
   if (empty($_GET['k']) || empty($_GET['m']) || empty($_GET['p']) || empty($_GET['d']) || !is_numeric($_GET['d'])) {
-    return SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+    return SIGNATURES_QUEUE_ERROR_FAILED_VALIDATION;
   }
 
   $is_valid = FALSE;
@@ -61,7 +60,7 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
   // Confirm the petition is still open for signature confirmations. If not,
   // send user to the petition-error page.
   if ($options['validation_expiration'] < time()) {
-    $return = SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+    $return = SIGNATURES_QUEUE_ERROR_FAILED_VALIDATION;
   }
 
   // If request is valid, process it.
@@ -74,24 +73,24 @@ function _signatures_queue_receive_signature_validation($job_id, $server_name, $
       $queue = SignaturesQueue::get('validations_queue');
       $queue->createQueue();
       $queue->createItem($signature_data);
-      petitionslog_event('signatures_queue.data_store.validations_queue.item_added');
+      logger_event('signatures_queue.data_store.validations_queue.item_added');
       $return = SIGNATURES_QUEUE_STATUS_OK;
     }
     catch (Exception $e) {
-      $return = SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
+      $return = SIGNATURES_QUEUE_ERROR_SERVICE_NOT_AVAILABLE;
     }
   }
   elseif (empty($return)) {
-    $return = SIGNATURES_QUEUE_STATUS_NOT_FOUND;
+    $return = SIGNATURES_QUEUE_ERROR_SIGNATURE_NOT_FOUND;
   }
 
   // Debugging. Log options and signature data.
   if ($debug = variable_get('signatures_queue_debug', FALSE)) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Options passed to receive_signature_validation workflow: !options', array(
-      '!options' => petitionslog_format_for_watchdog($options),
+      '!options' => petition_format_for_watchdog($options),
     ), WATCHDOG_DEBUG);
     watchdog('signatures_queue', 'DEBUG ENABLED: Validation data added to validations_queue: !validation', array(
-      '!validation' => petitionslog_format_for_watchdog($signature_data),
+      '!validation' => petition_format_for_watchdog($signature_data),
     ), WATCHDOG_DEBUG);
   }
 

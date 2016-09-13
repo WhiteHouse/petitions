@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the wtp_contexts feature.
+ */
+
+include_once 'wtp_contexts.features.inc';

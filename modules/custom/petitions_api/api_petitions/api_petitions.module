@@ -208,6 +208,22 @@ function api_petitions_services_resources() {
             'source' => array('param' => 'responseAssociationTimeBefore'),
           ),
           array(
+            'name' => 'sort_by',
+            'optional' => TRUE,
+            'type' => 'string',
+            'description' => 'Sets the field by which to sort results. Allowed values are "signature_count" and "date_reached_public".',
+            'default value' => 'date_reached_public',
+            'source' => array('param' => 'sortBy'),
+          ),
+          array(
+            'name' => 'sort_order',
+            'optional' => TRUE,
+            'type' => 'string',
+            'description' => 'The order by which to sort. Allowed values are "asc" and "desc".',
+            'default value' => 'asc',
+            'source' => array('param' => 'sortOrder'),
+          ),
+          array(
             'name' => 'mock',
             'optional' => TRUE,
             'type' => 'int',
@@ -365,22 +381,16 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
   // Catch any errors that may cause $resource->load() to fail. E.g., mongodb.
   // errors. Throw our own, custom error instead.
   catch (Exception $e) {
-    $status_code = 599;
-    $developer_message = t("Class could not be instantiated.");
-    $user_message = t("The resource that you requested is temporarily unavailable.");
-    $error_code = 83;
-    $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-599', array('!url' => $website_url));
     watchdog('api_petitions', $e->getMessage());
-    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info);
+    $error_code = 83;
+    list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code, $petition_id);
+    return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
   // Throw error if petition was not found.
   if (empty($petition)) {
-    $status_code = 404;
-    $developer_message = t("Petition @petition_id not found.", array('@petition_id' => $petition_id));
-    $user_message = t("The petition that you requested does not exist.", array('@petition_id' => $petition_id));
     $error_code = 84;
-    $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-404', array('!url' => $website_url));
+    list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code, $petition_id);
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
@@ -397,7 +407,7 @@ function _api_petitions_resource_retrieve($petition_id, $mock) {
 /**
  * Callback for Services petitions index method.
  */
-function _api_petitions_resource_index($is_public, $is_signable, $created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $response_association_time_before, $mock) {
+function _api_petitions_resource_index($is_public, $is_signable, $created_before, $created_after, $created_at, $limit, $offset, $title, $body, $signature_threshold_ceiling, $signature_threshold, $signature_threshold_floor, $signature_count_ceiling, $signature_count, $signature_count_floor, $url, $status, $response_id, $response_association_time_before, $sort_by, $sort_order, $mock) {
   global $base_url;
 
   $website_url = variable_get('petitions_data_petitions_website_url', $base_url);
@@ -413,14 +423,16 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
 
   // Err if request is for non-public petitions. This is not allowed.
   if (!$is_public) {
-    $developer_message = t('You need a petition ID or URL to access non-public petitions.');
-    api_errors_throw_error(403, $developer_message);
+    $error_code = 86;
+    list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
+    api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
   // Err if request includes an invalid responseID argument.
   if ($response_id && !is_numeric($response_id)) {
-    $developer_message = t('Invalid responseID argument.');
-    api_errors_throw_error(400, $developer_message);
+    $error_code = 87;
+    list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
+    api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
   // The "url" argument is, for all practical purposes, a unique identifier. So
@@ -433,8 +445,9 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
     // the path component returned by parse_url() includes the leading forward
     // slash (/), so the minimum required length is two.
     if (strlen(parse_url($url, PHP_URL_PATH)) < 2) {
-      $developer_message = t('Invalid url argument.');
-      api_errors_throw_error(400, $developer_message);
+      $error_code = 88;
+      list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
+      api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
     }
 
     $results = PetitionsSelectQueryFactory::create(FALSE)
@@ -444,20 +457,27 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
 
     // Return a 404 if no results are found.
     if (empty($results[0]['id'])) {
-      $status_code = 404;
-      $developer_message = t('No petition found at @url.', array(
-        '@url' => $url,
-      ));
-      $user_message = t('The petition that you requested does not exist.');
       $error_code = 84;
-      $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-404', array(
-        '!url' => $website_url,
-      ));
+      list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
       return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
     }
 
     return _api_petitions_resource_retrieve($results[0]['id'], $mock);
   }
+
+  $query_base = PetitionsSelectQueryFactory::create(FALSE);
+  $sort_by = strtoupper($sort_by);
+  $sort_order = strtoupper($sort_order);
+
+  if (!in_array($sort_by, $query_base::getValidPetitionsOrderByFields(), TRUE)) {
+    $sort_by = $query_base::SELECT_QUERY_ORDER_BY_FIELD_DATE_REACHED_PUBLIC;
+  }
+  if (!in_array($sort_order, $query_base::getValidOrderByDirections(), TRUE)) {
+    $sort_order = SelectQueryBase::SELECT_QUERY_ORDER_BY_ASC;
+  }
+
+
+
 
   // Makes the assumption that all query parameters are present at this instant.
   // This brittle, the values here can be altered by setters when petitions_data
@@ -489,6 +509,8 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
     'title' => $title,
     'url' => $url,
     'websiteUrl' => $website_url,
+    'sortBy' => $sort_by,
+    'sortOrder' => $sort_order,
   );
   ksort($query_parameters);
 
@@ -516,7 +538,8 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
      ->setURL($url)
      ->setStatus($status)
      ->setIsPublic($is_public)
-     ->setResponseID($response_id);
+     ->setResponseID($response_id)
+     ->setOrderBy($sort_by, $sort_order);
 
     $request_info = array(
       'apiVersion' => 1,
@@ -539,17 +562,13 @@ function _api_petitions_resource_index($is_public, $is_signable, $created_before
     $data = (method_exists($e, 'getData')) ? $e->getData() : array();
     if (!$e->getCode()) {
       // There is no specified status code so make one up.
-      $status_code = 599;
-      $developer_message = t("Sorry. Something went wrong. We're not sure what. And we're not sure 599 is an accurate status code for your error. Please file a ticket in the issue queue to help us understand what caused this error: https://github.com/whitehouse/petitions/issues?state=open");
+      $error_code = 599;
     }
     else {
-      $status_code = $e->getCode();
-      $developer_message = (!empty($data['developerMessage'])) ? $data['developerMessage'] : '';
+      $error_code = $e->getCode();
     }
-    $user_message = (!empty($data['userMessage'])) ? $data['userMessage'] : '';
-    $error_code = (!empty($data['errorCode'])) ? $data['errorCode'] : '';
-    $more_info = (!empty($data['moreInfo'])) ? $data['moreInfo'] : '';
     watchdog('api_petitions', $e->getMessage());
+    list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 }
@@ -571,11 +590,8 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
   // Ensure the petition ID is valid.
   $petition = PetitionsController::load($petition_id);
   if (empty($petition)) {
-    $status_code = 404;
-    $developer_message = t("Petition @petition_id not found.", array('@petition_id' => $petition_id));
-    $user_message = t("The petition that you requested does not exist.", array('@petition_id' => $petition_id));
     $error_code = 84;
-    $more_info = t('See the documentation: !url/developers#petitions-signatures-error-404', array('!url' => $website_url));
+    list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code, $petition_id);
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 
@@ -606,12 +622,9 @@ function _api_petitions_load_signatures($petition_id, $city, $state, $zipcode, $
   }
   // Throw error if resource cannot be accessed.
   catch (Exception $e) {
-    $status_code = 599;
-    $developer_message = t("Class could not be instantiated.");
-    $user_message = t("The resource that you requested is temporarily unavailable.");
-    $error_code = 83;
-    $more_info = t('See the documentation: !url/developers#petitions-signatures-error-599', array('!url' => $website_url));
     watchdog('api_petitions', $e->getMessage());
+    $error_code = 83;
+    list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
     return api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
   }
 }

@@ -1,0 +1,6 @@
+White House Twitter {"url":"https:\/\/www.twitter.com\/intent\/follow?screen_name=wethepeople","options":{"attributes":{"title":"Get the latest news and engage","class":["social-share","fa","fa-twitter"],"target":"_blank"},"item_attributes":{"id":"","class":"","style":""}}}
+RSS Feed {"url":"https:\/\/www.whitehouse.gov\/blog\/issues\/we-the-people","options":{"attributes":{"class":["social-share","fa","fa-rss"],"target":"_blank"},"item_attributes":{"id":"","class":"","style":""}}}
+Contact the White House {"url":"https:\/\/www.whitehouse.gov\/contact","options":{"attributes":{"target":"_blank"},"item_attributes":{"id":"","class":"","style":""}}}
+Accessibility {"url":"https:\/\/www.whitehouse.gov\/accessibility","options":{"attributes":{"target":"_blank","0":{"target":"_blank"}},"item_attributes":{"id":"","class":"","style":""}}}
+Copyright Information {"url":"https:\/\/www.whitehouse.gov\/copyright","options":{"attributes":{"target":"_blank","0":{"target":"_blank"}},"item_attributes":{"id":"","class":"","style":""}}}
+Privacy Policy {"url":"https:\/\/www.whitehouse.gov\/privacy","options":{"attributes":{"target":"_blank"},"item_attributes":{"id":"","class":"","style":""}}}

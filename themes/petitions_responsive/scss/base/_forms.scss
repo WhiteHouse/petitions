@@ -1,0 +1,239 @@
+/**
+ * Place all default form styles here.
+ */
+
+.form {
+}
+
+div.form-item {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  &:first-of-type {
+    margin-top: 20px;
+  }
+
+  label, .description {
+    color: $scorpion;
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  span.form-required {
+    color: inherit;
+  }
+}
+
+//Input styles
+input,
+input[type="text"],
+input[type="checkbox"],
+input[type="submit"],
+textarea,
+select {
+  &:focus {
+    box-shadow: $focus-shadow;
+    outline: none;
+  }
+}
+
+input:placeholder-shown {
+  @include placeholder {
+    color: $boulder;
+  }
+}
+
+input[type="text"], input[type="password"] {
+  width: 100%;
+  border: 1px solid $silver-chalice;
+  height: 42px;
+  padding: 10px;
+  color: $scorpion;
+}
+
+input[type="checkbox"] {
+  display: inline-block;
+  @include element-invisible;
+
+  &:hover + label:before {
+    cursor: hand;
+    cursor: pointer;
+  }
+
+  & + label:before {
+    //@include vertical-center();
+    position: absolute;
+    font-family: 'FontAwesome';
+    content: "\f096";
+    display: inline-block;
+    font-size: $base-font-size;
+    line-height: 1.2rem;
+    border-radius: 2px;
+    top: 0.9rem;
+    left: 0;
+    color: $silver-chalice;
+  }
+  &:checked + label:before {
+    font-family: 'FontAwesome';
+    content: "\f14a";
+    line-height: 1.4rem; // FA 'checked' checkbox is a slighly different size.
+    color: $matisse;
+  }
+  &:focus + label:before {
+    box-shadow: 0 0 6px 2px $color-focus;
+  }
+
+  &.checkbox-dummy-label {
+    width: auto;
+    height: 17px;
+    z-index: 2;
+    opacity: 0;
+    clip: auto;
+
+    &+ label.option {
+      padding: 0;
+    }
+
+    &+ label:before {
+      position: inherit;
+    }
+  }
+}
+
+label.option,
+span.option {
+  @include h6;
+  display: inline-block;
+  line-height: 1.3;
+  padding-left: 33px;
+  position: relative;
+  &.form-item-petition-text {
+    position: absolute;
+    padding-top: 5px;
+  }
+}
+
+//Petitions Signature Form specific
+.block-petitionssignatureform-form {
+  .form-item-first-name,
+  .form-item-last-name,
+  .form-item-email {
+    & label {
+      @include element-invisible;
+      display: none;
+      visibility: hidden;
+      &[for="edit-sign-up"] {
+        visibility: visible;
+        display:inline-block;
+      }
+    }
+  }
+  .form-item-email {
+    margin-bottom: 20px;
+  }
+  .form-item-sign-up {
+    margin-top: 20px;
+    margin-bottom: 37px;
+  }
+  input[type="checkbox"] + label:before {
+    top: 3px;
+  }
+  h6 {
+    margin-top: 0;
+  }
+
+  .form-actions {
+    input[type="submit"] {
+      margin-bottom: 20px;
+      width: 100%;
+      font-weight: $font-normal;
+    }
+
+    @include media($mobile-max-width) {
+      position: relative;
+      left: -$gutter-outer;
+      padding: 15px $gutter-outer;
+      box-sizing: content-box;
+      background-color: #333333;
+      width: 100%;
+
+      input[type="submit"] {
+        margin: 0;
+        padding: 15px 0;
+      }
+    }
+    @include media($desktop) {
+      margin: 0;
+    }
+  }
+
+  .sign-now-open-button-wrapper {
+    display: none;
+    @include media($mobile-max-width) {
+      &.visible {
+        display: block;
+      }
+      &.sticky-bottom {
+        position: fixed;
+        left: 0;
+        box-sizing: border-box;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  #formwrapper {
+    .form-actions.form-wrapper {
+      opacity: 1;
+      @include transition(opacity .2s .2s ease);
+    }
+    @include media($mobile-max-width) {
+      &.invisible {
+        @include element-invisible();
+        .form-actions.form-wrapper {
+          opacity: 0;
+        }
+      }
+    }
+  }
+
+  .title {
+    @include media($mobile-max-width) {
+      &.invisible {
+        display: none;
+      }
+    }
+    @include media($desktop) {
+      display: none;
+    }
+  }
+}
+
+#user-login {
+  input[type="submit"] {
+    width: 100%;
+  }
+}
+
+#user-register-form {
+  input[type="submit"] {
+    width: 100%;
+  }
+}
+
+// Prevent absolutely positioned screenreader prompts from expanding the grid.
+#petition-create-formwrapper{
+  .element-invisible.screenreader-prompt {
+    left: 0;
+    max-width: 100%;
+  }
+  input[type="radio"] + label {
+    cursor: pointer;
+  }
+}
+
+//Petitions Signature Form specific
+.block-petitions-api-keys-submission {
+  input[type="checkbox"] + label:before {
+    top: 3px;
+  }
+}

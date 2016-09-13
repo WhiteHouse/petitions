@@ -46,6 +46,10 @@
       </div>
     <?php endif; ?>
     <?php if($responded): ?>
+      <?php if(!empty($date_responded)): ?>
+        <div class="date"><strong><?php print t("Responded Date:"); ?></strong> <?php print $date_responded; ?></div>
+      <?php endif; ?>
+
       <div id="total-count">
         <h4><?php print t('total signatures'); ?></h4>
         <div class="num-block"><?php print $signatures; ?></div><!--/num block-->

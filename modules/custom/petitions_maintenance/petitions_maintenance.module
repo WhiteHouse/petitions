@@ -3,7 +3,143 @@
 /**
  * @file
  * Manages Petitions application maintenance tasks.
- *
- * Even though it's empty, this file is required for Drupal to recognize the
- * module.
  */
+
+define('PETITION_MAINTENANCE_REPLACE', 0);
+define('PETITION_MAINTENANCE_SKIP', 1);
+
+/**
+ * Sets petition type value for existing petition nodes.
+ *
+ * @param string $source_file
+ *   The file containing petition type to petition node mappings.
+ */
+function _petitions_maintenance_add_type($source_file) {
+  if ($source_file == '-') {
+    $data = json_decode(stream_get_contents(STDIN));
+  }
+  else {
+    $data = json_decode(file_get_contents($source_file));
+  }
+
+  if ($data) {
+    // Store properties from the $data object as an array.
+    $type_mapping = array();
+    foreach ((array) $data->mapping as $nid => $term_name) {
+      $type_mapping[$nid] = strtolower(trim($term_name));
+    }
+  }
+  petitions_maintenance_assign_term($type_mapping, 'field_petition_type', 'petition_type');
+}
+
+/**
+ * Implements hook_redirect_alter().
+ */
+function petitions_maintenance_redirect_alter($redirect) {
+  if (strpos($redirect->redirect, '#') !== FALSE) {
+    $destination_array = explode('#', $redirect->redirect);
+    $redirect->redirect = $destination_array['0'];
+    $redirect->redirect_options['fragment'] = $destination_array['1'];
+  }
+}
+
+/**
+ * Set term values on single or multi-valued taxonomy term fields.
+ *
+ * @param array $term_map
+ *   An associative array of nid and tid.
+ * @param string $field_name
+ *   The name of the field to use.
+ */
+function petitions_maintenance_assign_term($term_map, $field_name, $vocabulary_name, $mode = PETITION_MAINTENANCE_SKIP) {
+  drush_print(t('Assigning @vocabulary_name terms to nodes.', array('@vocabulary_name' => $vocabulary_name)));
+  $terms = _petitions_maintenance_get_terms_to_ids($vocabulary_name);
+  $nids = array_keys($term_map);
+  $failures = array();
+  $updated_count = 0;
+  $total = count($nids);
+
+  foreach ($nids as $nid) {
+    try {
+      $node_wrapper = entity_metadata_wrapper('node', $nid);
+      $field_wrapper = $node_wrapper->$field_name;
+      $legacy_value = $field_wrapper->value();
+      $term_name_from_map = $term_map[$nid];
+      $new_value = taxonomy_term_load($terms[$term_name_from_map]);
+      $is_list = $legacy_value instanceof EntityListWrapper;
+
+      if (($mode === PETITION_MAINTENANCE_REPLACE) || ($mode === PETITION_MAINTENANCE_SKIP && !$legacy_value)) {
+        $is_list ? $data = array($new_value) : $data = $new_value;
+        if ($field_wrapper->validate($data)) {
+          $field_wrapper->set($data);
+          $node_wrapper->save();
+          $updated_count++;
+          if ($updated_count % 50 === 0) {
+            $message = dt('Updated @count nodes of @total', array(
+              '@count' => $updated_count,
+              '@total' => $total
+            ));
+            drush_print($message);
+          }
+          continue;
+        }
+      }
+
+      $failures[] = $nid;
+    }
+    catch (EntityMetadataWrapperException $e) {
+      $failures[] = $nid;
+      watchdog('petitions_maintenance', $e->getMessage(), NULL, WATCHDOG_ERROR);
+    }
+
+  }
+  $message_vars = array(
+    '@bundle' => $node_wrapper->getBundle(),
+    '@count' => $updated_count,
+  );
+
+  if (count($failures)) {
+    $message_vars['@failures'] = '';
+    foreach ($failures as $failure) {
+      $message_vars['@failures'] = $message_vars['@failures'] . PHP_EOL . $failure;
+    }
+    $message = dt('Finished assigning terms to @bundle nodes. Updated @count nodes. The following nodes may not have been updated: @failures.', $message_vars);
+  }
+  else {
+    $message = dt('Finished assigning terms to @bundle nodes. Updated @count nodes.', $message_vars);
+  }
+
+  drush_print($message);
+}
+
+/**
+ * Get an associative array of term names to ids in a specified vocabulary.
+ *
+ * @param string $vocabulary_name
+ *   The name of the vocabulary.
+ *
+ * @return array
+ *   An associative array of term names to ids.
+ */
+function _petitions_maintenance_get_terms_to_ids($vocabulary_name) {
+  $vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary_name);
+  $vid = $vocabulary->vid;
+  $vocabulary_tree = taxonomy_get_tree($vid);
+  $terms = array();
+  foreach($vocabulary_tree as $term_object) {
+    $term_name = strtolower(trim($term_object->name));
+    $terms[$term_name] = $term_object->tid;
+  }
+  return $terms;
+}
+
+/**
+ * Implements hook_update_projects_alter().
+ */
+function petitions_maintenance_update_projects_alter(&$projects) {
+  // Disable checking updates for the install profile as there is no supported
+  // release we can use.
+  if (isset($projects['petitions'])) {
+    unset($projects['petitions']);
+  }
+}

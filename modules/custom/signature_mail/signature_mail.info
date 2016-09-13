@@ -5,3 +5,4 @@ core = 7.x
 dependencies[] = signature
 dependencies[] = shunt
 dependencies[] = signatures_queue
+dependencies[] = disposable_email

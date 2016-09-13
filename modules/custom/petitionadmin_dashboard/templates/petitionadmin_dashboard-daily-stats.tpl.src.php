@@ -77,7 +77,10 @@
 </head>
 <body>
 
-<img src="https://petitions.whitehouse.gov/profiles/petitions/modules/custom/petitions_homepage/img/petitions_landing_hero.jpg" width=300>
+<?php
+// Print necessary to create email image url.
+?>
+<?php print '<img src="' . petitions_data_url(drupal_get_path('module', 'petitionadmin_dashboard') . '/img/petitions_landing_hero.jpg') . '" width="300">'; ?>
 
 <div class="petitionadmin_dashboard">
   <h1>Petitions.whitehouse.gov Daily Statistics</h1>
@@ -94,7 +97,7 @@
     </div>
     <div class="statistics_row">
       <div class="col_label">Petitions Published:</div>
-      <div class="col_value"><?php print $petitions_created ?></div>
+      <div class="col_value"><?php print $petitions_published ?></div>
     </div>
     <div class="statistics_row">
       <div class="col_label">Petitions Reached Public:</div>
@@ -125,7 +128,7 @@
       <div class="col_value"><?php print $crossed_signature_threshold_3 ?></div>
     </div>
     <div class="statistics_row">
-      <div class="col_label">Avg time from Signature Initiated to<br>Validation sent:</div>
+      <div class="col_label">Avg time from Signature Initiated to<br/>Validation sent:</div>
       <div class="col_value"><?php print $signature_to_initiated_validation_elapsed ?> ms</div>
     </div>
   </div>
@@ -136,7 +139,10 @@
     <div class="top_signed_petitions">
       <div class="signature_count"><?php print number_format($data->signature_count) ?></div>
       <div class="petition_link">
-        <a href="https://petitions.whitehouse.gov/node/<?php print $petition_id ?>" title="<?php print $petition_id ?>" target="_blank"><?php print $data->title ?></a>
+        <?php
+        // Print necessary to prevent CSS inline tool from removing PHP code.
+        ?>
+        <?php print '<a href="' . petitions_data_url('node/' . $petition_id, TRUE, TRUE) . '" title="' . $petition_id . '" target="_blank">' . $data->title . '</a>'; ?>
       </div>
     </div>
     <div class="clearfix"></div>
@@ -144,6 +150,9 @@
 
   <div class="section_header">Fraud Alerts</div>
   <hr>
+<?php if (!count($alerts)): ?>
+  <strong>No Alerts Detected</strong>
+<?php else: ?>
   <?php foreach ($alerts as $alert_description => $alert_data) :?>
     <div class="fraud_alert">
       <div class="alert_description">
@@ -153,12 +162,16 @@
       <?php foreach ($alert_data as $petition_id => $data) :?>
         <div class="petition_alert">
           <div class="petition_link">
-            <a href="https://petitions.whitehouse.gov/node/<?php print $petition_id ?>" title="<?php print $petition_id ?>" target="_blank"><?php print $data['petition_title'] ?></a>
+            <?php
+           // Print necessary to prevent CSS inline tool from removing PHP code.
+            ?>
+            <?php print '<a href="' . petitions_data_url('node/' . $petition_id . '/analysis', TRUE, TRUE) . '" title="' . $petition_id . '" target="_blank">' . $data['petition_title'] . '</a>'; ?>
           </div>
         </div>
         <div class="clearfix"></div>
       <?php endforeach;?>
     </div>
   <?php endforeach; ?>
+<?php endif; ?>
 </div>
 </body>

@@ -54,7 +54,7 @@ class SignaturesSelectQueryMysql extends SignaturesSelectQuery {
     }
     catch (Exception $e) {
       watchdog('petitions_data', 'Exception in SignaturesSelectQueryMysql::execute(): !e', array(
-        '!e' => petitionslog_format_for_watchdog($e),
+        '!e' => petition_format_for_watchdog($e),
       ));
     }
     return $this;

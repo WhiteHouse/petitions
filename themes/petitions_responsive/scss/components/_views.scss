@@ -1,0 +1,52 @@
+.view-petitions-listing {
+  @include outer-container();
+  .views-row {
+    @include span-columns($grid-columns);
+    margin-bottom: 20px;
+
+    @include media($desktop) {
+      margin-bottom: 30px;
+
+      @include span-columns($desktop-grid-columns/2);
+      &:nth-child(even) {
+        @include omega();
+      }
+      &:nth-child(odd) {
+        clear: left;
+      }
+    }
+  }
+
+  &.view-display-id-popular_petitions {
+    .view-content {
+      @include clearfix;
+    }
+  }
+
+  &.view-display-id-petitions_with_updates {
+    .view-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .node-petition.node-teaser {
+      position: relative;
+      border: 2px solid $color-primary-darker;
+      @include inset-border(2px, 1px, $color-primary-darker);
+
+    }
+  }
+}
+
+
+.views-table{
+  input[type="checkbox"] + label:before {
+    @include vertical-center(inherit);
+  }
+
+  // Give a min width to the vbo checkbox column, to prevent font awesome checkbox
+  // icons from changing the column's size.
+  thead th.views-field-views-bulk-operations {
+    min-width: 40px;
+  }
+}

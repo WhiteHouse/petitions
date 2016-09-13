@@ -17,13 +17,14 @@ function petitionadmin_dashboard_menu() {
     'access arguments' => array('access petition reports'),
   );
 
-  $items['admin/config/system/petitionadmin_dashboard'] = array(
-    'title' => 'Petition Dashboard Report Settings',
+  $items['admin/petitions/settings/petitionadmin_dashboard'] = array(
+    'title' => 'Dashboard Report Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('petitionadmin_dashboard_settings_form'),
     'access arguments' => array('administer site configuration'),
     'file' => 'petitionadmin_dashboard.admin.inc',
-    'description' => "Configure settings for daily email reports.",
+    'description' => "Configure settings for daily petitions email reports.",
+    'type' => MENU_LOCAL_TASK,
   );
   return $items;
 }
@@ -77,9 +78,9 @@ function petitionadmin_dashboard_theme($existing, $type, $theme, $path) {
 }
 
 /**
- * Implements hook_petitionslog_event().
+ * Implements hook_logger_event().
  */
-function petitionadmin_dashboard_petitionslog_event($name, $type, $value) {
+function petitionadmin_dashboard_logger_event($name, $type, $value) {
   if ($type == 'set' && function_exists('event_log_insert')) {
     if (in_array($name, petitionadmin_dashboard_get_events_to_log())) {
       $log = array(
@@ -114,4 +115,14 @@ function petitionadmin_dashboard_get_events_to_log() {
     $events_to_log[] = 'signatures_queue.workflow.process_signatures.notifications.petitions_alert_threshold_lower_' . $key;
   }
   return $events_to_log;
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Include the function to clean out the event_log.
+ */
+function petitionadmin_dashboard_cron() {
+  module_load_include('inc', 'petitionadmin_dashboard', 'petitionadmin_dashboard.cron');
+  petitionadmin_dashboard_clean_event_log();
 }

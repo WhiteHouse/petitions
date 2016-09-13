@@ -210,7 +210,7 @@ Here is a list of modules that should be enabled for the system to run properly:
   </tr>
   <tr>
     <td>Contexts</td>
-    <td>wh_contexts</td>
+    <td>wtp_contexts</td>
     <td>Enabled</td>
   </tr>
   <tr>

@@ -1,0 +1,190 @@
+<?php
+
+/**
+ * @file
+ * Custom blocks for petitions.
+ */
+
+/**
+ * Implements hook_block_configure().
+ */
+function petitions_blocks_block_configure($delta = '') {
+  $form = array();
+
+  if ($delta == 'how_petitions_work_block') {
+    $i = 1;
+    $field_groups = _petitions_blocks_how_petitions_work_block_fields();
+
+    foreach ($field_groups as $group => $fields) {
+      $title_field = $fields['title'];
+      $description_field = $fields['description'];
+      $form[$group] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Configure step @i', array('@i' => $i)),
+        $title_field => array(
+          '#type' => 'textfield',
+          '#title' => t('Step Title'),
+          '#default_value' => variable_get("{$group}_{$title_field}", ''),
+        ),
+        $description_field => array(
+          '#type' => 'textarea',
+          '#title' => t('Step Description'),
+          '#default_value' => variable_get("{$group}_{$description_field}", ''),
+        ),
+      );
+      $i++;
+    }
+
+    // Settings for the block's "more" link.
+    $form['how_petitions_work_additional'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('More Information Link'),
+      '#description' => t('Enter link text and url to display a \'more information\' link with this block. To disable the link, leave these fields blank.'),
+      'more_link_text' => array(
+        '#type' => 'textfield',
+        '#title' => t('Link Text'),
+        '#default_value' => variable_get('how_petitions_work_additional_more_link_text', ''),
+      ),
+      'more_link_url' => array(
+        '#type' => 'textfield',
+        '#title' => t('Link URL'),
+        '#description' => t('The path for the \'more\' link. This can be an internal Drupal path such as node/1 or an external URL such as http://drupal.org. Enter <front> to link to the front page.'),
+        '#default_value' => variable_get('how_petitions_work_additional_more_link_url', ''),
+        '#element_validate' => array('_petitions_blocks_valid_url'),
+      )
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function petitions_blocks_block_save($delta = '', $edit = array()) {
+  if ($delta == 'how_petitions_work_block') {
+    $field_groups = _petitions_blocks_how_petitions_work_block_fields();
+    foreach ($field_groups as $group => $fields) {
+      $title_field = $fields['title'];
+      $description_field = $fields['description'];
+      variable_set("{$group}_{$title_field}", $edit[$title_field]);
+      variable_set("{$group}_{$description_field}", $edit[$description_field]);
+    }
+
+    variable_set('how_petitions_work_additional_more_link_text', $edit['more_link_text']);
+    variable_set('how_petitions_work_additional_more_link_url', $edit['more_link_url']);
+
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function petitions_blocks_block_info() {
+  $blocks = array();
+
+  $blocks['how_petitions_work_block'] = array(
+    'info' => t('How petitions Work'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+
+  $blocks['wh_footer_logo'] = array(
+    'info' => t('White House Footer Logo'),
+    'cache' => DRUPAL_CACHE_GLOBAL
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function petitions_blocks_block_view($delta = '') {
+  $block = array();
+
+  if ($delta == 'how_petitions_work_block') {
+    $list_items = '';
+    $field_groups = _petitions_blocks_how_petitions_work_block_fields();
+
+    foreach ($field_groups as $group => $fields) {
+      $title = variable_get("{$group}_{$fields['title']}");
+      $description = variable_get("{$group}_{$fields['description']}");
+      $list_items .= "<div><h3>{$title}</h3><p>{$description}</p></div>";
+    }
+
+    $more_link_text = variable_get('how_petitions_work_additional_more_link_text', FALSE);
+    $more_link_url = variable_get('how_petitions_work_additional_more_link_url', FALSE);
+
+    $block['content'] = array(
+      '#theme_wrappers' => array('container'),
+      'content' => array(
+        '#type' => 'markup',
+        '#markup' => $list_items,
+      ),
+      '#attributes' => array('class' => 'how-petitions-work-content')
+    );
+
+    if (!empty($more_link_text)) {
+      $more_link_parts = preg_split('/#/', $more_link_url);
+      if (count($more_link_parts) > 1) {
+        $link = l($more_link_text, $more_link_parts[0], array('fragment' => $more_link_parts[1]));
+      }
+      else {
+        $link = l($more_link_text, $more_link_parts[0]);
+      }
+      $block['content']['#suffix'] = "<div class=\"how-petitions-work-more-link\">{$link}</div>";
+    }
+  }
+
+  if ($delta == 'wh_footer_logo') {
+    $block['content'] = array(
+      '#theme' => 'wh_logo_block',
+    );
+  }
+
+  return $block;
+}
+
+/**
+ * Defines names of the configurable fields on the How Petitions Work block.
+ *
+ * @return array
+ *   An array of field groups and field names.
+ */
+function _petitions_blocks_how_petitions_work_block_fields() {
+  $fields = array();
+
+  for ($i = 1; $i <= 3; $i++) {
+    $fields["how_petitions_work_step_{$i}"] = array(
+      'title' => "step_{$i}_title_text",
+      'description' => "step_{$i}_description_text"
+    );
+  }
+
+  return $fields;
+}
+
+function _petitions_blocks_valid_url($element) {
+  // Determine if the supplied path is a valid path alias. If not,
+  // drupal_valid_path will return true for both an external URL or a valid
+  // system path.
+  $valid_path = drupal_lookup_path('source', $element['#value']) || drupal_valid_path($element['#value']);
+  if (!$valid_path) {
+    form_set_error($element['#name'], t('@url is not a valid url', array('@url' => $element['#value'])));
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function petitions_blocks_theme($existing, $type, $theme, $path) {
+  $items = array();
+
+  $items['wh_logo_block'] = array(
+    'variables' => array(),
+    'path' => drupal_get_path('module', 'petitions_blocks') . '/theme',
+    'template' => 'wh-footer-logo',
+  );
+
+  return $items;
+}

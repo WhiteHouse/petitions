@@ -31,7 +31,8 @@ function _signatures_queue_create_job_id($workflow, $server_name, $worker_name) 
  *
  * Example usage:
  * @code
- * $watchdog_suffix = _signatures_queue_watchdog_suffix('initiate_signature_validation', $job_id, $server_name, $worker_name);
+ * $watchdog_suffix = _signatures_queue_watchdog_suffix(
+ *   'initiate_signature_validation', $job_id, $server_name, $worker_name);
  * watchdog('signatures_queue', 'Performed example action. @suffix', array(
  *   '@suffix' => $watchdog_suffix,
  * ), WATCHDOG_INFO);
@@ -161,66 +162,6 @@ function _signatures_queue_notify_admin_text($part, $language, $params) {
       }
       return $body;
   }
-}
-
-/**
- * Find out when queue(s) were last emptied.
- *
- * @param string $name
- *   (Optional) The machine name of a signatures queue.
- *
- * @return array
- *   Returns array keyed by queue name(s). Value is a timestamp of when queue
- *   was last emptied.
- */
-function _signatures_queue_check_empty($name = NULL) {
-  $last_emptied = array();
-
-  // If a queue name was specified, check only that queue.
-  if ($name) {
-    $queue_names = array($name);
-  }
-  // Otherwise, check all queues.
-  else {
-    $queue_names = array_keys(signatures_queue_get_queue_names());
-  }
-
-  foreach ($queue_names as $queue_name) {
-    if (!SignaturesQueue::isValidQueueName($queue_name)) {
-      continue;
-    }
-
-    // Make sure every queue exists. There is no harm in trying to recreate an
-    // existing queue.
-    $queue = SignaturesQueue::get($queue_name);
-    $queue->createQueue();
-
-    $now = time();
-    $num_items = $queue->numberOfItems();
-    _signatures_queue_data_store_size_event($queue_name, $num_items);
-
-    // For any empty queue, updated corresponding last_emptied variable.
-    if ($num_items == 0) {
-      $last_emptied[$queue_name] = $now;
-      variable_set('signatures_queue_' . $queue_name . '_last_emptied', $now);
-    }
-    // Otherwise, get existing last_emptied variable for later comparison.
-    else {
-      $last_emptied[$queue_name] = variable_get('signatures_queue_' . $queue_name . '_last_emptied', 0);
-    }
-  }
-
-  // If all queues were checked, update signatures_queue_oldest_emptied.
-  if (!$name) {
-    $oldest_emptied = min($last_emptied);
-    variable_set('signatures_queue_oldest_emptied', $oldest_emptied);
-    watchdog('signatures_queue', 'Empty check was performed on all signature queues and logged. Oldest emptied queue was logged as @oldest_emptied.', array('@oldest_emptied' => $oldest_emptied));
-  }
-  else {
-    watchdog('signatures_queue', 'Empty check was performed on @queue_name queue and logged.', array('@queue_name' => $name));
-  }
-
-  return $last_emptied;
 }
 
 /**

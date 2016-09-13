@@ -5,12 +5,9 @@ package = White House Custom
 
 stylesheets[all][] = wh_core.css
 
-dependencies[] = rules
 dependencies[] = logintoboggan
-dependencies[] = logintoboggan_rules
 dependencies[] = petitions_logintoboggan_settings
 dependencies[] = wh_zipcodelookup
 dependencies[] = wh_user_profile
 dependencies[] = captcha
-dependencies[] = petitions_user_registration
 dependencies[] = wh_user_ss_data

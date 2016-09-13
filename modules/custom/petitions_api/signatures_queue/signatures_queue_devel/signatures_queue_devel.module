@@ -5,7 +5,7 @@
  * Generate devel content for working on the signature queue system.
  */
 
-
+define('SIGNATURES_QUEUE_DEVEL_ARCHIVE_BATCH', 1000);
 /**
  * Implements hook_menu().
  */
@@ -41,24 +41,10 @@ function signatures_queue_devel_menu() {
  *   (optional) The unique identifier for the petition to generate items for.
  *   Defaults to NULL.
  */
-function signatures_queue_devel_generate($queue_names, $number = 10, $delete_first = FALSE, $num_to_match = 0, $petition_id = NULL) {
+function signatures_queue_devel_queue_generate($queue_names, $number = 10, $delete_first = FALSE, $num_to_match = 0, $petition_id = NULL) {
   // Remove all items first.
   if ($delete_first) {
-    foreach ($queue_names as $queue_name) {
-      $queue = SignaturesQueueDevel::get($queue_name);
-      // There is no harm in trying to recreate existing.
-      $queue->createQueue();
-      $count = $queue->numberOfItems();
-      // @todo This causes a problem when using AWS SQS as a queue backend,
-      //   because there's a 60-120 second period after deleting a queue during
-      //   which you can't add items back into it. Deleting an SQS queue
-      //   immediately before creating new items here will cause a fatal error.
-      $queue->deleteQueue();
-      $text = t('@name: This queue was deleted with @count items remaining in it.',
-        array('@name' => $queue_name, '@count' => $count)
-      );
-      drupal_set_message($text);
-    }
+    signatures_queue_devel_delete_queues($queue_names);
   }
 
   $queue = array();
@@ -119,4 +105,450 @@ function signatures_queue_devel_generate($queue_names, $number = 10, $delete_fir
     drupal_set_message($text);
   }
 
+}
+
+/**
+ * A wrapper for signature_queue_get_queue_names().
+ *
+ * Filters invalid queue names.
+ *
+ * @return array
+ *   An array of queue names.
+ */
+function signature_queue_devel_get_queue_names() {
+  $queues = signatures_queue_get_queue_names();
+  $real_queues = array();
+  foreach ($queues as $name => $description) {
+    if (SignaturesQueue::isValidQueueName($name)) {
+      $real_queues[$name] = $name;
+    }
+  }
+
+  return $real_queues;
+}
+
+/**
+ * Deletes a queue (effectively purging its contents).
+ *
+ * @param array $queue_names
+ *   An array of queue names to delete.
+ */
+function signatures_queue_devel_delete_queues($queue_names) {
+  foreach ($queue_names as $queue_name) {
+    $queue = SignaturesQueueDevel::get($queue_name);
+    // There is no harm in trying to recreate existing.
+    $queue->createQueue();
+    $count = $queue->numberOfItems();
+    if (!$count > 0) {
+      continue;
+    }
+
+    // @todo This causes a problem when using AWS SQS as a queue backend,
+    //   because there's a 60-120 second period after deleting a queue during
+    //   which you can't add items back into it. Deleting an SQS queue
+    //   immediately before creating new items here will cause a fatal error.
+    $queue->deleteQueue();
+    $text = t('@name: This queue was deleted with @count items remaining in it.',
+      array('@name' => $queue_name, '@count' => $count)
+    );
+    drupal_set_message($text);
+  }
+}
+
+/**
+ * Generates validations for items in the signature_pending_validation table.
+ *
+ * If the signature in the signature_pending_validation table is missing a
+ * secret key (as is the case with records generated through the signatures
+ * queue devel module) the signature will also be updated.
+ *
+ * @return array
+ *   A summary of the signatures updated and validated.
+ */
+function _signatures_queue_devel_generate_signature_validations() {
+
+  $updated_count = 0;
+  $validated_count = 0;
+
+  $signatures_missing_validation = db_select('signatures_pending_validation_queue', 's')
+    ->fields('s', array(
+      'secret_validation_key',
+      'petition_id',
+      'timestamp_validation_close',
+      ))
+    ->where('s.secret_validation_key NOT IN(select secret_validation_key from pending_validations_queue)')
+    ->execute();
+
+  // Add validations for signatures that need them.
+  while ($validation = $signatures_missing_validation->fetchAssoc()) {
+    // Generate a random ip address and assign it to the validation.
+    $validation['client_ip'] = mt_rand(0, 255) . "." . mt_rand(0, 255) . "." . mt_rand(0, 255) . "." . mt_rand(0, 255);
+    $validation['timestamp_received_signature_validation'] = time();
+    if (!$validation['secret_validation_key']) {
+      $secret_validation_key = md5(time());
+      $validation['secret_validation_key'] = $secret_validation_key;
+
+      // Update the signature to include the missing secret_validation_key.
+      db_update('signatures_pending_validation_queue', 's')
+        ->fields('s', array(
+          'secret_validation_key' => $secret_validation_key,
+        ))
+        ->execute();
+      $updated_count++;
+    }
+
+    db_insert('pending_validations_queue')
+      ->fields($validation)
+      ->execute();
+    $validated_count++;
+  }
+
+  return array(
+    'updated_count' => $updated_count,
+    'validated_count' => $validated_count,
+  );
+}
+
+/**
+ * Generate signatures in the database table `signatures_pending_validation`.
+ *
+ * @param array $tables
+ *   An array of table names in which to insert generated data.
+ * @param int $count
+ *   The number of records to generate.
+ * @param array $overrides
+ *   An associative array of signatory values to override.
+ */
+function signatures_queue_devel_table_generate(array $tables, $count = 10, $overrides = array()) {
+  signatures_queue_set_db();
+
+  foreach ($tables as $table) {
+    // Generate items.
+    for ($i = 0; $i < $count; $i++) {
+      $item = SignaturesQueueDevel::getDummyItem($table, $overrides);
+      db_insert($table)
+        ->fields($item)
+        ->execute();
+    }
+
+    $message = t('@name: @number items have been created.',
+      array('@name' => $table, '@number' => $count)
+    );
+    drupal_set_message($message);
+  }
+
+  db_set_active();
+}
+
+/**
+ * Archive expired validations and/or signatures.
+ *
+ * @param bool $skip_expired_validations
+ *   Set to TRUE to skip archiving expired validations.
+ * @param bool $skip_expired_signatures
+ *   Set to TRUE to skip archiving expired signatures.
+ */
+function signatures_queue_devel_archive($skip_expired_validations = FALSE, $skip_expired_signatures = FALSE) {
+  $age_threshold = _signatures_queue_devel_get_age_threshold();
+  $validations_table = 'validations';
+  $signatures_table = 'signatures_pending_validation';
+
+  if (!$skip_expired_validations) {
+    $expired_validations = _signatures_queue_devel_get_expired_records($validations_table, $age_threshold);
+    $archived_validations = _signatures_queue_devel_archive_records($validations_table, $expired_validations);
+    $deleted_validations = _signatures_queue_devel_delete_records($validations_table, 'secret_validation_key', $archived_validations);
+  }
+
+  if (!$skip_expired_signatures) {
+    $expired_signatures = _signatures_queue_devel_get_expired_records($signatures_table, $age_threshold);
+    $archived_signatures = _signatures_queue_devel_archive_records($signatures_table, $expired_signatures);
+    $deleted_signatures = _signatures_queue_devel_delete_records($signatures_table, 'secret_validation_key', $archived_signatures);
+  }
+}
+
+/**
+ * Get the maximum age of valid signatures and signature validations.
+ *
+ * Based on the value of 'signatures_queue_minimum_signature_lifetime',
+ * which should be set to a value accepted by strtotime such as '2 weeks' or
+ * '5 days' etc.
+ *
+ * @return int
+ *   A unix timestring representing the maximum valid signature age.
+ */
+function _signatures_queue_devel_get_age_threshold() {
+  $maximum_signature_lifetime = '-' . variable_get('signatures_queue_minimum_signature_lifetime', '2 weeks');
+  return strtotime($maximum_signature_lifetime, time());
+}
+
+/**
+ * Query to get expired validations or signatures.
+ *
+ * Queries for any validations or signatures older than a certain age,
+ * determined by the $age_threshold argument.
+ *
+ * @param string $table_name
+ *   Name of table to query.
+ * @param int $age_threshold
+ *   A timestring representing the maximum age of a valid signature.
+ *
+ * @return array
+ *   A summary of the signatures archived.
+ */
+function _signatures_queue_devel_get_expired_records($table_name, $age_threshold = NULL, $get_count = FALSE) {
+  signatures_queue_set_db();
+
+  if (!$age_threshold) {
+    $age_threshold = _signatures_queue_devel_get_age_threshold();
+  }
+
+  module_load_install('signatures_queue');
+  $archive_schemas = _signatures_queue_archive_schema_tables();
+  switch ($table_name) {
+    case 'validations':
+      $fields = array_keys($archive_schemas['validations_orphaned_archive']['fields']);
+      $condition = 'timestamp_received_signature_validation';
+      $primary_key = 'vid';
+      break;
+
+    case 'signatures_pending_validation':
+      $fields = array_keys($archive_schemas['signatures_not_validated_archive']['fields']);
+      $condition = 'timestamp_initiated_signature_validation';
+      $primary_key = 'sid';
+      break;
+
+    default:
+      $message = dt('Invalid table name passed to _signatures_queue_devel_get_expired_records: @table_name table.', array('@table_name' => $table_name));
+      drush_print($message);
+      return NULL;
+  }
+
+  // Query to select records that are older than the maximum signature lifetime.
+  $query = db_select($table_name, 'a');
+  $query
+    ->fields('a', $fields)
+    ->condition("a.{$condition}", $age_threshold, '<');
+
+  if (!$get_count) {
+    $limit = variable_get('signatures_queue_devel_archive_batch', SIGNATURES_QUEUE_DEVEL_ARCHIVE_BATCH);
+    $query->range(0, $limit);
+    $records = $query->execute()->fetchAllAssoc($primary_key);
+  }
+  else {
+    $records = $query->countQuery()->execute()->fetchField();
+  }
+
+  // Set the active database back to default.
+  db_set_active();
+
+  return $records;
+}
+
+/**
+ * Insert validations into an archive table.
+ *
+ * @param string $table_name
+ *   Table to insert into (validations or signatures_pending_validation).
+ * @param array $records
+ *   An array of validations or signatures, as retrieved from a db_select query.
+ *
+ * @return array
+ *   An array of secret_validation_key values for the archived validations rows.
+ */
+function _signatures_queue_devel_archive_records($table_name, $records) {
+
+  signatures_queue_set_db('signatures_archive');
+
+  $archive_table_name = ($table_name == 'validations') ? 'validations_orphaned_archive' : 'signatures_not_validated_archive';
+  $archived = array();
+
+  // Add validations for signatures that need them.
+  while ($record = array_pop($records)) {
+
+    try {
+      db_insert($archive_table_name)
+        ->fields((array) $record)
+        ->execute();
+      $archived[] = $record->secret_validation_key;
+    }
+    catch (PDOException $e) {
+      $message = dt('_signatures_queue_devel_archive_records() - Could not insert row with secret_validation_key: @key into @table_name, Exception: @e',
+        array(
+          '@archive_table_name' => $table_name,
+          '@key' => $record->secret_validation_key,
+          '@e' => $e->getMessage(),
+        )
+      );
+      drush_print($message);
+    }
+  }
+
+  // Set the active database back to default.
+  db_set_active();
+
+  $message = dt('@count records inserted into the @archive_table_name table.', array('@count' => count($archived), '@archive_table_name' => $archive_table_name));
+  drush_print($message);
+
+  return $archived;
+}
+
+/**
+ * Delete rows from table in signatures_processing db.
+ *
+ * @param string $table_name
+ *   Table name to delete from.
+ * @param string $key
+ *   Key to use as condition for deletion.
+ * @param array $key_values
+ *   An array of IDs for $key to delete.
+ *
+ * @return int
+ *   Count of deleted records.
+ */
+function _signatures_queue_devel_delete_records($table_name, $key, $key_values) {
+
+  signatures_queue_set_db();
+  $deleted_records = 0;
+
+  // Delete rows from table that match $key_values.
+  if (count($key_values)) {
+    $deleted_records = db_delete($table_name)
+      ->condition($key, $key_values, 'IN')
+      ->execute();
+  }
+
+  $message = dt('@count records deleted from @table_name table.', array('@count' => $deleted_records, '@table_name' => $table_name));
+  drush_print($message);
+
+  db_set_active();
+
+  return $deleted_records;
+}
+/**
+ * Get signatures_pending_validation and validations rows to migrate.
+ *
+ * @param bool|FALSE $signatures_pending_validations
+ *   Set to TRUE for signatures_pending_validations, FALSE for validations.
+ *
+ * @param bool|FALSE $get_count
+ *   If TRUE, will return count of rows to be migrated for table.
+ *
+ * @return mixed
+ *   Array of row data or int of row count.
+ */
+function _signatures_queue_devel_migrate_get_records($signatures_pending_validations = FALSE, $get_count = FALSE) {
+  module_load_install('signatures_queue');
+  if ($signatures_pending_validations) {
+    $schema = _signatures_queue_get_signatures_schema();
+    $table_name = 'signatures_pending_validation';
+    $primary_key = 'sid';
+  }
+  else {
+    $schema = _signatures_queue_get_validations_schema();
+    $table_name = 'validations';
+    $primary_key = 'vid';
+  }
+  $fields = array_keys($schema['fields']);
+
+  signatures_queue_set_db();
+
+  // Query all rows.
+  $query = db_select($table_name, 'a')->fields('a', $fields);
+
+  if (!$get_count) {
+    $limit = variable_get('signatures_queue_devel_archive_batch', SIGNATURES_QUEUE_DEVEL_ARCHIVE_BATCH);
+    $query->range(0, $limit);
+    $records = $query->execute()->fetchAllAssoc($primary_key);
+    $message = dt('...@count records selected for migration from @table_name table.', array('@count' => count($records), '@table_name' => $table_name));
+    drush_print($message);
+  }
+  else {
+    $records = $query->countQuery()->execute()->fetchField();
+  }
+
+  db_set_active();
+
+  return $records;
+}
+
+/**
+ * Migrate signatures_pending_validation and validations tables.
+ *
+ * @param array $records
+ *   Rows to move into queue/new table.
+ *
+ * @param bool|FALSE $signatures_pending_validations
+ *   Set to TRUE for signatures_pending_validations, FALSE for validations.
+ *
+ * @return array
+ *   Array of rows migrated.
+ */
+function _signatures_queue_devel_migrate_table($records, $signatures_pending_validations = FALSE) {
+  $validations = array();
+
+  if ($records) {
+    if ($signatures_pending_validations) {
+      $table_name = 'signatures_pending_validation';
+    }
+    else {
+      $table_name = 'validations';
+    }
+
+    if ($signatures_pending_validations) {
+      /**
+       * @var SignatureValidationProcessorQueue $queue
+       */
+      // Get the queue.
+      $queue = SignaturesQueue::get('signature_validation_processor_queue');
+      $queue->createQueue();
+      foreach ($records as $record) {
+        $result = $queue->createItem((array) $record);
+        if ($result) {
+          $validations[] = $record->sid;
+        }
+      }
+    }
+    else {
+      // For validations, move to primary db pending_validations_queue table.
+      foreach ($records as $record) {
+        try {
+          db_insert('pending_validations_queue')
+            ->fields((array) $record)
+            ->execute();
+          $validations[] = $record->vid;
+        }
+        catch (Exception $e) {
+          $message = dt('Exception inserting into @table table: @e', array(
+            '@table_name' => $table_name,
+            '@e' => $e->getMessage(),
+          ));
+          drush_print($message);
+        }
+      }
+    }
+  }
+  return $validations;
+}
+
+
+/**
+ * Loop and migrate signatures_pending_validation and validations.
+ *
+ * @param bool $skip_signatures_pending_validation
+ *   Set to TRUE to skip migrating signatures_pending_validation.
+ * @param bool $skip_validations
+ *   Set to TRUE to skip migrating validations.
+ */
+function signatures_queue_devel_migrate($skip_signatures_pending_validation = FALSE, $skip_validations = FALSE) {
+  if (!$skip_signatures_pending_validation) {
+    $signatures_pending_validation = _signatures_queue_devel_migrate_get_records(TRUE, FALSE);
+    $migrated_rows = _signatures_queue_devel_migrate_table($signatures_pending_validation, TRUE);
+    $deleted_rows = _signatures_queue_devel_delete_records('signatures_pending_validation', 'sid', $migrated_rows);
+  }
+
+  if (!$skip_validations) {
+    $validation = _signatures_queue_devel_migrate_get_records(FALSE, FALSE);
+    $migrated_rows = _signatures_queue_devel_migrate_table($validation, FALSE);
+    $deleted_rows = _signatures_queue_devel_delete_records('validations', 'vid', $migrated_rows);
+  }
 }

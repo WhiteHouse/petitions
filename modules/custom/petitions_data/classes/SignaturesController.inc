@@ -126,7 +126,7 @@ class SignaturesController {
     // Otherwise log failure.
     else {
       watchdog('petitions_data', 'Failed to save signature to MongoDB in SignaturesController::saveToMongo: !entity', array(
-        '!entity' => petitionslog_format_for_watchdog($signature->toEntity()),
+        '!entity' => petition_format_for_watchdog($signature->toEntity()),
       ));
     }
 
@@ -161,8 +161,8 @@ class SignaturesController {
     }
     catch (Exception $e) {
       watchdog('petitions_data', 'Failed to save signature to MySQL in SignaturesController::saveToMySQL. Signature: !entity Exception: !exception', array(
-        '!entity' => petitionslog_format_for_watchdog($entity),
-        '!exception' => petitionslog_format_for_watchdog($e),
+        '!entity' => petition_format_for_watchdog($entity),
+        '!exception' => petition_format_for_watchdog($e),
       ));
       return $signature;
     }
@@ -174,7 +174,7 @@ class SignaturesController {
     // Otherwise log failure.
     else {
       watchdog('petitions_data', 'Failed to save signature to MySQL in SignaturesController::saveToMySQL. Signature: !entity', array(
-        '!entity' => petitionslog_format_for_watchdog($entity),
+        '!entity' => petition_format_for_watchdog($entity),
       ));
     }
 

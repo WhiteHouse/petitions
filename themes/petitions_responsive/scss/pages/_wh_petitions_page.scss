@@ -1,0 +1,14 @@
+.node-type-wh-petitions-page {
+  #content-top {
+    h1.title {
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+  .field-name-field-page-intro {
+    @include plead();
+    p {
+      @include plead();
+    }
+  }
+}

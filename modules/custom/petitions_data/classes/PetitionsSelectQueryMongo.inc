@@ -51,7 +51,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       $collection = mongodb_collection('petitions');
     }
     catch (Exception $e) {
-      petitionslog_event('exception.petitions_data.e54cea3');
+      logger_event('exception.petitions_data.e54cea3');
     }
     $this->setCollection($collection);
     $this->setOrderBy(self::SELECT_QUERY_ORDER_BY_FIELD_DATE_CREATED, self::SELECT_QUERY_ORDER_BY_DESC);
@@ -199,7 +199,7 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       $petition->setLegacyId($this->formatReturnId($doc['_id']))
         ->setTitle($doc['title'])
         ->setBody($doc['body'])
-        ->setIssues($this->formatReturnIssues($doc['issues']))
+        ->setIssues($this->formatReturnTerms($doc['issues']))
         ->setSignatureThreshold($doc['response_signatures'])
         ->setSignatureCount($doc['signature_count'])
         ->setNiceUrl($this->formatReturnUrl($doc['nice_url']))
@@ -525,8 +525,10 @@ class PetitionsSelectQueryMongo extends PetitionsSelectQuery {
       // Request is for petitions that are NOT public.
       // Non-public petitions are not available through the index api.
       // Return access denied with a message.
-      $developer_message = t('You need a petition ID or URL to access non-public petitions.');
-      api_errors_throw_error(403, $developer_message);
+      $error_code = 86;
+      list($status_code, $developer_message, $user_message, $more_info) = api_errors_error_code_information($error_code);
+      api_errors_throw_error($status_code, $developer_message, $user_message, $more_info, $error_code);
+
     }
   }
 

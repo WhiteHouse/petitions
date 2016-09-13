@@ -1,0 +1,51 @@
+/**
+ * Config
+ * ---------
+ * For complete documentation:
+ * http://sass-lang.com/docs/yardoc/file.scss_REFERENCE.html#variables_
+ *
+ * Available functions:
+ * http://sass-lang.com/docs/yardoc/Sass/Script/Functions.html
+ *
+ * For complete documentation:
+ * http://sass-lang.com/docs/yardoc/file.scss_REFERENCE.html#variables_
+ *
+ * Available variables:
+ * SASS:				http://sass-lang.com/docs/yardoc/file.scss_REFERENCE.html#variables_
+ * Bourbon:				http://bourbon.io/docs/
+ */
+
+// Display a visual grid when true.
+ $visual-grid: false;
+ $visual-grid-color: #EEEEEE;
+
+// Set to false if you'd like to remove the responsiveness.
+$responsive: true;
+
+// Define column, grid, and gutter settings.
+$grid-columns: 8;
+$desktop-grid-columns: 12;
+$column: 70px;
+$gutter: 30px;
+$gutter-outer: $gutter/2;
+$gutter-outer-desktop: $gutter;
+
+// Define variables for vertical spacing between layout regions.
+$vertical-padding: 40px;
+$vertical-padding-desktop: 60px;
+
+// Elements from which to strip margins in mixin reset-text-margins() mixin.
+$text-reset-elements: ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', '.block');
+
+// We set the max width of the page using the px to em function in Bourbon.
+// the first value is the pixel value of the width and the second is the base font size of your theme.
+// In this instance we want the max width to be 1088px and on Line 6 of style.scss we have reset the base
+// font size to 13px so the first value would be 1088 and the second 13
+// ex. em(1088, 13)
+$font-size: 16px;
+$max-width-px: 1280px;
+$max-width: em($max-width-px, $font-size);
+
+// Define breakpoints here.
+$desktop: new-breakpoint(min-width em(720px, $font-size) $desktop-grid-columns);
+$mobile-max-width:  new-breakpoint(max-width em(719px, $font-size) $grid-columns);

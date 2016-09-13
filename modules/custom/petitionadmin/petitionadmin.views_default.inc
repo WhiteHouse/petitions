@@ -211,7 +211,7 @@ function petitionadmin_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['empty'] = TRUE;
   $handler->display->display_options['header']['area_text_custom']['content'] = '<ul class="action-links">
 <li>
-<a href="/node/add/petition">Create new petition</a>
+<a href="/petition/create">Create new petition</a>
 </li>
 </ul>
 <hr />
@@ -697,14 +697,17 @@ Please submit the filters to get your first result set.';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['path'] = 'admin/content/petitions';
-  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['path'] = 'admin/petitions';
   $handler->display->display_options['menu']['title'] = 'Petitions';
   $handler->display->display_options['menu']['description'] = 'Petitions management index';
-  $handler->display->display_options['menu']['weight'] = '5';
+  $handler->display->display_options['menu']['weight'] = '1';
   $handler->display->display_options['menu']['name'] = 'management';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['title'] = 'Petitions';
+  $handler->display->display_options['tab_options']['description'] = 'Petitions Management';
+  $handler->display->display_options['tab_options']['weight'] = '1';
+  $handler->display->display_options['tab_options']['name'] = 'petitions-menu';
   $export['petitionadmin'] = $view;
 
   $view = new view();
@@ -900,12 +903,6 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['fields']['id']['field'] = 'id';
   $handler->display->display_options['fields']['id']['exclude'] = TRUE;
   $handler->display->display_options['fields']['id']['separator'] = '';
-  /* Field: Signature Mail: Legacy_id */
-  $handler->display->display_options['fields']['legacy_id']['id'] = 'legacy_id';
-  $handler->display->display_options['fields']['legacy_id']['table'] = 'signature_mail';
-  $handler->display->display_options['fields']['legacy_id']['field'] = 'legacy_id';
-  $handler->display->display_options['fields']['legacy_id']['label'] = 'Legacy ID';
-  $handler->display->display_options['fields']['legacy_id']['exclude'] = TRUE;
   /* Field: Signature Mail: Petition_id */
   $handler->display->display_options['fields']['petition_id']['id'] = 'petition_id';
   $handler->display->display_options['fields']['petition_id']['table'] = 'signature_mail';
@@ -913,21 +910,13 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['fields']['petition_id']['label'] = 'Petition ID';
   $handler->display->display_options['fields']['petition_id']['exclude'] = TRUE;
   $handler->display->display_options['fields']['petition_id']['separator'] = '';
-  /* Field: Signature Mail: Legacy_petition_id */
-  $handler->display->display_options['fields']['legacy_petition_id']['id'] = 'legacy_petition_id';
-  $handler->display->display_options['fields']['legacy_petition_id']['table'] = 'signature_mail';
-  $handler->display->display_options['fields']['legacy_petition_id']['field'] = 'legacy_petition_id';
-  $handler->display->display_options['fields']['legacy_petition_id']['label'] = 'Legacy Petition ID';
-  $handler->display->display_options['fields']['legacy_petition_id']['exclude'] = TRUE;
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = 'Unique Identifiers';
   $handler->display->display_options['fields']['nothing']['alter']['text'] = '<strong>ID:</strong> [id]<br />
-<strong>Legacy ID:</strong> [legacy_id]<br />
-<strong>Petition ID:</strong> [petition_id]<br />
-<strong>Legacy Petition ID:</strong> [legacy_petition_id]<br />';
+<strong>Petition ID:</strong> [petition_id]<br />';
   /* Field: User: Uid */
   $handler->display->display_options['fields']['uid']['id'] = 'uid';
   $handler->display->display_options['fields']['uid']['table'] = 'users';
@@ -1004,60 +993,6 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['arguments']['petition_id']['validate']['type'] = 'node';
   $handler->display->display_options['arguments']['petition_id']['validate_options']['types'] = array(
     'petition' => 'petition',
-  );
-  /* Filter criterion: Signature Mail: Legacy_id */
-  $handler->display->display_options['filters']['legacy_id']['id'] = 'legacy_id';
-  $handler->display->display_options['filters']['legacy_id']['table'] = 'signature_mail';
-  $handler->display->display_options['filters']['legacy_id']['field'] = 'legacy_id';
-  $handler->display->display_options['filters']['legacy_id']['group'] = 1;
-  $handler->display->display_options['filters']['legacy_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['legacy_id']['expose']['operator_id'] = 'legacy_id_op';
-  $handler->display->display_options['filters']['legacy_id']['expose']['label'] = 'Legacy ID';
-  $handler->display->display_options['filters']['legacy_id']['expose']['operator'] = 'legacy_id_op';
-  $handler->display->display_options['filters']['legacy_id']['expose']['identifier'] = 'legacy_id';
-  $handler->display->display_options['filters']['legacy_id']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    4 => 0,
-    5 => 0,
-    6 => 0,
-    7 => 0,
-    8 => 0,
-    9 => 0,
-    10 => 0,
-    11 => 0,
-    12 => 0,
-    13 => 0,
-    14 => 0,
-    15 => 0,
-    3 => 0,
-  );
-  /* Filter criterion: Signature Mail: Legacy_petition_id */
-  $handler->display->display_options['filters']['legacy_petition_id']['id'] = 'legacy_petition_id';
-  $handler->display->display_options['filters']['legacy_petition_id']['table'] = 'signature_mail';
-  $handler->display->display_options['filters']['legacy_petition_id']['field'] = 'legacy_petition_id';
-  $handler->display->display_options['filters']['legacy_petition_id']['group'] = 1;
-  $handler->display->display_options['filters']['legacy_petition_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['legacy_petition_id']['expose']['operator_id'] = 'legacy_petition_id_op';
-  $handler->display->display_options['filters']['legacy_petition_id']['expose']['label'] = 'Legacy Petition ID';
-  $handler->display->display_options['filters']['legacy_petition_id']['expose']['operator'] = 'legacy_petition_id_op';
-  $handler->display->display_options['filters']['legacy_petition_id']['expose']['identifier'] = 'legacy_petition_id';
-  $handler->display->display_options['filters']['legacy_petition_id']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    4 => 0,
-    5 => 0,
-    6 => 0,
-    7 => 0,
-    8 => 0,
-    9 => 0,
-    10 => 0,
-    11 => 0,
-    12 => 0,
-    13 => 0,
-    14 => 0,
-    15 => 0,
-    3 => 0,
   );
   /* Filter criterion: Signature Mail: Signature mail ID */
   $handler->display->display_options['filters']['id']['id'] = 'id';
@@ -1286,6 +1221,7 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['filters']['ip_address']['table'] = 'signature_mail_fraud_data';
   $handler->display->display_options['filters']['ip_address']['field'] = 'ip_address';
   $handler->display->display_options['filters']['ip_address']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['ip_address']['group'] = 1;
   $handler->display->display_options['filters']['ip_address']['exposed'] = TRUE;
   $handler->display->display_options['filters']['ip_address']['expose']['operator_id'] = 'ip_address_op';
   $handler->display->display_options['filters']['ip_address']['expose']['label'] = 'IP Address (v4 or v6)';
@@ -1313,6 +1249,7 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['filters']['unsub_email']['table'] = 'signature_mail_fraud_data';
   $handler->display->display_options['filters']['unsub_email']['field'] = 'unsub_email';
   $handler->display->display_options['filters']['unsub_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['unsub_email']['group'] = 1;
   $handler->display->display_options['filters']['unsub_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['unsub_email']['expose']['operator_id'] = 'unsub_email_op';
   $handler->display->display_options['filters']['unsub_email']['expose']['label'] = 'Unsubaddressed Email';
@@ -1336,11 +1273,36 @@ Please submit the filters to get your first result set.';
     15 => 0,
     3 => 0,
   );
+  /* Filter criterion: Signature Mail Fraud Data: Email_domain */
+  $handler->display->display_options['filters']['email_domain']['id'] = 'email_domain';
+  $handler->display->display_options['filters']['email_domain']['table'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['email_domain']['field'] = 'email_domain';
+  $handler->display->display_options['filters']['email_domain']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['email_domain']['group'] = 1;
+  $handler->display->display_options['filters']['email_domain']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['email_domain']['expose']['operator_id'] = 'email_domain_op';
+  $handler->display->display_options['filters']['email_domain']['expose']['label'] = 'Email domain';
+  $handler->display->display_options['filters']['email_domain']['expose']['operator'] = 'email_domain_op';
+  $handler->display->display_options['filters']['email_domain']['expose']['identifier'] = 'email_domain';
+  $handler->display->display_options['filters']['email_domain']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
+  $handler->display->display_options['filters']['email_domain']['group_info']['label'] = 'Email_domain';
+  $handler->display->display_options['filters']['email_domain']['group_info']['identifier'] = 'email_domain';
+  $handler->display->display_options['filters']['email_domain']['group_info']['remember'] = FALSE;
+  $handler->display->display_options['filters']['email_domain']['group_info']['group_items'] = array(
+    1 => array(),
+    2 => array(),
+    3 => array(),
+  );
   /* Filter criterion: Signature Mail Fraud Data: Is_forwarding_email */
   $handler->display->display_options['filters']['is_forwarding_email']['id'] = 'is_forwarding_email';
   $handler->display->display_options['filters']['is_forwarding_email']['table'] = 'signature_mail_fraud_data';
   $handler->display->display_options['filters']['is_forwarding_email']['field'] = 'is_forwarding_email';
   $handler->display->display_options['filters']['is_forwarding_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_forwarding_email']['group'] = 1;
   $handler->display->display_options['filters']['is_forwarding_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['is_forwarding_email']['expose']['operator_id'] = 'is_forwarding_email_op';
   $handler->display->display_options['filters']['is_forwarding_email']['expose']['label'] = 'Is_forwarding_email';
@@ -1400,6 +1362,7 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['filters']['is_free_email']['table'] = 'signature_mail_fraud_data';
   $handler->display->display_options['filters']['is_free_email']['field'] = 'is_free_email';
   $handler->display->display_options['filters']['is_free_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_free_email']['group'] = 1;
   $handler->display->display_options['filters']['is_free_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['is_free_email']['expose']['operator_id'] = 'is_free_email_op';
   $handler->display->display_options['filters']['is_free_email']['expose']['label'] = 'Is_free_email';
@@ -1442,6 +1405,7 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['filters']['is_open_email']['table'] = 'signature_mail_fraud_data';
   $handler->display->display_options['filters']['is_open_email']['field'] = 'is_open_email';
   $handler->display->display_options['filters']['is_open_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_open_email']['group'] = 1;
   $handler->display->display_options['filters']['is_open_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['is_open_email']['expose']['operator_id'] = 'is_open_email_op';
   $handler->display->display_options['filters']['is_open_email']['expose']['label'] = 'Is_open_email';
@@ -1484,6 +1448,7 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['filters']['is_shredder_email']['table'] = 'signature_mail_fraud_data';
   $handler->display->display_options['filters']['is_shredder_email']['field'] = 'is_shredder_email';
   $handler->display->display_options['filters']['is_shredder_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_shredder_email']['group'] = 1;
   $handler->display->display_options['filters']['is_shredder_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['is_shredder_email']['expose']['operator_id'] = 'is_shredder_email_op';
   $handler->display->display_options['filters']['is_shredder_email']['expose']['label'] = 'Is_shredder_email';
@@ -1526,6 +1491,7 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['filters']['is_time_bound_email']['table'] = 'signature_mail_fraud_data';
   $handler->display->display_options['filters']['is_time_bound_email']['field'] = 'is_time_bound_email';
   $handler->display->display_options['filters']['is_time_bound_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_time_bound_email']['group'] = 1;
   $handler->display->display_options['filters']['is_time_bound_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['is_time_bound_email']['expose']['operator_id'] = 'is_time_bound_email_op';
   $handler->display->display_options['filters']['is_time_bound_email']['expose']['label'] = 'Is_time_bound_email';
@@ -1568,6 +1534,7 @@ Please submit the filters to get your first result set.';
   $handler->display->display_options['filters']['is_trash_email']['table'] = 'signature_mail_fraud_data';
   $handler->display->display_options['filters']['is_trash_email']['field'] = 'is_trash_email';
   $handler->display->display_options['filters']['is_trash_email']['relationship'] = 'signature_mail_fraud_data';
+  $handler->display->display_options['filters']['is_trash_email']['group'] = 1;
   $handler->display->display_options['filters']['is_trash_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['is_trash_email']['expose']['operator_id'] = 'is_trash_email_op';
   $handler->display->display_options['filters']['is_trash_email']['expose']['label'] = 'Is_trash_email';
@@ -1608,6 +1575,7 @@ Please submit the filters to get your first result set.';
 
   /* Display: Petition Signatures Admin */
   $handler = $view->new_display('block', 'Petition Signatures Admin', 'block_1');
+
   $export['petitionadmin_signatures'] = $view;
 
   return $export;

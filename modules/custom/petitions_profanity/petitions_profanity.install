@@ -1,0 +1,28 @@
+<?php
+/**
+ * @file
+ * Install file for petitions_profanity.
+ */
+
+/**
+ * PT-1761: Removing the is_profane module.
+ */
+function petitions_profanity_update_7001() {
+  $is_profane_terms = variable_get('is_profane_terms', '');
+  if ($is_profane_terms !== '') {
+    variable_set('petitions_profanity_profane_terms', $is_profane_terms);
+  }
+  variable_del('is_profane_terms');
+
+  $profanity_alert_text = variable_get('profanity_alert_text', '');
+  if ($profanity_alert_text !== '') {
+    variable_set('petitions_profanity_alert_text', $profanity_alert_text);
+  }
+  variable_del('profanity_alert_text');
+
+  db_delete('system')
+    ->condition('name', 'is_profane')
+    ->execute();
+
+  drupal_flush_all_caches();
+}

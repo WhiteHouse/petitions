@@ -1,0 +1,154 @@
+//Petition specific styles
+
+.attribution {
+  text-align: center;
+  margin-bottom: 90px;
+}
+
+.node-type-petition {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  // Petition preface, title, & attribution
+  #content-top {
+    h1.title {
+      margin-bottom: 10px;
+      padding: 0;
+    }
+
+    text-align: center;
+    .petition-preface,
+    .petition-attribution {
+      margin-bottom: 20px;
+    }
+
+    @include media($desktop) {
+      .petition-preface,
+      .petition-attribution {
+        margin-bottom: 30px;
+      }
+    }
+  }
+
+  #sidebar-top {
+    border-bottom: 1px solid $color-border;
+    margin-bottom: 40px;
+    @include media($desktop) {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+  }
+  #sidebar-bottom {
+    .petition-closed {
+      background-color: #DCE4EF;
+      text-align: center;
+    }
+  }
+
+  #content {
+    .content {
+      .field-name-body {
+        .field-item p {
+          @include media($desktop) {
+            @include plarge();
+          }
+        }
+      }
+      .petition-share-links {
+        margin: 20px 0 40px 0;
+        @include media($desktop) {
+          float: right;
+          margin: 30px $column 0 0;
+        }
+        &:last-child {
+          @include media($mobile-max-width) {
+            margin: 20px 0 0;
+          }
+        }
+      }
+      .field.field-name-field-petition-issues {
+        margin-top:40px;
+        @include media($desktop) {
+          float: left;
+          width: 70%;
+          margin-top: 30px;
+          margin-bottom:60px;
+          padding-right: 0;
+        }
+      }
+    }
+  }
+}
+.node-petition {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.node-petition.node-teaser {
+  @include clearfix();
+  padding: 20px 10px;
+  border: 1px solid $color-border;
+  .field-name-field-petition-issues {
+    margin: 0 0 20px;
+    @include media($desktop) {
+      margin: 0 0 6px;
+    }
+  }
+  h3 {
+    margin: 0 0 20px;
+    @include media($desktop) {
+      min-height: 65px;
+      margin: 0 0 16px;
+    }
+  }
+  .signatures-progress-bar{
+    float: left;
+    width: 100%;
+
+    @include media($desktop) {
+      width: 70%;
+    }
+  }
+  .goal-text-container {
+    margin-bottom: 0;
+  }
+  .more-link {
+    @include h6();
+    margin-top: 42px;
+    display: none;
+    @include media($desktop) {
+      display: block;
+    }
+    ul {
+      margin: 0;
+    }
+  }
+  @include media($desktop) {
+    padding: 30px 25px;
+    min-height: 200px;
+  }
+}
+
+
+.node-wh-response.node-teaser {
+  border: 2px solid $color-primary-darker;
+  padding: 20px 20px 40px;
+  position: relative;
+  @include reset-text-margins();
+  @include inset-border(2px, 1px, $color-primary-darker);
+  @include media($desktop) {
+    padding: 40px ($column - 2px);
+    margin-bottom: $vertical-padding-desktop;
+  }
+
+  h2 {
+    text-align: center;
+    margin: 0 0 20px;
+    padding: 0 0 20px;
+    border-bottom: 1px solid $color-border;
+    @include media($desktop) {
+      margin: 0 0 30px;
+      padding: 0 0 30px;
+    }
+  }
+}
