@@ -6,12 +6,9 @@ defaults[projects][subdir] = contrib
 ; Contrib Modules
 ; ==============================================================================
 
-projects[advanced_help][version] = 1.0
-
-projects[apachesolr][version] = 1.7
+projects[apachesolr][version] = 1.8
 projects[apachesolr][patch][1764352-2] = https://www.drupal.org/files/issues/decouple_cron-1764352-2.patch
-projects[apachesolr][patch][2457953] = https://www.drupal.org/files/issues/apachesolr-slow_queries_reindex-10.patch
-projects[apachesolr][patch][2459461] = https://www.drupal.org/files/issues/apache_solr_profiling-2459461-5.patch
+projects[apachesolr][patch][2457953] = https://www.drupal.org/files/issues/apachesolr-speedup-slow-select-query-2457953-18.patch
 projects[apachesolr][patch][2476229] = https://www.drupal.org/files/issues/apachesolr-solr_clear_batch-2476229-1.patch
 
 projects[captcha][version] = 1.0
@@ -28,11 +25,8 @@ projects[diff][version] = 3.2
 
 projects[efq_extra_field][download][type] = git
 projects[efq_extra_field][download][url] = http://git.drupal.org/project/efq_extra_field.git
-projects[efq_extra_field][download][branch] = 7.x-1.x
 projects[efq_extra_field][download][revision] = c81036076d3818afb8fd16041b00bf6dabf0b6b1
 projects[efq_extra_field][patch][2399063-1] = https://www.drupal.org/files/issues/efq_extra_field-move_class_to_include-2399063-1.patch
-
-projects[email_confirm][version] = 1.1
 
 projects[entity][version] = 1.6
 
@@ -42,15 +36,13 @@ projects[entityreference][version] = 1.1
 
 projects[eva][version] = 1.2
 
-projects[features][version] = 1.0
+projects[features][version] = 2.9
 
 projects[feeds][version] = 2.0-beta1
 
-projects[forward][version] = 1.4
-
 projects[globalredirect][version] = 1.5
 
-projects[google_analytics][version] = 2.1
+projects[google_analytics][version] = 2.3
 
 projects[imce][version] = 1.7
 
@@ -59,6 +51,8 @@ projects[job_scheduler][version] = 2.0-alpha3
 projects[libraries][version] = 2.1
 ; Fix PHP warning on cache clear.
 projects[libraries][patch][1938638-49] = https://drupal.org/files/libraries-undefined-index-foo.patch
+
+projects[link][version] = 1.4
 
 projects[logintoboggan][version] = 1.5
 ; Improve performance by getting rid of MySQL LOWER(), which creates a temp
@@ -70,39 +64,22 @@ projects[maintenance200][version] = 1.0
 
 projects[memcache][version] = 1.0
 
-projects[metatag][version] = 1.0-beta7
-
-projects[nagios][version] = 1.1
-; Check data types before getting "status" key from them.
-projects[nagios][patch][1572368-0] = http://drupal.org/files/check_type.patch
-; Improve error handling. Break out of loop if module checks are disabled.
-projects[nagios][patch][1747870-0] = http://drupal.org/files/check_checks.patch
-
-projects[openidadmin][version] = 1.0
-
 projects[pathauto][version] = 1.2
 
 projects[petitionssignatureform][type] = module
 projects[petitionssignatureform][download][type] = git
 projects[petitionssignatureform][download][url] = http://git.drupal.org/sandbox/whitehouse/2283727.git
-projects[petitionssignatureform][download][branch] = 7.x-1.x
 projects[petitionssignatureform][download][revision] = 3d3e3bcf2d588b0e9747ef5df5e788770cd2d0ee
 
 projects[profile2][version] = 1.3
 
 projects[recaptcha][version] = 1.10
 
-projects[rules][version] = 2.3
-
 projects[services][version] = 3.12
 
-
-projects[services_documentation][download][branch] = 7.x-1.x
 projects[services_documentation][download][revision] = e3accca7f2c
 
 projects[shunt][version] = 1.3
-
-projects[simplehtmldom][version] = 1.12
 
 projects[strongarm][version] = 2.0
 
@@ -116,7 +93,7 @@ projects[token][version] = 1.5
 
 projects[transliteration][version] = 3.2
 
-projects[views][version] = 3.11
+projects[views][version] = 3.14
 
 projects[views_infinite_scroll][version] = 1.1
 ; Apply patch from https://www.drupal.org/node/1199794 to eliminate count query from infinite scroller for performance
@@ -126,6 +103,8 @@ projects[views_bulk_operations][version] = 3.3
 
 projects[wysiwyg][version] = 2.2
 
+projects[usfedgov_google_analytics][version] = 1.0-rc1
+
 ; Contrib Themes
 ; ==============================================================================
 
@@ -133,8 +112,7 @@ projects[fortyfour][download][type] = git
 projects[fortyfour][download][url] = http://git.drupal.org/project/fortyfour.git
 projects[fortyfour][type] = theme
 projects[fortyfour][subdir] = ""
-projects[fortyfour][download][branch] = 7.x-1.x
-projects[fortyfour][download][revision] = 027674985
+projects[fortyfour][revision] = 027674985
 
 projects[zen][type] = theme
 projects[zen][subdir] = ""
@@ -150,7 +128,9 @@ libraries[faker][download][url] = https://github.com/fzaninotto/Faker/archive/v1
 
 libraries[disposable_email_checker][download][type] = git
 libraries[disposable_email_checker][download][url] = https://github.com/vboctor/disposable_email_checker.git
-libraries[disposable_email_checker][download][revision] = 10aacb860961e8b58edfc740156c0cc8ef405a9d
+libraries[disposable_email_checker][download][revision] = d386efd48519b746b00a52f255cfa890e83e2992
+libraries[disposable_email_checker][patch][pull-9] = https://patch-diff.githubusercontent.com/raw/vboctor/disposable_email_checker/pull/9.patch
+
 
 ; The jQuery plugin required for views_infinite_scroll to work.
 ; Calling this library js is a trick to get the file to the right spot, it
@@ -167,3 +147,6 @@ libraries[petitions-php-sdk][download][revision] = fe03d49e39e88e87cff2295172d02
 libraries[spyc][download][type] = file
 libraries[spyc][download][url] = https://raw.github.com/mustangostang/spyc/79f61969f63ee77e0d9460bc254a27a671b445f3/spyc.php
 libraries[spyc][download][filename] = spyc.php
+
+libraries[fed_analytics][download][type] = get
+libraries[fed_analytics][download][url] = https://github.com/GSA/DAP-Gov-wide-GA-Code/archive/1785a8c79cb991ef4efd1a8ee6b7c3d66647119f.zip

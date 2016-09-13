@@ -26,7 +26,7 @@ class SignaturesQueue extends DrupalQueue {
       return DrupalQueue::get($name, $reliable);
     }
     catch (Exception $e) {
-      petitionslog_event('exceptions.signatures_queue.2d9873a');
+      logger_event('exceptions.signatures_queue.2d9873a');
       throw $e;
     }
   }

@@ -17,3 +17,4 @@ dependencies[] = options
 dependencies[] = taxonomy
 dependencies[] = wh_response_feature
 dependencies[] = shunt
+dependencies[] = disposable_email

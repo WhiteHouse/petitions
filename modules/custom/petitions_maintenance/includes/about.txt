@@ -1,0 +1,207 @@
+<hr />
+<p>The right to petition your government is guaranteed by the First Amendment of the United States Constitution. We the People provides a way to petition the Obama Administration to take action on a range of important issues facing our country. If a petition gets enough support, White House staff will review it, ensure it's sent to the appropriate policy experts, and issue an official response.</p>
+
+<p>We created We the People because we want to hear from you. A vital part of our shared democracy is cultivating the capability for our citizens/the people to speak directly to their representatives. This is one, important step in achieving that goal.</p>
+
+<p>The idea of petitioning the White House or the government isn’t new, but this online platform is. As we learn from the platform and its users, we make adjustments to improve it based on how people use the system and your feedback. We may change the signature threshold so that the workload for responding to petitions in a timely fashion is manageable. <strong>The current threshold is 100,000 signatures.</strong> You can always view the current and past signature thresholds on the <a href="/about#terms">Terms of Participation page</a>.</p>
+<p>We’ll keep you posted on any changes using the <a href="http://www.whitehouse.gov/blog/issues/we-the-people">White House blog</a>. And if you have any specific suggestions to improve We the People <a href="https://www.whitehouse.gov/feedback-petitions" target="_blank">please let us know</a>. </p>
+
+<hr />
+
+<a name="step-by-step"></a>
+<h2>Step-by-Step Guide</h2>
+      <h3>Create a Petition</h3>
+      <p>Before you start a petition, think about your goal. What you want President Obama or the White House to do? Why others should support your cause?  This will help you clearly articulate your position and make your petition more effective. You should also check to be sure there isn’t already a recent petition with the same goal on the site.</p>
+      <p><strong>Here's how to <a hre="/petition/create/" target="_blank">create a new petition</a>:</strong></p>
+<ul><ol>
+      <li><p><strong>Choose a Type:</strong> Start by choosing one of the five types of actions that are within the purview of this site, completing the sentence “We the People ask the Administration to...” which will be the header of your petition.</p></li>
+      <li><p><strong>Enter a Title:</strong> Enter a short (120 characters or less) title for the petition. It should be clear, compelling and describe the goal of your petition.</p></li>
+      <li><p><strong>Provide a Description:</strong> Use this space to further define the goal of your petition (in 800 characters or less). Include additional information or research to support your request. Please note that petitions on the We the People site will be moderated. Some petitions may be removed from the site consistent with the <a href="/about#terms">Terms of Participation</a>.</p></li>
+      <li><p><strong>Choose Tags:</strong> Choose between 1 and 3 tags to help categorize the petitions. This will help others better understand how it relates to the issues the administration works on.</p></li>
+      <li><p><strong>Review and Publish:</strong> Once published, you will not be able to edit your petitions, so be sure to double-check for spelling, punctuation, grammar, and meaning.</p></li>
+</ul></ol>
+  <h3>Promote and Gather Signatures</h3>
+      <p>After you publish the petition, it’s up to you to promote it and get others to sign. You’ll get an automatic email once your petition is published that you can forward to get started. Remember you have just 30 days to get 100,000 signatures in order to get a response from the White House. And it’s up to you to get to 150 signatures in order for your petition to be publicly searchable on the We the People tool on WhiteHouse.gov. </p>
+
+<h3>The White House Reviews and Responds</h3>
+      <p>Once the petition reaches the required threshold, it will be put in a queue to be reviewed by the White House. Others can still sign the petition while it is awaiting a response from the White House. When the White House responds, everyone who has signed the petition will get email from the White House to let you know that we’ve reviewed and responded to the petition.</p>
+
+<hr />
+
+<a name="faqs"></a>
+<h2>Frequently Asked Questions</h2>
+<h4>Q: I’m having trouble signing in or creating an account — what should I do?</h4>
+<ul><p>Try following these steps: </p>
+<ul>
+<ol>
+<li><p><a href="/login">Click here and enter your account information.</a></p></li>
+<li><p>You will receive an email within a few minutes asking you to click on a link to verify your email address. Click on the link in the email (or cut and paste it into your web browser).</p></li>
+<li><p>Once you have verified your email address, you’re logged into the system.</p></li>
+</ol>
+<p><em>Note: Just signing a petition? No need to create an account. Simply go to the petition you'd like to sign, enter your information, and verify your signature.</em></p>
+</ul>
+</ul>
+
+ <h4>Q: How does We the People work?</h4>
+ <ol>
+ <p><a href="/about#step-by-step">See the step-by-step overview.</a></p>
+ </ol>
+
+ <h4>Q: Who can participate in the We the People platform?</h4>
+ <ol>
+ <p>Anyone 13 or older can create or sign a petition on WhiteHouse.gov. In order to participate in the We the People platform on WhiteHouse.gov, users must create a WhiteHouse.gov account and verify their email address. </p>
+ </ol>
+
+ <h4>Q: How will the White House decide which petitions to respond to?</h4>
+ <ol>
+ <p>The White House plans to respond to each petition that crosses the current signature threshold, which you can view on the <a href="/about#terms">Terms of Participation page</a>. In a few rare cases (such as specific procurement, law enforcement, or adjudicatory matters), the White House response might not address the facts of a particular matter to avoid exercising improper influence. In addition, the White House will not respond to petitions that violate We the People’s <a href="/about#terms">Terms of Participation</a>. In some cases, a single update may be used for petitions on similar topics.</p>
+ </ol>
+
+ <h4>Q: Will the White House ever change the threshold for petitions responses?</h4>
+ <ol>
+ <p>Yes, the threshold will change. The We the People platform is the first time the Administration has attempted a project like this. As more people use this tool to tell the White House about the issues that matter to them, we may find that we need to adjust the signature thresholds for petitions to appear publicly on the site or for petitions to receive an update from the White House. New signature thresholds will only be applied to petitions created after the changes are made.</p>
+<p>You can always view the current signature thresholds on the <a href="/about#terms">Terms of Participation page</a>.</p>
+ </ol>
+
+ <h4>Q: What happens to a petition if it doesn’t reach the petition signature thresholds?</h4>
+ <ol>
+ <p>Petitions that do not reach the threshold for official response will be archived and no longer publicly available on the site, unless you have the direct link. They will no longer be signable once they have been archived. </p>
+ </ol>
+
+ <h4>Q: Will the site be moderated?</a></h4>
+ <ol>
+ <p>Yes. For more information, please see our <a href="/about#terms">Terms or Participation</a>.</p>
+ </ol>
+
+ <h4>Q: Will petitions ever be removed from the We the People platform?</h4>
+ <ol>
+ <p>Petitions that are determined to violate the Terms of Participation will be removed from the site. Users who have a petition removed are welcome to create a new petition that complies with the Terms of Participation. No petition will be removed because of the viewpoint it expresses.</p>
+ </ol>
+
+ <h4>Q: How long will it take for the White House to respond?</h4>
+ <ol>
+ <p>We will do our best to respond to petitions that cross the signature threshold within 60 days, however, depending on the topic and the overall volume of petitions from We the People, responses may be delayed. </p>
+ </ol>
+
+ <h4>Q: Is We the People the only way to contact the White House?</h4>
+ <ol>
+ <p>No. We the People does not displace previous options for people to contact the White House. If you prefer not to use this tool, please visit <a href="http://www.whitehouse.gov/contact">www.whitehouse.gov/contact</a>. </p>
+ </ol>
+
+ <h4>Q: If a petition isn’t viewable until it reaches 150 signatures, how will people know about it?</h4>
+ <ol>
+ <p>When a petition is first created, only the petition creator will have the URL of the petition. It’s up to the petition creator to share the petition (and URL) with others who care about the issue to build support and gather more signatures. Once your petition is published, you can use the share icons on the page to easily send the petition via email and your social networks. Once a petition gathers the minimum number of signatures, it will be findable on the We the People platform. </p>
+<p>You can always view the current signature thresholds on the <a href="/about#terms">Terms of Participation page</a>.</p>
+ </ol>
+
+ <h4>Q: Who will review and respond to petitions? </h4>
+ <ol>
+ <p>The White House will convene representatives from all of the related major policy offices (such as the National Economic Council, Domestic Policy Council and White House Counsel) to review petitions that have crossed the signature threshold for a response. This group will help determine which policy office in the White House or federal agency should review and respond to petitions and ensure that updates are posted as quickly as possible. Petition updates will come from a variety of Administration officials, including staff at the White House and the We the People Team. From time to time President Obama may respond directly to petitions, but we expect most of responses to come from other Administration officials.</p>
+ </ol>
+
+ <h4>Q: How will the White House handle duplicate petitions on the same topic?</h4>
+ <ol>
+ <p>Creating duplicate petitions in the system decreases the likelihood that a petition will receive a response from the White House. While the White House will not combine similar petitions, one update may be applied to multiple petitions on the same topic. </p>
+ </ol>
+
+<hr />
+<a name="terms"></a>
+<h2>Terms of Participation</h2>
+<p>By participating in We the People, you acknowledge that you have read, understood, and agree to be bound by these Terms of Participation and to comply with all applicable laws and regulations.</p>
+
+<p>We the People expands the options for contacting the White House and does not displace current official methods of communication, such as mailing or emailing the White House. If you are not willing to agree to We the People’s Terms of Participation, but want to send a message, petition, or other form of communication to the White House, you may do so through the White House Office of Correspondence, which maintains a contact form and information about communicating with the White House at <a class="no-follow" href="http://www.whitehouse.gov/contact">www.whitehouse.gov/contact</a>. </p>
+
+<p>In order to create a We the People petition, you must create a <a href="/login">WhiteHouse.gov User Account</a>. <strong>If you would like to sign an existing petition, you do not need to create or use an account.</strong></a> You are required to use a valid email address when registering an account, or when signing a petition. Only one account per individual is allowed. You may not sign the same petition more than once. You must be 13 or older in order to create an account and/or sign a petition, or otherwise participate in We the People. Creating We the People petitions must be done by individuals interacting directly with WhiteHouse.gov and not through a third-party website or service. You can learn more about WhiteHouse.gov User Accounts on our <a class="no-follow" href="http://www.whitehouse.gov/privacy">Privacy Policy page</a>. Users signing existing petitions may do so directly on WhiteHouse.gov, or on certain third-party websites through the We the People application programing interface (API), pursuant to the API <a href="developers#api-terms">Terms of Use agreement</a>. <a href="https://petitions.whitehouse.gov/developers">Learn more about the We the People API</a>.</p>
+
+<p>You also agree that your user-generated signature or account information will not contain threats of unlawful violence or harm to any individual or group; obscene, vulgar, or lewd material; defamatory or fraudulent statements; terms commonly understood to constitute profanity or abusive or degrading slurs or epithets; information invading an individual’s privacy; and information that if published would violate criminal law or give rise to civil liability.</p>
+
+<p>The White House may disable user accounts, remove associated signatures and remove petitions created or signed by users that it has reasonable belief do not satisfy the above rules. Outside of these circumstances, the White House will not entertain requests to modify the language of a submitted petition or to remove a signature from it. The White House may block access from IP addresses that it has reasonable belief are using automated systems or bulk processes to create multiple user accounts or petition signatures. The White House may also block submission of disposable or time bound signatures.</p>
+
+<p>You agree that the White House can send you email updates related to We the People. This includes, but is not limited to, system-generated emails used to verify your email address, updates on the progress of a petition you created or signed, and official responses to that petition. In addition to emails related to We the People, you can also choose to receive additional email updates about other topics. You can always unsubscribe from future White House email by clicking on the “unsubscribe” link at the bottom of any WhiteHouse.gov email. <a href="http://www.whitehouse.gov/privacy">Learn more about email subscriptions and updates</a>. </p>
+
+<p>You agree to only create petitions consistent with the limited purpose of the We the People platform, which is to allow individuals to petition the Administration to take action on a range of issues — to address a problem, support or oppose a proposal, or otherwise change or continue federal government policy or actions. To focus discussion, the platform is limited to a discrete set of topics, which may be adjusted over time.</p>
+
+<p>You agree not to create petitions that fall outside this limited purpose—for example, petitions that advertise or call for the endorsement or purchase of commercial goods or services, petitions that expressly urge the support or opposition of candidates for elected office, petitions that do not address the current or potential actions or policies of the federal government, or petitions that address a topic not included in We the People at the time the petition was created. </p>
+
+<p>There are several categories of material that are inconsistent with the limited purpose of We the People and the larger purpose and function of the White House’s website. Petitions that the moderator determines to violate these Terms of Participation will be removed, per the moderation policy</a>:
+
+<ol><li>Petitions must fall within the scope of We the People and that seeking federal government actions or policies on the topics included in the platform. The following do NOT fall within scope:</li>
+ <ul> <li>Petitions that advertise or call for the endorsement or purchase of commercial goods or services, </li>
+ <li>Petitions that expressly urge the support or opposition of candidates for elected office, </li>
+ <li>Petitions that do not address the actions or policies of the federal government, or that address a topic not included in We the People at the time the petition was created.</li></ul>
+<li>Additionally, petitions containing the following material violate the <a href="/how-why/terms-participation">Terms of Participation</a> and will be removed in accordance with this Moderation Policy:</li>
+<ul><li>Threats of unlawful violence or harm to any individual or group</li>
+<li>Obscene, vulgar, or lewd material</li>
+<li>Defamatory or fraudulent statements</li>
+<li>Terms commonly understood to constitute profanity or abusive or degrading slurs or epithets</li>
+<li>Information that invades an individual’s privacy</li>
+<li>Information that if published would violate criminal law or give rise to civil liability</li></ul>
+</ol>
+
+
+<p>The White House will respond to petitions submitted through We the People that comply with these Terms of Participation and reach the second signature threshold listed below. Petitions on We the People must meet the first signature threshold in order to be publicly searchable on WhiteHouse.gov. Petitions that do not meet these signature thresholds will be removed from the site after the time limit has expired. The White House may elect to respond to petitions at any time, including those that have not crossed the first or second threshold.</p>
+
+<p>To avoid the appearance of improper influence, the White House may decline to address certain procurement, law enforcement, adjudicatory, or similar matters properly within the jurisdiction of federal departments or agencies, federal courts, or state and local government in its response to a petition. Where possible, we will notify signers of petitions whose content falls into these areas, in instances in which we don't feel we will be able to respond meaningfully.</p>
+
+<p>Participation in the We the People platform does not create any right or benefit, substantive or procedural, enforceable at law or in equity by any party against the United States, its departments, agencies, or entities, its officers, employees, or agents, or any other person.</p>
+
+<p>The White House reserves the right to change the time limits and signature thresholds and apply them to petitions created after the change has been published to this “Current thresholds” section:</p>
+
+<p><strong>AS OF JANUARY 15, 2013:</strong></p>
+<ul>
+  <p>To cross the first threshold and be searchable within WhiteHouse.gov, a petition must reach <strong>150 signatures within 30 days</strong>.</p>
+  <p>To cross the second threshold and require a response, a petition must reach <strong>100,000 signatures within 30 days</strong>.</p>
+</ul>
+<p><i>The Terms of Participation were last updated on March 7, 2016.</i></p>
+
+<hr />
+<a name="success"></a>
+<h2>Petitions in Action</h2>
+
+<p>Over the past five years, millions of Americans have used We the People to make their voices heard on issues they care about. Here's a look at some of the petitions that jumpstarted conversations between citizens and their government on important national issues and drove real government action:</p>
+
+<h3>President Obama Signs into Law a Provision on Unlocking Cell Phones</h3>
+
+<p>In August 2014, President Obama signed a bill that ensured consumers could use their mobile devices on the network of their choice. This marked the first time that a We the People petition led to a legislative change.</p>
+
+<p>After Congress sent him a bill that addressed the problem, the President credited the petition signers, saying, “Last year, in response to a We the People petition from consumers across our country, my Administration called for allowing Americans to use their phones or mobile devices on any network they choose … The bill Congress passed today is another step toward giving ordinary Americans more flexibility and choice, so that they can find a cell phone carrier that meets their needs and their budget.” </p>
+
+<p>Read more:</p>
+<ul>
+<li><p><a href="https://www.whitehouse.gov/blog/2014/08/15/heres-how-cell-phone-unlocking-became-legal">Read the August 15, 2014 blog post.</a></p></li>
+<li><p><a href="https://petitions.whitehouse.gov/petition/make-unlocking-cell-phones-legal">Read the petition and the official White House response.</a></p></li>
+</ul>
+
+<h3>The FCC Protects a Free and Open Internet</h3>
+
+<p>In February 2014, petition signers asked for the White House to direct the Federal Communications Commission (FCC) to maintain a free and open Internet by changing the classification rules for Internet service providers. Following an initial response from the White House, in which it affirmed its support for net neutrality, the President asked the FCC to take up the strongest possible rules to protect net neutrality and treat all Internet traffic equally. </p>
+
+<p>In February 2015, the FCC voted in favor of a strong net neutrality rule. This happened, in part, because millions of Americans across the country stood up and made their voices heard.</p>
+
+<p>Read more:</p>
+<ul>
+<li><p><a href="https://petitions.whitehouse.gov/petition/restore-net-neutrality-directing-fcc-classify-internet-providers-common-carriers">Read the petition and the official White House response.</a></p></li>
+<li><p><a href="https://www.whitehouse.gov/net-neutrality">Learn more about President Obama's plan for a free and open internet.</a></p></li>
+</ul>
+
+<h3>The White House Calls for an End to Conversion Therapies</h3>
+
+<p>Moved by the tragic suicide of a transgender teenager whose parents had forced her to attend conversion therapy, citizens used a We the People petition to support a ban on the practice. In a response, the White House did just that, and President Obama threw his support behind state-level efforts to ban it. Prior to this response, the White House had not taken an official stance on the issue. </p>
+
+<p>Read more:</p>
+<ul>
+<li><p><a href="https://petitions.whitehouse.gov/petition/enact-leelahs-law-ban-all-lgbtq-conversion-therapy">Read the petition and the official White House response.</a></p></li>
+<li><p><a href="https://www.whitehouse.gov/blog/2015/04/10/why-conversion-therapy-hurts-all-us">Read the April 10, 2015 email and blog post from Amanda Simpson, Executive Director of the U.S. Army Office of Energy Initiatives on why conversion therapy is so harmful and why it was important for the White House to stand up against the practice.</a></p></li>
+</ul>
+
+<h3>The President Awards Yogi Berra the Presidential Medal of Freedom</h3>
+
+<p>Petitions have also been used to spur presidential actions. In early 2015, a petition called on the White House to award professional baseball player Lawrence Peter "Yogi" Berra the Presidential Medal of Freedom for his military service and civil rights activism.</p>
+
+<p>After an initial response, the White House proudly announced to petition signers that President Obama had awarded the Presidential Medal of Freedom, the nation’s highest civilian honor, to Yogi Berra.</p>
+
+<p>Read more:</p>
+<ul>
+<li><p><a href="https://www.whitehouse.gov/campaign/medal-of-freedom">Learn more about the Presidential Medal of Freedom, the highest civilian award of the United States, and the individuals awarded by President Obama.</a></p></li>
+<li><p><a href="https://petitions.whitehouse.gov/petition/award-yogi-berra-presidential-medal-freedom-his-military-service-and-civil-rights-and-educational-activism">Read the petition and the official White House response.</a></p></li>
+</ul>

@@ -2,7 +2,7 @@
 
 Drupal 7 code base used to build an application that lets users create and sign petitions.
 
-This application is under active development and will continue to be modified and improved over time. The current release is an "alpha".
+This application is under active development and will continue to be modified and improved over time. The current release is an "alpha" pending changes that will remove its dependency on MongoDB (see “Roadmap” section below).
 
 ## Goals
 
@@ -18,12 +18,13 @@ Releasing the source code for this application is meant to empower other governm
 
 * Drupal 7.x
 * MySQL 5.x
+* MongoDB 2.2.4
 * PHP 5.2 or 5.3
 
 *Recommended:*
 
 * RAM +512 M
-* Dedicated Solr server
+* Dedicated MongoDB server (this dependency will be removed soon, see “Roadmap”)
 
 ## Usage
 
@@ -43,6 +44,12 @@ We the People is a work in progress and currently exists at a very basic level o
 
 The following descriptions are for informational purposes only and should not be interpreted as commitments or guarantees of future code releases in any way.
 
+*Move from MongoDB to MySQL*
+
+The current release depends on MongoDB. When we first created the application, we wanted to make sure we had a highly scalable application and database to meet our anticipated performance needs under high loads. We have been running MongoDB in production for over a year, but we have decided that the performance benefits it provides are outweighed by the complexity of trying to extend Drupal features backed by MongoDB.
+
+We are currently moving to a fully MySQL-backed application to increase the speed the development of new features and other aspects of maintaining the Drupal application. Our next release will be a dev branch that will be fully backed by MySQL, and once there is a tag for that branch, we will no longer maintain the MongoDB branch.
+
 *Install Profile*
 
 The codebase is released as-is and currently supports a specific, standalone website. In the future we would like to provide an install profile that supports a wider range of applications.
@@ -50,6 +57,19 @@ The codebase is released as-is and currently supports a specific, standalone web
 *Generic Theme*
 
 The current codebase replicates the theme used on the White House website. In the future, we would like to provide a generic, "white label" Drupal 7 theme.
+
+*Streamline Petition Signing Workflow*
+
+The current workflow for a new user to sign a petition involves 1. creating a user account, 2. verifying the email address used to create the account by clicking a link in an email set to it and 3. returning to the petition to click to sign.
+The new workflow will start with 1. clicking to sign a petition and adding an email address, and 2. verifying the signature via email. Signing a petition will not require Drupal users logging into the site.
+
+*API Development*
+
+We would like to develop a set of read-only API methods that would allow users to retrieve data on open petitions. We would also like to develop API methods that would allow users to sign a petition via a third party website, but with some level of verification that confirms a valid email address to potentially receive a response. Developing these methods would greatly expand the appeal of this tool, allowing other organizations to control the user experience and flow for petitions within their own environment while still registering verified signatures against a We the People threshold.
+
+*Improved Social Media Integration*
+
+The current platform allows basic sharing of petitions, responses and other content on the site via social media platforms like Facebook and Twitter. In the future, we would like reduce the friction of signing a petition by making it possible to sign a petition in the context of a social network (e.g. by “liking” an object on facebook).
 
 *Mobile interface*
 

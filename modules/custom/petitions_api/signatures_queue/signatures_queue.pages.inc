@@ -5,37 +5,6 @@
  * Page callbacks for signatures_queue module.
  */
 
-/**
- * Callback for admin/config/system/signatures-queue/monitor.
- *
- * Provide basic dashboard for monitoring signatures queues.
- */
-function signatures_queue_monitor_page() {
-  return 'Hello world!';
-}
-
-/**
- * Callback for admin/config/system/petitions/signatures-queue.
- *
- * Provide basic overview of the Signatures Queue system.
- */
-function signatures_queue_overview() {
-  $rows = array();
-  $queues = signatures_queue_get_queue_names();
-  foreach ($queues as $queue_name => $description) {
-    $rows[] = array($queue_name, $description);
-  }
-  $rows[] = array(t('NOTE'), t("Real queues are named something_queue. The tables listed above that don't end in the suffix \"_queue\" aren't actually queues. Conceptually they're part of the \"signatures queue\" in the sense that these are holding bins where submitted signatures go before they're done being processed and counted. But they're not DrupalQueue queues. They cannot be instantiated with SignaturesQueue::get()."));
-
-  $output = theme('table', array(
-    'header' => array(
-      t('Queue name'),
-      t('Description')),
-    'rows' => $rows,
-  ));
-
-  return $output;
-}
 
 /**
  * Callback for thank-you.
@@ -74,12 +43,12 @@ function _signatures_queue_validation_page_callback() {
       drupal_goto("thank-you/{$petition_id}", array(), 301);
       break;
 
-    case SIGNATURES_QUEUE_STATUS_BAD_REQUEST:
-    case SIGNATURES_QUEUE_STATUS_NOT_FOUND:
+    case SIGNATURES_QUEUE_ERROR_FAILED_VALIDATION:
+    case SIGNATURES_QUEUE_ERROR_SIGNATURE_NOT_FOUND:
       drupal_not_found();
       break;
 
-    case SIGNATURES_QUEUE_STATUS_SERVER_ERROR:
+    case SIGNATURES_QUEUE_ERROR_SERVICE_NOT_AVAILABLE:
     default:
       // Use HTTP 307 Temporary Redirect since a server error should have only
       // an "accidental" and temporary relationship with a given validation URL.
@@ -92,27 +61,89 @@ function _signatures_queue_validation_page_callback() {
  */
 function _signatures_queue_validated_page_callback($petition_id) {
 
-  $petition = PetitionsController::loadObject($petition_id);
+  $petition_item = PetitionsController::loadObject($petition_id);
 
-  if (!empty($petition)) {
-    $short_url = $petition->getShortUrl();
-    $nice_url = $petition->getNiceUrl();
-    $url = (!empty($short_url)) ? $short_url : $nice_url;
-    $plain_petition_id = check_plain($petition_id);
-    $plain_petition_title = check_plain($petition->getTitle());
-    return theme('signatures_queue_validation_thank_you', array(
-      'petition' => $petition,
-      'page_title' => t('Thank you for signing this petition!'),
-      'message' => t('<p>You\'ve successfully signed the petition <a href="@petition_link">"!title"</a>. Your signature has been verified and counted.</p><p>Take the next step and gather support for it by sharing this petition on Twitter and Facebook, or by sharing a link to this petition: <a href="@petition_link">@petition_link</a></p>', array(
-        '@petition_link' => url($url, array('absolute' => TRUE)),
-        '!title' => drupal_ucfirst($plain_petition_title),
-      )),
-      'email_link' => wh_petition_tool_email_link(t('E-mail'), t('A We the People Petition'), t('I wanted to share this We the People petition with you: @petition_link', array(
-        '@petition_link' => url($url, array('absolute' => TRUE)),
-      ))),
-      'twitter_link' => wh_petition_tool_twitter_link($plain_petition_id, $plain_petition_title, 'petition', '', $short_url, $nice_url),
-      'facebook_link' => wh_petition_tool_facebook_link($plain_petition_id, $plain_petition_title, 'petition', '', $nice_url),
+  if (!empty($petition_item)) {
+    // Call the share_links render array.
+    $node = node_load($petition_id);
+    $share_links = theme('petitions_share_links', array('node' => $node));
+
+    $hpw_block = block_load('petitions_blocks', 'how_petitions_work_block');
+    $hpw_render_array = _block_get_renderable_array(_block_render_blocks(array($hpw_block)));
+    $hpw_output = drupal_render($hpw_render_array);
+
+    $popular_title = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'h2',
+      '#value' => t('Popular Petitions'),
+      '#attributes' => array(
+        'class' => array(
+          'title',
+        ),
+      ),
+    );
+    $popular_output = views_embed_view('petitions_listing', 'popular_petitions');
+
+    // Done here because view Custom Link doesn't allow anchors.
+    $more_link = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => l(t('View more popular petitions'), '/', array('fragment' => 'signapetition')),
+      '#attributes' => array(
+        'class' => array(
+          'more-link',
+        ),
+      ),
+    );
+    $popular_output .= drupal_render($more_link);
+
+    $message = t("You've successfully signed the petition below. Your signature has been verified and counted.");
+
+    $thank_you = theme('wh_petitions_page_thank_you', array(
+      'thank_you_text' => $message,
+      'petition_url' => $petition_item->getNiceUrl(TRUE),
+      'short_url' => $petition_item->getShortUrl(),
+      'petition_title' => check_plain($petition_item->getTitle()),
+      'share_links' => $share_links,
     ));
+
+    $thank_you_wrapper = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => $thank_you,
+      '#attributes' => array(
+        'id' => array(
+          'petition-create-formwrapper',
+        ),
+      ),
+    );
+
+    $hpw_wrapper = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => $hpw_output,
+      '#attributes' => array(
+        'class' => array(
+          'how-petitions-work',
+        ),
+      ),
+    );
+
+    $popular_petitions_wrapper = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => drupal_render($popular_title) . $popular_output,
+      '#attributes' => array(
+        'class' => array(
+          'popular-petitions',
+          'block-popular-petitions',
+          'block',
+          'block-views',
+        ),
+      ),
+    );
+
+    return drupal_render($thank_you_wrapper) . drupal_render($hpw_wrapper) . drupal_render($popular_petitions_wrapper);
   }
   else {
     drupal_goto('petition-error', array(), 301);

@@ -96,3 +96,135 @@ function api_errors_rest_server_execute_errors_alter(&$error, $controller, $argu
 
   $error['body_data'] = api_services_responses_format($response_params);
 }
+
+/**
+ * Parses a numeric error code and returns information for the API response.
+ *
+ * @param int $error_code
+ *   The error code.
+ * @param mixed $petition_id
+ *   The ID of the requested petition.
+ *
+ * @return array
+ *   An array of error code information.
+ */
+function api_errors_error_code_information($error_code, $petition_id = '') {
+  $website_url = variable_get('petitions_data_petitions_website_url');
+  switch ($error_code) {
+    case 73:
+      $developer_message = t('Sorry. Service is not available right now.');
+      $user_message = t('Sorry. We are unable to process your signature right now.');
+      $more_info = t('See the documentation: !url/developers#signatures-create-error-500', array(
+        '!url' => $website_url,
+      ));
+      $status_code = SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
+      break;
+
+    case 74:
+
+      // If we got a valid petition nid display the petitions review threshold.
+      // Otherwise display current review threshold.
+      if ($petition_id && $node = node_load($petition_id)) {
+        $wrapper = entity_metadata_wrapper('node', $node);
+        $days = $wrapper->field_petition_review_timeframe->value();
+      }
+      else {
+        $days = variable_get('wh_petitions_review_timeframe', 'number of');
+      }
+
+      $developer_message = t("Petition @petition_id cannot accept more signatures. (If you believe this petition was not open for a full @days days, it's possible that it was flagged and removed for violation of terms of service.)", array(
+        '@petition_id' => $petition_id,
+        '@days' => $days,
+      ));
+      $user_message = t('This petition cannot accept more signatures. You can open a new petition on this issue here: @url.', array(
+        '@url' => $website_url,
+      ));
+      $more_info = t('See the documentation: !url/developers#signatures-create-error-403', array(
+        '!url' => $website_url,
+      ));
+      $status_code = SIGNATURES_QUEUE_STATUS_FORBIDDEN;
+      break;
+
+    case 75:
+      $developer_message = t('Missing required fields. These fields are required: signature_source_api_key, petition_id, email, first_name, last_name.');
+      $user_message = t('Missing required fields. These fields are required: signature_source_api_key, petition_id, email, first_name, last_name.');
+      $more_info = t('See the documentation: !url/developers#signatures-create-error-400', array(
+        '!url' => $website_url,
+      ));
+      $status_code = SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+      break;
+
+    case 76:
+      $developer_message = t("No such petition @petition_id", array(
+        '@petition_id' => $petition_id,
+      ));
+      $user_message = t("The petition you are trying to sign doesn't exist.");
+      $more_info = t('See the documentation: !url/developers#signatures-create-error-404', array(
+        '!url' => $website_url,
+      ));
+      $status_code = SIGNATURES_QUEUE_STATUS_NOT_FOUND;
+      break;
+
+    case 77:
+      $developer_message = t('The email domain you have entered does not adhere to the Terms of Participation. Learn more at !link.', array(
+        '!link' => 'http://go.wh.gov/WtP-Terms',
+      ));
+      $user_message = filter_xss_admin(variable_get('petitions_tos_violation_ui_message', 'The email domain you have entered does not adhere to the Terms of Participation.'));
+      $more_info = t('See the documentation: !url/developers#signatures-create-error-400', array(
+        '!url' => $website_url,
+      ));
+      $status_code = SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+      break;
+
+    case 84:
+      $developer_message = t("Petition @petition_id not found.", array(
+        '@petition_id' => $petition_id,
+      ));
+      $user_message = t("The petition that you requested does not exist.");
+      $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-404', array(
+        '!url' => $website_url,
+      ));
+      $status_code = SIGNATURES_QUEUE_STATUS_NOT_FOUND;
+      break;
+
+    case 85:
+      $developer_message = t("Invalid key.");
+      $user_message = t("The key provided is not valid.");
+      $more_info = t('See the documentation: !url/developers#signatures-create-error-401', array(
+        '!url' => $website_url,
+      ));
+      $status_code = SIGNATURES_QUEUE_STATUS_UNAUTHORIZED;
+      break;
+
+    case 86:
+      $developer_message = t('You need a petition ID or URL to access non-public petitions.');
+      $user_message = '';
+      $more_info = '';
+      $status_code = SIGNATURES_QUEUE_STATUS_FORBIDDEN;
+      break;
+
+    case 87:
+      $developer_message = t('Invalid responseID argument.');
+      $user_message = '';
+      $more_info = '';
+      $status_code = SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+      break;
+
+    case 88:
+      $developer_message = t('Invalid url argument.');
+      $user_message = '';
+      $more_info = '';
+      $status_code = SIGNATURES_QUEUE_STATUS_BAD_REQUEST;
+      break;
+
+    // 83 falls under "default" as it is a generic error code.
+    default:
+      $developer_message = t("Class could not be instantiated.");
+      $user_message = t("The resource that you requested is temporarily unavailable.");
+      $more_info = t('See the documentation: !url/developers#petitions-retrieve-error-599', array(
+        '!url' => $website_url,
+      ));
+      $status_code = SIGNATURES_QUEUE_STATUS_UNKNOWN;
+  }
+  return array($status_code, $developer_message, $user_message, $more_info);
+}

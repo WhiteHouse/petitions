@@ -24,29 +24,28 @@ define('SIGNATURES_QUEUE_SERVER_NAME_DEFAULT', 'default');
 define('SIGNATURES_QUEUE_WORKER_NAME_DEFAULT', 'default');
 
 /**
- * Standard response for successful HTTP requests.
+ * HTTP status codes.
  */
 define('SIGNATURES_QUEUE_STATUS_OK', 200);
-
-/**
- * The request cannot be fulfilled due to bad syntax.
- */
 define('SIGNATURES_QUEUE_STATUS_BAD_REQUEST', 400);
-
-/**
- * The request was a valid request, but the server is refusing to respond to it.
- */
+define('SIGNATURES_QUEUE_STATUS_UNAUTHORIZED', 401);
 define('SIGNATURES_QUEUE_STATUS_FORBIDDEN', 403);
-
-/**
- * The requested resource could not be found.
- */
 define('SIGNATURES_QUEUE_STATUS_NOT_FOUND', 404);
+define('SIGNATURES_QUEUE_STATUS_SERVER_ERROR', 500);
+define('SIGNATURES_QUEUE_STATUS_UNKNOWN', 599);
 
 /**
- * The status code for an error on the server side.
+ * Custom error codes.
  */
-define('SIGNATURES_QUEUE_STATUS_SERVER_ERROR', 500);
+define('SIGNATURES_QUEUE_ERROR_SERVICE_NOT_AVAILABLE', 73);
+define('SIGNATURES_QUEUE_ERROR_PETITION_CLOSED', 74);
+define('SIGNATURES_QUEUE_ERROR_FAILED_VALIDATION', 75);
+define('SIGNATURES_QUEUE_ERROR_SIGNATURE_NOT_FOUND', 76);
+define('SIGNATURES_QUEUE_ERROR_BLACKLISTED_EMAIL', 77);
+define('SIGNATURES_QUEUE_ERROR_TEMPORARILY_UNAVAILABLE', 83);
+define('SIGNATURES_QUEUE_ERROR_PETITION_NOT_FOUND', 84);
+define('SIGNATURES_QUEUE_ERROR_INVALID_API_KEY', 85);
+define('SIGNATURES_QUEUE_ERROR_UNKNOWN', 99);
 
 /**
  * Implements hook_menu().
@@ -54,25 +53,9 @@ define('SIGNATURES_QUEUE_STATUS_SERVER_ERROR', 500);
 function signatures_queue_menu() {
   $items = array();
 
-  $items['admin/config/system/signatures-queue'] = array(
-    'title' => 'Petition Signatures Queue',
-    'description' => 'Overview of petition signatures queue system',
-    'page callback' => 'signatures_queue_overview',
-    'access arguments' => array('monitor queues'),
-    'file' => 'signatures_queue.pages.inc',
-  );
-  $items['admin/config/system/signatures-queue/monitor'] = array(
-    'title' => 'Monitor',
-    'description' => 'Monitor signature queues',
-    'page callback' => 'signatures_queue_monitor_page',
-    'access arguments' => array('monitor queues'),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 1,
-    'file' => 'signatures_queue.pages.inc',
-  );
-  $items['admin/config/system/signatures-queue/settings'] = array(
-    'title' => 'Settings',
-    'description' => 'Configure signature queues',
+  $items['admin/petitions/settings/signatures-queue'] = array(
+    'title' => 'Signature Queues / Alert Thresholds',
+    'description' => 'Configure Signature Queues / Alert Thresholds',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('signatures_queue_configure'),
     'access arguments' => array('administer queues'),
@@ -81,13 +64,13 @@ function signatures_queue_menu() {
     'file' => 'signatures_queue.admin.inc',
   );
   $items['thank-you'] = array(
-    'title' => 'Thank You',
+    'title' => '',
     'page callback' => '_signatures_queue_validation_page_callback',
     'access arguments' => array('validate petition signatures'),
     'file' => 'signatures_queue.pages.inc',
   );
   $items['thank-you/%'] = array(
-    'title' => 'Thank You',
+    'title' => '',
     'page callback' => '_signatures_queue_validated_page_callback',
     'page arguments' => array(1),
     'access arguments' => array('validate petition signatures'),
@@ -128,24 +111,18 @@ function signatures_queue_permission() {
 }
 
 /**
- * Implements hook_libraries_info().
+ * Implements hook_cron().
  */
-function signatures_queue_libraries_info() {
-  $libraries['disposable_email_checker'] = array(
-    'name' => 'Disposable Email Checker',
-    'vendor url' => 'https://github.com/vboctor/disposable_email_checker',
-    'download url' => 'https://github.com/vboctor/disposable_email_checker/releases',
-    'path' => 'php',
-    'version arguments' => array(
-      'file' => 'changelog.txt',
-      'pattern' => '/ - ([\d\.]+)/',
-      'lines' => 4,
-    ),
-    'files' => array(
-      'php' => array('disposable.php'),
-    ),
-  );
-  return $libraries;
+function signatures_queue_cron() {
+  // Reset expired items in the default queue implementation table. If that's
+  // not used, this will simply be a no-op.
+  db_update('signatures_pending_validation_queue')
+    ->fields(array(
+      'expire' => 0,
+    ))
+    ->condition('expire', 0, '<>')
+    ->condition('expire', REQUEST_TIME, '<')
+    ->execute();
 }
 
 /**
@@ -172,17 +149,6 @@ function signatures_queue_mail($key, &$message, $params) {
       $message['body'][] = $params['body'];
       break;
   }
-}
-
-/**
- * Implements hook_theme().
- */
-function signatures_queue_theme($existing, $type, $theme, $path) {
-  return array(
-    'signatures_queue_validation_thank_you' => array(
-      'template' => 'templates/signatures_queue-validation-thank-you',
-    ),
-  );
 }
 
 /**
@@ -324,9 +290,10 @@ function signatures_queue_get_queue_names() {
     'signatures_submitted_queue' => t('Queue submissions received via API POST requests or form submissions by unauthenticated users.'),
     'signatures_pending_validation_queue' => t('Retrieve petitions from signatures_submitted_queue, send a validation email, then move the pending signature here.'),
     'validations_queue' => t('When a user clicks a validation link received via email, store the secret validation key here.'),
-    'validations' => t('Move records from validations_queue to here for processing.'),
+    'pending_validations_queue' => t('Move records from validations_queue to here for processing.'),
     'signatures_pending_validation' => t('Move records from signatures_pending_validation_queue to here for processing.'),
     'validations_orphaned' => t('When processing validated signatures, records in validations that do not have matching records in signatures_pending_validation are orphans.'),
+    'signature_validation_processor_queue' => t('Move records from signatures_pending_validation_queue to database queue for processing.'),
   );
 }
 
@@ -363,6 +330,7 @@ function signatures_queue_get_workflow_names() {
     'preprocess_signatures',
     'process_signatures',
     'archive_signatures',
+    'process_petitions',
   );
 }
 
@@ -409,8 +377,8 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
   // Detect a shunt trip.
   $shunt_name = "shunt_signatures_queue_{$workflow}";
   if (shunt_is_enabled($shunt_name)) {
-    petitionslog_event("signatures_queue.workflow.{$workflow}.status.shunted");
-    return SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
+    logger_event("signatures_queue.workflow.{$workflow}.status.shunted");
+    return SIGNATURES_QUEUE_ERROR_SERVICE_NOT_AVAILABLE;
   }
 
   // Invoke the workflow.
@@ -428,7 +396,7 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
     }
 
     // Log workflow invocation.
-    petitionslog_event("signatures_queue.workflow.{$workflow}.invoked");
+    logger_event("signatures_queue.workflow.{$workflow}.invoked");
 
     // Dispatch the worker.
     timer_start('signatures_queue_workflow');
@@ -436,112 +404,22 @@ function signatures_queue_invoke_workflow($workflow, array $options = array()) {
     timer_stop('signatures_queue_workflow');
 
     // Log workflow completion details.
-    petitionslog_event("signatures_queue.workflow.{$workflow}.completed");
-    petitionslog_event("signatures_queue.workflow.{$workflow}.processing_time", 'time', (int) timer_read('signatures_queue_workflow'));
+    logger_event("signatures_queue.workflow.{$workflow}.completed");
+    logger_event("signatures_queue.workflow.{$workflow}.processing_time", 'time', (int) timer_read('signatures_queue_workflow'));
     $log_status = _signatures_queue_get_loggable_workflow_status($workflow, $status);
-    petitionslog_event("signatures_queue.workflow.{$workflow}.status.{$log_status}");
+    logger_event("signatures_queue.workflow.{$workflow}.status.{$log_status}");
   }
   catch (Exception $e) {
-    petitionslog_event("signatures_queue.workflow.{$workflow}.status.server_error");
+    logger_event("signatures_queue.workflow.{$workflow}.status.server_error");
     $watchdog_suffix = _signatures_queue_watchdog_suffix($workflow, $job_id, $server_name, $worker_name);
-    watchdog('signatures_queue', "Fatal error in workflow. @suffix\n\n@exception", array(
+    watchdog('signatures_queue', "Fatal error in workflow. @suffix Exception: @exception", array(
       '@suffix' => $watchdog_suffix,
-      '@exception' => $e->getMessage(),
+      '@exception' => json_encode($e->getMessage()),
     ), WATCHDOG_ERROR);
-    return SIGNATURES_QUEUE_STATUS_SERVER_ERROR;
+    return SIGNATURES_QUEUE_ERROR_UNKNOWN;
   }
 
   return $status;
-}
-
-/**
- * Determines whether a given email address is disposable or not.
- *
- * @param string $address
- *   An email address to test.
- *
- * @return bool
- *   TRUE if the email address is disposable, or FALSE if not.
- */
-function signatures_queue_is_disposable_email($address) {
-  libraries_load('disposable_email_checker');
-  return DisposableEmailChecker::is_disposable_email($address);
-}
-
-/**
- * Determines disposability of a given email address.
- *
- * @param string $address
- *   An email address to test.
- *
- * @return object
- *   Object containing boolean values of various disposable classifications.
- */
-function signatures_queue_get_email_disposability($address) {
-  libraries_load('disposable_email_checker');
-  $disposability = new stdClass();
-  $disposability->is_disposable = DisposableEmailChecker::is_disposable_email($address);
-  $disposability->is_free_email = DisposableEmailChecker::is_free_email($address);
-  $disposability->is_open_email = DisposableEmailChecker::is_open_email($address);
-  $disposability->is_forwarding_email = DisposableEmailChecker::is_forwarding_email($address);
-  $disposability->is_trash_email = DisposableEmailChecker::is_trash_email($address);
-  $disposability->is_time_bound_email = DisposableEmailChecker::is_time_bound_email($address);
-  $disposability->is_shredder_email = DisposableEmailChecker::is_shredder_email($address);
-  return $disposability;
-}
-
-/**
- * Determines whether a given email address is subaddressed or not.
- *
- * Subaddressed email addresses, also known as plus addresses or tagged
- * addresses, have the form username+tag@domain.tld.
- *
- * @param string $address
- *   An email address to test.
- *
- * @return bool
- *   TRUE if the email address is subaddressed, or FALSE if not.
- *
- * @see https://en.wikipedia.org/wiki/Email_address#Address_tags
- */
-function signatures_queue_is_subaddressed_email($address) {
-  // A subaddressed email address must contain a username and a plus sign. Match
-  // any string that begins with one or more characters other than an at sign
-  // (@), followed by a plus sign (+).
-  return (preg_match('/^[^@]+\+/', $address) == 1);
-}
-
-/**
- * Parses an email address to remove subaddressing and dots in mailbox.
- *
- * Subaddressed email addresses, also known as plus addresses or tagged
- * addresses, have the form username+tag@domain.tld.
- *
- * @param string $address
- *   An email address to test.
- *
- * @return string
- *   Email address without subaddressing or dots in mailbox.
- *
- * @see https://en.wikipedia.org/wiki/Email_address#Address_tags
- */
-function signatures_queue_unsubaddress_email($address) {
-  $address = strtolower($address);
-  $domain_pos = strpos($address, '@');
-
-  // If no @ sign, assume domain was passed in and return as is.
-  if ($domain_pos !== FALSE) {
-    $domain = substr($address, $domain_pos + 1);
-    $mailbox = substr($address, 0, $domain_pos);
-    $mailbox = str_replace('.', '', $mailbox);
-    // Filter out subaddressing.
-    if (signatures_queue_is_subaddressed_email($address)) {
-      $tag_pos = strpos($mailbox, '+');
-      $mailbox = substr($mailbox, 0, $tag_pos);
-    }
-    $address = $mailbox . '@' . $domain;
-  }
-  return $address;
 }
 
 /**
@@ -557,21 +435,25 @@ function signatures_queue_unsubaddress_email($address) {
  *   A string usable as a status code in logging, e.g., "ok" or "bad_request".
  */
 function _signatures_queue_get_loggable_workflow_status($workflow, $status) {
+  $error_info = api_errors_error_code_information($status);
+  $status_code = $error_info['0'];
   $status_mappings = array(
     SIGNATURES_QUEUE_STATUS_OK => 'ok',
+    SIGNATURES_QUEUE_STATUS_UNAUTHORIZED => 'bad_request',
     SIGNATURES_QUEUE_STATUS_BAD_REQUEST => 'bad_request',
     SIGNATURES_QUEUE_STATUS_FORBIDDEN => 'forbidden',
     SIGNATURES_QUEUE_STATUS_NOT_FOUND => 'not_found',
     SIGNATURES_QUEUE_STATUS_SERVER_ERROR => 'server_error',
+    SIGNATURES_QUEUE_STATUS_UNKNOWN => 'server_error',
   );
-  if (array_key_exists($status, $status_mappings)) {
+  if (array_key_exists($status_code, $status_mappings)) {
     $log_status = $status_mappings[$status];
   }
   else {
     $log_status = 'unknown';
     watchdog('signatures_queue', 'Workflow "@workflow" returned unknown status code: @status.', array(
       '@workflow' => $workflow,
-      '@status' => $status,
+      '@status' => $status_code,
     ));
   }
   return $log_status;
@@ -589,11 +471,11 @@ function _signatures_queue_data_store_size_event($data_store_name, $record_count
   $record_count = (int) $record_count;
 
   // Log the size.
-  petitionslog_event("signatures_queue.data_store.{$data_store_name}.size", 'gauge', $record_count);
+  logger_event("signatures_queue.data_store.{$data_store_name}.size", 'gauge', $record_count);
 
   // Log if empty.
   if ($record_count == 0) {
-    petitionslog_event("signatures_queue.data_store.{$data_store_name}.emptied");
+    logger_event("signatures_queue.data_store.{$data_store_name}.emptied");
   }
 }
 
@@ -706,6 +588,175 @@ function signatures_queue_form_alter(&$form, &$form_state, $form_id) {
  *   was last emptied.
  */
 function signatures_queue_check_empty($name = NULL) {
-  module_load_include('inc', 'signatures_queue');
-  return _signatures_queue_check_empty($name);
+  $last_emptied = array();
+
+  // If a queue name was specified, check only that queue.
+  if ($name) {
+    $queue_names = array($name);
+  }
+  // Otherwise, check all queues.
+  else {
+    $queue_names = array_keys(signatures_queue_get_queue_names());
+  }
+
+  foreach ($queue_names as $queue_name) {
+    if (!SignaturesQueue::isValidQueueName($queue_name)) {
+      continue;
+    }
+
+    // Make sure every queue exists. There is no harm in trying to recreate an
+    // existing queue.
+    $queue = SignaturesQueue::get($queue_name);
+    $queue->createQueue();
+
+    $now = time();
+    $num_items = $queue->numberOfItems();
+    _signatures_queue_data_store_size_event($queue_name, $num_items);
+
+    // For any empty queue, updated corresponding last_emptied variable.
+    if ($num_items == 0) {
+      $last_emptied[$queue_name] = $now;
+      variable_set('signatures_queue_' . $queue_name . '_last_emptied', $now);
+    }
+    // Otherwise, get existing last_emptied variable for later comparison.
+    else {
+      $last_emptied[$queue_name] = variable_get('signatures_queue_' . $queue_name . '_last_emptied', 0);
+    }
+  }
+
+  // If all queues were checked, update signatures_queue_oldest_emptied.
+  if (!$name) {
+    $oldest_emptied = min($last_emptied);
+    variable_set('signatures_queue_oldest_emptied', $oldest_emptied);
+    watchdog('signatures_queue', 'Empty check was performed on all signature queues and logged. Oldest emptied queue was logged as @oldest_emptied.', array('@oldest_emptied' => $oldest_emptied));
+  }
+  else {
+    watchdog('signatures_queue', 'Empty check was performed on @queue_name queue and logged.', array('@queue_name' => $name));
+  }
+
+  return $last_emptied;
+}
+
+/**
+ * Evaluates petition metrics against alert thresholds.
+ *
+ * @param int $petition_id
+ *   Petition node ID
+ */
+function signatures_queue_compare_thresholds($petition_id) {
+  $petition_metric_fields_map = PetitionsSelectQueryMysql::getPetitionMetricFieldsMap();
+  $metrics = array();
+  $petitions_alert_signature_threshold = variable_get('petitions_alert_signature_threshold', 0);
+  $petitions_alert_enabled = variable_get('petitions_alert_enabled', FALSE);
+  $petitions_alert_email_throttle = variable_get('petitions_alert_email_throttle');
+
+  // Only run this if the email throttle is set, otherwise will run every time.
+  if ($petitions_alert_enabled && $petitions_alert_email_throttle && $petitions_alert_signature_threshold) {
+    $current_time = time();
+    $time_threshold = $current_time - variable_get('petitions_alert_email_throttle');
+
+    $node = node_load($petition_id);
+    $wrapper = entity_metadata_wrapper('node', $node);
+
+    $last_alert = $wrapper->field_petition_last_alert->raw();
+
+    // Set last alert value as soon as possible for multithreading.
+    PetitionsController::setPetitionFieldValue($petition_id, 'field_petition_last_alert', 'value', $current_time);
+
+    if ($last_alert == NULL || $last_alert <= $time_threshold) {
+      foreach ($petition_metric_fields_map as $metric_name => $field_mapping) {
+        $ratio = $wrapper->$field_mapping['table']->raw() / $node->signature_count;
+        $metric_var = 'petitions_alert_threshold_upper_' . $metric_name;
+        $bound = variable_get($metric_var);
+        if (!empty($bound) && $ratio > $bound) {
+          $metrics[] = $metric_var;
+        }
+
+        $metric_var = 'petitions_alert_threshold_lower_' . $metric_name;
+        $bound = variable_get($metric_var);
+        if (!empty($bound) && $ratio < $bound) {
+          $metrics[] = $metric_var;
+        }
+      }
+      if ($metrics) {
+        // Send an email for thresholds crossed.
+        _signatures_queue_send_fraud_alert($node, $metrics);
+      }
+    }
+  }
+}
+/**
+ * Send email alert about fraud metric thresholds crossed.
+ *
+ * @param object $node
+ *   Petition Node to alert on.
+ * @param array $metrics
+ *   Array of metric thresholds crossed.
+ */
+function _signatures_queue_send_fraud_alert($node, $metrics) {
+  global $language;
+  $edit_base_url = variable_get('edit_base_url');
+  $petition_title = $node->title;
+  $url = $edit_base_url . '/node/' . $node->nid . '/analysis';
+
+  $email_address = variable_get('petitions_alert_email_address');
+
+  $subject = variable_get("petitions_alert_email_subject");
+  $params['subject'] = t($subject, array('!title' => $petition_title));
+
+  $body = variable_get("petitions_alert_email_body");
+  $params['body'] = t($body, array(
+      '!title' => $petition_title,
+      '!metrics' => implode("\n", $metrics),
+      '!url' => $url,
+    )
+  );
+
+  $message = drupal_mail('signatures_queue', 'send_fraud_alert', $email_address, $language, $params);
+
+  foreach ($metrics as $metric) {
+    logger_event('signatures_queue.workflow.process_signatures.notifications.' . $metric, 'set', (int) $node->nid);
+  }
+}
+
+/**
+ * Adds signatures to the fraud data table if they have not already been added.
+ */
+function signatures_queue_update_fraud_data() {
+  // Find all signatures not already recorded in the fraud data table.
+  $query = db_select("signature_mail", "sm");
+  $query->fields("sm", array("id", "petition_id", "ip_address"))
+        ->join("users", "u", "u.uid = sm.uid");
+  $query->fields("u", array("mail"))
+        ->join("field_data_field_petition_status", "fdfps", "fdfps.entity_id = sm.petition_id");
+  $query->leftJoin("signature_mail_fraud_data", "smfd", "smfd.signature_mail_id = sm.id");
+  $query->isNull("smfd.signature_mail_id")
+        ->condition("fdfps.entity_type", "node")
+        ->condition("fdfps.bundle", "petition")
+        ->condition("fdfps.field_petition_status_value", wh_petitions_signable_statuses());
+  $results = $query->execute()->fetchAllAssoc("id");
+
+  logger_event('signatures_queue.fraud_data.signatures_to_process', 'set', (int) count($results));
+
+  foreach ($results as $result) {
+    logger_event('signatures_queue.fraud_data.signature_processed');
+    signature_mail_fraud_data_update_data($result->id, $result->petition_id, $result->mail, $result->ip_address);
+  }
+}
+
+/**
+ * Provide a simple method to write debugging info for signature processing.
+ *
+ * @param string $message
+ *   The message to log. See t() for documentation on how $message and
+ *   $variables interact.
+ * @param array $variables
+ *   The variables to replace in the message.
+ */
+function signatures_queue_debug_logger($message, $variables = array()) {
+  if (variable_get('signatures_queue_debug', 0)) {
+    $variables = array_merge($variables, array('!microtime' => microtime()));
+    $message .= ' Microtime: !microtime';
+    watchdog('signatures_queue_debug', $message, $variables, WATCHDOG_DEBUG);
+  }
 }

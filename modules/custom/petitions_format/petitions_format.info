@@ -1,0 +1,13 @@
+name = Petitions Format Settings
+description = Contains the text format for petitions fields.
+core = 7.x
+package = Features
+version = 7.x-1.1
+project = petitions_format
+dependencies[] = features
+dependencies[] = filter
+features[features_api][] = api:2
+features[filter][] = filtered_html
+features[filter][] = petitions_filtered
+features[filter][] = plain_text
+features[user_permission][] = use text format petitions_filtered

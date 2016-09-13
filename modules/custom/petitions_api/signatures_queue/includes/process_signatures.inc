@@ -32,165 +32,157 @@
  * @return int
  *   Returns one of the following status codes indicating the workflow outcome:
  *     - SIGNATURES_QUEUE_STATUS_OK
- *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
- *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
- *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
- *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
 function _signatures_queue_process_signatures($job_id, $server_name, $worker_name, array $options) {
+
+  signatures_queue_debug_logger('Beginning to process signatures.');
+
   $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
   $limit = signatures_queue_get_queue_batch_size('process_signatures');
   $debug = variable_get('signatures_queue_debug', FALSE);
 
-  // Set the active database to the signatures_processing db.
-  signatures_queue_set_db();
+  $queue_name = 'signature_validation_processor_queue';
+  $queue = SignaturesQueue::get($queue_name);
+  $queue->createQueue();
 
-  // Match records from validations to signatures_pending_validation.
-  $query = db_select('signatures_pending_validation', 'p');
-  $query->join('validations', 'v', 'p.secret_validation_key=v.secret_validation_key');
-  $query->fields('p')->range(0, $limit);
-  // Add fields from the validations table.
-  $query->addField('v', 'vid');
-  $query->addField('v', 'client_ip');
-  $query->addField('v', 'petition_id', 'validated_petition_id');
-  $query->addField('v', 'timestamp_received_signature_validation');
-  $query->addField('v', 'timestamp_preprocessed_validation');
-  $query->addField('v', 'client_ip');
+  $items_in_queue = (int) $queue->numberOfItems();
 
-  $result = $query->execute();
+  logger_event('signatures_queue.data_store.signatures_pending_validation.batch', 'gauge', $items_in_queue);
 
-  // If the query finds any number of matches less than the batch size, the
-  // workflow has effectively "caught up".
-  if ($result->rowCount() < $limit) {
-    petitionslog_event('signatures_queue.workflow.process_signatures.caught_up');
+  // If there are fewer items in the queue than the batch size the workflow has
+  // "caught up".
+  if ($items_in_queue < $limit) {
+    logger_event('signatures_queue.workflow.process_signatures.caught_up');
   }
-
-  // Set the active database back to default, in case queue backend wasn't using
-  // Drupal's database.
-  db_set_active();
 
   $count = 0;
   $count_skipped = 0;
 
   // Process the batch.
-  while ($item = $result->fetchAssoc()) {
+  $number_to_process = min($limit, $items_in_queue);
+  for ($i = 1; $i <= $number_to_process; $i++) {
+    if ($item = $queue->claimItem()) {
+      timer_start('claim_duration');
 
-    // Make sure timestamps are valid and petition IDs match.
-    if (!_signatures_queue_process_signatures_assert_legitimate($item, $debug) || !_signatures_queue_process_signatures_valid_petition($item['petition_id'], $debug)) {
-      // Skip processing illegitimate item.
-      $item['signature_id'] = 'invalid';
-      _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix);
-      // Keep track of how many invalid matches are skipped and considered
-      // "processed".
-      $count_skipped++;
-      continue;
-    }
+      // Set variable for item ID so it exists after the item is deleted.
+      $queue_item_id = $item->item_id;
+      if (empty($queue_item_id)) {
+        $queue_item_id = substr(md5(microtime()), 0, 10);
+      }
+      signatures_queue_debug_logger('Claimed item from queue. ID: @id.', array('@id' => $queue_item_id));
 
-    // Create user if a user with this email does not exist yet.
-    $user = _signatures_queue_process_signatures_create_user($item);
+      // Make sure timestamps are valid and petition IDs match.
+      if (!_signatures_queue_process_signatures_assert_legitimate($item, $debug) || !_signatures_queue_process_signatures_valid_petition($item->petition_id, $debug)) {
+        // Skip processing illegitimate item.
+        $item->signature_id = 'invalid';
+        _signatures_queue_process_signatures_log_times($item);
+        // Keep track of how many invalid matches are skipped and considered
+        // "processed".
+        $count_skipped++;
+        $queue->deleteItem($item);
+        $timer = timer_stop('claim_duration');
+        $time = (int) $timer['time'];
+        logger_event('signatures_queue.data_flow.time_elapsed.signature_item_processing_duration', 'time', $time);
+        // Delete the timer variable to prevent accumulation.
+        unset($GLOBALS['timers']['claim_duration']['start']);
 
-    // Get signature_id, if this user has already signed.
-    $item['signature_id'] = _signatures_queue_process_signatures_get_signature_id($item['petition_id'], $user->uid);
+        signatures_queue_debug_logger('Released item as invalid. ID: @id.', array('@id' => $queue_item_id));
 
-    // Determine if this is a new signature.
-    $new_signature = (!$item['signature_id']) ? TRUE : FALSE;
-    if ($new_signature) {
-      // If this is a new signature, create new signature record.
-      $signature_id  = _signatures_queue_process_signatures_save_signature($item, $user, $debug);
-    }
-
-    // If a new signature was created...
-    if ($new_signature && !empty($signature_id)) {
-      // Set ID.
-      $item['signature_id'] = $signature_id;
-      // Increment signature count.
-      PetitionsController::incrementSignatureCount($item['petition_id']);
-
-      $disposability = signatures_queue_get_email_disposability($item['email']);
-      $disposability->is_free_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS) : NULL;
-      $disposability->is_open_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS) : NULL;
-      $disposability->is_forwarding_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS) : NULL;
-      $disposability->is_trash_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS) : NULL;
-      $disposability->is_time_bound_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS) : NULL;
-      $disposability->is_shredder_email ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS) : NULL;
-      signatures_queue_is_subaddressed_email($item['email']) ? PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS) : NULL;
-      // PT-1721 performs unique email / ip count updates inside of _signatures_queue_process_signatures_save_signature().
-      _signatures_queue_process_signatures_compare_thresholds($item['petition_id']);
-
-      signature_mail_fraud_data_update_data($signature_id, $item['petition_id'], $item['email'], $item['client_ip']);
-    }
-    // If it's a new signature, but no new signature was created...
-    elseif ($new_signature && empty($signature_id)) {
-      // Log failure.
-      petitionslog_event('exceptions.signatures_queue.f79c9a5');
-      watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_received_signature_validation: @timestamp_received_signature_validation. @suffix', array(
-        '@secret_validation_key' => $item['secret_validation_key'],
-        '@vid' => $item['vid'],
-        '@petition_id' => $item['petition_id'],
-        '@timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
-        '@suffix' => $watchdog_suffix,
-      ), WATCHDOG_CRITICAL);
-      // Do NOT move items to processed table or remove from preprocess table.
-      continue;
-    }
-    // Otherwise, it's an existing signature. No new signature needs to be
-    // created or counted.
-    else {
-      $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
-      watchdog('signatures_queue', 'This user already signed this petition. No new signature record will be created or counted. uid: @uid, petition_id: @petition_id, secret_validation_key: @secret_validation_key, vid: @vid,  timestamp_received_signature_validation: @timestamp_received_signature_validation. @suffix', array(
-        '@uid' => $user->uid,
-        '@petition_id' => $item['petition_id'],
-        '@secret_validation_key' => $item['secret_validation_key'],
-        '@vid' => $item['vid'],
-        '@timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
-        '@suffix' => $watchdog_suffix,
-      ), WATCHDOG_NOTICE);
-
-      // Debug. Log signature item processed.
-      if ($debug) {
-        watchdog('signatures_queue', 'DEBUG ENABLED: Signature item processed: !item. @suffix', array(
-          '!item' => petitionslog_format_for_watchdog($item),
-          '@suffix' => $watchdog_suffix,
-        ), WATCHDOG_DEBUG);
+        continue;
       }
 
+      signatures_queue_debug_logger('Beginning user creation. ID: @id.', array('@id' => $queue_item_id));
+
+      // Create user if a user with this email does not exist yet.
+      $user = _signatures_queue_process_signatures_create_user($item);
+
+      signatures_queue_debug_logger('Ending user creation, beginning getting signature ID. ID: @id.', array('@id' => $queue_item_id));
+
+      // Get signature_id, if this user has already signed.
+      $item->signature_id = _signatures_queue_process_signatures_get_signature_id($item->petition_id, $user->uid);
+
+      // Determine if this is a new signature.
+      $new_signature = (!$item->signature_id) ? TRUE : FALSE;
+      if ($new_signature) {
+
+        signatures_queue_debug_logger('Ending getting signature ID, beginning saving signature. ID: @id.', array('@id' => $queue_item_id));
+
+        // If this is a new signature, create new signature record.
+        $signature_id = _signatures_queue_process_signatures_save_signature($item, $user, $debug, $watchdog_suffix);
+
+        signatures_queue_debug_logger('Ending saving signature. ID: @id.', array('@id' => $queue_item_id));
+
+        if (empty($signature_id)) {
+          // Log failure.
+          logger_event('exceptions.signatures_queue.f79c9a5');
+          watchdog('signatures_queue', 'New signature could not be created. secret_validation_key: @secret_validation_key, vid: @vid, petition_id: @petition_id, timestamp_received_signature_validation: @timestamp_received_signature_validation. @suffix', array(
+            '@secret_validation_key' => $item->secret_validation_key,
+            '@vid' => $item->vid,
+            '@petition_id' => $item->petition_id,
+            '@timestamp_received_signature_validation' => $item->timestamp_received_signature_validation,
+            '@suffix' => $watchdog_suffix,
+          ), WATCHDOG_CRITICAL);
+          // Do NOT move items to processed table or remove from preprocess table.
+          $queue->releaseItem($item);
+          $timer = timer_stop('claim_duration');
+          $time = (int) $timer['time'];
+          logger_event('signatures_queue.data_flow.time_elapsed.signature_item_processing_duration', 'time', $time);
+          // Delete the timer variable to prevent accumulation.
+          unset($GLOBALS['timers']['claim_duration']['start']);
+
+          signatures_queue_debug_logger('Signature could not be saved, re-queueing. ID: @id.', array('@id' => $queue_item_id));
+
+          continue;
+        }
+      }
+      else {
+
+        signatures_queue_debug_logger('Ending getting signature ID, not saving signature as it is a duplicate. ID: @id.', array('@id' => $queue_item_id));
+
+        $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
+        watchdog('signatures_queue', 'This user already signed this petition. No new signature record will be created or counted. uid: @uid, petition_id: @petition_id, secret_validation_key: @secret_validation_key, vid: @vid,  timestamp_received_signature_validation: @timestamp_received_signature_validation. @suffix', array(
+          '@uid' => $user->uid,
+          '@petition_id' => $item->petition_id,
+          '@secret_validation_key' => $item->secret_validation_key,
+          '@vid' => $item->vid,
+          '@timestamp_received_signature_validation' => $item->timestamp_received_signature_validation,
+          '@suffix' => $watchdog_suffix,
+        ), WATCHDOG_NOTICE);
+
+        // Debug. Log signature item processed.
+        if ($debug) {
+          watchdog('signatures_queue', 'DEBUG ENABLED: Signature item processed: !item. @suffix', array(
+            '!item' => petition_format_for_watchdog($item),
+            '@suffix' => $watchdog_suffix,
+          ), WATCHDOG_DEBUG);
+        }
+      }
+
+      signatures_queue_debug_logger('Beginning queue item clean up tasks. ID: @id.', array('@id' => $queue_item_id));
+
+      _signatures_queue_process_signatures_log_times($item);
+
+      $count++;
+      $queue->deleteItem($item);
+      $timer = timer_stop('claim_duration');
+      $time = (int) $timer['time'];
+      logger_event('signatures_queue.data_flow.time_elapsed.signature_item_processing_duration', 'time', $time);
+      // Delete the timer variable to prevent accumulation.
+      unset($GLOBALS['timers']['claim_duration']['start']);
+
+      signatures_queue_debug_logger('Ending queue item clean up tasks. ID: @id', array('@id' => $queue_item_id));
     }
-
-    // Add signature ID and API key to signatures_validations table.
-    _signatures_queue_process_signatures_add_to_signatures_validations($item, $watchdog_suffix);
-
-    // Move item to processed tables and delete from pre-process tables.
-    _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix);
-
-    // Subscribe to list if requested.
-    if ((bool) $item['signup']) {
-      $signatory = array(
-        'first_name' => $item['first_name'],
-        'last_name' => $item['last_name'],
-        'email' => $item['email'],
-        'zip' => $item['zip'],
-        'petition_id' => $item['petition_id'],
-      );
-      PetitionsController::incrementPetitionMetricCount($item['petition_id'], PetitionItem::PETITION_SIGNATURE_COUNT_EMAIL_SIGNUPS);
-      module_invoke_all('petition_signatory_opt_in', $signatory);
+    else {
+      break;
     }
-
-    $count++;
   }
 
-  // Set the active database to the signatures_processing db.
-  signatures_queue_set_db();
+  signatures_queue_debug_logger('Beginning final logging.');
 
-  $count_signatures_pending_validation = db_select('signatures_pending_validation')->countQuery()->execute()->fetchField();
-  _signatures_queue_data_store_size_event('signatures_pending_validation', $count_signatures_pending_validation);
-  $count_signatures_processed = db_select('signatures_processed')->countQuery()->execute()->fetchField();
-  _signatures_queue_data_store_size_event('signatures_processed', $count_signatures_processed);
-
-  // Set the active database back to default, in case queue backend wasn't using
-  // Drupal's database.
-  db_set_active();
+  _signatures_queue_data_store_size_event('signatures_pending_validation', $queue->numberOfItems());
+  _signatures_queue_data_store_size_event('signatures_processed', $count);
 
   // Log successes.
   $watchdog_suffix = _signatures_queue_watchdog_suffix('process_signatures', $job_id, $server_name, $worker_name);
@@ -207,6 +199,8 @@ function _signatures_queue_process_signatures($job_id, $server_name, $worker_nam
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_WARNING);
   }
+
+  signatures_queue_debug_logger('Ending final logging, processing signatures complete.');
 
   return SIGNATURES_QUEUE_STATUS_OK;
 }
@@ -233,7 +227,7 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
   $legitimate = TRUE;
 
   // Check timestamps.
-  if ($item['timestamp_received_signature_validation'] > $item['timestamp_validation_close']) {
+  if ($item->timestamp_received_signature_validation > $item->timestamp_validation_close) {
     // This suggests suspicious activity, notify admin.
     $params = array_merge($item, array(
       'subject' => t('Timestamp discrepancy'),
@@ -244,7 +238,7 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
   }
 
   // Check petition IDs.
-  if ($item['petition_id'] != $item['validated_petition_id']) {
+  if ($item->petition_id != $item->validated_petition_id) {
     // This suggests suspicious activity, notify admin.
     $params = array_merge($item, array(
       'subject' => t('Petition ID discrepancy'),
@@ -257,7 +251,7 @@ function _signatures_queue_process_signatures_assert_legitimate($item, $debug = 
   // Debug?
   if ($debug && !$legitimate) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Signature flagged illegitimate: info = !info', array(
-      '!info' => petitionslog_format_for_watchdog($params),
+      '!info' => petition_format_for_watchdog($params),
     ), WATCHDOG_DEBUG);
   }
 
@@ -307,7 +301,7 @@ function _signatures_queue_process_signatures_valid_petition($petition_id, $debu
  *   Returns a Drupal user object.
  */
 function _signatures_queue_process_signatures_create_user($item) {
-  if ($uid = petition_user_exists_by_mail($item['email'])) {
+  if ($uid = petition_user_exists_by_mail($item->email)) {
     $user = user_load($uid);
     return $user;
   }
@@ -315,8 +309,8 @@ function _signatures_queue_process_signatures_create_user($item) {
   // Create users in the same format as wh_core_user_register_validate().
   $user = (object) array(
     'is_new' => TRUE,
-    'mail' => trim($item['email']),
-    'name' => _signatures_queue_process_signatures_get_unique_username($item['email']),
+    'mail' => trim($item->email),
+    'name' => _signatures_queue_process_signatures_get_unique_username($item->email),
     'status' => 1,
   );
   $new_user = user_save($user);
@@ -326,19 +320,19 @@ function _signatures_queue_process_signatures_create_user($item) {
     // Invoke profile2_get_types() to retrieve an array of all profiles.
     foreach (profile2_get_types() as $type_name => $profile_type) {
       // Confirm that the profile is available on user registration forms.
-      if (empty($profile_type->data['registration'])) {
+      if (empty($profile_type->data->registration)) {
         continue;
       }
       // Save profile data.
       $profile = profile2_create(array('type' => $type_name, 'user' => $new_user));
-      $profile->field_first_name[LANGUAGE_NONE][0]['value'] = $item['first_name'];
-      $profile->field_last_name[LANGUAGE_NONE][0]['value'] = $item['last_name'];
-      $profile->field_zip[LANGUAGE_NONE][0]['value'] = $item['zip'];
+      $profile->field_first_name[LANGUAGE_NONE][0]['value'] = $item->first_name;
+      $profile->field_last_name[LANGUAGE_NONE][0]['value'] = $item->last_name;
+      $profile->field_zip[LANGUAGE_NONE][0]['value'] = $item->zip;
       // Invoke petitions_signatures_display_location() for format location.
       if (module_exists('petitions_signatures_display')) {
         $location = FALSE;
-        if (!empty($item['zip']) && strlen($item['zip']) == 5 && is_numeric($item['zip'])) {
-          $location = petitions_signatures_display_location($item['zip']);
+        if (!empty($item->zip) && strlen($item->zip) == 5 && is_numeric($item->zip)) {
+          $location = petitions_signatures_display_location($item->zip);
         }
 
         if (is_array($location)) {
@@ -349,9 +343,9 @@ function _signatures_queue_process_signatures_create_user($item) {
           $profile->field_country[LANGUAGE_NONE][0]['value'] = $loc['country'];
         }
         else {
-          $profile->field_city[LANGUAGE_NONE][0]['value'] = $item['city'];
-          $profile->field_state[LANGUAGE_NONE][0]['value'] = $item['state'];
-          $profile->field_country[LANGUAGE_NONE][0]['value'] = $item['country'];
+          $profile->field_city[LANGUAGE_NONE][0]['value'] = $item->city;
+          $profile->field_state[LANGUAGE_NONE][0]['value'] = $item->state;
+          $profile->field_country[LANGUAGE_NONE][0]['value'] = $item->country;
         }
       }
       profile2_save($profile);
@@ -381,21 +375,21 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
   try {
     db_insert('signature_validations')
       ->fields(array(
-        'secret_validation_key' => $item['secret_validation_key'],
-        'signature_id' => $item['signature_id'],
-        'petition_id' => $item['petition_id'],
-        'signature_source_api_key' => $item['signature_source_api_key'],
-        'email' => $item['email'],
+        'secret_validation_key' => $item->secret_validation_key,
+        'signature_id' => $item->signature_id,
+        'petition_id' => $item->petition_id,
+        'signature_source_api_key' => $item->signature_source_api_key,
+        'email' => $item->email,
         'timestamp_processed_signature' => time(),
       ))
       ->execute();
   }
   catch (PDOException $exception) {
     // @todo Abuse detection.
-    petitionslog_event('exceptions.signatures_queue.a49d9ef');
+    logger_event('exceptions.signatures_queue.a49d9ef');
     watchdog('signatures_queue', 'An item could not be added due to a database error: item: !item, exception: !exception. @suffix', array(
-      '!item' => petitionslog_format_for_watchdog($item),
-      '!exception' => petitionslog_format_for_watchdog($exception),
+      '!item' => petition_format_for_watchdog($item),
+      '!exception' => petition_format_for_watchdog($exception),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_CRITICAL);
   }
@@ -404,98 +398,18 @@ function _signatures_queue_process_signatures_add_to_signatures_validations($ite
 }
 
 /**
- * Move items to processed tables.
+ * Log time elapsed since passing through previous workflows.
  *
- * Delete the items from signatures_pending_validation and validations
- * and add them to signatures_processed and validations_processed.
- *
- * @param string $item
- *   The item from the database query.
- * @param string $watchdog_suffix
- *   A string of job details as created by _signatures_queue_watchdog_suffix().
+ * @param array $item
+ *   The queue item.
  */
-function _signatures_queue_process_signatures_move_to_processed($item, $watchdog_suffix) {
-  // Set the active database to the signatures_processing db.
-  signatures_queue_set_db();
-
-  // Log time elapsed since passing through previous workflows.
-  $elapsed_since_receiving_signature_validation = signatures_queue_get_microtime_elapsed_since($item['timestamp_received_signature_validation']);
-  petitionslog_event('signatures_queue.data_flow.time_elapsed.received_signature_validation__to__processed_signature', 'time', $elapsed_since_receiving_signature_validation);
-  $elapsed_since_preprocessing_signatures = signatures_queue_get_microtime_elapsed_since($item['timestamp_preprocessed_signature']);
-  petitionslog_event('signatures_queue.data_flow.time_elapsed.preprocessed_signature__to__processed_signature', 'time', $elapsed_since_preprocessing_signatures);
-  $elapsed_since_preprocessing_validation = signatures_queue_get_microtime_elapsed_since($item['timestamp_preprocessed_validation']);
-  petitionslog_event('signatures_queue.data_flow.time_elapsed.preprocessed_validation__to__processed_signature', 'time', $elapsed_since_preprocessing_validation);
-
-  // Add to processed tables.
-  $erred = FALSE;
-  $exception = NULL;
-  try {
-    db_insert('signatures_processed')
-      ->fields(array(
-        'secret_validation_key' => $item['secret_validation_key'],
-        'signature_source_api_key' => $item['signature_source_api_key'],
-        'petition_id' => $item['petition_id'],
-        'first_name' => $item['first_name'],
-        'last_name' => $item['last_name'],
-        'zip' => $item['zip'],
-        'email' => $item['email'],
-        'signup' => $item['signup'],
-        'timestamp_petition_close' => $item['timestamp_petition_close'],
-        'timestamp_validation_close' => $item['timestamp_validation_close'],
-        'timestamp_received_new_signature' => $item['timestamp_received_new_signature'],
-        'timestamp_initiated_signature_validation' => $item['timestamp_initiated_signature_validation'],
-        'timestamp_preprocessed_signature' => $item['timestamp_preprocessed_signature'],
-        'timestamp_preprocessed_validation' => $item['timestamp_preprocessed_validation'],
-        'timestamp_processed_signature' => time(),
-      ))
-      ->execute();
-    petitionslog_event('signatures_queue.data_store.signatures_processed.item_added');
-  }
-  catch (PDOException $exception) {
-    petitionslog_event('exceptions.signatures_queue.e5f8a95');
-    $erred = TRUE;
-  }
-  try {
-    db_insert('validations_processed')
-      ->fields(array(
-        'secret_validation_key' => $item['secret_validation_key'],
-        'timestamp_validation_close' => $item['timestamp_validation_close'],
-        'timestamp_received_signature_validation' => $item['timestamp_received_signature_validation'],
-        'client_ip' => $item['client_ip'],
-        'petition_id' => $item['petition_id'],
-        'timestamp_preprocessed_validation' => $item['timestamp_preprocessed_validation'],
-        'timestamp_processed_signature' => time(),
-      ))
-      ->execute();
-    petitionslog_event('signatures_queue.data_store.validations_processed.item_added');
-  }
-  catch (PDOException $exception) {
-    petitionslog_event('exceptions.signatures_queue.48d42b3');
-    $erred = TRUE;
-  }
-
-  // Log errors.
-  if ($erred) {
-    petitionslog_event('exceptions.signatures_queue.388ac8b');
-    watchdog('signatures_queue', 'An item could not be moved to processed due to a database error: item: !item, exception: !exception. @suffix', array(
-      '!item' => petitionslog_format_for_watchdog($item),
-      '!exception' => petitionslog_format_for_watchdog($exception),
-      '@suffix' => $watchdog_suffix,
-    ), WATCHDOG_CRITICAL);
-  }
-
-  // Delete from pre-process tables.
-  db_delete('signatures_pending_validation')
-    ->condition('sid', $item['sid'])
-    ->execute();
-  petitionslog_event('signatures_queue.data_store.signatures_pending_validation.item_removed');
-  db_delete('validations')
-    ->condition('vid', $item['vid'])
-    ->execute();
-  petitionslog_event('signatures_queue.data_store.validations.item_removed');
-
-  // Set the active database back to default.
-  db_set_active();
+function _signatures_queue_process_signatures_log_times($item) {
+  $elapsed_since_receiving_signature_validation = signatures_queue_get_microtime_elapsed_since($item->timestamp_received_signature_validation);
+  logger_event('signatures_queue.data_flow.time_elapsed.received_signature_validation__to__processed_signature', 'time', $elapsed_since_receiving_signature_validation);
+  $elapsed_since_preprocessing_signatures = signatures_queue_get_microtime_elapsed_since($item->timestamp_preprocessed_signature);
+  logger_event('signatures_queue.data_flow.time_elapsed.preprocessed_signature__to__processed_signature', 'time', $elapsed_since_preprocessing_signatures);
+  $elapsed_since_preprocessing_validation = signatures_queue_get_microtime_elapsed_since($item->timestamp_preprocessed_validation);
+  logger_event('signatures_queue.data_flow.time_elapsed.preprocessed_validation__to__processed_signature', 'time', $elapsed_since_preprocessing_validation);
 }
 
 /**
@@ -551,19 +465,21 @@ function _signatures_queue_process_signatures_get_signature_id($petition_id, $ui
 /**
  * Create a new signature record.
  *
- * @param array $item
+ * @param object $item
  *   Signature data that has worked its way down the pipeline through the
  *   signature queue.
  * @param object $user
  *   Drupal user, owner of this signature.
  * @param bool $debug
  *   Enable debugging.
+ * @param string $watchdog_suffix
+ *   Suffix for watchdog.
  *
  * @return string|false
  *   The ID of the signature created, or FALSE if none could be created.
  */
-function _signatures_queue_process_signatures_save_signature(array $item, $user, $debug) {
-  $petition = PetitionsController::loadObject($item['petition_id']);
+function _signatures_queue_process_signatures_save_signature($item, $user, $debug, $watchdog_suffix) {
+  $petition = PetitionsController::loadObject($item->petition_id);
 
   // No such petition could be found.
   if (!$petition) {
@@ -577,143 +493,43 @@ function _signatures_queue_process_signatures_save_signature(array $item, $user,
   $signature
     ->setLegacyPetitionId($petition->getLegacyId())
     ->setPetitionId($petition->getEntityId())
-    ->setFirstName($item['first_name'])
-    ->setLastName($item['last_name'])
-    ->setCreated($item['timestamp_received_new_signature'])
+    ->setFirstName($item->first_name)
+    ->setLastName($item->last_name)
+    ->setCreated($item->timestamp_received_new_signature)
     ->setUid($user->uid)
     ->setUser($user)
-    ->setZip($item['zip'])
-    ->setIpAddress($item['client_ip']);
+    ->setZip($item->zip)
+    ->setIpAddress($item->client_ip);
   $signature = SignaturesController::save($signature);
 
   // Store metrics for fraud reporting.
-  $email = signatures_queue_unsubaddress_email($item['email']);
-  petition_add_signature_email($item['petition_id'], $email);
-  petition_add_signature_ip($item['petition_id'], $item['client_ip']);
+  petition_update_email_ip_metrics($item->petition_id, $item->email, $item->client_ip);
+  petition_set_metadata_value($item->petition_id, 'petition_signatures_updated', 1);
 
-  petition_update_total_unique_ips_and_emails($item['petition_id']);
+  // Add signature ID and API key to signatures_validations table.
+  _signatures_queue_process_signatures_add_to_signatures_validations($item, $watchdog_suffix);
+
+  // Subscribe to list if requested.
+  if ((bool) $item->signup) {
+    $signatory = array(
+      'first_name' => $item->first_name,
+      'last_name' => $item->last_name,
+      'email' => $item->email,
+      'zip' => $item->zip,
+      'petition_id' => $item->petition_id,
+    );
+    petition_increment_metadata($item->petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_EMAIL_SIGNUPS);
+    module_invoke_all('petition_signatory_opt_in', $signatory);
+  }
 
   if ($debug) {
     if ($signature->getId() !== NULL) {
       watchdog('signatures_queue', 'DEBUG ENABLED: Signature has been saved. Signature entity: !signature', array(
-        '!signature' => petitionslog_format_for_watchdog($signature->toEntity()),
+        '!signature' => petition_format_for_watchdog($signature->toEntity()),
       ), WATCHDOG_DEBUG);
     }
   }
 
   return $signature->getId();
 
-}
-
-/**
- * Evaluates petition metrics against alert thresholds.
- *
- * @param string $petition_id
- *   Signature data that has worked its way down the pipeline through the
- *   signature queue.
- */
-function _signatures_queue_process_signatures_compare_thresholds($petition_id) {
-  $petition_id = petition_get_nid($petition_id);
-  $petition_metric_fields_map = PetitionsSelectQueryMysql::getPetitionMetricFieldsMap();
-  $metrics = array();
-  $petitions_alert_signature_threshold = variable_get('petitions_alert_signature_threshold', 0);
-
-  // Only run this if the email throttle is set, otherwise will run every time.
-  if (variable_get('petitions_alert_enabled', FALSE) && variable_get('petitions_alert_email_throttle') && $petitions_alert_signature_threshold) {
-    $current_time = time();
-    $time_threshold = $current_time - variable_get('petitions_alert_email_throttle');
-
-    $signature_count = db_select('signature_mail', 'sm')
-      ->condition('petition_id', $petition_id)
-      ->countQuery()
-      ->execute()
-      ->fetchField();
-
-    // EntityFieldQuery won't show NULL field_petition_last_alert rows.
-    $q = db_select('node', 'n');
-    $q->fields('n')
-      ->fields('pla', array('field_petition_last_alert_value'))
-      ->fields('trp', array('field_timestamp_reached_public_value'))
-      ->fields('psc', array('field_petition_signature_count_value'))
-      ->condition('n.nid', $petition_id, '=')
-      ->condition('trp.field_timestamp_reached_public_value', 'NULL', '<>')
-      ->condition('psc.field_petition_signature_count_value', $petitions_alert_signature_threshold, '>=');
-    $q->leftJoin('field_data_field_petition_last_alert', 'pla', 'pla.entity_id = n.nid');
-    $q->leftJoin('field_data_field_timestamp_reached_public', 'trp', 'trp.entity_id = n.nid');
-    $q->leftJoin('field_data_field_petition_signature_count', 'psc', 'psc.entity_id = n.nid');
-
-    foreach ($petition_metric_fields_map as $metric_name => $field_mapping) {
-      $table_name = 'field_data_' . $field_mapping['table'];
-      $q->leftJoin($table_name, NULL, $table_name . '.entity_id = n.nid');
-      $q->fields($table_name, array($field_mapping['field']));
-    }
-    $r = $q->execute();
-
-    if ($r->rowCount()) {
-      $results = $r->fetchAllAssoc('nid');
-      $result = array_shift($results);
-      // Subtract signer's signature from signature count.
-      $signature_count = $signature_count - 1;
-      $last_alert = $result->field_petition_last_alert_value;
-      if ($last_alert == NULL || $last_alert <= $time_threshold) {
-        foreach ($petition_metric_fields_map as $metric_name => $field_mapping) {
-          $ratio = $result->$field_mapping['field'] / $signature_count;
-          $metric_var = 'petitions_alert_threshold_upper_' . $metric_name;
-          $bound = variable_get($metric_var);
-          if (!empty($bound) && $ratio > $bound) {
-            $metrics[] = $metric_var;
-          }
-
-          $metric_var = 'petitions_alert_threshold_lower_' . $metric_name;
-          $bound = variable_get($metric_var);
-          if (!empty($bound) && $ratio < $bound) {
-            $metrics[] = $metric_var;
-          }
-        }
-        if ($metrics) {
-          // Send an email for thresholds crossed.
-          _signatures_queue_process_send_fraud_alert($result, $metrics, $current_time);
-        }
-      }
-    }
-  }
-}
-
-/**
- * Send email alert about fraud metric thresholds crossed.
- *
- * @param object $node
- *   Petition Node to alert on.
- * @param array $metrics
- *   Array of metric thresholds crossed.
- * @param int $time
- *   Time of fraud alert processing.
- */
-function _signatures_queue_process_send_fraud_alert($node, $metrics, $time) {
-  global $base_url;
-  global $language;
-  $petition_title = $node->title;
-  $url = $base_url . '/node/' . $node->nid . '/analysis';
-
-  $email_address = variable_get('petitions_alert_email_address');
-
-  $subject = variable_get("petitions_alert_email_subject");
-  $params['subject'] = t($subject, array('!title' => $petition_title));
-
-  $body = variable_get("petitions_alert_email_body");
-  $params['body'] = t($body, array(
-      '!title' => $petition_title,
-      '!metrics' => implode("\n", $metrics),
-      '!url' => $url,
-    )
-  );
-
-  $message = drupal_mail('signatures_queue', 'send_fraud_alert', $email_address, $language, $params);
-  if ($message['result']) {
-    PetitionsController::setPetitionFieldValue($node->nid, 'field_petition_last_alert', 'value', $time);
-  }
-
-  foreach ($metrics as $metric) {
-    petitionslog_event('signatures_queue.workflow.process_signatures.notifications.' . $metric, 'set', $node->nid);
-  }
 }

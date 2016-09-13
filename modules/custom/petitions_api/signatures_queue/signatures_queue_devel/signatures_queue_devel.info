@@ -5,3 +5,4 @@ package = Development
 dependencies[] = signatures_queue
 configure = admin/config/system/petitions/signatures-queue
 files[] = classes/SignaturesQueueDevel.inc
+files[] = classes/SignaturesQueueDevelTimer.php

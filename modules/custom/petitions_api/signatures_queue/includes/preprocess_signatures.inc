@@ -32,10 +32,6 @@
  * @return int
  *   Returns one of the following status codes indicating the workflow outcome:
  *     - SIGNATURES_QUEUE_STATUS_OK
- *     - SIGNATURES_QUEUE_STATUS_BAD_REQUEST
- *     - SIGNATURES_QUEUE_STATUS_FORBIDDEN
- *     - SIGNATURES_QUEUE_STATUS_NOT_FOUND
- *     - SIGNATURES_QUEUE_STATUS_SERVER_ERROR
  *
  * @see signatures_queue_invoke_workflow()
  */
@@ -63,32 +59,72 @@ function _signatures_queue_preprocess_signatures($job_id, $server_name, $worker_
  *   A string of job details as created by _signatures_queue_watchdog_suffix().
  * @param bool $debug
  *   Enable debugging for verbose logging.
+ *
+ * @return bool
+ *   Returns TRUE if batch is processed, FALSE is batch is empty.
  */
 function _signatures_queue_preprocess_signatures_preprocess_signatures($watchdog_suffix, $debug = FALSE) {
+  // Get the schema for the table the signature will be inserted into.
+  module_load_install('signatures_queue');
+  $schema = _signatures_queue_get_signatures_schema();
+
   // Claim a batch of signatures from signatures_pending_validation_queue.
   $batch = _signatures_queue_preprocess_signatures_claim_batch('signatures_pending_validation_queue', $watchdog_suffix);
 
   // Debug. Print batch to log.
   if ($debug) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Batch of signatures to be preprocessed: !batch. @suffix', array(
-      '!batch' => petitionslog_format_for_watchdog($batch),
+      '!batch' => petition_format_for_watchdog($batch),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_DEBUG);
   }
 
   // Return early if the batch is empty.
   if (empty($batch)) {
-    petitionslog_event('signatures_queue.workflow.preprocess_signatures.caught_up');
+    logger_event('signatures_queue.workflow.preprocess_signatures.caught_up');
     return FALSE;
   }
 
-  // Dedupe the batch and insert into the signatures_pending_validation table.
-  $inserted = _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($batch, 'signatures_pending_validation', $watchdog_suffix);
+  // Get the queue.
+  /**
+   * @var SignatureValidationProcessorQueue $queue
+   */
+  $queue_name = 'signature_validation_processor_queue';
+  $queue = SignaturesQueue::get($queue_name);
+  $queue->createQueue();
 
-  if ($inserted) {
-    // Delete the batch from signatures_pending_validation_queue.
-    _signatures_queue_preprocess_signatures_delete_signatures_batch_from_queue($batch, 'signatures_pending_validation_queue');
+  $queued_items = array();
+  $fields = _signatures_queue_preprocess_signatures_insert_batch_fields('signatures_pending_validation_queue', $schema);
+
+  foreach ($batch as $new_signature) {
+    $sanitized_signature = _signatures_queue_preprocess_signature_sanitize($schema, $new_signature);
+    $sanitized_signature->data = array_intersect_key($sanitized_signature->data, $fields);
+
+    $result = $queue->createItem($sanitized_signature->data);
+
+    // Save queued items to be removed from signatures_pending_validation queue.
+    if ($result) {
+      $queued_items[] = $sanitized_signature;
+    }
+    else {
+      // No exception, but result was FALSE from createItem.
+      watchdog('signatures_queue', 'Error inserting signature into @queue. @suffix. Queue Item ID: @sid', array(
+        '@queue' => $queue_name,
+        '@suffix' => $watchdog_suffix,
+        '@sid' => $sanitized_signature->item_id,
+      ), WATCHDOG_ERROR);
+    }
   }
+
+  _signatures_queue_data_store_size_event($queue_name, count($queued_items));
+
+  if ($queued_items) {
+    logger_event("signatures_queue.data_store.{$queue_name}.item_added", 'count', count($queued_items));
+
+    // Delete the batch from signatures_pending_validation_queue.
+    _signatures_queue_preprocess_signatures_delete_signatures_batch_from_queue($queued_items, 'signatures_pending_validation_queue');
+  }
+  return TRUE;
 }
 
 /**
@@ -110,7 +146,7 @@ function _signatures_queue_preprocess_signatures_preprocess_validations($watchdo
   // Debug. Print batch to log.
   if ($debug) {
     watchdog('signatures_queue', 'DEBUG ENABLED: Batch of validations to be preprocessed: !batch. @suffix', array(
-      '!batch' => petitionslog_format_for_watchdog($batch),
+      '!batch' => petition_format_for_watchdog($batch),
       '@suffix' => $watchdog_suffix,
     ), WATCHDOG_DEBUG);
   }
@@ -126,12 +162,12 @@ function _signatures_queue_preprocess_signatures_preprocess_validations($watchdo
     //   time.) This suggests an opportunity to refine the workflow design by
     //   separating this workflow into two. Ticket #PT-1438 has been created to
     //   do so.
-    petitionslog_event('signatures_queue.workflow.preprocess_validations.caught_up');
+    logger_event('signatures_queue.workflow.preprocess_validations.caught_up');
     return FALSE;
   }
 
   // Dedupe the batch and insert into the validations table.
-  $inserted = _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($batch, 'validations', $watchdog_suffix);
+  $inserted = _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($batch, 'pending_validations_queue', $watchdog_suffix);
 
   if ($inserted) {
     // Delete the batch from validations_queue.
@@ -221,7 +257,7 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
       if ($queue_name == 'signatures_pending_validation_queue') {
         // Log time elapsed since passing through previous workflow.
         $elapsed_since_initiating_signature_validation = signatures_queue_get_microtime_elapsed_since($item->data['timestamp_initiated_signature_validation']);
-        petitionslog_event('signatures_queue.data_flow.time_elapsed.initiated_signature_validation__to__preprocessed_signature', 'time', $elapsed_since_initiating_signature_validation);
+        logger_event('signatures_queue.data_flow.time_elapsed.initiated_signature_validation__to__preprocessed_signature', 'time', $elapsed_since_initiating_signature_validation);
 
         // Add timestamp.
         $item->data['timestamp_preprocessed_signature'] = time();
@@ -229,7 +265,7 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
       elseif ($queue_name == 'validations_queue') {
         // Log time elapsed since passing through previous workflow.
         $elapsed_since_receiving_signature_validation = signatures_queue_get_microtime_elapsed_since($item->data['timestamp_received_signature_validation']);
-        petitionslog_event('signatures_queue.data_flow.time_elapsed.received_signature_validation__to__preprocessed_validation', 'time', $elapsed_since_receiving_signature_validation);
+        logger_event('signatures_queue.data_flow.time_elapsed.received_signature_validation__to__preprocessed_validation', 'time', $elapsed_since_receiving_signature_validation);
 
         // Add timestamp.
         $item->data['timestamp_preprocessed_validation'] = time();
@@ -239,6 +275,7 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
       $batch[$key] = $item;
     }
   }
+  logger_event('signatures_queue.data_store.signatures_pending_validation_queue.batch', 'gauge', count($batch));
 
   return $batch;
 }
@@ -261,16 +298,24 @@ function _signatures_queue_preprocess_signatures_claim_batch($queue_name, $watch
  *   Returns TRUE if items were successfully inserted, or FALSE if not.
  */
 function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($batch, $table_name, $watchdog_suffix) {
+  // Get the schema for the table the signature will be inserted into.
+  module_load_install('signatures_queue');
+  if ($table_name == 'pending_validations_queue') {
+    $schema = _signatures_queue_get_validations_schema();
+  }
+  else {
+    throw new Exception(t('Invalid table name.'));
+  }
 
   // Dedupe signatures by cross-referencing chunks of the new submissions
   // against data in the database.
   $new_signatures = _signatures_queue_preprocess_signatures_dedupe_signatures($table_name, $batch);
 
-  $sanitized_signatures = _signatures_queue_preprocess_signatures_sanitize_batch($table_name, $new_signatures);
+  $sanitized_signatures = _signatures_queue_preprocess_signatures_sanitize_batch($schema, $new_signatures);
+  $sanitized_signatures = _signatures_queue_preprocess_signatures_add_validation_close($sanitized_signatures);
 
   // Build insert query.
-  $fields = _signatures_queue_preprocess_signatures_insert_batch_fields($table_name);
-  signatures_queue_set_db();
+  $fields = _signatures_queue_preprocess_signatures_insert_batch_fields($table_name, $schema);
   $query = db_insert($table_name);
   $query->fields(array_values($fields));
 
@@ -288,15 +333,14 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
   // Execute the query.
   try {
     $query->execute();
-    petitionslog_event("signatures_queue.data_store.{$table_name}.item_added", 'count', $items_added);
+    logger_event("signatures_queue.data_store.{$table_name}.item_added", 'count', $items_added);
   }
   catch (Exception $e) {
-    petitionslog_event('exceptions.signatures_queue.6e13628');
-    db_set_active();
+    logger_event('exceptions.signatures_queue.6e13628');
     watchdog('signatures_queue', 'Error inserting signatures into @table. @suffix. Exception: !e', array(
       '@table' => $table_name,
       '@suffix' => $watchdog_suffix,
-      '!e' => petitionslog_format_for_watchdog($e),
+      '!e' => petition_format_for_watchdog($e),
     ), WATCHDOG_ERROR);
 
     return FALSE;
@@ -304,8 +348,6 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
 
   $count = db_select($table_name)->countQuery()->execute()->fetchField();
   _signatures_queue_data_store_size_event($table_name, $count);
-
-  db_set_active();
 
   return TRUE;
 }
@@ -315,8 +357,8 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
  *
  * Prevents database errors from type, length, and character encoding issues.
  *
- * @param string $table_name
- *   The name of the table the batch will be inserted into.
+ * @param array $schema
+ *   Schema of table.
  * @param array $batch
  *   A batch of items as returned by
  *   _signatures_queue_preprocess_signatures_claim_batch().
@@ -327,55 +369,87 @@ function _signatures_queue_preprocess_signatures_safe_insert_batch_into_table($b
  * @return array
  *   Returns the sanitized batch of items.
  */
-function _signatures_queue_preprocess_signatures_sanitize_batch($table_name, $batch) {
-  // Get the schema for the table the batch will be inserted into.
-  module_load_install('signatures_queue');
-  if ($table_name == 'signatures_pending_validation') {
-    $schema = _signatures_queue_get_signatures_schema();
-  }
-  elseif ($table_name = 'validations') {
-    $schema = _signatures_queue_get_validations_schema();
-  }
-  else {
-    throw new Exception(t('Invalid table name.'));
-  }
-
+function _signatures_queue_preprocess_signatures_sanitize_batch($schema, &$batch) {
   // Loop through batch items.
-  foreach ($batch as $item) {
-    // Loop through item values.
-    foreach ($item->data as $key => $value) {
-      if (isset($schema['fields'][$key]['type'])) {
-
-        // Sanitize VARCHAR fields.
-        if ($schema['fields'][$key]['type'] == 'varchar') {
-          // Prevent PDO exceptions from unsupported characters like this guy:
-          // http://www.fileformat.info/info/unicode/char/1F600/index.htm. (Not
-          // kidding.)
-          $plain_value = utf8_encode($value);
-
-          // Truncate value to the maximum length of its target database column.
-          $trimmed_value = drupal_substr($plain_value, 0, $schema['fields'][$key]['length']);
-
-          $item->data[$key] = $trimmed_value;
-        }
-
-        // Sanitize INT fields.
-        elseif ($schema['fields'][$key]['type'] == 'int') {
-          // Make sure INTs come through as actual INTs!
-          $item->data[$key] = (int) $item->data[$key];
-        }
-      }
-    }
+  foreach ($batch as &$item) {
+    $item = _signatures_queue_preprocess_signature_sanitize($schema, $item);
   }
 
   return $batch;
 }
 
 /**
+ * Adds value of timestamp_validation_close to validations.
+ *
+ * @param array $batch
+ *   A batch of items as returned by
+ *   _signatures_queue_preprocess_signatures_claim_batch().
+ *
+ * @return array
+ *   Returns the batch of items with timestamp_validation_close values.
+ */
+function _signatures_queue_preprocess_signatures_add_validation_close(array &$batch) {
+  $minimum_lifetime = '+' . variable_get('signatures_queue_minimum_signature_lifetime', '2 weeks');
+  $archive_date = strtotime($minimum_lifetime);
+  // Loop through batch items.
+  foreach ($batch as &$item) {
+    $item->data['timestamp_validation_close'] = $archive_date;
+  }
+  return $batch;
+}
+
+/**
+ * Sanitizes a signature item for safe database insertion.
+ *
+ * Prevents database errors from type, length, and character encoding issues.
+ *
+ * @param array $schema
+ *   Schema of table.
+ * @param object $item
+ *   An item as returned by
+ *   _signatures_queue_preprocess_signatures_claim_batch().
+ *
+ * @throws Exception
+ *   Throws an exception in case of an invalid table name argument.
+ *
+ * @return array
+ *   Returns the sanitized item.
+ */
+function _signatures_queue_preprocess_signature_sanitize($schema, $item) {
+  // Loop through item values.
+  foreach ($item->data as $key => $value) {
+    if (isset($schema['fields'][$key]['type'])) {
+
+      // Sanitize VARCHAR fields.
+      if ($schema['fields'][$key]['type'] == 'varchar') {
+        // Prevent PDO exceptions from unsupported characters like this guy:
+        // http://www.fileformat.info/info/unicode/char/1F600/index.htm. (Not
+        // kidding.)
+        $plain_value = utf8_encode($value);
+
+        // Truncate value to the maximum length of its target database column.
+        $trimmed_value = drupal_substr($plain_value, 0, $schema['fields'][$key]['length']);
+
+        $item->data[$key] = $trimmed_value;
+      }
+
+      // Sanitize INT fields.
+      elseif ($schema['fields'][$key]['type'] == 'int') {
+        // Make sure INTs come through as actual INTs!
+        $item->data[$key] = (int) $item->data[$key];
+      }
+    }
+  }
+  return $item;
+}
+/**
  * Returns an array of fields to be used for inserting batch into local db.
  *
  * @param string $table_name
  *   The name of the table that the batch will be inserted into.
+ *
+ * @param array $schema
+ *   The schema of the table that the batch will be inserted into.
  *
  * @return array
  *   An associative array of fields, keyed by field name.
@@ -383,26 +457,19 @@ function _signatures_queue_preprocess_signatures_sanitize_batch($table_name, $ba
  * @throws Exception
  *   Throws an exception if an invalid table name is supplied.
  */
-function _signatures_queue_preprocess_signatures_insert_batch_fields($table_name) {
-  // Prepare the query and get the destination schema.
-  module_load_install('signatures_queue');
-  if ($table_name == 'signatures_pending_validation') {
+function _signatures_queue_preprocess_signatures_insert_batch_fields($table_name, $schema) {
+  // Prepare the query.
+  if ($table_name == 'signatures_pending_validation_queue') {
     // Use values from table schema to determine fields for db_insert().
-    $schema = _signatures_queue_get_signatures_schema();
     $fields = drupal_map_assoc(array_keys($schema['fields']));
-    // Unset auto-inc and empty fields.
+    // Unset auto-increment field.
     unset($fields['sid']);
-    unset($fields['timestamp_preprocessed_validation']);
-    unset($fields['timestamp_processed_signature']);
   }
-  elseif ($table_name == 'validations') {
+  elseif ($table_name == 'pending_validations_queue') {
     // Use values from table schema to determine fields for db_insert().
-    $schema = _signatures_queue_get_validations_schema();
     $fields = drupal_map_assoc(array_keys($schema['fields']));
-    // Unset auto-inc and empty fields.
+    // Unset auto-increment field.
     unset($fields['vid']);
-    unset($fields['timestamp_processed_signature']);
-    unset($fields['timestamp_validation_close']);
   }
   else {
     throw new Exception(t('Invalid table name.'));
@@ -432,7 +499,6 @@ function _signatures_queue_preprocess_signatures_dedupe_signatures($table_name, 
     $chunk_size = variable_get('signatures_queue_preprocess_dedupe_chunk_size', 50);
   }
 
-  signatures_queue_set_db();
   $new_signatures = array();
   $chunks = array_chunk($submitted_signatures, $chunk_size, TRUE);
   foreach ($chunks as $chunk) {
@@ -444,7 +510,6 @@ function _signatures_queue_preprocess_signatures_dedupe_signatures($table_name, 
     // Add only signatures that are not in both arrays.
     $new_signatures += array_diff_key($chunk, $existing_signatures);
   }
-  db_set_active();
 
   return $new_signatures;
 }
@@ -473,14 +538,14 @@ function _signatures_queue_preprocess_signatures_delete_signatures_batch_from_qu
     foreach ($chunks as $chunk) {
       $count_items = count($chunk);
       $queue->deleteItemMultiple($chunk);
-      petitionslog_event("signatures_queue.data_store.{$queue_name}.item_removed", 'count', $count_items);
+      logger_event("signatures_queue.data_store.{$queue_name}.item_removed", 'count', $count_items);
     }
   }
   else {
     // Delete items.
     foreach ($batch as $item) {
       $queue->deleteItem($item);
-      petitionslog_event("signatures_queue.data_store.{$queue_name}.item_removed");
+      logger_event("signatures_queue.data_store.{$queue_name}.item_removed");
     }
   }
   $count_queue = $queue->numberOfItems();

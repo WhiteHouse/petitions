@@ -11,27 +11,6 @@
 include_once 'petitionadmin.features.inc';
 
 /**
- * Implements hook_menu_alter().
- */
-function petitionadmin_menu_alter(&$items) {
-    // @todo mongo cleanup:  This path is being registered by a mongo page.
-    // When the route is removed this unset becomes un-necessary and should be
-    // removed.
-    unset($items['admin/petitions']);
-
-    // Update the current petition menu item to point to the new mysql admin
-    // page.
-    $items['admin/petitions'] = array(
-      'title'            => 'Petitions',
-      'page callback'    => 'drupal_goto',
-      'page arguments'   => array('admin/content/petitions'),
-      'access arguments' => array('administer petitions'),
-      'type'             => MENU_NORMAL_ITEM,
-      'weight' => -10,
-    );
-}
-
-/**
  * Implements hook_form_id_alter().
  */
 function petitionadmin_form_views_form_petitions_moderation_tools_alter(&$form, &$form_state, $form_id) {
@@ -90,30 +69,11 @@ function petitionadmin_menu() {
     'access arguments' => array(1),
   );
 
-  $items['admin/content/petitions/content'] = array(
-    'title'  => 'Listing',
-    'type'   => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
+  $items['admin/petitions/content'] = array(
+    'title' => 'Petitions',
+    'description' => 'Petitions management index',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
   );
-
-  $items['admin/content/petitions/api-keys'] = array(
-    'title'            => 'API keys',
-    'page callback'    => 'drupal_goto',
-    'page arguments'   => array('admin/petitions/api-keys'),
-    'access arguments' => array('administer api keys'),
-    'type'             => MENU_LOCAL_TASK,
-    'weight'           => 2,
-  );
-
-  $items['admin/content/petitions/settings'] = array(
-    'title'            => 'Settings',
-    'page callback'    => 'drupal_goto',
-    'page arguments'   => array('admin/petitions/settings'),
-    'access arguments' => array('administer petitions'),
-    'type'             => MENU_LOCAL_TASK,
-    'weight'           => 3,
-  );
-
   return $items;
 }
 
@@ -314,23 +274,7 @@ function petitionadmin_get_admin_link($nid) {
  *   A url to the admin page for that petition.
  */
 function petitionadmin_get_admin_url($nid) {
-  $safe_nid = check_plain($nid);
-  $url_params = array(
-    ':edit_base_url' => variable_get('edit_base_url'),
-    ':adminpath' => 'admin/content/petitions',
-    ':nid' => $safe_nid,
-  );
-
-  if (empty($nid)) {
-    $url = strtr(':edit_base_url/:adminpath', $url_params);
-  }
-
-  // The promote flag is being used to prevent the view from returning results
-  // by default.  If this is changed these querystring params may need to be
-  // updated.
-  else {
-    $url = strtr(':edit_base_url/:adminpath?nid=:nid&promote=All', $url_params);
-  }
+  $url = sprintf('%s/node/%s/edit', variable_get('edit_base_url'), check_plain($nid));
 
   return $url;
 }
@@ -347,6 +291,7 @@ function petitionadmin_action_info() {
       'triggers' => array('any'),
       'behavior' => array('views_property'),
       'permissions' => array('access content'),
+      'pass rows' => TRUE,
     ),
   );
   return $action;
@@ -364,12 +309,54 @@ function petitionadmin_remove_signature(&$entity, $context = array()) {
   // Move signature into removed table or set removal flag.
   $result = db_query("INSERT IGNORE INTO {signature_mail_removed} (SELECT *, now() FROM {signature_mail} WHERE id=:id)", array(':id' => $entity->id));
 
-  // Delete signature.
-  if ($result) {
-    entity_delete('signature_mail', $entity->id);
+  $fraud_data = entity_load('signature_mail_fraud_data', array($entity->id));
+  $fraud_data = $fraud_data[$entity->id];
+  $metrics = array(
+    'is_free_email',
+    'is_open_email',
+    'is_forwarding_email',
+    'is_trash_email',
+    'is_time_bound_email',
+    'is_shredder_email',
+  );
 
-    // Update signature count for petition.
-    db_query("UPDATE IGNORE {field_data_field_petition_signature_count} SET field_petition_signature_count_value = field_petition_signature_count_value - 1 WHERE entity_id = :entity_id AND entity_type = 'node' AND bundle = 'petition'", array('entity_id' => $entity->petition_id));
+  // Manually remove signature entity for less overhead.
+  db_query('DELETE FROM {signature_mail} WHERE id = :id', array(':id' => $entity->id));
+  petitionadmin_remove_signature_solr($entity->id, 'signature_mail');
+
+  // Update signature count for petition in batches of $decrement_batch_size.
+  $removed_items = $context['progress']['current'];
+  $total_items = $context['progress']['total'];
+  $decrement_batch_size = 25;
+  $decrement_delta = $removed_items % $decrement_batch_size;
+  $last_item = ($removed_items == $total_items);
+  if ($decrement_delta == 0) {
+    db_query("UPDATE IGNORE {field_data_field_petition_signature_count} SET field_petition_signature_count_value = field_petition_signature_count_value - :delta WHERE entity_id = :entity_id AND entity_type = 'node' AND bundle = 'petition'",
+      array(':delta' => $decrement_batch_size, 'entity_id' => $entity->petition_id)
+    );
+  }
+  else if ($last_item) {
+    db_query("UPDATE IGNORE {field_data_field_petition_signature_count} SET field_petition_signature_count_value = field_petition_signature_count_value - :delta WHERE entity_id = :entity_id AND entity_type = 'node' AND bundle = 'petition'",
+      array(':delta' => $decrement_delta, 'entity_id' => $entity->petition_id)
+    );
+  }
+
+  foreach ($metrics as $metric) {
+    if ($fraud_data->$metric) {
+      petition_increment_metadata($entity->petition_id, $metric, TRUE);
+    }
+  }
+  petition_update_metadata_counts($entity->petition_id);
+
+}
+
+/**
+ * Remove signatures from solr.
+ */
+function petitionadmin_remove_signature_solr($signature_id, $entity_type = 'signature_mail') {
+  $environments = apachesolr_load_all_environments();
+  foreach ($environments as $environment) {
+    apachesolr_remove_entity($environment['env_id'], $entity_type, $signature_id);
   }
 }
 
@@ -394,4 +381,51 @@ function petitionadmin_admin_signatures($petition_id) {
   $html .= "<h2>Manually Removed Emails: " . $removed_emails . "</h2><hr>";
   $html .= views_embed_view('petitionadmin_signatures', 'block_1', $petition_id);
   return $html;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function petitionadmin_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_state['view']->name == 'petitionadmin_signatures' && $form_state['display']->id == 'block_1') {
+
+    if (isset($form_state['view']->args['0'])) {
+      $arg = $form_state['view']->args['0'];
+    }
+    else {
+      $arg = FALSE;
+    }
+
+    $query = db_select('signature_mail_fraud_data', 'smfd');
+    $query->fields('smfd', array('email_domain'));
+    $query->addExpression('COUNT(1)', 'count');
+    if ($arg) {
+      $query->condition('smfd.petition_id', $arg);
+    }
+    $query->leftJoin('signature_mail_removed', 'smr', 'smr.id = smfd.signature_mail_id');
+    $query->isNull('smr.id');
+    $result = $query->isNotNull('smfd.email_domain')
+      ->groupBy('smfd.email_domain')
+      ->orderBy('smfd.email_domain', 'ASC')
+      ->execute()
+      ->fetchAllAssoc('email_domain');
+
+    $results = array('' => '');
+    if ($result) {
+      foreach ($result as $row) {
+        $results[$row->email_domain] = $row->email_domain . ' (' . $row->count . ')';
+      }
+    }
+
+    $default_value = $form_state['input']['email_domain'];
+    if (!in_array($default_value, array_keys($results), TRUE)) {
+      $default_value = '';
+      $form_state['input']['email_domain'] = '';
+    }
+    $form['email_domain'] = array(
+      '#type' => 'select',
+      '#options' => $results,
+      '#default_value' => $default_value,
+    );
+  }
 }

@@ -352,7 +352,7 @@ function api_key_manager_views_default_views() {
   $handler->display->display_options['path'] = 'admin/petitions/api-keys';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'API keys';
-  $handler->display->display_options['menu']['weight'] = '1';
+  $handler->display->display_options['menu']['weight'] = '10';
   $handler->display->display_options['menu']['name'] = 'management';
   $handler->display->display_options['menu']['context'] = 0;
   $views['api_key_manager'] = $view;

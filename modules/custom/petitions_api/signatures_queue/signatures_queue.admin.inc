@@ -175,7 +175,17 @@ function signatures_queue_configure() {
     '#description' => t('Number of days a signature validation link is valid.'),
     '#required' => TRUE,
   );
+  $form['archive_signatures']['signatures_queue_archive_batch_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Archive batch size'),
+    '#default_value' => variable_get('signatures_queue_archive_batch_size', 5000),
+    '#size' => 12,
+    '#maxlength' => 12,
+    '#description' => t('The number of signatures to archive per batch.'),
+    '#required' => TRUE,
+  );
 
+  $form['all']['#prefix'] = signatures_queue_overview();
   return system_settings_form($form);
 }
 
@@ -228,4 +238,25 @@ function signatures_queue_generate_form_submit($form_id, &$form_state) {
       signatures_queue_generate($queue_name, $number, $delete_first);
     }
   }
+}
+
+/**
+ * Provide basic overview of the Signatures Queue system.
+ */
+function signatures_queue_overview() {
+  $rows = array();
+  $queues = signatures_queue_get_queue_names();
+  foreach ($queues as $queue_name => $description) {
+    $rows[] = array($queue_name, $description);
+  }
+  $rows[] = array(t('NOTE'), t("Real queues are named something_queue. The tables listed above that don't end in the suffix \"_queue\" aren't actually queues. Conceptually they're part of the \"signatures queue\" in the sense that these are holding bins where submitted signatures go before they're done being processed and counted. But they're not DrupalQueue queues. They cannot be instantiated with SignaturesQueue::get()."));
+
+  $output = theme('table', array(
+    'header' => array(
+      t('Queue name'),
+      t('Description')),
+    'rows' => $rows,
+  ));
+
+  return $output;
 }

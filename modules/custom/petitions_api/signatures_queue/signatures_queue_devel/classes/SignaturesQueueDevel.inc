@@ -30,7 +30,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
     $last_name                       = (!empty($overrides['last_name'])) ? $overrides['last_name'] : '';
     $petition_id                     = (!empty($overrides['petition_id'])) ? $overrides['petition_id'] : '';
     $signature_source_api_key        = (!empty($overrides['signature_source_api_key'])) ? $overrides['signature_source_api_key'] : '';
-    $signup                          = (!empty($overrides['signup'])) ? $overrides['signup'] : 0;
+    $signup                          = (!empty($overrides['signup'])) ? $overrides['signup'] : NULL;
     $timestamp_petition_close        = (!empty($overrides['timestamp_petition_close'])) ? $overrides['timestamp_petition_close'] : 0;
     $timestamp_received_new_signature = (!empty($overrides['timestamp_received_new_signature'])) ? $overrides['timestamp_received_new_signature'] : 0;
     $timestamp_validation_close      = (!empty($overrides['timestamp_validation_close'])) ? $overrides['timestamp_validation_close'] : 0;
@@ -65,6 +65,10 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['timestamp_processed_signature'] = ($timestamp_processed_signature) ? $timestamp_processed_signature : 0;
         break;
 
+      case 'signatures_pending_validation':
+        // Ensure $signup is an integer value before falling through.
+        $signup = ($signup) ? $signup : (rand(0, 100) >= 50) ? 1 : 0;
+
       case 'signatures_pending_validation_queue':
         $salt = variable_get('signatures_queue_salt', 'some random string');
         $grace_period = variable_get('signatures_queue_validation_grace_period', 2);
@@ -73,7 +77,7 @@ class SignaturesQueueDevel extends SignaturesQueue {
         $item['email'] = ($email) ? $email : $item['first_name'] . '@mailinator.com';
         $item['petition_id'] = ($petition_id) ? $petition_id : self::generateRandomPetitionID();
         $item['signature_source_api_key'] = ($signature_source_api_key) ? $signature_source_api_key : self::generateRandomString(20);
-        $item['signup'] = ($signup) ? $signup : (rand(0, 100) >= 50) ? TRUE : FALSE;
+        $item['signup'] = ($signup === NULL) ? ((rand(0, 100) >= 50) ? TRUE : FALSE) : $signup;
         $item['timestamp_petition_close'] = ($timestamp_petition_close) ? $timestamp_petition_close : time() + 10 * 24 * 60 * 60;
         $item['timestamp_validation_close'] = ($timestamp_validation_close) ? $timestamp_validation_close : time() + $grace_period * 24 * 60 * 60;
         $item['timestamp_initiated_signature_validation'] = ($timestamp_initiated_signature_validation) ? $timestamp_initiated_signature_validation : time();

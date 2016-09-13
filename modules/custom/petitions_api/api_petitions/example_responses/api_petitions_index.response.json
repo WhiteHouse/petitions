@@ -29,6 +29,8 @@
         "signatureThreshold": null,
         "signatureThresholdCeiling": null,
         "signatureThresholdFloor": null,
+        "sortBy": "DATE_REACHED_PUBLIC",
+        "sortOrder": "ASC",
         "status": null,
         "title": null,
         "url": null,
@@ -72,7 +74,8 @@
       ],
       "created": 1352920735,
       "isSignable": false,
-      "isPublic": true
+      "isPublic": true,
+      "reachedPublic": 1354231182
     },
     {
       "id": "224306",
@@ -128,7 +131,8 @@
       ],
       "created": 1352917876,
       "isSignable": false,
-      "isPublic": true
+      "isPublic": true,
+      "reachedPublic": 1353496598
     }
   ]
 }

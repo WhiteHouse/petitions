@@ -89,16 +89,10 @@ class PetitionsStatistics {
    *   Number of signatures started.
    */
   public static function getSignaturesStarted($time_period = 24) {
-    // Set the active database to the signatures_processing db.
-    signatures_queue_set_db();
-
-    $pending_signatures_count = db_select('signatures_pending_validation')->where("timestamp_received_new_signature > UNIX_TIMESTAMP( DATE_SUB(NOW(), INTERVAL :hours HOUR) )", array(':hours' => $time_period))
+    $pending_signatures_count = db_select('signatures_pending_validation_queue')->where("timestamp_received_new_signature > UNIX_TIMESTAMP( DATE_SUB(NOW(), INTERVAL :hours HOUR) )", array(':hours' => $time_period))
       ->countQuery()
       ->execute()
       ->fetchField();
-
-    // Set the active database back to default.
-    db_set_active();
 
     $completed_signatures_count = db_select('signature_mail')->where("timestamp > UNIX_TIMESTAMP( DATE_SUB(NOW(), INTERVAL :hours HOUR) )", array(':hours' => $time_period))
       ->countQuery()
@@ -163,10 +157,14 @@ class PetitionsStatistics {
    *   - {alert_name} - Shortened name of alert without fraud metric base.
    */
   public static function getPetitionAlerts($alerts = array(), $time_period = 24) {
+    $open_petition_statuses = array(WH_PETITION_STATUS_PUBLIC, WH_PETITION_STATUS_UNDER_REVIEW);
+
     $query = db_select('event_log', 'el')
       ->fields('el', array('lid', 'description', 'ref_numeric'))
-      ->condition('el.created', 'UNIX_TIMESTAMP( DATE_SUB(NOW(), INTERVAL ' . $time_period . ' HOUR)', '>');
+      ->condition('el.created', strtotime('-' . $time_period . ' hours'), '>')
+      ->condition('fps.field_petition_status_value', $open_petition_statuses, 'IN');
 
+    $query->join('field_data_field_petition_status', 'fps', 'fps.entity_id = el.ref_numeric');
     $query->join('node', 'n', 'n.nid = el.ref_numeric');
     $query->fields('n', array('title'));
 

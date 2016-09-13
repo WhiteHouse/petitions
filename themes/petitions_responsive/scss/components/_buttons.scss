@@ -1,0 +1,22 @@
+//All button styles
+.button,
+input[type="submit"] {
+  @include button();
+  font-weight: $font-bold;
+  width: 100%;
+  font-size: rem(24);
+}
+
+a.button{
+  @include button();
+  font-size: $base-font-size;
+  font-weight: $font-normal;
+  color: $white;
+  padding: 0.5em;
+  display: inline-block;
+  width: auto;
+  &:link{
+    text-decoration: none;
+  }
+}
+

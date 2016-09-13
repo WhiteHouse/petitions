@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * Implements hook_init().
+ */
+function sticky_element_init() {
+  $sticky_elements = variable_get('sticky_element_sticky_elements', array());
+
+  if (count($sticky_elements)) {
+    drupal_add_js(array(
+      'sticky_element' => array(
+        'settings' => $sticky_elements,
+      ),
+    ), array('type' => 'setting', 'scope' => JS_DEFAULT));
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function sticky_element_menu() {
+  $items = array();
+  $items['admin/config/user-interface/sticky-element'] = array(
+    'title' => 'Sticky Elements',
+    'description' => 'Configure sticky page elements.',
+    'access arguments' => array('administer site configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sticky_element_admin'),
+    'file' => 'includes/sticky_element.admin.inc'
+  );
+  return $items;
+}

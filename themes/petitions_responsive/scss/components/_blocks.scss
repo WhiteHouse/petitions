@@ -1,0 +1,173 @@
+// _blocks.default.scss
+//
+// Place all default block styles here.
+// Individual block styles are saved as their own files in the format of
+//  - Example: _blocks.block-id.scss
+
+.block{
+  h2.title {
+    text-align: center;
+  }
+  &.block-views {
+    h2.title {
+      margin-bottom: 20px;
+      @include media($desktop) {
+        margin-bottom: 30px;
+      }
+    }
+  }
+}
+
+div.block-how-petitions-work-block {
+  position: relative;
+  margin-bottom: 0;
+  @include outer-container();
+  .title,
+  .block-title {
+    text-align: center;
+    padding-bottom: 20px;
+    margin: 30px 0 20px;
+    border-bottom: 1px solid $color-border;
+    @include media($desktop) {
+      max-width: 50%;
+      padding-bottom: 30px;
+      margin: 30px auto;
+    }
+  }
+  .how-petitions-work-content {
+    counter-reset: steps;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 3em;
+    @include media($desktop) {
+      text-align: center;
+      padding: 0;
+    }
+    & > div {
+      counter-increment: steps;
+      &:before {
+        @include h3();
+        color: $mine-shaft;
+        font-family: $font-sans;
+        // Replaces list numbers with custom counter and formatting.
+        content: counter(steps);
+        display: block;
+        position: absolute;
+        left: 0;
+        width: 26px;
+        height: 26px;
+        font-size: 1.8rem;
+        line-height: 0;
+        padding: 11px 0 0 0;
+        margin: 0 0 20px 0;
+        text-align: center;
+        border: 2px solid $color-base;
+        border-radius: 100%;
+        box-sizing: border-box;
+        @include media($desktop) {
+          position: static;
+          margin: 0 auto 20px;
+        }
+      }
+      @include media($mobile-max-width){
+        padding-bottom: 20px;
+        &:before{
+          font-size: rem(13.5px);
+        }
+      }
+      @include media($desktop){
+        @include span-columns(4);
+      }
+      &:last-child{
+        padding-bottom: 0;
+      }
+      h3 {
+        margin-bottom: 0;
+        @include media($desktop) {
+          margin-bottom: 10px;
+        }
+      }
+      // Remove
+      p:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.how-petitions-work-more-link {
+  @include outer-container();
+  @include h6();
+  padding: 10px 0 35px 4em;
+
+  @include media($desktop) {
+    text-align: center;
+    padding: 25px 0 55px 0;
+  }
+}
+
+h4.block__title {
+  text-align: center;
+  margin-bottom: 20px;
+  display: none;
+  @include media($desktop) {
+    display: block;
+  }
+}
+
+//Styles for Petition Block
+.block-signature-count {
+  p {
+    display: none;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+    @include media($desktop) {
+      display: block;
+    }
+  }
+  .signatures-needed,
+  .date {
+    font-weight: $font-bold;
+  }
+}
+
+.signatures-text-container,
+.goal-text-container {
+  @include h6;
+}
+
+.signatures-text-container {
+  float: left;
+}
+
+.goal-text-container {
+  float: right;
+  margin-bottom: 20px;
+  @include clearfix;
+}
+
+.signature-thank-you {
+  clear: both;
+  background-color: $color-gray-cool-light;
+  padding: rem(20) rem(10);
+  color: $scorpion;
+  text-align: center;
+  margin-bottom: 20px;
+
+  p {
+    color: $scorpion !important;
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.block-popular-petitions {
+  & > .more-link {
+    text-align: left;
+    @include h6;
+  }
+
+}

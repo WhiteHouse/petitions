@@ -1,0 +1,227 @@
+/**
+ * Typography
+ * ----------
+ * Includes typography defaults.
+ */
+
+@import "fontface.scss";
+
+html {
+  font-family: $font-sans;
+  font-size: $em-base;
+}
+
+body {
+  font-size: $base-font-size;
+}
+
+// Create paragraph mixins
+
+@mixin p {
+  font-family: $font-sans;
+  font-size: $base-font-size;
+  font-weight: $font-normal;
+  line-height: $base-line-height;
+  color: $mine-shaft;
+}
+
+@mixin plead {
+  font-family: $font-serif;
+  line-height: $lead-line-height;
+  font-size: $lead-font-size;
+  font-weight: $font-light;
+  color: $mine-shaft;
+}
+
+@mixin plarge {
+  font-family: $font-sans;
+  font-weight: $font-normal;
+  font-size: $lead-font-size;
+  line-height: $base-line-height;
+  color: $mine-shaft;
+}
+
+p {
+  @include p();
+  margin-bottom: 1em;
+  margin-top: 1em;
+}
+
+p.lead {
+  @include plead();
+}
+
+p.large, .large {
+  @include plarge();
+}
+
+p a {
+  &:link,
+  &:hover,
+  &:visited {
+    text-decoration: underline;
+  }
+}
+
+em {
+  font-style: italic;
+}
+
+a {
+  color: $color-primary-darker;
+  text-decoration: none;
+
+  &:hover,
+  &:active {
+    color: $color-primary-darkest;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    box-shadow: $focus-shadow;
+    outline: 0;
+    &:active, &:hover {
+      box-shadow: none;
+    }
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  clear: both;
+  font-family: $font-serif;
+  line-height: $heading-line-height;
+  margin-bottom: .5em;
+  margin-top: 1.5em;
+}
+
+ol {
+  margin-left: rem(16);
+}
+
+ul {
+  margin-left: rem(20);
+}
+
+// Create heading mixins
+
+@mixin title {
+  font-size: $title-font-size;
+  font-weight: $font-bold;
+}
+
+@mixin h1 {
+  font-size: $h1-font-size;
+  font-weight: $font-bold;
+  color: $mine-shaft;
+  line-height: $heading-line-height;
+}
+
+@mixin h2 {
+  font-size: $h2-font-size;
+  font-weight: $font-bold;
+  line-height: $heading-line-height;
+}
+
+@mixin h3 {
+  font-size: $h3-font-size;
+  font-weight: $font-bold;
+  line-height: $heading-line-height;
+}
+
+@mixin h4 {
+  font-size: $h4-font-size;
+  font-weight: $font-bold;
+  color: $mine-shaft;
+  line-height: $heading-line-height;
+}
+
+@mixin h5 {
+  font-size: $h5-font-size;
+  font-weight: $font-bold;
+  line-height: $heading-line-height;
+}
+
+@mixin h6 {
+  font-family: $font-sans;
+  font-size: $h6-font-size;
+  font-weight: $font-normal;
+  text-transform: uppercase;
+  color: $scorpion;
+  line-height: $heading-line-height;
+}
+
+//Desktop-specific Headers
+h1,
+h1.title,
+.statement-largest {
+  @include h1();
+}
+
+h2,
+.statement-large {
+  @include h2();
+}
+
+h3,
+.statement-medium-large {
+  @include h3();
+}
+
+h4,
+.statement-medium-small {
+  @include h4();
+}
+
+h5,
+.statement-small {
+  @include h5();
+}
+
+h6,
+.statement-smallest {
+  @include h6();
+}
+
+//Mobile-specific Headers
+
+@include media($mobile-max-width) {
+  h1,
+  h1.title,
+  .statement-largest {
+    font-size: $h1-font-size-mobile;
+  }
+
+  h2,
+  .statement-large {
+    font-size: $h2-font-size-mobile;
+  }
+
+  h3,
+  .statement-medium-large {
+    font-size: $h3-font-size-mobile;
+  }
+
+  h4,
+  .statement-medium-small {
+    font-size: $h4-font-size-mobile;
+  }
+
+  h5,
+  .statement-small {
+    font-size: $h5-font-size-mobile;
+  }
+
+  h6,
+  .statement-smallest {
+    font-size: $h6-font-size-mobile;
+  }
+}
+
+// Remove user agent styles
+
+cite,
+var,
+address,
+dfn {
+  font-style: normal;
+}

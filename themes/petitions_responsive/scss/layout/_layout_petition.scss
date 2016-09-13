@@ -1,0 +1,77 @@
+/**
+ * Additional layout styles for the petition content type.
+ */
+
+.node-type-petition {
+  #content-top {
+    @include reset-all-text-margins();
+    padding-bottom: 20px;
+
+    // Adding a border here on a pseudo element in order to maintain proper grid
+    // alignment.
+    &:after {
+      content: '';
+      display: block;
+      @include span-columns($grid-columns);
+      border-bottom: 1px solid $color-border;
+    }
+
+    @include media($desktop) {
+      // Usw a 10 column local grid to layout elements in the content header.
+      $intro-grid-columns: 10;
+      @include span-columns($intro-grid-columns of $desktop-grid-columns);
+      @include shift(($desktop-grid-columns - $intro-grid-columns)/2 of $desktop-grid-columns);
+      padding-bottom: $vertical-padding-desktop;
+      &:after {
+        $intro-border-grid-columns: $intro-grid-columns - 2;
+        @include span-columns($intro-border-grid-columns of $intro-grid-columns);
+        @include shift(($intro-grid-columns - $intro-border-grid-columns)/2 of $intro-grid-columns);
+        @include omega();
+      }
+    }
+  }
+
+  #content {
+    @include media($desktop) {
+      padding-bottom: 0;
+      // Adding padding to each field so that the petition response can still
+      // span the full width of its container.
+      .node-petition {
+        & > .content > .field {
+          padding: 0 $column;
+          &.field-name-field-response-id {
+            padding: 0;
+          }
+        }
+      }
+    }
+  }
+  #sidebar-bottom {
+    @include media($desktop) {
+      @include vertical-padding(bottom);
+    }
+    .petition-closed {
+      margin-bottom: 20px;
+      padding: 20px 10px;
+      h3 {
+        margin: 0;
+      }
+      p {
+        margin-bottom: 0px;
+      }
+    }
+  }
+}
+
+.front, .page-responses {
+  #content-top {
+    @include reset-all-text-margins();
+    padding-bottom: 0;
+    @include media($desktop) {
+      // Usw a 10 column local grid to layout elements in the content header.
+      $intro-grid-columns: 10;
+      @include span-columns($intro-grid-columns of $desktop-grid-columns);
+      @include shift(($desktop-grid-columns - $intro-grid-columns)/2 of $desktop-grid-columns);
+    }
+  }
+}

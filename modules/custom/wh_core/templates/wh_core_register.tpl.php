@@ -10,13 +10,5 @@
  */
 ?>
 <div id="user-register-form-wrapper">
-  <h1>Create a WhiteHouse.gov Account</h1>
-  <div class="webform-description">
-    <p><b>Follow these steps to create your account and begin using We the People.</b></p>
-    <ol>
-      <li><b>Create an Account.</b> Fill out the form below to create an account.</li>
-      <li><b>Verify Your Account.</b> Within a few minutes and email will be sent to you.  You must click on the link in that email in order to verify your account</li>
-      <li><b>Create a Petition.</b> Once you've verified your account you can create petitions.</li>
-    </ol>
-  </div><!--/web form description-->
+  <h3>Create An Account</h3>
 </div><!--/user register form wrapper -->

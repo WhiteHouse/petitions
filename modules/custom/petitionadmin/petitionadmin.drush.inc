@@ -121,8 +121,8 @@ function petitionadmin_drush_export_signatures($petition_id) {
     return $query->execute();
   }
   catch (Exception $e) {
-    watchdog('petitionadmin', "Error.\n\n@exception", array(
-      '@exception' => print_r($e, TRUE),
+    watchdog('petitionadmin', "Error. Exception: @exception", array(
+      '@exception' => json_encode($e->getMessage()),
     ), WATCHDOG_ERROR);
   }
 }

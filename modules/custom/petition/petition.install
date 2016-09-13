@@ -29,6 +29,8 @@ function petition_install() {
   require_once 'includes/petition.field.inc';
   // Close comments.
   variable_set('comment_petition', COMMENT_NODE_CLOSED);
+  _petition_create_taxonomies();
+
   // Build the fields and add their instances to the petition content type.
   petition_build_fields(petition_fields());
   $t = get_t();
@@ -119,6 +121,34 @@ function petition_schema() {
       ),
       'unique keys' => array(
         'ip_petition' => array('ip', 'petition_id'),
+      ),
+    ),
+    'petition_metadata' => array(
+      'description' => 'Metadata about petitions.',
+      'fields' => array(
+        'petition_id' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'metric' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'value' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 1,
+        ),
+      ),
+      'indexes' => array(
+        'petition_id' => array('petition_id'),
+      ),
+      'unique keys' => array(
+        'petition_metric' => array('petition_id', 'metric'),
       ),
     ),
   );
@@ -502,4 +532,200 @@ function petition_update_7312(&$sandbox) {
 function petition_update_7313(&$sandbox) {
   module_enable(array('signature_mail_fraud_data'));
   features_revert(array('petitionadmin'));
+}
+
+/**
+ * PT-1815: Adding tables to store metrics, add threshold fields.
+ */
+function petition_update_7314(&$sandbox) {
+  // Explicitly defining schema, see https://www.drupal.org/node/150220.
+  $petition_metadata = array(
+    'description' => 'Metadata about petitions.',
+    'fields' => array(
+      'petition_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'metric' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'value' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+    'indexes' => array(
+      'petition_id' => array('petition_id'),
+      'metric' => array('metric'),
+      'petition_id_metric' => array('petition_id', 'metric'),
+    ),
+    'unique keys' => array(
+      'petition_metric' => array('petition_id', 'metric'),
+    ),
+  );
+
+  db_create_table('petition_metadata', $petition_metadata);
+
+  // Install signature threshold crossed timestamp fields.
+  require_once 'includes/petition.field.inc';
+  petition_build_fields(petition_fields());
+}
+
+/**
+ * PT-1868: Initialize event_log cleanup variable.
+ */
+function petition_update_7315(&$sandbox) {
+  variable_set('petitions_event_lifetime', '3 days');
+}
+
+/**
+ * PT-1830 - Create petition_type taxonomy and field_petition_type.
+ */
+function petition_update_7316() {
+  $new_vocab = (object) array(
+    'name' => 'Type',
+    'description' => 'Petition Type',
+    'machine_name' => 'petition_type',
+  );
+  taxonomy_vocabulary_save($new_vocab);
+}
+
+/**
+ * PT-1880: Add petition type terms.
+ */
+function petition_update_7317() {
+  $vocab = taxonomy_vocabulary_machine_name_load('petition_type');
+  $terms = array(
+    0 => 'Take or explain a position on an issue or policy',
+    1 => 'Tell us what the federal government is doing about an issue',
+    2 => 'Change an existing Administration policy',
+    3 => 'Propose a new Administration policy',
+    4 => 'Call on Congress to act on an issue',
+  );
+
+  $petition_types_list = array_map('strtolower', taxonomy_get_tree($vocab->vid));
+
+  foreach ($terms as $weight => $term_name) {
+    if (!in_array(strtolower($term_name), $petition_types_list)) {
+      taxonomy_term_save((object) array(
+        'name' => $term_name,
+        'vid' => $vocab->vid,
+        'weight' => $weight,
+      ));
+    }
+  }
+}
+
+/**
+ * PT-1857: Update petition fields and display settings, add more link to view.
+ */
+function petition_update_7318() {
+  // Enable 'teaser' and 'full' view modes.
+  $petition_bundle_config = variable_get('field_bundle_settings_node__petition', FALSE);
+  if ($petition_bundle_config) {
+    $petition_bundle_config['view_modes']['teaser']['custom_settings'] = TRUE;
+    $petition_bundle_config['view_modes']['full']['custom_settings'] = TRUE;
+    variable_set('field_bundle_settings_node__petition', $petition_bundle_config);
+  }
+}
+
+/**
+ * PT-1862 - Revert Page feature.
+ */
+function petition_update_7319() {
+  // Required forced removal of menu links due to system module.
+  $links = menu_load_links('petitions-menu');
+  foreach ($links as $link) {
+    $link['has_children'] = FALSE;
+    $link['plid'] = 0;
+    _menu_delete_item($link, TRUE);
+  }
+  $links = menu_load_links('main-menu');
+  foreach ($links as $link) {
+    $link['has_children'] = FALSE;
+    $link['plid'] = 0;
+    _menu_delete_item($link, TRUE);
+  }
+}
+
+/**
+ * PT-1909 - Revert wtp_contexts, petition_pages feature, add homepage.
+ */
+function petition_update_7320() {
+  $node_data = array(
+    'type' => 'wh_petitions_page',
+    'uid' => 1,
+    'status' => 1,
+    'comment' => 0,
+    'promote' => 0,
+    'path' => array('alias' => 'petitions', 'pathauto' => FALSE),
+  );
+
+  $entity = entity_create('node', $node_data);
+  $wrapper = entity_metadata_wrapper('node', $entity);
+
+  $body = <<<EOD
+<p>
+<a href="/petition/create" class="button" role="button">Create a Petition</a>
+</p>
+EOD;
+  $title = "Petition the White House on the Issues that Matter to You";
+
+  $wrapper->title->set($title);
+  $wrapper->body->set(array('value' => $body, 'format' => 'full_html'));
+  $wrapper->save();
+
+  // Set front page to use petitions node ID.
+  variable_set('site_frontpage', 'node/' . $wrapper->getIdentifier());
+}
+
+/**
+ * PT-1946 - Revert wtp_contexts, petition_pages, add response page.
+ */
+function petition_update_7321() {
+  $node_data = array(
+    'type' => 'wh_petitions_page',
+    'uid' => 1,
+    'status' => 1,
+    'comment' => 0,
+    'promote' => 0,
+    'path' => array('alias' => 'responses', 'pathauto' => FALSE),
+  );
+
+  $entity = entity_create('node', $node_data);
+  $wrapper = entity_metadata_wrapper('node', $entity);
+
+  $body = <<<EOD
+<p>
+<a href="/petition/create" class="button" role="button">Create a Petition</a>
+</p>
+EOD;
+  $title = "Petition the White House on the Issues that Matter to You";
+
+  $wrapper->title->set($title);
+  $wrapper->body->set(array('value' => $body, 'format' => 'full_html'));
+  $wrapper->save();
+}
+
+/**
+ * PT-1962 - Sets the more link on how petitions work to go to the about page.
+ */
+function petition_update_7322(&$sandbox) {
+  variable_set('how_petitions_work_additional_more_link_url', 'about#step-by-step');
+}
+
+/**
+ * PT-1957 - Revert wtp_contexts.
+ */
+function petition_update_7323(&$sandbox) {
+  variable_set('petitionssignatureform_no_signatures_message', 'This petition has been archived because it did not meet the signature requirements. It can no longer be signed.');
+  variable_set('petitionssignatureform_no_signatures_title', 'Closed Petition');
+  variable_set('petitionssignatureform_no_signatures_tos_message', 'This petition has been archived because it violated the terms of service for this site. It can no longer be signed.');
+  variable_set('petitionssignatureform_no_signatures_tos_title', 'Closed Petition');
 }

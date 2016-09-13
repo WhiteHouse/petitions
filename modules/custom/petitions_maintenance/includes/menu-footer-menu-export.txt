@@ -1,0 +1,8 @@
+Sign In {"url":"user\/login","options":{"attributes":[],"item_attributes":{"id":"","class":"visitor-account visitor-account-sign-in fa fa-sign-in","style":""}}}
+Sign Out {"url":"user\/logout","options":{"attributes":[],"item_attributes":{"id":"","class":"visitor-account visitor-account-sign-out fa fa-sign-out","style":""}}}
+Create a Petition {"url":"petition\/create","options":{"attributes":[],"item_attributes":{"id":"","class":"","style":""}}}
+Petitions You Can Sign {"url":"<front>#signapetition","options":{"attributes":[],"item_attributes":{"id":"","class":"","style":""}}}
+Petitions with Updates {"url":"responses#petitionswithupdates","options":{"attributes":[],"item_attributes":{"id":"","class":"","style":""}}}
+About We the People {"url":"about","options":{"attributes":[],"item_attributes":{"id":"","class":"","style":""}}}
+Developers {"url":"developers","options":{"attributes":[],"item_attributes":{"id":"","class":"","style":""}}}
+Feedback {"url":"http:\/\/www.whitehouse.gov\/feedback-petitions","options":{"attributes":{"target":"_blank","0":{"target":"_blank"}},"item_attributes":{"id":"","class":"","style":""}}}

@@ -8,7 +8,7 @@ core = 7.x
 ;    @see http://drupal.org/node/972536
 ;
 ; --------------------------------------
-projects[drupal][version] = 7.41
+projects[drupal][version] = 7.44
 projects[drupal][patch][] = http://drupal.org/files/drupal-menu-int-972536-83-D7.patch
 
 ; Petitions installation profile

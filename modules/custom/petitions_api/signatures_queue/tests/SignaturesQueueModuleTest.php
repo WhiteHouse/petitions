@@ -50,7 +50,7 @@ class SignaturesQueueModuleTest extends PHPUnit_Framework_TestCase {
    */
   public function testSignaturesQueueIsSubaddressedEmail($expected, $address) {
     $message = ($expected) ? 'Failed to identify a subaddressed email' : 'Falsely identified a non-subaddressed email.';
-    $this->assertEquals($expected, signatures_queue_is_subaddressed_email($address), $message);
+    $this->assertEquals($expected, disposable_email_is_subaddressed_email($address), $message);
   }
 
   /**
@@ -86,7 +86,7 @@ class SignaturesQueueModuleTest extends PHPUnit_Framework_TestCase {
    * @dataProvider providerSignaturesQueueUnsubaddressEmail
    */
   public function testSignaturesQueueUnsubaddressEmail($address, $expected) {
-    $this->assertEquals($expected, signatures_queue_unsubaddress_email($address));
+    $this->assertEquals($expected, disposable_email_unsubaddress_email($address));
   }
   /**
    * Data provider for testSignaturesQueueUnsubaddressEmail().

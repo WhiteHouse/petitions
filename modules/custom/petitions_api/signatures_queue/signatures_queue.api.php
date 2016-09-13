@@ -29,5 +29,19 @@ function hook_petition_signatory_opt_in(array $signatory) {
 }
 
 /**
+ * Tests an email against a defined blacklist.
+ *
+ * @param string $email
+ *   The email address to test.
+ *
+ * @return bool
+ *   If the email is blacklisted.
+ */
+function hook_email_is_blacklisted($email) {
+  // Define blacklist conditions and check the email. Return TRUE if
+  // blacklisted, FALSE if not.
+}
+
+/**
  * @} End of "addtogroup hooks".
  */

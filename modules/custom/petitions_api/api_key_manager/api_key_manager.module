@@ -549,33 +549,6 @@ function _api_key_manager_user_page($user) {
 }
 
 /**
- * Provides is_not_cached rule by akm_is_not_cached_api_key_pages().
- *
- * @return array
- *   A multidimensional array.
- *
- * @see is_not_cached.api.php
- */
-function api_key_manager_is_not_cached_rules() {
-  return array(
-    'akm_is_not_cached_api_key_pages' => t("API Key pages"),
-  );
-}
-
-/**
- * Callback for is_not_cached module. Do not cache api key pages.
- */
-function akm_is_not_cached_api_key_pages() {
-  if (arg(0) == 'node' && is_numeric(arg(1))) {
-    $nid = arg(1);
-    $node = node_load($nid);
-    if ($node->type == 'key') {
-      return TRUE;
-    }
-  }
-}
-
-/**
  * Validates an API Key.
  *
  * @param string $api_key

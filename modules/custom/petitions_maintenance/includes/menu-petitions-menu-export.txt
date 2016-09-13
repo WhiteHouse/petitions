@@ -1,0 +1,4 @@
+Sign a Petition {"url":"<front>#signapetition","options":{"attributes":{"class":["menu__link--desktop"]},"item_attributes":{"id":"","class":"menu__link--desktop","style":""}}}
+Sign {"url":"<front>#signapetition","options":{"attributes":{"class":["menu__link--mobile"]},"item_attributes":{"id":"","class":"","style":""}}}
+Create a Petition {"url":"petition\/create","options":{"attributes":{"class":["menu__link--desktop"]},"item_attributes":{"id":"","class":"","style":""}}}
+Create {"url":"petition\/create","options":{"attributes":{"class":["menu__link--mobile"]},"item_attributes":{"id":"","class":"","style":""}}}

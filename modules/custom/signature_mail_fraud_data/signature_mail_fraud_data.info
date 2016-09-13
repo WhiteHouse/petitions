@@ -9,6 +9,7 @@ dependencies[] = entity
 dependencies[] = petition
 dependencies[] = signature_mail
 dependencies[] = views
+dependencies[] = disposable_email
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:1
 features[views_view][] = signature_mail_fraud_data

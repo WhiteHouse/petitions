@@ -1,0 +1,6 @@
+name = Sticky Element
+description = Make an element sticky.
+core = 7.x
+
+scripts[] = sticky_element.js
+stylesheets[all][] = sticky_element.css

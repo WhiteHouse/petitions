@@ -257,7 +257,7 @@ function signature_entity_property_info_alter(&$info) {
  */
 function signature_solr_document(ApacheSolrDocument $document, $entity, $entity_type) {
   $event = 'debugging.signature_solr_document';
-  petitionslog_reusable_timer_start($event);
+  petition_reusable_timer_start($event);
 
   $document->addField(SIGNATURE_SOLR_FIELD_UID, $entity->uid);
   $document->addField(SIGNATURE_SOLR_FIELD_PETITION_ID, $entity->petition_id);
@@ -274,8 +274,8 @@ function signature_solr_document(ApacheSolrDocument $document, $entity, $entity_
   $document->addField(SIGNATURE_SOLR_FIELD_USER_USERNAME, $entity->user_username);
   $document->addField(SIGNATURE_SOLR_FIELD_USER_COUNTRY, $entity->user_country);
 
-  $elapsed = petitionslog_reusable_timer_read_and_destroy($event);
-  petitionslog_event($event, 'time', $elapsed);
+  $elapsed = petition_reusable_timer_read_and_destroy($event);
+  logger_event($event, 'time', $elapsed);
 
   return array($document);
 
@@ -389,5 +389,22 @@ function signature_modules_uninstalled($modules) {
         variable_set('signature_modules', $variable);
       }
     }
+  }
+}
+
+/**
+ * Implements hook_email_is_blacklisted().
+ */
+function signature_email_is_blacklisted($email) {
+  $disposability = disposable_email_get_email_disposability($email);
+  if ($disposability->is_disposable ||
+  $disposability->is_forwarding_email ||
+  $disposability->is_trash_email ||
+  $disposability->is_time_bound_email ||
+  $disposability->is_shredder_email) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
   }
 }

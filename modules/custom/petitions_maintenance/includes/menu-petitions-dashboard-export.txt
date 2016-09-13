@@ -1,0 +1,4 @@
+Sign Out {"url":"user\/logout","options":{"attributes":[],"item_attributes":{"id":"","class":"mobile dashboard-signout","style":""}}}
+My Petitions {"url":"dashboard","options":{"attributes":[],"item_attributes":{"id":"","class":"","style":""}}}
+My Account {"url":"user","options":{"attributes":[],"item_attributes":{"id":"","class":"","style":""}}}
+Edit Account {"url":"user\/edit","options":{"attributes":[],"item_attributes":{"id":"","class":"","style":""}}}

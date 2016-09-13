@@ -1,0 +1,534 @@
+// Petition Create CSS
+// --------
+//   Adds styles for the petition create multistep form.
+
+.step-breadcrumbs {
+  @include outer-container;
+  background: $mine-shaft;
+  padding: 20px;
+
+  @include media($mobile-max-width) {
+    @include span-columns($grid-columns);
+    padding: 20px $gutter-outer;
+    box-sizing: content-box;
+    position: relative;
+    left: -$gutter-outer;
+  }
+
+  @include media($desktop) {
+    @include fill-parent();
+
+    padding: 0;
+    background: none;
+    margin-top: 60px;
+    margin-bottom: 20px;
+  }
+
+  .top-submit-button {
+    @include media($mobile-max-width) {
+      @include span-columns($grid-columns / 2);
+    }
+
+    @include media($desktop) {
+      float: right;
+      width: 12%;
+      min-width: 87px;
+    }
+
+    .throbber {
+      @include media($mobile-max-width) {
+        margin-left: 25px;
+      }
+    }
+    .ajax-progress {
+      display: block;
+      background-color: $white;
+      border-radius: 2px;
+      margin-top: 2px;
+    }
+  }
+
+  .input-button-next-step, .input-button-publish {
+    margin: 0;
+    font-size: $base-font-size;
+    letter-spacing: .025em;
+    padding: 10px 0;
+    width: 100%;
+
+    @include media($desktop) {
+      margin-top: 26px;
+      float: left;
+    }
+  }
+
+  @for $i from 1 through 5 {
+    .step-breadcrumb:nth-child(#{$i}) {
+      z-index: 6 - $i;
+    }
+  }
+
+  .step-breadcrumb:nth-child(5) {
+    @include media($desktop) {
+      margin-right: 40px;
+    }
+  }
+
+  .step-breadcrumb {
+    @include media($mobile-max-width) {
+      @include span-columns($grid-columns / 2);
+    }
+
+    position: relative;
+    text-align: center;
+    margin-top: 5px;
+
+    h3, h6 {
+      margin: 0;
+      font-weight: normal;
+      @include media($desktop) {
+        margin-left: 30px;
+      }
+    }
+
+    @include media($desktop) {
+      float: left;
+      border-right: none;
+
+      width: 16%;
+      height: 100px;
+      padding: 25px 0;
+      margin: 0;
+
+      h3 span {
+        display: none;
+      }
+
+      :before {
+        content: "";
+        border-top: 50px solid transparent;
+        border-bottom: 50px solid transparent;
+        position: absolute;
+        right: -36px;
+        top: -1px;
+        border-left: 36px solid $mine-shaft;
+        z-index: -2;
+      }
+
+      :after {
+        content: "";
+        border-top: 49px solid transparent;
+        border-bottom: 49px solid transparent;
+        position: absolute;
+        right: -35px;
+        top: 0;
+        border-left: 35px solid $white;
+        z-index: -1;
+      }
+
+    }
+
+    &.active-step {
+      background-color: $mine-shaft;
+      color: $color-gray-lightest;
+      border: 1px solid $mine-shaft;
+
+      :after {
+        border-left-color: $mine-shaft;
+      }
+
+      h6 {
+        color: $color-gray-lightest;
+      }
+    }
+
+    &.inactive-step {
+      display: none;
+      background-color: $white;
+      color: $color-base;
+      border: 1px solid $mine-shaft;
+
+      @include media($desktop) {
+        display: block;
+      }
+    }
+
+    &.visited-step {
+      display: none;
+      background-color: $boulder;
+      color: $color-gray-lightest;
+      border: 1px solid $boulder;
+
+      :after {
+        border-left-color:$boulder;
+      }
+
+      h6 {
+        color: $color-gray-lightest;
+      }
+
+      @include media($desktop) {
+        display: block;
+      }
+    }
+  }
+}
+
+.access-info-visible {
+  position: relative;
+  z-index:-1;
+}
+
+#petition-create-formwrapper {
+  @include outer-container;
+
+  .petition-type-header {
+    text-align: center;
+  }
+
+  .petition-type-help {
+    @include span-columns($grid-columns);
+    text-align:center;
+
+    @include media($desktop) {
+      float: right;
+      margin-top: 10px;
+    }
+  }
+
+  .petition-type-header,
+  .petition-type,
+  .petition-title,
+  .petition-issues-header,
+  .petition-preview-header {
+    @include span-columns($grid-columns);
+    @include media($desktop) {
+      @include span-columns(10);
+      @include shift(1);
+    }
+
+    h1, h4, h6 {
+      text-align: center;
+      @include media($desktop) {
+        margin: 20px 0;
+        padding: 0;
+      }
+    }
+    h1 {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      padding-bottom: 0;
+      @include media($desktop) {
+        margin-bottom: 40px;
+      }
+    }
+
+    & + div.form-item {
+      margin-top: 0;
+    }
+  }
+
+  .petition-preview-body,
+  .petition-preview-issues {
+    @include span-columns($grid-columns);
+    @include media($desktop) {
+      @include span-columns(8);
+      @include shift(2);
+    }
+  }
+
+  .petition-preview-header{
+    h1 {
+      @include media($desktop){
+        margin-top: 30px;
+        margin-bottom: 20px;
+      }
+    }
+    h4 {
+      margin-bottom: 40px;
+      @include media($desktop){
+        margin-top: 0;
+        margin-bottom: 30px;
+      }
+    }
+  }
+  .petition-preview-body {
+    @include reset-text-margins();
+    margin-bottom: 40px;
+    @include media($desktop){
+      margin-bottom: 30px;
+    }
+    p {
+      @include media($desktop) {
+        @include plarge();
+      }
+    }
+  }
+  .petition-preview-issues {
+    margin-bottom: 20px;
+    @include media($desktop) {
+      margin-bottom: 40px;
+    }
+  }
+
+  .form-item-petition-title,
+  .form-item-petition-description {
+    margin-bottom: 20px;
+    @include span-columns($grid-columns);
+    @include media($desktop) {
+      @include span-columns(8);
+      @include shift(2);
+      margin-top: 0px;
+      margin-bottom:40px;
+    }
+  }
+  p.large {
+    @include media($mobile-max-width) {
+     margin: 0;
+    }
+  }
+  .create-petition-description,
+  .create-petition-title {
+    resize: vertical;
+    padding: 15px;
+    @include media($desktop) {
+      padding: 25px;
+    }
+  }
+
+  .form-item-petition-type {
+    @include outer-container;
+    @include span-columns($grid-columns);
+
+    @include media($desktop) {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-item {
+      @include span-columns($grid-columns);
+      @include media($desktop) {
+        @include span-columns($desktop-grid-columns / 3);
+        @include omega(3n);
+        text-align: center;
+      }
+    }
+
+    &.form-type-radios {
+      @include media($desktop) {
+        margin-top: 40px;
+        margin-bottom: 0;
+      }
+    }
+
+    &.form-type-radio {
+      @include span-columns($grid-columns);
+      position: relative;
+      margin-top: 0;
+      margin-bottom: 30px;
+      height: 80px;
+      text-align: center;
+      @include media($mobile-max-width) {
+        margin-bottom: 10px;
+        &:last-child {
+          margin-bottom: 10px;
+        }
+      }
+      @include media($desktop) {
+        @include span-columns($desktop-grid-columns / 3);
+        @include omega(3n);
+      }
+
+      .create-petition-type.form-radio {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+      }
+
+      label {
+        width: 100%;
+        min-height: 100%;
+        line-height: 78px;
+        background-color: $white;
+        padding: 0 25px;
+        text-transform: none !important;
+        box-shadow: 0 2px 2px rgba(#000, 0.2);
+        color: $color-primary;
+
+        @include border-radius(3px);
+        border: 1px solid $color-primary;
+
+        h5 {
+          display: inline-block;
+          vertical-align: middle;
+          margin: auto;
+        }
+
+        &:hover {
+          border-color: $color-primary-darkest;
+          h5 {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      input[type="radio"]:checked + label {
+        border: 1px solid $color-primary-darkest;
+        box-shadow: none;
+        h5 {
+          color: $color-primary-darkest;
+        }
+
+        &:hover h5 {
+          text-decoration: none;
+        }
+      }
+      input[type="radio"]:focus {
+        box-shadow: none;
+      }
+    }
+  }
+
+  .form-type-textarea{
+    label{
+      @include reset-text-margins();
+      margin-bottom: 10px;
+      @include media($desktop){
+        margin-bottom: 20px;
+      }
+    }
+  }
+
+  .form-checkboxes.create-petition-issue-tags {
+    @include outer-container;
+    @include span-columns($grid-columns);
+    @include media($desktop) {
+      margin-bottom: 0;
+      clear: both;
+      width: 100%;
+    }
+
+    @include media($mobile-max-width) {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .multicolumn-options-column {
+      @include media($desktop) {
+        @include span-columns($desktop-grid-columns /3);
+        @include omega(3n);
+        margin-bottom: 40px;
+      }
+
+      .form-item {
+        margin-top: 0;
+        margin-bottom: 20px;
+        @include media($desktop) {
+          margin-bottom: 30px;
+        }
+
+        label {
+          @include plarge();
+          text-transform: none;
+        }
+      }
+    }
+  }
+
+  .petition-bottom-navigation {
+    @include outer-container;
+    @include span-columns($grid-columns);
+
+    @include media($desktop) {
+      margin-top: 0px;
+      margin-bottom: 40px;
+    }
+
+    .petition-create-help {
+      font-size: rem(14);
+      @include span-columns($grid-columns);
+      @include media($desktop) {
+        @include span-columns(8);
+        @include shift(2);
+        text-align: right;
+      }
+
+      &.petition-publish-help {
+        color: $color-secondary;
+        text-align: center;
+      }
+
+      &.petition-title-help,
+      &.petition-description-help {
+        color: $trendy-green;
+      }
+
+      &.char-limit-reached {
+        color: $color-secondary;
+      }
+    }
+
+    .petition-navigation-left {
+      @include span-columns($grid-columns / 2);
+      @include media($desktop) {
+        @include span-columns(2);
+        @include shift(-10);
+      }
+    }
+
+    .petition-navigation-right {
+      @include span-columns($grid-columns / 2);
+      @include media($desktop) {
+        @include span-columns(2);
+        @include omega;
+      }
+    }
+
+    .input-button-next-step,
+    .input-button-go-back,
+    .input-button-edit,
+    .input-button-publish {
+      width: 100%;
+      font-size: $base-font-size;
+      letter-spacing: .025em;
+      padding: 10px 0;
+    }
+  }
+
+  .petition-thankyou {
+    @include span-columns($grid-columns);
+    text-align: center;
+
+    @include media($desktop) {
+      @include span-columns(10);
+      @include shift(1);
+    }
+
+    h1 {
+      margin-bottom: 0;
+    }
+
+    .top-msg-bar {
+      color: $atlantis;
+      font-weight: $font-bold;
+      margin-bottom: 20px;
+      margin-top: 40px;
+
+      @include media($desktop) {
+        margin-bottom: 30px;
+      }
+    }
+    #share-this-petition {
+      margin-bottom: 40px;
+      @include media($desktop) {
+        margin-bottom: 55px;
+      }
+    }
+  }
+
+  .how-petitions-work {
+    @include span-columns($grid-columns);
+  }
+  .popular-petitions {
+    @include span-columns($grid-columns);
+  }
+}

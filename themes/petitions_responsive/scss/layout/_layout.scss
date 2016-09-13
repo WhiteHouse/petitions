@@ -1,0 +1,143 @@
+// Layout
+// This document uses neat's grid system to layout page structure. Grid settings
+// and media queries should be defined in the config partial.
+
+// Add outer gutter to visual grid:
+body:before{
+  border: $gutter-outer solid #fff;
+  border-top-width: 0;
+  border-bottom-width: 0;
+  box-sizing: border-box;
+  @include media($desktop) {
+    border-width: $gutter-outer-desktop;
+    border-top-width: 0;
+    border-bottom-width: 0;
+  }
+}
+
+#content-top,
+#content,
+#content-bottom,
+#sidebar-top,
+#sidebar-bottom {
+  // Prevent text margins from adding additional vertical space to layout
+  // elements.
+  @include reset-text-margins();
+  @include reset-field-text-margins();
+  @include reset-block-text-margins();
+}
+
+#page {
+  overflow: hidden;
+}
+
+.container {
+  @include outer-container-padding($gutter-outer);
+  margin-left: auto;
+  margin-right: auto;
+  width: auto;
+  @include media($desktop) {
+    @include outer-container-padding($gutter-outer-desktop);
+  }
+}
+
+#content-top {
+  @include span-columns($grid-columns);
+  @include vertical-padding(top);
+}
+
+#content {
+  // 100% width for mobile devices.
+  @include span-columns($grid-columns);
+  @include vertical-padding(bottom);
+  @include media($desktop) {
+    @include span-columns(12);
+  }
+
+  .has-sidebar & {
+    @include media($desktop) {
+      @include span-columns(9);
+    }
+  }
+  .has-sidebar-top {
+    @include omega();
+  }
+}
+
+#sidebar-top {
+  // 100% width for mobile devices.
+  @include span-columns($grid-columns);
+
+  @include media($desktop) {
+    @include span-columns(3);
+    @include shift(9);
+  }
+  .has-sidebar-top & {
+    @include shift(0);
+    @include omega();
+    float: right;
+  }
+}
+
+#sidebar-bottom {
+  // 100% width for mobile devices.
+  @include span-columns($grid-columns);
+
+  @include media($desktop) {
+    // Span this div 3 columns wide. Remove the right grid margin since we're
+    // aligning with the container's right edge.
+    @include span-columns(3);
+    @include omega();
+
+    // Bourbon Neat does not float elements right with the omega mixin. Ensure
+    // the bottom sidebar floats right in case the top sidebar is longer than
+    // the main content region. Since the top sidebar height is variable, the
+    // shift() mixin is not appropriate here.
+    float: right;
+    clear: right;
+  }
+}
+
+#content-bottom {
+  @include span-columns($grid-columns);
+  padding-bottom: $vertical-padding;
+
+  @include media($desktop) {
+    padding-bottom: $vertical-padding-desktop;
+  }
+  // Ensure compatibility for Firefox, which will not properly clear the float
+  // on the content region, when there's a negative margin applied.
+  .has-sidebar-top & {
+    clear: both;
+  }
+}
+
+#footer {
+  float: none;
+  clear: both;
+  .block{
+    @include span-columns($grid-columns);
+    @include media($desktop) {
+      &:not(.block-menu-footer-menu){
+        @include span-columns($desktop-grid-columns / 2);
+      }
+    }
+  }
+}
+
+// Layout Helpers
+#header,
+#footer,
+.mission,
+.breadcrumb,
+.node {
+  clear: both;
+}
+
+// Navigation styles
+#navigation {
+  li {
+    list-style-type: none;
+    display: inline-block;
+  }
+}

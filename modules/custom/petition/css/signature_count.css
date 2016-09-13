@@ -1,0 +1,15 @@
+.signature-meter {
+  height: 20px;
+  position: relative;
+  background: #ddd;
+  /*border-radius: 15px;*/
+}
+.signature-meter > span {
+  display: block;
+  height: 100%;
+  /*border-top-left-radius: 15px;*/
+  /*border-bottom-left-radius: 15px;*/
+  background-color: #222;
+  position: relative;
+  overflow: hidden;
+}

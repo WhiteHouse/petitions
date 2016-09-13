@@ -1,0 +1,21 @@
+//Progress Bars
+
+%progress-bar {
+  height: 16px;
+  position: relative;
+  background-color: $alto;
+  overflow: hidden;
+  @include border-radius(10px);
+  & > span {
+    display: block;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background-color: $atlantis;
+  }
+}
+
+.signature-meter {
+  @extend %progress-bar;
+  margin-bottom: 10px;
+}

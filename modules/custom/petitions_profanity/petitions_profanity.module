@@ -5,57 +5,155 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function petitions_profanity_menu() {
+  $items = array();
+
+  $items['admin/petitions/settings/petitions-profanity'] = array(
+    'title' => 'Profanity Filter',
+    'description' => 'Configure the Profanity filter.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('petitions_profanity_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form().
+ *
+ * Administration form.
+ */
+function petitions_profanity_admin_form($form, &$form_state) {
+  $form['petitions_profanity_profane_terms'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Profane Terms'),
+    '#default_value' => variable_get('petitions_profanity_profane_terms', petitions_profanity_default_profane_terms()),
+    '#description' => "Enter profane terms, separated by comma.",
+    '#required' => FALSE,
+  );
+  $form['petitions_profanity_alert_text'] = array(
+    '#title' => t("Email profanity alert text"),
+    '#description' => t('This will add a flag (e.g. HAS PROFANITY) to the beginning of the subject line when a notification email is sent to site administrator(s) for petitions that have crossed the review threshhold. Note: The profanity flag is only added for "threshold passed" notifications about petitions with profanity. This flag will not be added to other emails sent by the system.'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('petitions_profanity_alert_text', '[HAS PROFANITY]'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
  * Implements hook_mail_alter().
  */
 function petitions_profanity_mail_alter(&$message) {
   // petitions_profanity_test_mode must be set to 1 or 0 (or unset).
   if (($message['id'] == 'wh_petitions_review_threshold_passed') || variable_get('petitions_profanity_test_mode', '')) {
-
-    if (petitions_data_mongo_reads_are_enabled()) {
-      // Remove this section as part of mongo2mysql
-      if (!empty($message['params']['petition_id'])) {
-        $petition_id = $message['params']['petition_id'];
-      }
-      elseif (!empty($message['params']['petition']['_id'])) {
-        $petition_id = $message['params']['petition']['_id']->__toString();
-      }
-      else {
-        watchdog('petitions_profanity', "petitions_profanity_mail_alter: No petition id found.", array(), WATCHDOG_ALERT);
-        return;
-      }
-
-      $conn = wh_petitions_mongo_petition_connection();
-      $petition = wh_petitions_load_slim_petition($conn, $petition_id, array('title', 'body', 'user_tags'));
-      $petition_title = $petition['title'];
-      $petition_body = $petition['body'];
-
+    $petition = $message['params']['petition'];
+    if (!is_array($petition)) {
+      $petition = (array) $petition;
     }
-    else {
-      $petition = $message['params']['petition'];
-      if (!is_array($petition)) {
-        $petition = (array) $petition;
-      }
-      $petition_id = $petition['nid'];
-      $petition_title = $petition['title'];
-      $petition_body = $petition['body'][$petition['language']][0]['value'];
-    }
+    $petition_title = $petition['title'];
+    $petition_body = $petition['body'][$petition['language']][0]['value'];
 
-    $profanity_flag = (is_profane($petition_body) || is_profane($petition_title)) ? check_plain(variable_get('profanity_alert_text', '[HAS PROFANITY]')) : '';
-    $message['subject'] = $profanity_flag . ' ' . variable_get('wh_petitions_review_threshold_passed_subject', '');
+    $profanity_flag = FALSE;
+    if (petitions_profanity_is_profane($petition_title)) {
+      $profanity_flag = TRUE;
+    }
+    if (petitions_profanity_is_profane($petition_body)) {
+      $profanity_flag = TRUE;
+    }
+    if ($profanity_flag) {
+      $subject_prefix = check_plain(variable_get('petitions_profanity_alert_text', '[HAS PROFANITY]'));
+      $message['subject'] = $subject_prefix . ' ' . $message['subject'];
+
+      $exploded_body = explode('=================', $message['body']['0']);
+      $exploded_body['1'] = petitions_profanity_highlight_profanity($exploded_body['1']);
+      $message['body']['0'] = implode('=================', $exploded_body);
+    }
   }
 }
 
 /**
- * Implements hook_form_alter().
+ * Runs the profane filter on the specified string.
+ *
+ * @param string $string
+ *   The string to check for profanity.
+ * @param array $terms
+ *   An optional array of profane terms to check.
+ *
+ * @return boolean
+ *   TRUE if any filter matches any string, FALSE otherwise.
  */
-function petitions_profanity_form_alter(&$form, &$form_state, $form_id) {
-  switch ($form_id) {
-    case 'is_profane_form':
-      $form['profanity_alert_text'] = array(
-        '#title' => t("Email profanity alert text"),
-        '#description' => t('This will add a flag (e.g. HAS PROFANITY) to the beginning of the subject line when a notification email is sent to site administrator(s) for petitions that have crossed the review threshhold. Note: The profanity flag is only added for "threshold passed" notifications about petitions with profanity. This flag will not be added to other emails sent by the system.'),
-        '#type' => 'textfield',
-        '#default_value' => variable_get('profanity_alert_text', '[HAS PROFANITY]'),
-      );
+function petitions_profanity_is_profane($string, $terms = array()) {
+  // If no terms have been passed to this function, check the
+  // petitions_profanity_profane_terms function.
+  if (!$terms) {
+    $terms = petitions_profanity_profane_terms();
   }
+  foreach ($terms as $term) {
+    $term = str_replace(',', '', $term);
+    if (stripos($string, $term) !== FALSE) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Highlights profanity in a string.
+ *
+ * @param string $string
+ *   The string to check for profanity.
+ * @param array $terms
+ *   An optional array of profane terms to check.
+ *
+ * @return string
+ *   The input string with profane terms highlighted.
+ */
+function petitions_profanity_highlight_profanity($string, $terms = array()) {
+  if (!$terms) {
+    $terms = petitions_profanity_profane_terms();
+  }
+  foreach ($terms as $term) {
+    $string = preg_replace('/\b' . preg_quote($term) . '\b/i', '<font color="red">$0</font>', $string);
+    $string = preg_replace('/((?<=\w)' . preg_quote($term) . '|' . preg_quote($term) . '(?=\w))/i', '<font color="orange">$0</font>', $string);
+  }
+  return $string;
+}
+
+/**
+ * Returns an array of profane terms as defined on the administration page.
+ */
+function petitions_profanity_profane_terms() {
+  $terms = variable_get('petitions_profanity_profane_terms', petitions_profanity_default_profane_terms());
+  if (!is_array($terms)) {
+    $terms = explode(", ", $terms);
+  }
+  return $terms;
+}
+
+/**
+ * List of default pre-determined profanity terms.
+ */
+function petitions_profanity_default_profane_terms() {
+  $profane = array(
+    'ass', 'bastard', 'bigot', 'bitch', 'blackie',
+    'camel jockey', 'carpet muncher', 'chinaman', 'cock', 'coon',
+    'cracker', 'crip', 'cunt', 'dago', 'damn',
+    'dick', 'dink', 'douche', 'downy', 'dyke',
+    'faggot', 'fascist', 'fat ass', 'fudge packer', 'fuck',
+    'gimp', 'gook', 'gringo', 'honkey', 'hooch',
+    'hun', 'hymie', 'injun', 'jap', 'kike',
+    'kraut', 'limey', 'midget', 'motherfucker', 'mullato',
+    'nazi', 'nigger', 'paddy', 'paki', 'pinko',
+    'piss', 'polack', 'pussy', 'raghead', 'redskin',
+    'retard', 'russki', 'sadist', 'shit', 'schmuck',
+    'scumbag', 'shit', 'skank', 'spic', 'towel head',
+    'twat', 'wanker', 'wetback', 'whitey', 'white trash',
+    'whore', 'wigger', 'wop',
+  );
+  return implode(", ", $profane);
 }

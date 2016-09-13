@@ -1,0 +1,100 @@
+// Tabs CSS
+// --------
+//   Adds styles for the primary and secondary tabs.
+//   Compare this with default CSS found in the system module's stylesheet (a copy
+//   of which is in drupal5-reference.css, line 510.)
+
+div.tabs {
+  margin: 0 0 5px 0;
+}
+
+ul.primary, ul.secondary {
+  width: 100%;
+}
+
+ul.primary {
+  margin: 0;
+  padding: 0 0 0 10px;
+  border-width: 0;
+  list-style: none;
+  white-space: nowrap;
+  line-height: normal;
+
+  li {
+    float: left;
+    margin: 0;
+    padding: 0;
+
+    &.active {
+      a, a:hover {
+        border-width: 0;
+        color: black;
+        background-color: transparent;
+      }
+    }
+
+    a {
+      display: block;
+      height: 24px;
+      margin: 0;
+      padding: 0 0 0 5px;
+      border-width: 0;
+      font-weight: bold;
+      text-decoration: none;
+      color: #777777;
+      background-color: transparent;
+
+      &:hover {
+        border-width: 0;
+        background-color: transparent;
+      }
+
+      .tab {
+        display: block;
+        height: 20px;
+        margin: 0;
+        padding: 4px 13px 0 6px;
+        border-width: 0;
+        line-height: 20px;
+      }
+    }
+  }
+}
+
+ul.secondary {
+  margin: 0;
+  padding: 0 0 0 5px;
+  border-bottom: 1px solid silver;
+  list-style: none;
+  white-space: nowrap;
+
+  li {
+    float: left;
+    margin: 0 5px 0 0;
+    padding: 5px 0;
+    border-right: none;
+  }
+
+  a {
+    display: block;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid silver;
+    text-decoration: none;
+    color: #777777;
+
+    .active, .active:hover {
+      border: 1px solid silver;
+      color: black;
+    }
+
+    .tab {
+      display: block;
+      height: 18px;
+      margin: 0;
+      padding: 3px 8px;
+      line-height: 18px;
+    }
+  }
+}

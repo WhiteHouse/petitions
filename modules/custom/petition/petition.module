@@ -14,6 +14,8 @@ require_once 'includes/petition.mongo2mysql.inc';
 // multi-valued. See the dynamicField definitions in
 // solr-conf/solr-3.x/schema.xml in the apachesolr module for a complete list.
 define('PETITION_SOLR_FIELD_BODY', 'ts_body');
+define('PETITION_SOLR_FIELD_TYPE_NAMES', 'sm_type_names');
+define('PETITION_SOLR_FIELD_TYPE_TIDS', 'im_type_tids');
 define('PETITION_SOLR_FIELD_ISSUE_NAMES', 'sm_issue_names');
 define('PETITION_SOLR_FIELD_ISSUE_TIDS', 'im_issue_tids');
 define('PETITION_SOLR_FIELD_LEGACY_ID', 'ss_legacy_id');
@@ -49,6 +51,170 @@ function petition_init() {
       }
     }
   }
+  // Prevent anon user from visiting dashboard.
+  if (in_array(drupal_get_path_alias(), variable_get('petition_paths_redirect_anon_to_home', array())) && !user_is_logged_in()) {
+    drupal_goto('/');
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function petition_menu() {
+  $items = array();
+  $items['admin/petitions/settings/refresh'] = array(
+    'title' => 'Petitions AJAX refresh',
+    'description' => 'Configuration for the AJAX refreshing of petition data.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('petition_ajax_refresh_configuration'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // Add a menu path for the user account edit page that does not require a
+  // user id (and menu token) in the path.
+  $items['user/edit'] = array(
+    'title' => 'Edit user account',
+    'page callback' => 'petition_user_edit_page',
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Callback for the AJAX configuration administration page.
+ */
+function petition_ajax_refresh_configuration() {
+  $form['petition_refresh_delay'] = array(
+    '#type' => 'select',
+    '#title' => t('Petition AJAX refresh delay'),
+    '#options' => array(
+      60 => t('1 minute'),
+      120 => t('2 minutes'),
+      180 => t('3 minutes'),
+      240 => t('4 minutes'),
+      300 => t('5 minutes'),
+      600 => t('10 minutes'),
+      900 => t('15 minutes'),
+      1200 => t('20 minutes'),
+      1800 => t('30 minutes'),
+    ),
+    '#default_value' => variable_get('petition_refresh_delay', 60),
+    '#required' => TRUE,
+  );
+  $form['petition_ajax_refresh_endpoint'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Petition AJAX refresh endpoint',
+    '#default_value' => variable_get('petition_ajax_refresh_endpoint'),
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#required' => TRUE,
+  );
+  $form['popular_petitions_refresh_delay'] = array(
+    '#type' => 'select',
+    '#title' => t('Popular Petitions AJAX refresh delay'),
+    '#options' => array(
+      0 => t('Refresh Disabled'),
+      60 => t('1 minute'),
+      120 => t('2 minutes'),
+      180 => t('3 minutes'),
+      240 => t('4 minutes'),
+      300 => t('5 minutes'),
+      600 => t('10 minutes'),
+      900 => t('15 minutes'),
+      1200 => t('20 minutes'),
+      1800 => t('30 minutes'),
+    ),
+    '#default_value' => variable_get('popular_petitions_refresh_delay', 0),
+    '#required' => TRUE,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function petition_block_info() {
+  $blocks = array();
+  $blocks['signature_count'] = array(
+    'info' => t('Signature count'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function petition_block_view($delta) {
+  $block = array();
+  switch ($delta) {
+    case 'signature_count':
+      $object = menu_get_object();
+      if (!$object || $object->type != 'petition') {
+        break;
+      }
+      $petition_item = PetitionsController::loadObject($object->nid);
+      $is_error = !$petition_item;
+      if ($is_error) {
+        break;
+      }
+      else {
+        $is_signable = $petition_item->isSignable();
+      }
+      $signatures = (int) $petition_item->getSignatureCount();
+      $threshold = (int) $petition_item->getSignatureThreshold();
+      $block['content'] = theme('signatures_progress_bar', array(
+        'signatures' => $signatures,
+        'goal' => $threshold,
+        'clickable' => $is_signable,
+      ));
+      $block['content']['#attached']['css'] = array(
+        drupal_get_path('module', 'petition') . '/css/signature_count.css',
+      );
+      if ($is_signable) {
+        $block['content']['#prefix'] = '<h4 class="block__title">' . t('Sign This Petition') . '</h4>';
+
+        $deadline = $petition_item->getDeadline();
+        $deadline = date('F j, Y', $deadline);
+        $message = array(
+          '#markup' => '<p>' . t('Needs <span class="signatures-needed">!signatures</span> <span class="bold">signatures</span> by <span class="date">!date</span> to get a response from the White House</p>',
+            array(
+              '!signatures' => wh_petitions_format_number($petition_item->getSignaturesNeeded()),
+              '!date' => $deadline,
+            )),
+        );
+
+        array_unshift($block['content'], $message);
+        $block['content']['#attached']['js'] = array(
+          array(
+            'data' => array(
+              'petition' => array(
+                'petition_id' => (int) $object->nid,
+                'ajax_delay' => (int) variable_get('petition_refresh_delay', 60),
+                'api_base' => variable_get('petition_ajax_refresh_endpoint'),
+              ),
+            ),
+            'type' => 'setting',
+          ),
+          drupal_get_path('module', 'petition') . '/js/signature_count.js',
+        );
+      }
+      else {
+        $block_title = array(
+          '#theme' => 'html_tag',
+          '#tag' => 'h4',
+          '#value' => t('Signature Count'),
+          '#attributes' => array(
+            'class' => array(
+              'block__title',
+            )
+          )
+        );
+        $block['content']['#prefix'] = drupal_render($block_title);
+      }
+  }
+  return $block;
 }
 
 /**
@@ -57,6 +223,12 @@ function petition_init() {
 function petition_node_view($node, $view_mode, $langcode) {
   if ($node->type == "petition" && $view_mode == "full") {
     $content = $node->content;
+
+    // Evaluate the petition_context_condition_signable context.
+    $plugin = context_get_plugin('condition', 'petition_context_condition_signable');
+    if ($plugin) {
+      $plugin->execute($node);
+    }
 
     // Let's add the title before the body.
     $title = array("#markup" => "<h1>{$node->title}</h1>");
@@ -118,8 +290,8 @@ function petition_node_load($nodes, $types) {
         ->countQuery()
         ->execute()
         ->fetchField();
+      @$node->signature_count = $signature_count;
     }
-    @$node->signature_count = $signature_count;
   }
 }
 
@@ -129,6 +301,16 @@ function petition_node_load($nodes, $types) {
 function petition_apachesolr_index_document_build_node(ApacheSolrDocument $document, $entity, $env_id) {
   if ($entity->type == 'petition') {
     $document->addField(PETITION_SOLR_FIELD_BODY, $entity->body[LANGUAGE_NONE][0]['safe_value']);
+
+    $type_tids = array();
+    foreach ($entity->field_petition_type[LANGUAGE_NONE] as $value) {
+      $type_tids[] = $value['tid'];
+    }
+    $types = taxonomy_term_load_multiple($type_tids);
+    foreach ($types as $term) {
+      $document->addField(PETITION_SOLR_FIELD_TYPE_TIDS, (int) $term->tid);
+      $document->addField(PETITION_SOLR_FIELD_TYPE_NAMES, $term->name);
+    }
 
     $issue_tids = array();
     foreach ($entity->field_petition_issues[LANGUAGE_NONE] as $value) {
@@ -319,82 +501,135 @@ function petition_show($node) {
 }
 
 /**
- * Increment petition count.
+ * Check if petition has reached public or ready sig threshold.
  *
- * @param string $petition_id
- *   Node id or legacy mongo id for a petition.
- *
- * @param int $increment
- *   Optional amount to increment by. Defaults to 1.
- *
- * @return bool
- *   True for success. False for fail.
+ * @param int $nid
+ *   Petition node ID.
  */
-function petition_increment_count($petition_id, $increment = 1, $debug = FALSE) {
-  // Legacy petition IDs are mongo IDs, not node IDs. Get nid.
-  $nid = petition_get_nid($petition_id);
-
-  // Load the node, increment the signature count, save.
+function petition_check_reached_public_ready($nid) {
+  $reached_response = FALSE;
+  $node_changed = FALSE;
   $node = node_load($nid);
   $lang = $node->language;
-  //Keep the old functionality for debug reasons.
-  $signature_count_before = $node->field_petition_signature_count[$lang][0]['value'];
-  $signature_count_after = $signature_count_before + $increment;
-  $node->field_petition_signature_count[$lang][0]['value'] = $signature_count_after;
-  //Use the value from the db.
-  $signature_count_after = $node->signature_count + 1;
-  // Update to public petition.
-  $reached_response = FALSE;
+
+  $signature_count = $node->signature_count;
   $petition_status = $node->field_petition_status[$lang][0]['value'];
+
+  // # of signatures necessary to become a public petition.
   $public_signatures = $node->field_petition_public_signatures[$lang][0]['value'];
+
+  // # of signatures necessary to become ready for a response.
   $response_signature_count = $node->field_petition_response_sign[$lang][0]['value'];
-  if ($petition_status == WH_PETITION_STATUS_PRIVATE && $signature_count_after >= $public_signatures) {
-    $node->field_petition_status[$lang][0]['value'] = (int) WH_PETITION_STATUS_PUBLIC;
-    $node->field_timestamp_reached_public[$lang][0]['value'] = (int) time();
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  // Has not become public yet, check if has enough sigs now.
+  if (!$wrapper->field_timestamp_reached_public->raw()) {
+    // Record the time the petition became public.
+    if ($petition_status == WH_PETITION_STATUS_PRIVATE && $signature_count >= $public_signatures) {
+      $wrapper->field_petition_status->set((int) WH_PETITION_STATUS_PUBLIC);
+      $wrapper->field_timestamp_reached_public->set((int) time());
+      $node_changed = TRUE;
+    }
   }
-  // Record the time the petition became eligible for a response.
-  elseif ($petition_status == WH_PETITION_STATUS_PUBLIC && $signature_count_after >= $response_signature_count) {
-    $node->field_petition_status[$lang][0]['value'] = (int) WH_PETITION_STATUS_UNDER_REVIEW;
-    $node->field_response_status[$lang][0]['value'] = (int) WH_PETITION_RESPONSE_STATUS_PENDING;
-    $node->field_timestamp_reached_ready[$lang][0]['value'] = (int) time();
-    $reached_response = TRUE;
+  // Has not reached ready for response yet, check if has enough sigs now.
+  elseif (!$wrapper->field_timestamp_reached_ready->raw()) {
+    // Record the time the petition became public.
+    if ($petition_status == WH_PETITION_STATUS_PUBLIC && $signature_count >= $response_signature_count) {
+      $wrapper->field_petition_status->set((int) WH_PETITION_STATUS_UNDER_REVIEW);
+      $wrapper->field_response_status->set((int) WH_PETITION_RESPONSE_STATUS_PENDING);
+      $wrapper->field_timestamp_reached_ready->set((int) time());
+      $reached_response = TRUE;
+      $node_changed = TRUE;
+    }
   }
 
-  // Email admin and the creator if the petition is ready for a response.
-  if ($reached_response) {
-    wh_petitions_email_ready_response($nid, $node->uid);
-    watchdog('wh_petitions', 'Petition (@id) Ready for Response Notification Sent.', array('@id' => $nid));
+  if ($node_changed) {
+    try {
+      $wrapper->save();
+    }
+    catch (Exception $e) {
+      logger_event('exceptions.petition.d7e3a0d');
+      watchdog(
+        'petition',
+        'Unable to save petition node in petition_check_reached_public_ready for id :petitionid. Exception message: :message',
+        array(
+          ':petitionid' => $nid,
+          ':message' => $e->getMessage(),
+        ),
+        WATCHDOG_ERROR
+      );
+    }
+
+    // Email admin and the creator if the petition is ready for a response.
+    if ($reached_response) {
+      wh_petitions_email_ready_response((int) $node->nid, $node->uid);
+      watchdog('wh_petitions', 'Petition (@id) Ready for Response Notification Sent.', array('@id' => $node->nid));
+    }
   }
-  node_save($node);
+}
+
+/**
+ * Check if petition has crossed admin signature thresholds.
+ *
+ * @param int $nid
+ *   Petition node ID.
+ */
+function petition_check_admin_thresholds($nid) {
+  $node = node_load($nid);
+  $lang = $node->language;
+
+  $signature_count = $node->signature_count;
+  // Not using entity_metadata_wrapper to avoid overhead if not public.
+  $petition_status = $node->field_petition_status[$lang][0]['value'];
 
   $active_petition_thresholds = array(
-    'wh_petitions_admin_signature_threshold_1' => variable_get('wh_petitions_admin_signature_threshold_1', 25000),
-    'wh_petitions_admin_signature_threshold_2' => variable_get('wh_petitions_admin_signature_threshold_2', 50000),
-    'wh_petitions_admin_signature_threshold_3' => variable_get('wh_petitions_admin_signature_threshold_3', 75000),
+    variable_get('wh_petitions_admin_signature_threshold_1', 25000) => array(
+      'name' => 'wh_petitions_admin_signature_threshold_1',
+      'field' => 'field_timestamp_rchd_sig_thresh1',
+    ),
+    variable_get('wh_petitions_admin_signature_threshold_2', 50000) => array(
+      'name' => 'wh_petitions_admin_signature_threshold_2',
+      'field' => 'field_timestamp_rchd_sig_thresh2',
+    ),
+    variable_get('wh_petitions_admin_signature_threshold_3', 75000) => array(
+      'name' => 'wh_petitions_admin_signature_threshold_3',
+      'field' => 'field_timestamp_rchd_sig_thresh3',
+    ),
   );
 
-  // Do not count creator's signature.
-  $signature_count_threshold = max(0, $signature_count_after - 1);
+  // Only check public petitions for thresholds.
+  if ($petition_status == WH_PETITION_STATUS_PUBLIC) {
+    $wrapper = entity_metadata_wrapper('node', $node);
 
-  if ($petition_status == WH_PETITION_STATUS_PUBLIC && ($array_key = array_search($signature_count_threshold, $active_petition_thresholds) == TRUE)) {
-    // Send notification email for threshold crossed.
-    wh_petitions_email_signature_threshold_crossed($nid, $signature_count_threshold);
-    petitionslog_event('signatures_queue.workflow.process_signatures.notifications.' . $array_key, 'set', $nid);
-  }
+    foreach ($active_petition_thresholds as $threshold_signatures => $threshold_data) {
+      // Check if threshold field is empty or zero.
+      if (!$wrapper->{$threshold_data['field']}->raw()) {
+        // Threshold has not been met yet, no timestamp.
+        if ($signature_count >= $threshold_signatures) {
+          $wrapper->{$threshold_data['field']}->set((int) time());
+          try {
+            $wrapper->save();
+          }
+          catch (Exception $e) {
+            logger_event('exceptions.petition.1fa4898');
+            watchdog(
+              'petition',
+              'Unable to save petition node in petition_check_admin_thresholds for id :petitionid. Exception message: :message',
+              array(
+                ':petitionid' => $nid,
+                ':message' => $e->getMessage(),
+              ),
+              WATCHDOG_ERROR
+            );
+          }
 
-  // Debug. Log everything.
-  if ($debug) {
-    watchdog('petition', 'petition_increment_count() received the following params: petition_id = @petition_id, increment = @increment', array(
-      '@petition_id' => $petition_id,
-      '@increment' => $increment,
-    ), WATCHDOG_DEBUG);
-    watchdog('petition', 'petition_increment_count() increased the signature count from @before to @after', array(
-      '@before' => $signature_count_before,
-      '@after' => $signature_count_after,
-    ), WATCHDOG_DEBUG);
-    watchdog('petition', 'petition_increment_count() saved this petition node: node = !node', array(
-      '!node' => petitionslog_format_for_watchdog($node),
-    ), WATCHDOG_DEBUG);
+          // Send notification email for threshold crossed.
+          wh_petitions_email_signature_threshold_crossed((int) $node->nid, $signature_count);
+          logger_event('signatures_queue.workflow.process_signatures.notifications.' . $threshold_data['name'], 'set', (int) $node->nid);
+        }
+      }
+    }
   }
 }
 
@@ -470,8 +705,8 @@ function petition_get_nid($petition_id) {
     $nid = _petition_get_nid($petition_id);
   }
   catch (Exception $e) {
-    watchdog('petition', "Error getting petition NID.\n\n@exception", array(
-      '@exception' => print_r($e, TRUE),
+    watchdog('petition', "Error getting petition NID. Exception: @exception", array(
+      '@exception' => json_encode($e->getMessage()),
     ), WATCHDOG_ERROR);
   }
 
@@ -531,8 +766,8 @@ function petition_get_legacy_id($node) {
     $legacy_id = _petition_get_legacy_id($node);
   }
   catch (Exception $e) {
-    watchdog('petition', "Error getting petition legacy ID.\n\n@exception", array(
-      '@exception' => print_r($e, TRUE),
+    watchdog('petition', "Error getting petition legacy ID. Exception: @exception", array(
+      '@exception' => json_encode($e->getMessage()),
     ), WATCHDOG_ERROR);
   }
 
@@ -590,9 +825,11 @@ function petition_update_total_unique_ips_and_emails($petition_id) {
     ->execute()
     ->fetchField();
 
-  PetitionsController::setPetitionFieldValue($nid, 'field_petition_sig_unq_email_act', 'value', $email_count);
-  PetitionsController::setPetitionFieldValue($nid, 'field_petition_val_unq_ip_emails', 'value', $ip_count);
-
+  $petition = node_load($nid);
+  $wrapper = entity_metadata_wrapper('node', $petition);
+  $wrapper->field_petition_sig_unq_email_act = (int) $email_count;
+  $wrapper->field_petition_val_unq_ip_emails = (int) $ip_count;
+  $wrapper->save();
 }
 
 /**
@@ -603,7 +840,7 @@ function petition_update_total_unique_ips_and_emails($petition_id) {
  * @param string $email
  *   The signature's email inbox. This should be an un-subaddressed value.
  *
- * @see signatures_queue_unsubaddress_email
+ * @see disposable_email_unsubaddress_email
  */
 function petition_add_signature_email($petition_id, $email) {
   $original_petition_id = $petition_id;
@@ -634,7 +871,7 @@ function petition_add_signature_email($petition_id, $email) {
       ->execute();
   }
   catch (exception $e) {
-    petitionslog_event('exceptions.petition.220219a');
+    logger_event('exceptions.petition.220219a');
     watchdog(
       'petition',
       'Problem updating email count in petition :petitionid for email :email. Exception message: :message',
@@ -688,7 +925,7 @@ function petition_add_signature_ip($petition_id, $ip) {
       ->execute();
   }
   catch (exception $e) {
-    petitionslog_event('exceptions.petition.566b00e');
+    logger_event('exceptions.petition.566b00e');
     watchdog(
       'petition',
       'Problem updating IP count in petition :petitionid for IP :ip. Exception message: :message',
@@ -711,7 +948,7 @@ function petition_add_signature_ip($petition_id, $ip) {
  * @param string $email
  *   The signature's email inbox. This should be an un-subaddressed value.
  *
- * @see signatures_queue_unsubaddress_email
+ * @see disposable_email_unsubaddress_email
  */
 function petition_remove_signature_email($petition_id, $email) {
   try {
@@ -776,4 +1013,525 @@ function petition_user_exists_by_mail($email) {
     return $result->uid;
   }
   return FALSE;
+}
+
+/**
+ * Increments the counter on a petition metadata metric.
+ *
+ * @param int $petition_id
+ *   The numeric petition ID.
+ * @param string $metadata
+ *   The metadata name.
+ * @param mixed $value
+ *   Value to set metadata field to, requires int or expression.
+ */
+function petition_set_metadata_value($petition_id, $metadata, $value) {
+  try {
+    db_merge('petition_metadata')
+      ->key(array(
+        'petition_id' => $petition_id,
+        'metric' => $metadata,
+      ))
+      ->insertFields(array(
+        'petition_id' => $petition_id,
+        'metric' => $metadata,
+      ))
+      ->expression('value', $value)
+      ->execute();
+  }
+  catch (exception $e) {
+    logger_event('exceptions.petition.692ab33');
+    watchdog(
+      'petition',
+      'Problem updating petition metadata metric :metric for petition :petitionid. Exception message: :message',
+      array(
+        ':petitionid' => $petition_id,
+        ':metric' => $metadata,
+        ':message' => $e->getMessage(),
+      ),
+      WATCHDOG_ERROR
+    );
+  }
+}
+
+/**
+ * Increments the counter on a petition metadata metric.
+ *
+ * @param int $petition_id
+ *   The numeric petition ID.
+ * @param string $metadata
+ *   The metadata name.
+ * @param bool $decrement
+ *   TRUE to decrease metadata instead of increase.
+ */
+function petition_increment_metadata($petition_id, $metadata, $decrement = FALSE) {
+  $value = $decrement ? 'value - 1' : 'value + 1';
+  petition_set_metadata_value($petition_id, $metadata, $value);
+}
+
+/**
+ * Updates the values stored on petition nodes with the values from metadata.
+ *
+ * @param int $petition_id
+ *   The node ID of the petition.
+ * @param array $metrics
+ *   An array of metric fields to update. Defaults to all metrics.
+ */
+function petition_update_metadata_counts($petition_id, $metrics = array()) {
+  $fields_map = PetitionsSelectQueryMysql::getPetitionMetricFieldsMap();
+  $metrics_to_update = array();
+  $filtered_metrics = array();
+
+  // Include all allowed metadata metrics.
+  foreach ($fields_map as $metric => $field_map) {
+    if ($field_map['include_in_metadata']) {
+      $metrics_to_update[] = $metric;
+    }
+  }
+
+  // If metrics have been passed in, filter them against allowed.
+  if ($metrics) {
+    foreach ($metrics_to_update as $metric) {
+      if (in_array($metric, array_keys($metrics))) {
+        $filtered_metrics[] = $metric;
+      }
+    }
+    $metrics_to_update = $filtered_metrics;
+  }
+
+  if (empty($metrics_to_update)) {
+    logger_event('exceptions.petition.b19abab');
+    watchdog(
+      'petition',
+      'petition_update_metadata_counts metrics are empty or invalid for petition id :petitionid. Metrics: :metrics',
+      array(
+        ':petitionid' => $petition_id,
+        ':metrics' => print_r($metrics, TRUE),
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  $node = node_load($petition_id);
+  if ($node->type != 'petition') {
+    logger_event('exceptions.petition.e7235eb');
+    watchdog(
+      'petition',
+      'petition_update_metadata_counts Type is not petition for id :petitionid, type is :type.',
+      array(
+        ':petitionid' => $petition_id,
+        ':type' => $node->type,
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+  foreach ($metrics_to_update as $metric) {
+    $value = db_select('petition_metadata', 'pm')
+      ->fields('pm', array('value'))
+      ->condition('petition_id', $petition_id)
+      ->condition('metric', $metric)
+      ->execute()
+      ->fetchField();
+    if (empty($value) || $value === FALSE) {
+      $value = 0;
+    }
+    $wrapper->$fields_map[$metric]['table'] = (int) $value;
+  }
+  $wrapper->save();
+  logger_event('signatures_queue.metadata.petition_updated');
+}
+
+/**
+ * Update field_petition_signature_count with count from signature_mail table.
+ *
+ * @param int $nid
+ *   Petition node ID.
+ */
+function petition_update_petition_signature_count($nid) {
+  $node = node_load($nid, NULL, TRUE);
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $wrapper->field_petition_signature_count->set($node->signature_count);
+  $wrapper->save();
+}
+/**
+ * Implements hook_petition_signatures_updated().
+ */
+function petition_petition_signatures_updated($nid) {
+  // Leave petition_update_petition_signature_count 1st, it clears node cache.
+  petition_update_petition_signature_count($nid);
+
+  petition_check_reached_public_ready($nid);
+  petition_check_admin_thresholds($nid);
+  petition_update_metadata_counts($nid);
+  petition_update_total_unique_ips_and_emails($nid);
+
+  signatures_queue_compare_thresholds($nid);
+}
+
+/**
+ * Implements hook_petition_status_updated().
+ */
+function petition_petition_status_updated($nid, $previous_status, $new_status) {
+  if ($previous_status != WH_PETITION_STATUS_CLOSED && $new_status == WH_PETITION_STATUS_CLOSED) {
+    // Force an update of metadata, ip/emails since petition has closed.
+    petition_update_metadata_counts($nid);
+    petition_update_total_unique_ips_and_emails($nid);
+  }
+}
+
+/**
+ * Update email and IP address fraud metrics metadata.
+ *
+ * @param int $petition_id
+ *   Petition node ID.
+ * @param string $email
+ *   Email of signee (not un-subaddressed).
+ * @param string $client_ip
+ *   IP address of signee.
+ */
+function petition_update_email_ip_metrics($petition_id, $email, $client_ip) {
+  // Store metrics for fraud reporting.
+  $unsub_email = disposable_email_unsubaddress_email($email);
+  petition_add_signature_email($petition_id, $unsub_email);
+  petition_add_signature_ip($petition_id, $client_ip);
+
+  $disposability = disposable_email_get_email_disposability($email);
+  $disposability->is_free_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS) : NULL;
+  $disposability->is_open_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS) : NULL;
+  $disposability->is_forwarding_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS) : NULL;
+  $disposability->is_trash_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS) : NULL;
+  $disposability->is_time_bound_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS) : NULL;
+  $disposability->is_shredder_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS) : NULL;
+  disposable_email_is_subaddressed_email($email) ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS) : NULL;
+}
+
+/**
+ * Starts a reusable timer.
+ *
+ * This function is a mere wrapper for symmetry with
+ * petition_reusable_timer_read_and_destroy(), which performs the important
+ * work of preventing timers from accumulating through reuse.
+ *
+ * @param string $name
+ *   The name of the timer.
+ *
+ * @see petition_reusable_timer_read_and_destroy()
+ */
+function petition_reusable_timer_start($name) {
+  timer_start($name);
+}
+
+/**
+ * Reads and destroys a reusable timer.
+ *
+ * Drupal provides no facility to destroying timers, so two uses of the same
+ * timer name inside the same PHP process will accumulate, e.g., if a timer by
+ * the same name is used inside a loop with five iterations and each iteration
+ * takes one second, the first iteration will accurately register as having
+ * taken one second, but the second will register as having taken two, the third
+ * as three, etc.
+ *
+ * After calling this function, a timer by the same name can be safely started
+ * using petition_reusable_timer_start().
+ *
+ * @param string $name
+ *   The name of the timer.
+ *
+ * @return int
+ *   The current timer value in milliseconds.
+ *
+ * @see petition_reusable_timer_start()
+ */
+function petition_reusable_timer_read_and_destroy($name) {
+  $elapsed = (int) timer_read($name);
+
+  // Delete the timer variable to prevent accumulation.
+  unset($GLOBALS['timers'][$name]['start']);
+
+  return $elapsed;
+}
+
+/**
+ * Logs a database query to watchdog.
+ *
+ * @param string $type
+ *   The category to which this message belongs. Can be any string, but the
+ *   general practice is to use the name of the module calling
+ *   petitionslog_log_query().
+ * @param QueryAlterableInterface $query
+ *   An Query object describing the composite parts of a SQL query.
+ */
+function petition_log_query($type, QueryAlterableInterface $query) {
+  // Get the SQL for the query. This logic is adapted from devel's dpq(). The
+  // chief difference is that the below doesn't invoke the query's preExecute()
+  // method, which can cause errors in this context. Regardless, avoiding the
+  // dependency makes it possible, if necessary, to use this feature in prod
+  // without enabling devel there, and that's good thing.
+  $sql = (string) $query;
+  $quoted = array();
+  $connection = Database::getConnection();
+  foreach ((array) $query->arguments() as $key => $val) {
+    $quoted[$key] = $connection->quote($val);
+  }
+  $sql = strtr($sql, $quoted);
+
+  // Prefix tables so the string is directly copy/paste-able into an SQL tool.
+  $sql = $connection->prefixTables($sql);
+
+  // Run EXPLAIN. Wrap in a try..catch() in case of a database that doesn't
+  // support the syntax.
+  try {
+    $result = db_query("EXPLAIN {$sql}");
+    $explain = array();
+    while ($row = $result->fetchAssoc()) {
+      $explain[] = $row;
+    }
+  }
+  catch (Exception $e) {
+    $explain = t('Not available.');
+  }
+
+  watchdog($type, 'SQL: !sql EXPLAIN: !explain Query object: !query', array(
+    '!sql' => petition_format_for_watchdog($sql),
+    '!explain' => petition_format_for_watchdog($explain),
+    '!query' => petition_format_for_watchdog($query),
+  ));
+}
+
+/**
+ * Formats data for logging via watchdog.
+ *
+ * @param mixed $data
+ *   An arbitrary array or object to be formatted readably for logging.
+ *
+ * @return string
+ *   The data formatted to send to watchdog.
+ *
+ * @see watchdog()
+ */
+function petition_format_for_watchdog($data) {
+  return json_encode($data);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function petition_theme() {
+  $items = array();
+
+  $items['signatures_progress_bar'] = array(
+    'render element' => 'element',
+  );
+  return $items;
+}
+
+/**
+ * Generates a render array for the signature count progress bar.
+ *
+ * @param array $variables
+ *   An array containing signatures and goal parameters.
+ *
+ * @return array
+ *   A render array.
+ */
+function theme_signatures_progress_bar($variables) {
+  $signatures = isset($variables['signatures']) ? $variables['signatures'] : 0;
+  $goal = isset($variables['goal']) ? $variables['goal'] : 100000;
+  $clickable = isset($variables['clickable']) ? $variables['clickable'] : FALSE;
+
+  $signatures = (int) $signatures;
+  $goal = (int) $goal;
+  if ($signatures < $goal) {
+    $percent = max(round($signatures / $goal * 100), 1);
+  }
+  else {
+    $percent = 100;
+  }
+
+  $signatures = wh_petitions_format_number($signatures);
+  $goal = wh_petitions_format_number($goal);
+  $bar = array(
+    'signature-container' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'class' => array(
+          'signature-meter',
+        ),
+      ),
+      'progress-bar' => array(
+        '#theme' => 'html_tag',
+        '#tag' => 'span',
+        '#attributes' => array(
+          'style' => array(
+            'width: ' . $percent . '%',
+          ),
+        ),
+      ),
+    ),
+    'signatures-text-container' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'class' => array(
+          'signatures-text-container',
+        ),
+      ),
+      'signature-count' => array(
+        'signatures' => array(
+          '#theme' => 'html_tag',
+          '#tag' => 'span',
+          '#value' => $signatures,
+          '#attributes' => array(
+            'class' => array(
+              'signatures-number',
+            ),
+          ),
+        ),
+      ),
+      'signatures-text' => array(
+        '#theme' => 'html_tag',
+        '#tag' => 'span',
+        '#value' => t('signed'),
+        '#attributes' => array(
+          'class' => array(
+            'signatures-text',
+          ),
+        ),
+      ),
+    ),
+  );
+
+  $signature_goal = array(
+    'goal' => array(
+      '#theme' => 'html_tag',
+      '#tag' => 'span',
+      '#value' => $goal,
+      '#attributes' => array(
+        'class' => array(
+          'goal',
+        ),
+      ),
+    ),
+    'goal-text' => array(
+      '#theme' => 'html_tag',
+      '#tag' => 'span',
+      '#value' => t('goal'),
+      '#attributes' => array(
+        'class' => array(
+          'goal-text',
+        ),
+      ),
+    ),
+  );
+
+  if ($clickable) {
+    $signature_goal_container = array(
+      'goal-text-container' => array(
+        '#text' => render($signature_goal),
+        '#theme' => 'link',
+        '#path' => '/about',
+        '#options' => array(
+          'attributes' => array(
+            'target' => '_blank',
+            'class' => 'goal-text-container'
+          ),
+          'html' => TRUE,
+        )
+      )
+    );
+  }
+  else {
+    $signature_goal_container = array(
+      'goal-text-container' => array(
+        '#type' => 'container',
+        '#attributes' => array(
+          'class' => array(
+            'goal-text-container',
+          ),
+        ),
+      )
+    );
+
+    $signature_goal_container['goal-text-container'] += $signature_goal;
+  }
+
+  $bar = array_merge($bar, $signature_goal_container);
+  return $bar;
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function petition_preprocess_node(&$variables) {
+  // Add the signatures progress bar for node teasers.
+  $is_petition = $variables['node']->type == 'petition';
+  $is_teaser = $variables['view_mode'] == 'teaser';
+  if ($is_petition && $is_teaser) {
+    $links = &$variables['content']['links']['node']['#links'];
+    if (in_array($variables['field_petition_status'][LANGUAGE_NONE][0]['value'], wh_petitions_signable_statuses())) {
+      $link_text = t('Sign It');
+    }
+    else {
+      $link_text = t('View');
+    }
+    $links['node-readmore']['title'] = $link_text . "<span class=\"element-invisible\"> {$variables['node']->title}</span>";
+
+    if ($threshold_field = field_get_items('node', $variables['node'], 'field_petition_response_sign')) {
+      $signatures = $variables['node']->signature_count ? $variables['node']->signature_count : 0;
+      $threshold = check_plain($threshold_field[0]['value']);
+      $variables['content']['signature_progress_bar'] = theme('signatures_progress_bar', array('signatures' => $signatures, 'goal' => $threshold));
+    };
+  }
+}
+
+/**
+ * Implements hook_context_plugins().
+ */
+function petition_context_plugins() {
+  $plugins = array();
+  $plugins['petition_context_condition_signable'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'petition') . '/plugins/context',
+      'file' => 'petition_context_condition_signable.inc',
+      'class' => 'petition_context_condition_signable',
+      'parent' => 'context_condition',
+    ),
+  );
+
+  return $plugins;
+}
+
+/**
+ * Implements hook_context_registry().
+ */
+function petition_context_registry() {
+  return array(
+    'conditions' => array(
+      'petition_context_condition_signable' => array(
+        'title' => t('Petition is Signable'),
+        'description' => t('Uncheck to satisfy condition on a non-signable petition.'),
+        'plugin' => 'petition_context_condition_signable',
+      ),
+    ),
+  );
+}
+
+/**
+ * Page callback to display the user account edit page.
+ *
+ * Redirects to user profile edit page if user is logged in, or the login form
+ * for anonymous users.
+ */
+function petition_user_edit_page() {
+  global $user;
+  $uid = $user->uid;
+  if ($uid) {
+    drupal_goto('user/' . $uid . '/edit');
+  }
+  else {
+    drupal_goto('user/login');
+  }
 }

@@ -43,27 +43,73 @@ function wh_core_theme($existing, $type, $theme, $path) {
 }
 
 /**
- * Implements hook_preprocess_hook().
+ * Implementation of hook_menu_alter().
  */
-function wh_core_preprocess_wh_core_login(&$variables) {
+function wh_core_menu_alter(&$items) {
+  $items['user']['title callback'] = 'wh_core_login_title';
+  $items['login']['title callback'] = 'wh_core_login_title';
+  $items['register']['title callback'] = 'wh_core_login_title';
 
-  $variables['options'] = array(
-    'attributes' => array(
-      'class' => array(
-        'password',
-      ),
-    ),
-  );
+  // We don't need or want this path, or tabs to be accessed anymore.
+  $items['user/%user/edit/main'] = FALSE;
+}
 
-  $variables['options']['query'] = drupal_get_destination();
+/**
+ * Custom submit handler for the user profile edit form.
+ */
+function wh_core_user_profile_account_form_submit($form, &$form_state) {
+  // Grab our name values.
+  $first_name = $form_state['values']['wh_core_form_first_name'];
+  $last_name = $form_state['values']['wh_core_form_last_name'];
+  // Update our profile.
+  $profile = is_object($form_state['complete form']['#profile']) ? $form_state['complete form']['#profile'] : $form_state['complete form']['#profile']['main'];
+  $profile->field_first_name[LANGUAGE_NONE][0]['value'] = $first_name;
+  $profile->field_last_name[LANGUAGE_NONE][0]['value'] = $last_name;
+  // Save our first and last name values.
+  profile2_save($profile);
 }
 
 /**
  * Implements hook_form_alter().
  */
 function wh_core_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'user_profile_form' && $form['#user_category'] == 'account') {
+    global $user;
+    // Load our user profile.
+    $profile2 = profile2_load_by_user($user, NULL);
+    // Set our default values.
+    $first_default = !empty($profile2['main']->field_first_name[LANGUAGE_NONE][0]['value']) ? $profile2['main']->field_first_name[LANGUAGE_NONE][0]['value'] : '';
+    $last_default = !empty($profile2['main']->field_last_name[LANGUAGE_NONE][0]['value']) ? $profile2['main']->field_last_name[LANGUAGE_NONE][0]['value'] : '';
+    // Create one if it does not exist.
+    if (empty($profile2)) {
+      $profile2 = profile2_create(array('type' => 'main', 'uid' => $user->uid));
+      $first_default = '';
+      $last_default = '';
+    }
+    $form['#profile'] = $profile2;
+
+    // Add first and last name profile fields to form.
+    $form['wh_core_form_first_name'] = array(
+      '#default_value' => $first_default,
+      '#type' => 'textfield',
+      '#title' => t('First Name'),
+      '#required' => TRUE,
+    );
+    $form['wh_core_form_last_name'] = array(
+      '#type' => 'textfield',
+      '#default_value' => $last_default,
+      '#title' => t('Last Name'),
+      '#required' => TRUE,
+    );
+    // Pass our profile fields to callback for profile updating.
+    $form['#submit'][] = 'wh_core_user_profile_account_form_submit';
+  }
 
   if ($form_id == 'user_register_form' || $form_id == 'user_profile_form') {
+
+    // Allow form modification after form is completely built.
+    $form['#after_build'][] = 'wh_core_modify_after';
+
     // Change the CAPTCHA text.
     $form['actions']['captcha']['#description'] = t('For security, type the following text in the box below it.');
 
@@ -78,8 +124,19 @@ function wh_core_form_alter(&$form, &$form_state, $form_id) {
     $form['field_origin']['und'][0]['value']['#type'] = 'hidden';
     $form['field_origin']['und'][0]['value']['#default_value'] = 'petitions';
 
+    // Modify the label of the Email field.
+    $form['account']['mail']['#title'] = t('Email Address');
+    // Get rid of the description being set by core on the Email field.
+    unset($form['account']['mail']['#description']);
+
     // Hide the country field.
     $form['profile_main']['field_country']['#type'] = 'hidden';
+
+    // Hide the zip field.
+    $form['profile_main']['field_zip']['#type'] = 'hidden';
+
+    // Alter the profile_main form to be a container instead of fieldset.
+    $form['profile_main']['#type'] = 'container';
   }
 
   if ($form_id == 'user_register_form' && arg(0) != 'admin') {
@@ -94,32 +151,59 @@ function wh_core_form_alter(&$form, &$form_state, $form_id) {
     $form['account']['name']['#access'] = FALSE;
     array_unshift($form['#validate'], 'wh_core_user_register_validate');
 
-    // Add the email registration field.
+    // Add the email registration field below the captcha.
     $form['email_updates'] = array(
-      '#title' => t('Sign up for email updates from President Obama and other senior administration officials'),
+      '#title' => t('President Obama and other senior administration officials may send updates'),
       '#type' => 'checkbox',
       '#attributes' => array('class' => array('clearfix')),
+      '#default_value' => TRUE,
+      '#weight' => 100,
     );
 
-    $form['required_text'] = array(
-      '#markup' => '<div class="required-field-wrapper"><span class="req-label">Required</span></div>',
-      // No really... this should be at the end.
-      '#weight' => 100000,
+    $form['actions']['submit']['#value'] = t('Create Account');
+
+    $participation_link = l(t('Terms of Participation'), 'how-why/terms-participation');
+    $privacy_link = l(t('Privacy Policy'), 'https://www.whitehouse.gov/privacy', array(
+      'external' => TRUE
+    ));
+
+    $signing_agreement = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'p',
+      '#value' => "By creating an account, you agree to the {$participation_link} and {$privacy_link}.",
+      '#attributes' => array('id' => array('signup-agreement')),
     );
+
+    $form['signing_agreement'] = array(
+      '#markup' => drupal_render($signing_agreement),
+      '#weight' => 200,
+    );
+
   }
 
   if ($form_id == 'user_login') {
+
     $form['login_content'] = array(
       // Replace NULL with a value to be passed to pre_processors and
       // wh_core_password.tpl.php in the future. (Optional).
       '#markup'   => theme('wh_core_login', array('wh_core_login' => NULL)),
       '#weight'   => -50,
     );
-    $form['name']['#title'] = t('E-Mail:');
-    $form['name']['#description'] = t('You may login with your e-mail address.');
+    $form['name']['#title'] = t('Email Address');
+    // Get rid of the description being set by the logintoboggan module.
+    unset($form['name']['#description']);
 
-    $form['pass']['#title'] = t('Password:');
-    $form['pass']['#description'] = t('The password field is case sensitive.');
+    $form['pass']['#title'] = t('Password');
+    $form['pass']['#description'] = t('Case Sensitive');
+
+    $forgot_pass_link = l(t('Forgot your Password?'), 'user/password');
+    $forgot_pass_link_markup = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'h6',
+      '#value' => $forgot_pass_link,
+      '#attributes' => array('id' => array('forgot-pass-link')),
+    );
+    $form['pass']['#suffix'] = drupal_render($forgot_pass_link_markup);
   }
   if ($form_id == 'user_pass') {
     $form['password_content'] = array(
@@ -166,4 +250,61 @@ function wh_core_user_login(&$edit, $account) {
 function wh_core_user_logout($account) {
   global $cookie_domain;
   setcookie('authenticated', '0', time() - 3600, '/', $cookie_domain);
+}
+
+/**
+ * Menu item title callback for /user.
+ */
+function wh_core_login_title() {
+  return user_is_logged_in() ? t('My account') : t('Log In or Create an Account');
+}
+
+/**
+ * After build callback to allow for modification when form is completely built.
+ */
+function wh_core_modify_after($form, &$form_state) {
+  if (!empty($form['form_id']['#value'])) {
+    $form_id = $form['form_id']['#value'];
+    if ($form_id == 'user_register_form' || $form_id == 'user_profile_form') {
+      // Get rid of description on captcha response field.
+      unset($form['captcha']['captcha_widgets']['captcha_response']['#description']);
+    }
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function wh_core_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if (arg(0) == 'user' && count($data['tabs'])) {
+    // Remove these tabs if not administrator.
+    if (user_access('administer users') == FALSE) {
+      $count = count($data['tabs'][0]['output']) - 1;
+      $i = 0;
+      while ($i <= $count) {
+        if ($data['tabs'][0]['output'][$i]['#link']['title'] == 'View' ||
+          $data['tabs'][0]['output'][$i]['#link']['title'] == 'Edit'
+        ) {
+          unset($data['tabs'][0]['output'][$i]);
+        }
+        $i++;
+      }
+    }
+    // If authenticated user, change titles for account tabs.
+    if (!empty($data['tabs'][1]['output'])) {
+      $count2 = count($data['tabs'][1]['output']) - 1;
+      $j = 0;
+
+      while ($j <= $count2) {
+        if ($data['tabs'][1]['output'][$j]['#link']['title'] == 'Account') {
+          $data['tabs'][1]['output'][$j]['#link']['title'] = 'Email/Password';
+        }
+        elseif ($data['tabs'][1]['output'][$j]['#link']['title'] == 'Main profile') {
+          $data['tabs'][1]['output'][$j]['#link']['title'] = 'Name';
+        }
+        $j++;
+      }
+    }
+  }
 }

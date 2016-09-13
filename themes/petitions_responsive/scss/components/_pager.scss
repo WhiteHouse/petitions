@@ -1,0 +1,15 @@
+//Pager Styles
+
+.page-load-next {
+  clear: both;
+  text-align: center;
+  a {
+    @extend a.button;
+    padding: 0.25em 1em;
+    margin-top: 0;
+  }
+}
+.page-load-prev {
+  @extend .page-load-next;
+  margin-bottom: 20px;
+}

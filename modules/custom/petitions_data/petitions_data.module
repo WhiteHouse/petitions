@@ -14,13 +14,13 @@ include_once 'petitions_data.mongo2mysql.inc';
 function petitions_data_menu() {
   $items = array();
 
-  $items['admin/config/services/petitions_data'] = array(
-    'title' => 'Petitions Data Settings',
+  $items['admin/petitions/settings/petitions_data'] = array(
+    'title' => 'Petitions Data Module Settings',
     'description' => 'Configure settings for the Petitions Data module.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('petitions_data_form'),
     'access arguments' => array('access administration pages'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
@@ -253,17 +253,24 @@ function petitions_data_petition_is_open($petition_id) {
  *   Useful for links that will be displayed outside the site, such as in an API
  *   response or email. If FALSE, returns a path fragment without the leading
  *   forward slash (/). Defaults to TRUE.
+ * @param bool $edit
+ *   (optional) If the provided URL should use the edit domain.
  *
  * @return string
  *   A string containing a URL to the given path.
  */
-function petitions_data_url($path = NULL, $absolute = TRUE) {
+function petitions_data_url($path = NULL, $absolute = TRUE, $edit = FALSE) {
   // Strip leading slashes from internal paths to prevent them becoming external
   // URLs without protocol. /example.com should not be turned into
   // //example.com.
   $path = ltrim($path, '/');
 
-  $base_url = variable_get('petitions_data_petitions_website_url', $GLOBALS['base_url']);
+  if ($edit) {
+    $base_url = variable_get('edit_base_url', $GLOBALS['base_url']);
+  }
+  else {
+    $base_url = variable_get('petitions_data_petitions_website_url', $GLOBALS['base_url']);
+  }
 
   $alias = drupal_get_path_alias($path);
 
@@ -280,7 +287,7 @@ function petitions_data_query_petitions_data_debug_alter(QueryAlterableInterface
     return;
   }
 
-  petitionslog_log_query('petitions_data', $query);
+  petition_log_query('petitions_data', $query);
 }
 
 /**

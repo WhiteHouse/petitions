@@ -1,0 +1,69 @@
+/**
+ * Footer mixins.
+ *
+ * Adapted from USDS menu styles: https://github.com/18F/web-design-standards
+ */
+
+// Footer region
+#footer{
+  background-color: $color-primary-darkest;
+  @include media($desktop) {
+    padding-top: 20px;
+  }
+
+  .block-menu {
+    margin-bottom: 30px;
+    &:last-child {
+      margin-bottom: 40px;
+    }
+  }
+
+  ul.menu li.leaf{
+    list-style-image: none;
+    list-style-type: none;
+  }
+}
+
+// Logo block
+.wh-footer-logo-block {
+  font-family: $font-serif; //@todo: this should be Georgia, serif stack start with Merriwether
+  font-style: italic;
+  position: relative;
+
+  .wh-lead {
+    font-style: normal;
+  }
+
+  .wh-footer-logo {
+    line-height: 0;
+  }
+  .wh-footer-logo-slogan {
+    margin: 10px 0 35px;
+    a {
+      &:link, &:visited, &:active{
+        color: white;
+      }
+    }
+  }
+
+  @include media($desktop) {
+    .wh-footer-logo, .wh-footer-logo-slogan {
+      display: inline-block;
+      margin: 0;
+    }
+    .wh-footer-logo-slogan {
+      @include vertical-center(absolute);
+      margin: 0 0 0 1em;
+    }
+  }
+}
+
+.return-top {
+  display: inline-block;
+  margin: 0 0 40px;
+  @include media($desktop) {
+    &:not(.desktop-visible) {
+      display: none;
+    }
+  }
+}

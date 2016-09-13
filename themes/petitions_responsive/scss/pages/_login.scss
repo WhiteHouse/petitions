@@ -1,0 +1,144 @@
+// Login/Registration Page CSS
+// --------
+//   Adds styles for the login/user registration pages.
+
+$form-columns: 6;
+$form-element-columns: 4;
+
+body.page-user,
+body.page-user-login,
+body.page-user-register,
+body.page-login,
+body.page-register {
+
+  section#content {
+    padding: 40px 0;
+
+    @include media($desktop) {
+      padding: 60px 0;
+    }
+  }
+
+  h1.title {
+    padding: 0;
+    margin: 0 0 20px;
+    text-align: center;
+  }
+
+  #title_suffix {
+    margin: 0 0 40px 0;
+    text-align: center;
+
+    @include media($desktop) {
+      @include plarge();
+    }
+  }
+
+  form#user-login, form#user-register-form {
+
+    @include media($desktop) {
+      @include span-columns($form-columns);
+      background-color: $color-gray-lightest;
+
+      &> div {
+        @include span-columns($form-element-columns of $form-columns);
+        @include shift(1 of $form-columns);
+      }
+    }
+
+    h3 {
+      margin: 0 0 20px;
+      text-align: center;
+
+      @include media($desktop) {
+        margin: 0 0 30px;
+      }
+    }
+
+    .form-item, .form-actions {
+      margin: 0;
+
+      label {
+        margin: 0 0 10px;
+      }
+
+      input.form-text {
+        margin: 0 0 20px;
+      }
+    }
+
+    .form-actions {
+      text-align: center;
+    }
+
+  }
+
+  form#user-login {
+    padding: 0 0 40px;
+
+    @include media($desktop) {
+      padding: 30px 0 40px;
+    }
+
+    .form-item-pass {
+      input.form-text {
+        margin: 0 0 5px;
+      }
+      .description {
+        margin: 0 0 10px;
+        text-align: right;
+      }
+    }
+
+    #forgot-pass-link {
+      margin: 0 0 20px;
+    }
+  }
+
+  form#user-register-form {
+    @include omega();
+    padding: 0;
+
+    @include media($desktop) {
+      padding: 30px 0 40px;
+    }
+
+    fieldset.captcha {
+      border: 0;
+      margin: 0;
+      padding: 0;
+
+      .fieldset-description {
+        color: $color-secondary-dark;
+      }
+
+      legend {
+        @include hide-text;
+        height: 0px;
+      }
+
+      .form-item {
+        label {
+          font-weight: bold;
+        }
+      }
+    }
+
+    label.option {
+      margin: 0 0 20px;
+
+      @include media($desktop) {
+        margin: 0 0 30px;
+      }
+    }
+
+    .form-submit {
+      margin: 0 0 30px;
+    }
+
+    p#signup-agreement {
+      @include h6();
+      margin: 0;
+    }
+  }
+}

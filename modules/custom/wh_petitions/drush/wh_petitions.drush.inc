@@ -18,6 +18,7 @@ function wh_petitions_drush_command() {
     'callback' => 'wh_petitions_compliance_review_threshold_check_drush',
     'description' => "Check for petitions with enough signatures to pass the compliance review threshold.",
     'arguments' => array(
+      'send_emails' => 'Set to 0 to not send emails, only update sent flag',
     ),
     'aliases' => array('petcrt'),
   );
@@ -61,13 +62,9 @@ function wh_petitions_generate($number, $uid = NULL, $status = NULL) {
   create_petitions($number, $uid, $status);
 }
 
-function wh_petitions_compliance_review_threshold_check_drush() {
-  $email = variable_get('wh_petitions_compliance_reviewer_emails', FALSE);
-  $threshold = (int)variable_get('wh_petitions_compliance_review_threshold', FALSE);
-
-  if ($email && $threshold) {
-    wh_petitions_compliance_review_threshold_check($threshold, $email);
-  }  
+function wh_petitions_compliance_review_threshold_check_drush($send_emails = TRUE) {
+  $count = _wh_petitions_compliance_review_threshold_check((bool) $send_emails);
+  drush_print("{$count} Petitions matching compliance review criteria");
 }
 
 /**

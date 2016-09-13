@@ -11,4 +11,4 @@ dependencies[] = petition
 dependencies[] = petitionevents
 dependencies[] = event_log
 files[] = classes/PetitionsStatistics.inc
-configure = admin/config/system/petitionadmin_dashboard
+configure = admin/petitions/settings/petitionadmin_dashboard

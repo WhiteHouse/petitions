@@ -6,39 +6,9 @@
  */
 
 /**
- * Misc Constants
- */
-define('WH_RESPONSE_RESPONSES_PER_PAGE', 8);    // Responses to display per page on the Responses page.
-define('WH_RESPONSE_SHORTURL_DEFAULT', 'Created on publish');
-
-// @todo Move legacy functions into here as they are flagged, renamed, or
-// refactored throughout the code base.
-require_once dirname(__FILE__) . '/wh_response.mongo2mysql.inc';
-
-/**
  * Implements hook_menu().
  */
 function wh_response_menu() {
-  // Responses section.
-  $items['responses'] = array(
-    'title' => 'Responses',
-    'description' => '',
-    'page callback' => 'wh_response_show_responses',
-    'page arguments' => array(),
-    'access arguments' => array('access content'),
-    'file' => 'wh_response.pages.inc',
-  );
-
-  // More Responses AJAX call.
-  $items['responses/more/%/%/%/%'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_response_more_responses',
-    'page arguments' => array(2, 3, 4, 5),
-    'access arguments' => array('access content'),
-    'file' => 'wh_response.pages.inc',
-  );
-
   // Autocomplete field for Petitions on the Response form.
   $items['petition-autocomplete'] = array(
     'page callback' => 'wh_response_petition_autocomplete',
@@ -46,190 +16,6 @@ function wh_response_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
-
-  // Issues Form Page ( for compliance - they're in hidden divs that use JS normally ).
-  $items['filter-issues/responses'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_response_filter_issue_standalone',
-    'page arguments' => array(),
-    'access arguments' => array('access content'),
-    'file' => 'wh_response.form.inc',
-  );
-
-  // Search Form Page ( for compliance - they're in hidden divs that use JS normally ).
-  $items['filter-search/responses'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_response_filter_search_standalone',
-    'page arguments' => array(),
-    'access arguments' => array('access content'),
-    'file' => 'wh_response.form.inc',
-  );
-
-  // Callback for the standalone search/filter pages above.
-  $items['filter/results/responses'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_response_filter_results',
-    'page arguments' => array(),
-    'access arguments' => array('access content'),
-    'file' => 'wh_response.form.inc',
-  );
-
-  // Email A Response Pages.
-  $items['response/email/%'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_response_email_response',
-    'page arguments' => array(2),
-    'access arguments' => array('access content'),
-    'file' => 'wh_response.pages.inc',
-  );
-  $items['response/email_frame/%'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_response_email_response_frame',
-    'page arguments' => array(2),
-    'access arguments' => array('access content'),
-    'file' => 'wh_response.pages.inc',
-  );
-  $items['response/email_thank/%'] = array(
-    'title' => '',
-    'description' => '',
-    'page callback' => 'wh_response_email_response_thank_you',
-    'page arguments' => array(2),
-    'access arguments' => array('access content'),
-    'file' => 'wh_response.pages.inc',
-  );
-
-  return $items;
-}
-
-/**
- * Implements hook_theme().
- */
-function wh_response_theme() {
-  return array(
-    // Responses list page.
-    'wh_response_display_responses_page' => array(
-      'arguments' => array(),
-      'template' => 'templates/wh-response-page-responses',
-    ),
-    // List view display of a response.
-    'wh_response_display_list_response' => array(
-      'arguments' => array(),
-      'template' => 'templates/wh-response-display-list-response',
-    ),
-  );
-}
-
-/**
- * Implements hook_block_info().
- */
-function wh_response_block_info() {
-  $blocks['wh_response_featured_block'] = array(
-    'info' => t('Featured Petition & Response'),
-    'cache' => DRUPAL_CACHE_GLOBAL,
-  );
-  $blocks['wh_response_recent_responses'] = array(
-    'info' => t('Recent Responses'),
-    'cache' => DRUPAL_CACHE_GLOBAL,
-  );
-
-  return $blocks;
-}
-
-/**
- * Implements hook_block_view().
- */
-function wh_response_block_view($delta) {
-  $block = array();
-
-  switch ($delta) {
-    // Featured Petition & Response.
-    case 'wh_response_featured_block':
-      $block['subject'] = t('Featured Petition & Response');
-
-      // Get a random featured response.
-      $query = db_select('node', 'n', array('target' => 'slave'))
-        ->fields('n', array('nid', 'title'))
-        ->condition('n.type', 'wh_response')
-        ->condition('n.status', 0, '<>');
-      $query->orderRandom();
-      $result = $query->range(0, 1)
-        ->execute();
-
-      $html = '<ul>';
-      foreach ($result as $res) {
-        $html .= '<li>' . l($res->title, 'node/' . $res->nid) . '</li>';
-      }
-
-      // Get a random featured petition - Get a random timestamp, try
-      // to find petition closest to that to simulate random since mongo
-      // has no random sort operator.
-      $conn = wh_petitions_mongo_petition_connection();
-      $days = variable_get('wh_petitions_review_timeframe', 30);
-      $days = rand(1, $days);
-      $timestamp = strtotime("- " . $days . " days");
-      $query = array(
-        'petition_status' => array(
-          '$in' => array(
-            (int) WH_PETITION_STATUS_PUBLIC,
-            (int) WH_PETITION_STATUS_UNDER_REVIEW,
-          ),
-        ),
-        'hidden' => 0,
-        'featured' => 1,
-        'published' => array('$gte' => $timestamp),
-      );
-      $retrieve_fields = array('title', 'nice_url');
-      $results = $conn->findOne($query, $retrieve_fields);
-      if (empty($results)) {
-        $query['published'] = array('$lte' => $timestamp);
-        $results = $conn->findOne($query, $retrieve_fields);
-      }
-      if (!empty($results)) {
-        $html .= '<li>' . l($results['title'], $results['nice_url']) . '</li>';
-      }
-      $html .= '</ul>';
-
-      $block['content'] = $html;
-      break;
-
-    // Recent Responses.
-    case 'wh_response_recent_responses':
-      $block['subject'] = t('Recent Responses');
-
-      // Get 3 most recent responses.
-      $query = db_select('node', 'n', array('target' => 'slave'))
-        ->fields('n', array('nid', 'title'))
-        ->condition('n.type', 'wh_response')
-        ->condition('n.status', 0, '<>')
-        ->orderBy('n.created', 'DESC')
-        ->orderBy('n.title', 'ASC');
-      $result = $query->range(0, 3)
-        ->execute();
-
-      $html = '<ul>';
-      $count = 0;
-      foreach ($result as $res) {
-        $html .= '<li>' . l($res->title, 'node/' . $res->nid) . '</li>';
-        $count++;
-      }
-      $html .= '</ul>';
-
-      if ($count == 0) {
-        $block['subject'] = '';
-        $block['content'] = '';
-      }
-      else {
-        $block['content'] = $html;
-      }
-      break;
-  }
-
-  return $block;
 }
 
 /**
@@ -908,7 +694,10 @@ function wh_response_preprocess_node(&$vars) {
     $nid = $node->nid;
     $title = $node->title;
     drupal_set_title($node->title);
-    $body = $node->body[$node->language][0]['safe_value'];
+    $body = $node->body[$node->language][0]['value'];
+    if (!empty($node->body[$node->language][0]['safe_value'])) {
+      $body = $node->body[$node->language][0]['safe_value'];
+    }
 
     // Add no-follow classes to all links that go offsite.
     if (!empty($body)) {
@@ -1052,10 +841,10 @@ function wh_response_preprocess_node(&$vars) {
     }
 
     // Load the issues and search forms.
-    module_load_include('inc', 'wh_response', 'wh_response.form');
-    $issues_form = drupal_get_form('wh_response_list_page_issues_form');
+    module_load_include('inc', 'wh_petitions', 'wh_petitions.form');
+    $issues_form = drupal_get_form('wh_petitions_list_page_issues_form');
     $issues_form = drupal_render($issues_form);
-    $search_form = drupal_get_form('wh_response_list_page_search_form');
+    $search_form = drupal_get_form('wh_petitions_list_page_search_form');
     $search_form = drupal_render($search_form);
 
     // Get the short url and nice url for display and for use in social sharing tools.
@@ -1092,7 +881,7 @@ function wh_response_mongo_response_connection() {
     $collection = mongodb_collection('petition_response');
   }
   catch (Exception $e) {
-    petitionslog_event('exception.wh_response.b9c02fb');
+    logger_event('exception.wh_response.b9c02fb');
   }
 
   if (!petitions_data_mongo_reads_are_enabled()) {

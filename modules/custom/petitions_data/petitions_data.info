@@ -24,6 +24,7 @@ files[] = classes/SignaturesSelectQueryFactory.inc
 files[] = classes/SignaturesSelectQueryMongo.inc
 files[] = classes/SignaturesSelectQueryMysql.inc
 files[] = classes/SignaturesSelectQuerySolr.inc
+files[] = classes/ResponseItem.inc
 
 ; Tests
 files[] = tests/PetitionsDataBaseTestCase.test

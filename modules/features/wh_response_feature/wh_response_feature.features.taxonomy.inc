@@ -13,9 +13,9 @@ function wh_response_feature_taxonomy_default_vocabularies() {
       'name' => 'Media',
       'machine_name' => 'wh_response_media',
       'description' => 'Type of media for a Response',
-      'hierarchy' => '0',
+      'hierarchy' => 0,
       'module' => 'taxonomy',
-      'weight' => '0',
+      'weight' => 0,
       'rdf_mapping' => array(
         'rdftype' => array(
           0 => 'skos:ConceptScheme',
@@ -36,9 +36,9 @@ function wh_response_feature_taxonomy_default_vocabularies() {
       'name' => 'Response Keywords',
       'machine_name' => 'wh_response_tags',
       'description' => 'Contains keywords associated with Responses',
-      'hierarchy' => '0',
+      'hierarchy' => 0,
       'module' => 'taxonomy',
-      'weight' => '0',
+      'weight' => 0,
       'rdf_mapping' => array(
         'rdftype' => array(
           0 => 'skos:ConceptScheme',

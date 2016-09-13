@@ -4,8 +4,12 @@
  * @file
  * Default theme implementation for the petitionadmin dashboard daily stats.
  *
+ * This template needs to be run through an inline CSS tool such as
+ * http://templates.mailchimp.com/resources/inline-css/
+ *
  * Available variables are from PetitionsStatistics::getPetitionStatistics()
  */
+
 ?>
 <head>
   <style type="text/css">
@@ -73,7 +77,10 @@
 </head>
 <body style="font-family: Arial, Helvetica, sans-serif;font-size: 14px;">
 
-<img src="https://petitions.whitehouse.gov/profiles/petitions/modules/custom/petitions_homepage/img/petitions_landing_hero.jpg" width="300">
+<?php
+// Print necessary to create email image url.
+?>
+<?php print '<img src="' . petitions_data_url(drupal_get_path('module', 'petitionadmin_dashboard') . '/img/petitions_landing_hero.jpg') . '" width="300">'; ?>
 
 <div class="petitionadmin_dashboard">
   <h1>Petitions.whitehouse.gov Daily Statistics</h1>
@@ -90,7 +97,7 @@
     </div>
     <div class="statistics_row">
       <div class="col_label" style="float: left;width: 300px;">Petitions Published:</div>
-      <div class="col_value"><?php print $petitions_created ?></div>
+      <div class="col_value"><?php print $petitions_published ?></div>
     </div>
     <div class="statistics_row">
       <div class="col_label" style="float: left;width: 300px;">Petitions Reached Public:</div>
@@ -121,7 +128,7 @@
       <div class="col_value"><?php print $crossed_signature_threshold_3 ?></div>
     </div>
     <div class="statistics_row">
-      <div class="col_label" style="float: left;width: 300px;">Avg time from Signature Initiated to</br>Validation sent:</div>
+      <div class="col_label" style="float: left;width: 300px;">Avg time from Signature Initiated to<br>Validation sent:</div>
       <div class="col_value"><?php print $signature_to_initiated_validation_elapsed ?> ms</div>
     </div>
   </div>
@@ -132,7 +139,10 @@
     <div class="top_signed_petitions">
       <div class="signature_count" style="width: 70px;float: left;margin-right: 10px;text-align: right;"><?php print number_format($data->signature_count) ?></div>
       <div class="petition_link">
-        <a href="https://petitions.whitehouse.gov/node/&lt;?php print $petition_id ?&gt;" title="&lt;?php print $petition_id ?&gt;" target="_blank"><?php print $data->title ?></a>
+        <?php
+        // Print necessary to prevent CSS inline tool from removing PHP code.
+        ?>
+        <?php print '<a href="' . petitions_data_url('node/' . $petition_id, TRUE, TRUE) . '" title="' . $petition_id . '" target="_blank">' . $data->title . '</a>'; ?>
       </div>
     </div>
     <div class="clearfix" style="clear: both;"></div>
@@ -140,6 +150,9 @@
 
   <div class="section_header" style="margin-top: 20px;font-size: 1.2em;font-weight: bold;">Fraud Alerts</div>
   <hr>
+<?php if (!count($alerts)): ?>
+  <strong>No Alerts Detected</strong>
+<?php else: ?>
   <?php foreach ($alerts as $alert_description => $alert_data) :?>
     <div class="fraud_alert" style="margin-bottom: 10px;">
       <div class="alert_description">
@@ -149,12 +162,16 @@
       <?php foreach ($alert_data as $petition_id => $data) :?>
         <div class="petition_alert" style="margin-left: 20px;">
           <div class="petition_link">
-            <a href="https://petitions.whitehouse.gov/node/&lt;?php print $petition_id ?&gt;" title="&lt;?php print $petition_id ?&gt;" target="_blank"><?php print $data['petition_title'] ?></a>
+            <?php
+           // Print necessary to prevent CSS inline tool from removing PHP code.
+            ?>
+            <?php print '<a href="' . petitions_data_url('node/' . $petition_id . '/analysis', TRUE, TRUE) . '" title="' . $petition_id . '" target="_blank">' . $data['petition_title'] . '</a>'; ?>
           </div>
         </div>
         <div class="clearfix" style="clear: both;"></div>
       <?php endforeach;?>
     </div>
   <?php endforeach; ?>
+<?php endif; ?>
 </div>
 </body>

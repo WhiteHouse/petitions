@@ -1,0 +1,33 @@
+/**
+ * Additional layout styles for the wh_petitions_page type.
+ */
+
+.node-type-wh-petitions-page:not(.full-width) {
+  #sidebar-top {
+    margin-top: 20px;
+    margin-bottom: 40px;
+  }
+
+  @include media($desktop) {
+    #content-top {
+      @include span-columns($desktop-grid-columns - 5);
+      @include shift(1);
+      @include reset-text-margins();
+      @include reset-field-text-margins();
+      & ~ #content{
+        margin-top: 26px;
+      }
+    }
+
+    #content {
+      @include span-columns($desktop-grid-columns - 5);
+      @include shift(1);
+    }
+
+    #sidebar-top {
+      clear: left;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+  }
+}

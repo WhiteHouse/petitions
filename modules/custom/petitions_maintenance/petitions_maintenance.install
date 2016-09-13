@@ -5,6 +5,29 @@
  * Install, update and uninstall functions for the Petitions Maintenance module.
  */
 
+
+/**
+ * Implements hook_update_dependencies().
+ */
+function petitions_maintenance_update_dependencies() {
+  $dependencies['petition']['7316'] = array(
+    'petitions_maintenance' => 7314,
+  );
+  $dependencies['wh_petitions']['7109'] = array(
+    'petitions_maintenance' => 7314,
+  );
+  $dependencies['wh_petition_page']['7001'] = array(
+    'petitions_maintenance' => 7314,
+  );
+  $dependencies['petitions_maintenance']['7326'] = array(
+    'wh_petition_page' => 7001,
+  );
+  $dependencies['petitions_maintenance']['7330'] = array(
+    'petition' => 7323,
+  );
+  return $dependencies;
+}
+
 /**
  * Implements hook_update_last_removed().
  */
@@ -45,10 +68,6 @@ function petitions_maintenance_update_7300(&$sandbox) {
  * Apply changes for new monitoring tools.
  */
 function petitions_maintenance_update_7301(&$sandbox) {
-  // Enable new modules.
-  $modules = array('petitionslog');
-  module_enable($modules);
-
   // Change admin theme to Seven.
   variable_set('admin_theme', 'seven');
 }
@@ -156,4 +175,733 @@ function petitions_maintenance_update_7311() {
 function petitions_maintenance_update_7312(&$sandbox) {
   module_enable(array('event_log', 'petitionadmin_dashboard'));
   variable_set('event_log_enable_cli', 1);
+}
+
+/**
+ * PT-2016: Enable theme and modules.
+ */
+function petitions_maintenance_update_7313() {
+  theme_enable(array('petitions_responsive'));
+  variable_set('theme_default', 'petitions_responsive');
+  theme_disable(array('petitions44'));
+
+  $enable = array(
+    'api_responses',
+    'fontawesome',
+    'link',
+    'redirect',
+    'sticky_element',
+    'views_pager_history',
+    'petitions_tos_violation',
+    'petitions_blocks',
+    'wtp_contexts',
+    'petitions_format',
+  );
+  module_enable($enable);
+
+  drupal_flush_all_caches();
+}
+
+/**
+ * PT-2016: Revert all enabled features.
+ */
+function petitions_maintenance_update_7314() {
+  features_revert();
+
+  // Rebuild the fields and add their instances to the petition content type.
+  module_load_install("petition");
+  module_load_include('inc', 'petition', 'includes/petition.field');
+  petition_build_fields(petition_fields());
+
+  drupal_flush_all_caches();
+}
+
+/**
+ * PT-1824 - Enable api_responses module.
+ */
+function petitions_maintenance_update_7315() {
+  // Update permissions.
+  $role_permissions = array(
+    'Authenticated User' => array(
+      'view api_v1 responses retrieve documentation' => TRUE,
+      'view api_v1 responses index documentation' => TRUE,
+    ),
+    'Anonymous User' => array(
+      'view api_v1 responses retrieve documentation' => TRUE,
+      'view api_v1 responses index documentation' => TRUE,
+    ),
+  );
+
+  foreach ($role_permissions as $role_name => $permissions) {
+    $role = user_role_load_by_name($role_name);
+    user_role_change_permissions($role->rid, $permissions);
+  }
+}
+
+/**
+ * PT-1865: Revert the Petition Signature text to new default text.
+ */
+function petitions_maintenance_update_7316() {
+  variable_set('petitionssignatureform_accepting_signatures_note', '<h6>By signing this petition you agree to the <a href="/how-why/terms-participation" target="_blank">terms of participation</a> and <a href="https://www.whitehouse.gov/privacy" target="_blank">privacy policy</a>.</h6>');
+  variable_set('petitionssignatureform_accepting_signatures_title', 'Sign This Petition');
+  variable_set('petitionssignatureform_sign_up_field_label', 'President Obama and the White House may send me emails about this and other issues.');
+  variable_set('petitionssignatureform_accepting_signatures_privacy_message', '');
+}
+
+/**
+ * PT-1900: Edit the 404 page node.
+ */
+function petitions_maintenance_update_7317() {
+  $site_404 = variable_get('site_404');
+  $old_nid = (int) str_replace('node/', '', $site_404);
+  if ($old_nid) {
+    node_delete($old_nid);
+  }
+
+  $values = array(
+    'type' => 'wh_petitions_page',
+    'uid' => 1,
+    'status' => 1,
+  );
+  $node = entity_create('node', $values);
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $wrapper->title->set('404 Page Not Found');
+
+  $body_text = <<<EOT
+<h2>Sorry, the page you're looking for can't be found.</h2>
+<p>Here are some useful pages:</p>
+<ul>
+  <li><a href="/petition/create">Create a Petition</a></li>
+  <li><a href="/">Sign a Petition</a></li>
+  <li><a href="https://www.whitehouse.gov">Visit Whitehouse.gov</a></li>
+</ul>
+EOT;
+  $wrapper->body->set(array(
+    'value' => $body_text,
+    'format' => 'petitions_filtered',
+  ));
+  $wrapper->save();
+
+  $new_nid = $wrapper->getIdentifier();
+  variable_set('site_404', 'node/' . $new_nid);
+  variable_set('site_403', 'node/' . $new_nid);
+  $path_array = array(
+    'source' => 'node/' . $new_nid,
+    'alias' => '404',
+  );
+  path_save($path_array);
+}
+
+/**
+ * PT-1939 - Add sticky behavior to the mobile signature button.
+ */
+function petitions_maintenance_update_7318() {
+  variable_set('sticky_element_sticky_elements', array(
+    array(
+      '#sidebar-bottom .sign-now-open-button-wrapper',
+      'true',
+      'true',
+      '#footer',
+    ),
+  ));
+}
+
+/**
+ * PT-1955 - Styling "Load Previous" button at top of page.
+ */
+function petitions_maintenance_update_7319() {
+  // Get Homepage node and change alias from petitions to /.
+  $path_array = path_load(array('alias' => 'petitions'));
+
+  if ($path_array['source'] != '') {
+    path_delete($path_array);
+    variable_set('site_frontpage', $path_array['source']);
+
+    // Add alias parameter for setting the new path.
+    $new_path_array['alias'] = '/';
+    $new_path_array['source'] = $path_array['source'];
+    path_save($new_path_array);
+  }
+
+  // Create redirect from /petitions to <front>.
+  $redirect = new stdClass();
+  module_invoke(
+    'redirect',
+    'object_prepare',
+    $redirect,
+    array(
+      'source' => 'petitions',
+      'source_options' => array(),
+      'redirect' => '<front>',
+      'redirect_options' => array(),
+      'language' => LANGUAGE_NONE,
+    )
+  );
+  module_invoke('redirect', 'save', $redirect);
+}
+
+/**
+ * PT-1872: Converting manual steps to an update hook.
+ */
+function petitions_maintenance_update_7320() {
+  variable_set('captcha_description', 'This question prevents automated submissions:');
+  variable_set('textcaptcha_challenge_description', FALSE);
+
+  $role = user_role_load_by_name('administrator');
+  if (isset($role->rid)) {
+    user_role_grant_permissions($role->rid, array('administer api key request processor'));
+  }
+}
+
+/**
+ * PT-1896 - Redirects.
+ */
+function petitions_maintenance_update_7321() {
+  $items = array();
+  // Open our csv.
+  if (($file = fopen(drupal_get_path('module', 'petitions_maintenance') . '/includes/petitions-redirects.csv', 'r')) !== FALSE) {
+    while (($data = fgetcsv($file)) !== FALSE) {
+      if (!empty($data[0]) && !empty($data[1])) {
+        // Grab the appropriate columns and create clean arrays.
+        $items['source'][] = urldecode($data[0]);
+        $items['redirect'][] = urldecode($data[1]);
+      }
+    }
+    $count = count($items['source']);
+    $i = 0;
+    while ($i <= $count) {
+      // Check that redirect hasn't been set.
+      $exists = redirect_fetch_rids_by_path($items['source'][$i], LANGUAGE_NONE);
+      if (empty($exists)) {
+        // Create our redirects.
+        $redirect = new stdClass();
+        module_invoke(
+          'redirect',
+          'object_prepare',
+          $redirect,
+          array(
+            'source' => $items['source'][$i],
+            'source_options' => array(),
+            'redirect' => $items['redirect'][$i],
+            'redirect_options' => array(),
+            'language' => LANGUAGE_NONE,
+          )
+        );
+        // Save our redirects.
+        module_invoke('redirect', 'save', $redirect);
+      }
+      $i++;
+    }
+  }
+}
+
+/**
+ * PT - 1973: Removing the API Key request form from regions in the blocks UI.
+ */
+function petitions_maintenance_update_7322() {
+  db_update('block')
+    ->fields(array(
+      'status' => 0,
+    ))
+    ->condition('module', 'petitions_api_keys_submission')
+    ->condition('delta', 'api_keys_submit')
+    ->execute();
+}
+
+/**
+ * PT - 1996: Update Dashboard view.
+ */
+function petitions_maintenance_update_7323() {
+  // Set path that will return to home if certain conditions are met.
+  variable_set('petition_paths_redirect_anon_to_home', array('dashboard'));
+}
+
+/**
+ * PT-1956 - Remove the petitions_usermenu module.
+ */
+function petitions_maintenance_update_7324() {
+  $redirects = array(
+    'login' => 'user/login',
+    'logout' => 'user/logout',
+    'register' => 'user/login',
+  );
+  foreach ($redirects as $source => $destination) {
+    $exists = redirect_fetch_rids_by_path($source, LANGUAGE_NONE);
+    if (empty($exists)) {
+      $redirect = new stdClass();
+      redirect_object_prepare(
+        $redirect,
+        array(
+          'source' => $source,
+          'redirect' => $destination,
+        ));
+      redirect_save($redirect);
+    }
+  }
+}
+
+/**
+ * PT - 1985: Petitions Page Display Screen Reader Adjustments.
+ */
+function petitions_maintenance_update_7325() {
+  variable_set('petitionssignatureform_accepting_signatures_note', 'By signing this petition you agree to the <a href="/how-why/terms-participation" target="_blank">terms of participation</a> and <a href="https://www.whitehouse.gov/privacy" target="_blank">privacy policy</a>.');
+}
+
+/**
+ * PT - 1971: Migrate user generated content.
+ */
+function petitions_maintenance_update_7326() {
+  $base_path = drupal_get_path('module', 'petitions_maintenance') . '/includes';
+
+  // --------------
+  // How it works block.
+  // --------------
+  variable_set('how_petitions_work_additional_more_link_text', "More on how it works");
+  variable_set('how_petitions_work_additional_more_link_url', "about#step-by-step");
+  variable_set('how_petitions_work_step_1_step_1_description_text', "Call on the White House to take action, then collect signatures.");
+  variable_set('how_petitions_work_step_1_step_1_title_text', "Create a Petition");
+  variable_set('how_petitions_work_step_2_step_2_description_text', "Petitions are featured on the We the People website.");
+  variable_set('how_petitions_work_step_2_step_2_title_text', "After 150 Signatures");
+  variable_set('how_petitions_work_step_3_step_3_description_text', "Get an official update from the White House within 60 days.");
+  variable_set('how_petitions_work_step_3_step_3_title_text', "100,000 Signatures in 30 Days");
+
+  // --------------
+  // /about page.
+  // --------------
+
+  // Delete existing node.
+  $path_array = path_load(array('alias' => 'about'));
+
+  if ($path_array['source'] != '') {
+    $nid = str_replace('node/', '', $path_array['source']);
+    node_delete($nid);
+  }
+
+  $title = 'About We the People';
+  $intro = <<<HDOC
+<p>Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.<br/>-The First Amendment, United States Constitution</p>
+HDOC;
+
+  $body = file_get_contents("{$base_path}/about.txt");
+
+  // /about Anchor links.
+  $about_anchor_links = array(
+    array('title' => 'Step-by-Step', 'url' => 'about#step-by-step'),
+    array('title' => 'FAQ', 'url' => 'about#faqs'),
+    array('title' => 'Terms of Participation', 'url' => 'about#terms'),
+    array('title' => 'Success Stories', 'url' => 'about#success'),
+    array('title' => 'For Developers', 'url' => 'developers'),
+  );
+
+  $node_data = array(
+    'type' => 'wh_petitions_page',
+    'uid' => 1,
+    'status' => 1,
+    'comment' => 0,
+    'promote' => 0,
+    'path' => array('alias' => 'about', 'pathauto' => FALSE),
+  );
+
+  $node = entity_create('node', $node_data);
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $wrapper->title->set($title);
+  $wrapper->body->set(array(
+    'value' => $body,
+    'format' => 'full_html',
+  ));
+  $wrapper->field_page_intro->set(array(
+    'value' => $intro,
+    'format' => 'full_html',
+  ));
+
+  $wrapper->field_anchor_links->set($about_anchor_links);
+
+  $wrapper->save();
+
+  $new_nid = $wrapper->getIdentifier();
+
+  $path_array = array(
+    'source' => 'node/' . $new_nid,
+    'alias' => 'about',
+  );
+  path_save($path_array);
+
+  // --------------
+  // /developers.
+  // --------------
+
+  // Delete existing node.
+  $path_array = path_load(array('alias' => 'developers'));
+
+  if ($path_array['source'] != '') {
+    $nid = str_replace('node/', '', $path_array['source']);
+    node_delete($nid);
+  }
+
+  $title = 'For Developers: We the People API ';
+  $body = file_get_contents("{$base_path}/developers_api.txt");
+
+  // Developer Anchor links.
+  $dev_anchor_links = array(
+    array('title' => 'Overview', 'url' => 'developers#overview'),
+    array('title' => 'Request a Key', 'url' => 'developers/apply'),
+    array('title' => 'API Resources', 'url' => 'developers/get-code'),
+    array('title' => 'API Terms of Use', 'url' => 'developers#api-terms'),
+    array('title' => 'Sandbox', 'url' => 'developers#sandbox'),
+    array('title' => 'About We The People', 'url' => 'about'),
+  );
+
+  $node_data = array(
+    'type' => 'wh_petitions_page',
+    'uid' => 1,
+    'status' => 1,
+    'comment' => 0,
+    'promote' => 0,
+    'path' => array('alias' => 'developers', 'pathauto' => FALSE),
+  );
+
+  $node = entity_create('node', $node_data);
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $wrapper->title->set($title);
+  $wrapper->body->set(array(
+    'value' => $body,
+    'format' => 'full_html',
+  ));
+
+  $wrapper->field_anchor_links->set($dev_anchor_links);
+
+  $wrapper->save();
+  $new_nid = $wrapper->getIdentifier();
+
+  $path_array = array(
+    'source' => 'node/' . $new_nid,
+    'alias' => 'developers',
+  );
+  path_save($path_array);
+
+  // --------------
+  // /developers/apply.
+  // --------------
+
+  // Delete existing node.
+  $path_array = path_load(array('alias' => 'developers/apply'));
+
+  if ($path_array['source'] != '') {
+    $nid = str_replace('node/', '', $path_array['source']);
+    node_delete($nid);
+  }
+
+  $title = 'Apply for Access to the We the People Write API:';
+  $body = file_get_contents("{$base_path}/developers_apply.txt");
+
+  $node_data = array(
+    'type' => 'wh_petitions_page',
+    'uid' => 1,
+    'status' => 1,
+    'comment' => 0,
+    'promote' => 0,
+    'path' => array('alias' => 'developers/apply', 'pathauto' => FALSE),
+  );
+
+  $node = entity_create('node', $node_data);
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $wrapper->title->set($title);
+  $wrapper->body->set(array(
+    'value' => $body,
+    'format' => 'full_html',
+  ));
+
+  $wrapper->field_anchor_links->set($dev_anchor_links);
+  $wrapper->save();
+
+  $new_nid = $wrapper->getIdentifier();
+
+  $path_array = array(
+    'source' => 'node/' . $new_nid,
+    'alias' => 'developers/apply',
+  );
+  path_save($path_array);
+
+  // --------------
+  // /developers/get-code.
+  // --------------
+  $body = file_get_contents("{$base_path}/services_documentation_intro.txt");
+  variable_set('services_documentation_intro', $body);
+
+  variable_set('services_documentation_base_path', 'developers/get-code');
+
+  db_update('block')
+    ->fields(array('title' => 'How Petitions Work'))
+    ->condition('module', 'petitions_blocks')
+    ->condition('delta', 'how_petitions_work_block')
+    ->execute();
+
+  // Reset main content weight.
+  db_update('block')
+    ->fields(array('weight' => 0))
+    ->condition('module', 'system')
+    ->condition('delta', 'main')
+    ->execute();
+}
+
+/**
+ * PT - 1843: Add "Types" to 300 Existing Petitions.
+ */
+function petitions_maintenance_update_7327() {
+  $filepath = drupal_get_path('module', 'petitions_maintenance') . '/includes/petition_type_mapping.json';
+  _petitions_maintenance_add_type($filepath);
+}
+
+/**
+ * Enable page caching.
+ */
+function petitions_maintenance_update_7328() {
+  variable_set('cache', TRUE);
+}
+
+/**
+ * PT - 2024: Create url alias from /developers/get-code/api_v1.
+ */
+function petitions_maintenance_update_7329() {
+  $url_alias = drupal_lookup_path('alias', 'developers/get-code');
+  if ($url_alias == '') {
+    $path = array(
+      'source' => 'developers/get-code/api_v1',
+      'alias' => 'developers/get-code',
+    );
+    path_save($path);
+  }
+}
+
+/**
+ * PT-2016: Importing all menus.
+ */
+function petitions_maintenance_update_7330() {
+  $menus = array(
+    array(
+      'menu_name' => 'menu-footer-menu',
+      'title' => 'Footer Menu',
+      'description' => 'The main footer menu.',
+    ),
+    array(
+      'menu_name' => 'menu-corner-links',
+      'title' => 'Corner Links',
+      'description' => 'A secondary footer menu.',
+    ),
+    array(
+      'menu_name' => 'petitions-menu',
+      'title' => 'Petitions Menu',
+      'description' => 'Default Main Menu for Petitions install profile.',
+    ),
+    array(
+      'menu_name' => 'menu-petitions-dashboard',
+      'title' => 'Petitions Dashboard',
+      'description' => 'Dashboard links for petitions users.',
+    ),
+    array(
+      'menu_name' => 'main-menu',
+      'title' => 'Main Menu',
+      'description' => 'The <em>Main</em> menu is used on many sites to show the major sections of the site, often in a top navigation bar.',
+    ),
+  );
+  foreach ($menus as $menu) {
+    $exists = db_query("SELECT title FROM {menu_custom} WHERE menu_name=:menu_name", array(':menu_name' => $menu['menu_name']))->fetchField();
+    if (!$exists) {
+      menu_save($menu);
+    }
+  }
+
+  module_enable(array('menu_import'));
+  module_load_include('inc', 'menu_import', 'includes/import');
+  $base_path = drupal_get_path('module', 'petitions_maintenance') . '/includes';
+  $menu_texts = array(
+    'menu-footer-menu' => "{$base_path}/menu-footer-menu-export.txt",
+    'menu-corner-links' => "{$base_path}/menu-corner-links-export.txt",
+    'petitions-menu' => "{$base_path}/menu-petitions-menu-export.txt",
+    'menu-petitions-dashboard' => "{$base_path}/menu-petitions-dashboard-export.txt",
+    'main-menu' => "{$base_path}/menu-main-menu-export.txt",
+  );
+  foreach ($menu_texts as $menu_name => $menu_file) {
+    $options = array(
+      'link_to_content' => TRUE,
+      'remove_menu_items' => TRUE,
+    );
+    $menu_contents = menu_import_parse_menu_from_file($menu_file, $menu_name, $options);
+    menu_import_save_menu($menu_contents, $options);
+  }
+  module_disable(array('menu_import'));
+  drupal_uninstall_modules(array('menu_import'));
+}
+
+/**
+ * Disable and uninstall orphaned modules.
+ */
+function petitions_maintenance_update_7331() {
+  $disable = array(
+    'email_audit',
+    'email_confirm',
+    'forward',
+    'heartbleed',
+    'is_not_cached',
+    'menu_import',
+    'nagios',
+    'petitions44',
+    'petitions_user_registration',
+    'petitions_usermenu',
+    'petitionslog',
+    'wh_contexts',
+    'wh_global_nav',
+    'wh_global_nav_footer_block',
+    'wh_global_nav_header',
+    'wh_petition_reporting',
+    'dashboard',
+    'shortcut',
+  );
+  module_disable($disable);
+  drupal_uninstall_modules($disable);
+}
+
+/**
+ * PT - 2029: Resolve duplicate API key entries in the url_alias tables.
+ */
+function petitions_maintenance_update_7332() {
+  db_query("DELETE FROM url_alias USING url_alias, url_alias u1 WHERE url_alias.pid > u1.pid AND url_alias.alias = u1.alias");
+}
+
+
+/**
+ * PT-2040: Fixing memory exhaustion when updating petition issues.
+ */
+function petitions_maintenance_update_7333() {
+  $mapping = array(
+    "AGRICULTURE" => "Energy & Environment",
+    "ARTS AND HUMANITIES" => "Innovation: Arts & Technology",
+    "BUDGET AND TAXES" => "Budget & Taxes",
+    "CIVIL RIGHTS AND LIBERTIES" => "Civil Rights & Equality",
+    "CLIMATE CHANGE" => "Energy & Environment",
+    "CONSUMER PROTECTIONS" => "Economy & Jobs",
+    "CRIMINAL JUSTICE AND LAW ENFORCEMENT" => "Criminal Justice Reform",
+    "DEFENSE" => "Homeland Security & Defense",
+    "DISABILITIES" => "Civil Rights & Equality",
+    "ECONOMY" => "Economy & Jobs",
+    "EDUCATION" => "Education",
+    "ENERGY" => "Energy & Environment",
+    "ENVIRONMENT" => "Energy & Environment",
+    "FAMILY" => "Economy & Jobs",
+    "FIREARMS" => "Gun Violence",
+    "FOREIGN POLICY" => "Foreign Policy",
+    "GOVERNMENT REFORM" => "Government & Regulatory Reform",
+    "HEALTH CARE" => "Health Care",
+    "HOMELAND SECURITY AND DISASTER RELIEF" => "Homeland Security & Defense",
+    "HOUSING" => "Economy & Jobs",
+    "HUMAN RIGHTS" => "Civil Rights & Equality",
+    "IMMIGRATION" => "Immigration",
+    "INNOVATION" => "Innovation: Arts & Technology",
+    "JOB CREATION" => "Economy & Jobs",
+    "LABOR" => "Economy & Jobs",
+    "NATURAL RESOURCES" => "Energy & Environment",
+    "POSTAL SERVICE" => "Government & Regulatory Reform",
+    "POVERTY" => "Economy & Jobs",
+    "REGULATORY REFORM" => "Government & Regulatory Reform",
+    "RURAL POLICY" => "Rural Policy",
+    "SCIENCE AND SPACE POLICY" => "Technology & Innovation",
+    "SMALL BUSINESS" => "Economy & Jobs",
+    "SOCIAL SECURITY" => "Economy & Jobs",
+    "TECHNOLOGY AND TELECOMMUNICATIONS" => "Innovation: Arts & Technology",
+    "TRADE" => "Economy & Jobs",
+    "TRANSPORTATION AND INFRASTRUCTURE" => "Transportation & Infrastructure",
+    "URBAN POLICY" => "Urban Policy",
+    "VETERANS AND MILITARY FAMILIES" => "Veterans & Military",
+    "WOMEN'S ISSUES" => "Civil Rights & Equality",
+  );
+
+  $vocabulary_name = 'issues';
+  $vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary_name);
+  $terms_to_add = array_unique(array_values($mapping));
+  $terms_to_delete = array_unique(array_keys($mapping));
+
+  foreach ($terms_to_add as $term_to_add) {
+    $tids = taxonomy_get_term_by_name($term_to_add, $vocabulary_name);
+    if (!empty($tids)) {
+      foreach ($tids as $tid) {
+        $terms_to_delete = array_udiff($terms_to_delete, array($tid->name), 'strcasecmp');
+      }
+      continue;
+    }
+    $term = new stdClass();
+    $term->name = $term_to_add;
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+  }
+
+  foreach ($terms_to_delete as $term_to_delete) {
+    $tids_to_delete = taxonomy_get_term_by_name($term_to_delete, $vocabulary_name);
+    if (!empty($tids_to_delete)) {
+      foreach ($tids_to_delete as $tid => $term) {
+        $new_tid = taxonomy_get_term_by_name($mapping[$term_to_delete], $vocabulary_name);
+        $new_tid = array_shift($new_tid);
+        $new_tid = $new_tid->tid;
+
+        db_update('field_data_field_issues')
+          ->fields(array('field_issues_tid' => $new_tid))
+          ->condition('field_issues_tid', $tid)
+          ->execute();
+
+        db_update('field_revision_field_issues')
+          ->fields(array('field_issues_tid' => $new_tid))
+          ->condition('field_issues_tid', $tid)
+          ->execute();
+
+        db_update('field_data_field_petition_issues')
+          ->fields(array('field_petition_issues_tid' => $new_tid))
+          ->condition('field_petition_issues_tid', $tid)
+          ->execute();
+
+        db_update('field_revision_field_petition_issues')
+          ->fields(array('field_petition_issues_tid' => $new_tid))
+          ->condition('field_petition_issues_tid', $tid)
+          ->execute();
+        taxonomy_term_delete($tid);
+      };
+    }
+  }
+  // Clean up duplicate issues on the same petition/response.
+  db_query('DELETE FROM field_data_field_petition_issues USING field_data_field_petition_issues, field_data_field_petition_issues f1 WHERE field_data_field_petition_issues.delta > f1.delta AND field_data_field_petition_issues.entity_id = f1.entity_id AND field_data_field_petition_issues.field_petition_issues_tid = f1.field_petition_issues_tid');
+  db_query('DELETE FROM field_revision_field_petition_issues USING field_revision_field_petition_issues, field_revision_field_petition_issues f1 WHERE field_revision_field_petition_issues.delta > f1.delta AND field_revision_field_petition_issues.entity_id = f1.entity_id AND field_revision_field_petition_issues.field_petition_issues_tid = f1.field_petition_issues_tid');
+  db_query('DELETE FROM field_data_field_issues USING field_data_field_issues, field_data_field_issues f1 WHERE field_data_field_issues.delta > f1.delta AND field_data_field_issues.entity_id = f1.entity_id AND field_data_field_issues.field_issues_tid = f1.field_issues_tid');
+  db_query('DELETE FROM field_revision_field_issues USING field_revision_field_issues, field_revision_field_issues f1 WHERE field_revision_field_issues.delta > f1.delta AND field_revision_field_issues.entity_id = f1.entity_id AND field_revision_field_issues.field_issues_tid = f1.field_issues_tid');
+}
+
+/**
+ * PT-2055: Uninstalling modules.
+ */
+function petitions_maintenance_update_7334() {
+  $modules_to_remove = array(
+    'menu_import',
+    'advanced_help',
+    'help_example',
+    'email_confirm',
+    'forward',
+    'metatag',
+    'metatag_context',
+    'metatag_dc',
+    'metatag_opengraph',
+    'metatag_panels',
+    'metatag_twitter_cards',
+    'metatag_views',
+    'nagios',
+    'openidadmin',
+    'rules',
+    'rules_admin',
+    'rules_i18n',
+    'rules_scheduler',
+    'simplehtmldom',
+    'logintoboggan_rules',
+  );
+  module_disable($modules_to_remove);
+  drupal_uninstall_modules($modules_to_remove);
 }

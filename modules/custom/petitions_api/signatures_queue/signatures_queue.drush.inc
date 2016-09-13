@@ -84,8 +84,6 @@ function drush_signatures_queue_queue_list() {
     '@space' => str_pad('', $column_width - 5),
   )));
 
-  signatures_queue_set_db();
-
   $queue_names = array_keys(signatures_queue_get_queue_names());
   foreach ($queue_names as $queue_name) {
     // The "queue" is a literal queue.
@@ -110,8 +108,6 @@ function drush_signatures_queue_queue_list() {
       '@count' => number_format($count),
     )));
   }
-
-  db_set_active();
 }
 
 /**

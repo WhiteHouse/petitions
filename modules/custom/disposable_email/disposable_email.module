@@ -1,0 +1,118 @@
+<?php
+
+/**
+ * @file
+ * Code to check email disposability.
+ *
+ * Provides functions to interface with the disposable email checker library.
+ */
+
+/**
+ * Implements hook_libraries_info().
+ */
+function disposable_email_libraries_info() {
+  $libraries['disposable_email_checker'] = array(
+    'name' => 'Disposable Email Checker',
+    'vendor url' => 'https://github.com/vboctor/disposable_email_checker',
+    'download url' => 'https://github.com/vboctor/disposable_email_checker/releases',
+    'path' => 'php',
+    'version arguments' => array(
+      'file' => 'changelog.txt',
+      'pattern' => '/ - ([\d\.]+)/',
+      'lines' => 4,
+    ),
+    'files' => array(
+      'php' => array('disposable.php'),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+* Determines whether a given email address is disposable or not.
+*
+* @param string $address
+*   An email address to test.
+*
+* @return bool
+*   TRUE if the email address is disposable, or FALSE if not.
+*/
+function disposable_email_is_disposable_email($address) {
+  libraries_load('disposable_email_checker');
+  return DisposableEmailChecker::is_disposable_email($address);
+}
+
+/**
+* Determines disposability of a given email address.
+*
+* @param string $address
+*   An email address to test.
+*
+* @return object
+*   Object containing boolean values of various disposable classifications.
+*/
+function disposable_email_get_email_disposability($address) {
+  libraries_load('disposable_email_checker');
+  $disposability = new stdClass();
+  $disposability->is_disposable = DisposableEmailChecker::is_disposable_email($address);
+  $disposability->is_free_email = DisposableEmailChecker::is_free_email($address);
+  $disposability->is_open_email = DisposableEmailChecker::is_open_email($address);
+  $disposability->is_forwarding_email = DisposableEmailChecker::is_forwarding_email($address);
+  $disposability->is_trash_email = DisposableEmailChecker::is_trash_email($address);
+  $disposability->is_time_bound_email = DisposableEmailChecker::is_time_bound_email($address);
+  $disposability->is_shredder_email = DisposableEmailChecker::is_shredder_email($address);
+  return $disposability;
+}
+
+/**
+* Determines whether a given email address is subaddressed or not.
+*
+* Subaddressed email addresses, also known as plus addresses or tagged
+* addresses, have the form username+tag@domain.tld.
+*
+* @param string $address
+*   An email address to test.
+*
+* @return bool
+*   TRUE if the email address is subaddressed, or FALSE if not.
+*
+* @see https://en.wikipedia.org/wiki/Email_address#Address_tags
+*/
+function disposable_email_is_subaddressed_email($address) {
+  libraries_load('disposable_email_checker');
+  return DisposableEmailChecker::is_subaddressed_email($address);
+}
+
+/**
+* Parses an email address to remove subaddressing and dots in mailbox.
+*
+* Subaddressed email addresses, also known as plus addresses or tagged
+* addresses, have the form username+tag@domain.tld.
+*
+* @param string $address
+*   An email address to test.
+*
+* @return string
+*   Email address without subaddressing or dots in mailbox.
+*
+* @see https://en.wikipedia.org/wiki/Email_address#Address_tags
+*/
+function disposable_email_unsubaddress_email($address) {
+  $address = strtolower($address);
+  $domain_pos = strpos($address, '@');
+
+  // If no @ sign, assume domain was passed in and return as is.
+  if ($domain_pos !== FALSE) {
+    $domain = substr($address, $domain_pos + 1);
+    $mailbox = substr($address, 0, $domain_pos);
+    $mailbox = str_replace('.', '', $mailbox);
+
+    // Filter out subaddressing.
+    if (disposable_email_is_subaddressed_email($address)) {
+      $tag_pos = strpos($mailbox, '+');
+      $mailbox = substr($mailbox, 0, $tag_pos);
+    }
+    $address = $mailbox . '@' . $domain;
+  }
+  return $address;
+}

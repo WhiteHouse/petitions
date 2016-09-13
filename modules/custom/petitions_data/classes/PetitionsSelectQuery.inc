@@ -63,7 +63,7 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    *
    * @var array
    */
-  protected $validPetitionsOrderByFields = array(
+  protected static $validPetitionsOrderByFields = array(
     self::SELECT_QUERY_ORDER_BY_FIELD_PUBLISHED,
     self::SELECT_QUERY_ORDER_BY_FIELD_SIGNATURE_COUNT,
     self::SELECT_QUERY_ORDER_BY_FIELD_DATE_REACHED_PUBLIC,
@@ -85,8 +85,8 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
    * @return array
    *   The array of validPetitionsOrderByFields
    */
-  public function getValidPetitionsOrderByFields() {
-    return $this->validPetitionsOrderByFields;
+  public static function getValidPetitionsOrderByFields() {
+    return self::$validPetitionsOrderByFields;
   }
 
   /**
@@ -856,19 +856,19 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
   /**
    * Helper function to format return taxonomies.
    *
-   * @param array $issues
+   * @param array $terms
    *   Taxonomy term ids for specific issues stored in Drupal.
    *
    * @return array
    *   Ids and term names of the related petitions.
    */
-  protected function formatReturnIssues($issues) {
-    $terms = array();
-    if (!is_array($issues)) {
-      $issues = array($issues);
+  protected function formatReturnTerms(array $terms) {
+    $formatted_terms = array();
+    if (!is_array($terms)) {
+      $terms = array($terms);
     }
-    foreach ($issues as $issue_id) {
-      $term = taxonomy_term_load((int) $issue_id);
+    foreach ($terms as $term_id) {
+      $term = taxonomy_term_load((int) $term_id);
 
       if (empty($term)) {
         continue;
@@ -878,9 +878,9 @@ abstract class PetitionsSelectQuery extends SelectQueryBase {
         'id' => (int) $term->tid,
         'name' => petitions_data_sanitize_output($term->name),
       );
-      $terms[] = $row;
+      $formatted_terms[] = $row;
     }
-    return $terms;
+    return $formatted_terms;
   }
 
   /**

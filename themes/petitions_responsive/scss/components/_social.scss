@@ -1,0 +1,27 @@
+/* Social icons */
+
+.social-share {
+  &:link {
+    color: $color-social-share-default;
+    text-decoration: none;
+  }
+  &:hover {
+    color: $color-social-share-hover;
+  }
+  &:before{
+    font-size: 30px;
+    @include media($desktop) {
+      font-size: 20px;
+    }
+  }
+  &:active {
+    color: $color-social-share-active;
+  }
+  color: $color-social-share-default;
+  font-size: 0;
+  display: inline-block;
+  margin-right: 5px;
+  &:last-child {
+    margin-right: 0;
+  }
+}

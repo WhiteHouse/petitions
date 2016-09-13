@@ -1,0 +1,44 @@
+name = Petitions Responsive
+description = HTML5, SASS, Responsive grid base theme.
+screenshot = images/screenshot.gif
+core = "7.x"
+project = "petitions_responsive"
+engine = phptemplate
+
+regions[preface] = Preface
+regions[header] = Page Header
+; regions[navigation] = Page Navigation
+regions[help] = Help
+regions[content_top] = Content Header
+regions[sidebar_top] = Sidebar (top)
+regions[content] = Content
+regions[sidebar_bottom] = Sidebar (bottom)
+regions[content_bottom] = Secondary Content
+regions[footer] = Footer
+regions[appendix] = Appendix
+
+features[] = logo
+features[] = name
+features[] = slogan
+features[] = search
+features[] = favicon
+features[] = main_menu
+
+; Stylesheets
+stylesheets[all][] = css/style.css
+stylesheets[all][] = css/normalize.css
+stylesheets[print][] = css/print.css
+
+; Scripts
+scripts[] = js/scripts.js
+scripts[] = js/modernizr.js
+
+settings[petitions_responsive_tabs] = 1
+settings[petitions_responsive_breadcrumb] = 1
+settings[petitions_responsive_breadcrumb_home] = 1
+settings[petitions_responsive_breadcrumb_separator] = »
+settings[clear_registry] = 0
+settings[petitions_responsive_ie_enabled] = 0
+settings[petitions_responsive_ie_enabled_versions][ie8] = 0
+settings[petitions_responsive_ie_enabled_versions][ie9] = 0
+settings[petitions_responsive_ie_enabled_versions][ie10] = 0

@@ -86,14 +86,39 @@ function signature_mail_fraud_data_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'email_domain' => array(
+        'description' => 'Email Domain',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
     ),
     'indexes' => array(
       'petition_id' => array('petition_id'),
       'unsub_email' => array('unsub_email'),
       'ip_address' => array('ip_address'),
+      'email_domain' => array('email_domain'),
     ),
     'primary key' => array('signature_mail_id'),
   );
 
   return $schema;
+}
+
+/**
+ * PT-2104: Adding email domain to fraud data table.
+ */
+function signature_mail_fraud_data_update_7001() {
+  $spec = array(
+    'description' => 'Email Domain',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+  );
+  $keys_new = array(
+    'indexes' => array(
+      'email_domain' => array('email_domain'),
+    ),
+  );
+  db_add_field('signature_mail_fraud_data', 'email_domain', $spec, $keys_new);
 }

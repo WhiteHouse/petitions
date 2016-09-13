@@ -62,7 +62,7 @@ function signatures_queue_devel_generate_form() {
 }
 
 /**
- * Submit handler for signatures_queue_devel_generate form.
+ * Submit handler for signatures_queue_devel_queue_generate form.
  */
 function signatures_queue_devel_generate_form_submit($form_id, &$form_state) {
   $number = $form_state['values']['number'];
@@ -81,7 +81,7 @@ function signatures_queue_devel_generate_form_submit($form_id, &$form_state) {
       $queue_names[] = $queue_name;
     }
   }
-  signatures_queue_devel_generate($queue_names, $number, $delete_first, $num_match, $overrides);
+  signatures_queue_devel_queue_generate($queue_names, $number, $delete_first, $num_match, $overrides);
 }
 
 /**

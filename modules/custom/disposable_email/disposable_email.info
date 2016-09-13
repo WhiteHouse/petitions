@@ -1,0 +1,5 @@
+name = Disposable Email
+description = Provides functionality for checking the disposability of a given email address against a list of known domains.
+core = 7.x
+
+dependencies[] = libraries

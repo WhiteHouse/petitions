@@ -1,0 +1,16 @@
+<h2>We the People API: Resources & Documentation</h2>
+<p>In 2014, We the People officially launched a "write" version of the Petitions Application Programming Interface, or "API." Using the API, people can sign We the People petitions even when they’re not on WhiteHouse.gov. Now, users can also use third-party platforms, including other petitions services, or even their own websites or blogs to submit signatures and access publicly available data on petitions. All of those signatures, once validated, will count towards a petition’s objective of meeting the 100,000-signature threshold needed for an official White House response.</p>
+
+<p>Below find resources and documentation to help you use the API.</p>
+
+<h3>Quick Info:</h3>
+
+<ul><li><strong>About the API:</strong>&nbsp;<a href="/developers#overview">Learn more about why we created an API</a></li>
+<li><strong>Request Key:</strong> To use the Write API and submit signatures from your own petitions to the We the People platform, you need an API key. <a href="/developers/apply"><strong>Request one here</strong></a></li>
+<li><strong>Terms:</strong>&nbsp;Use of the Write API is governed by an additional <a href="/developers#api-terms">Terms of Use</a>.</li>
+<li><strong>Stability:</strong>&nbsp;Users issuing requests/posts in excess of 1,500 per minute may experience degraded performance and may be blocked entirely.</li>
+<li><strong>Just the Data:</strong> For those who don't need to implement the API, but want to see the data it provides, every month we provide a SQL download that you can learn from. Want to take a look? <a href="https://api.whitehouse.gov/v1/downloads/data.sql.zip">You can download it here.</a>  (412.5 MB, Feb 29 2016)</li>
+<li><strong>Examples:</strong>&nbsp;<a href="https://www.whitehouse.gov/blog/2014/06/03/hackathon-here-white-house" target="_blank">See examples</a> of how others have used We the People API and their GitHub repositories.</li></ul>
+
+<p><a href="http://www.whitehouse.gov/developers/feedback">Contact us</a> if you have any questions about the API.</p>
+<hr />

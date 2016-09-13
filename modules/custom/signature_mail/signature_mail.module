@@ -32,16 +32,16 @@ function signature_mail_entity_delete($entity, $type) {
       ->execute()
       ->fetchField();
 
-    $disposability = signatures_queue_get_email_disposability($signature_email);
-    $disposability->is_free_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS, TRUE) : NULL;
-    $disposability->is_open_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS, TRUE) : NULL;
-    $disposability->is_forwarding_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS, TRUE) : NULL;
-    $disposability->is_trash_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS, TRUE) : NULL;
-    $disposability->is_time_bound_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS, TRUE) : NULL;
-    $disposability->is_shredder_email ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS, TRUE) : NULL;
-    signatures_queue_is_subaddressed_email($signature_email) ? PetitionsController::incrementPetitionMetricCount($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS, TRUE) : NULL;
+    $disposability = disposable_email_get_email_disposability($signature_email);
+    $disposability->is_free_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_FREE_EMAILS, TRUE) : NULL;
+    $disposability->is_open_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_OPEN_EMAILS, TRUE) : NULL;
+    $disposability->is_forwarding_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_FORWARDED_EMAILS, TRUE) : NULL;
+    $disposability->is_trash_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_TRASH_EMAILS, TRUE) : NULL;
+    $disposability->is_time_bound_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_TIMEBOUND_EMAILS, TRUE) : NULL;
+    $disposability->is_shredder_email ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SHRED_EMAILS, TRUE) : NULL;
+    disposable_email_is_subaddressed_email($signature_email) ? petition_increment_metadata($petition_id, PetitionItem::PETITION_SIGNATURE_COUNT_SUBADDRESSED_EMAILS, TRUE) : NULL;
 
-    $email = signatures_queue_unsubaddress_email($signature_email);
+    $email = disposable_email_unsubaddress_email($signature_email);
     petition_remove_signature_email($petition_id, $email);
     petition_remove_signature_ip($petition_id, $entity->ip_address);
     petition_update_total_unique_ips_and_emails($petition_id);
@@ -104,60 +104,4 @@ function signature_mail_entity_info_alter(&$info) {
     );
   }
 
-}
-
-/**
- * Implements hook_menu().
- */
-function signature_mail_menu() {
-  $menu_items = array();
-
-  $menu_items['admin/config/content/signature_mail'] = array(
-    'title' => "Signature Mail Fieldability Toggle",
-    'page callback' => "drupal_get_form",
-    'page arguments' => array("signature_mail_configuration_page"),
-    'access arguments' => array('access administration pages'),
-  );
-
-  $menu_items['admin/config/content/signature_mail/settings'] = array(
-    'title' => "Settings",
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-  return $menu_items;
-}
-
-/**
- * The page to toggle signature fieldability.
- *
- * @param array $form
- *   form array
- * @param array $form_state
- *   form_state array
- *
- * @return array
- *   $form array
- */
-function signature_mail_configuration_page($form, &$form_state) {
-
-  $fieldable = variable_get("signature_fieldable", 0);
-
-  $form['signature_fieldable'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Make the signature entity fieldable?'),
-    '#default_value' => $fieldable,
-  );
-
-  $form = system_settings_form($form);
-  $form['#submit'][] = "signature_mail_config_form_submit";
-
-  return $form;
-}
-
-/**
- * Submit handler to clear the cache after fieldable toggling configuration.
- */
-function signature_mail_config_form_submit() {
-  // @todo implement a more targeted flushing.
-  drupal_flush_all_caches();
 }

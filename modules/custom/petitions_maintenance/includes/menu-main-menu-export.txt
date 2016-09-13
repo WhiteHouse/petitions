@@ -1,0 +1,2 @@
+Sign Out {"url":"user\/logout","options":{"attributes":{"class":["sign-out"]},"item_attributes":{"id":"","class":"","style":""},"identifier":"main-menu_sign-out:user\/logout"}}
+Sign In {"url":"user\/login","options":{"attributes":{"class":["sign-in"]},"item_attributes":{"id":"","class":"","style":""},"identifier":"main-menu_sign-in:user\/login"}}
