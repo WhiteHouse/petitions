@@ -27,7 +27,7 @@ function wh_petitions_create_petition_iframe_html() {
   $form = drupal_get_form('wh_petitions_create_petition');
   $form_html = drupal_render($form);
   $messages = theme('status_messages');
-  $url = $base_url . '/' . drupal_get_path('theme', 'petitions44');
+  $url = $base_url . '/' . drupal_get_path('theme', 'petitions_responsive');
 
   $html = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -67,7 +67,7 @@ function theme_wh_petition_title($variables) {
   $element = $variables['element'];
   element_set_attributes($element, array('id', 'name', 'cols', 'rows'));
   _form_set_class($element, array('form-textarea'));
-  $url = $base_url . '/' . drupal_get_path('theme', 'petitions44');
+  $url = $base_url . '/' . drupal_get_path('theme', 'petitions_responsive');
 
   $default = !empty($element['#default_value']) ? $element['#default_value'] : t('finish the statement here');
 

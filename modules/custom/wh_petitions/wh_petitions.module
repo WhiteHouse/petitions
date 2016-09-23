@@ -83,7 +83,7 @@ function wh_petitions_permission() {
  */
 function wh_petitions_preprocess(&$variables, $hook) {
   global $base_url;
-  $variables['path_to_petitions44'] = $base_url . '/' . drupal_get_path('theme', 'petitions44');
+  $variables['path_to_petitions_responsive'] = $base_url . '/' . drupal_get_path('theme', 'petitions_responsive');
 }
 
 /**
@@ -691,7 +691,7 @@ function wh_petitions_preprocess_node(&$vars) {
     $vars['response_video'] = $response_video;
     $vars['agency_name'] = $agency_name;
     $vars['agency_seal'] = $agency_seal;
-    $vars['path_to_petitions44'] = $base_url . '/' . drupal_get_path('theme', 'petitions44');
+    $vars['path_to_petitions_responsive'] = $base_url . '/' . drupal_get_path('theme', 'petitions_responsive');
     $vars['return_destination'] = $return_destination;
 
     // Call the share_links render array.

@@ -130,12 +130,12 @@ function petitions_maintenance_update_7309(&$sandbox) {
 
   // Assign the block to the takeover region. Before we can write directly to
   // the database, we have to force drupal to write the new block definition by
-  // calling _block_rehash('petitions44).
-  _block_rehash('petitions44');
+  // calling _block_rehash('petitions_responsive).
+  _block_rehash('petitions_responsive');
 
   db_merge('block')
     ->key(array(
-      'theme' => 'petitions44',
+      'theme' => 'petitions_responsive',
       'delta' => 'prevent_user_login_block',
       'module' => 'prevent_user_login',
     ))
@@ -183,7 +183,6 @@ function petitions_maintenance_update_7312(&$sandbox) {
 function petitions_maintenance_update_7313() {
   theme_enable(array('petitions_responsive'));
   variable_set('theme_default', 'petitions_responsive');
-  theme_disable(array('petitions44'));
 
   $enable = array(
     'api_responses',
@@ -749,7 +748,6 @@ function petitions_maintenance_update_7331() {
     'is_not_cached',
     'menu_import',
     'nagios',
-    'petitions44',
     'petitions_user_registration',
     'petitions_usermenu',
     'petitionslog',

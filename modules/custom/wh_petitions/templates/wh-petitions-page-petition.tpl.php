@@ -6,7 +6,7 @@
  *
  * Available variables:
  *
- * $path_to_petitions44: Dynamically generates path to petitions44 theme.
+ * $path_to_petitions_responsive: Dynamically generates path to petitions_responsive theme.
  * $signature_form: rendered form to be displayed on signing section.
  */
 
@@ -73,7 +73,7 @@
       </div><!--/share this petition-->
 
       <div class="petition-response petition-detail">
-        <img class="response-call" alt ="" src="<?php print $path_to_petitions44; ?>/img/bg-response-call.gif">
+        <img class="response-call" alt ="" src="<?php print $path_to_petitions_responsive; ?>/img/bg-response-call.gif">
         <div class="response-author-org clearfix">
           <?php print $agency_seal; ?>
           <span class="official"><?php print t('Official !agency_name Response to', array('!agency_name' => $agency_name)); ?></span><!--/official-->
