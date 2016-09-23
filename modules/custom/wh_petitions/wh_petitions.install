@@ -224,12 +224,6 @@ function _wh_petitions_set_as_primary_menu() {
   // Notify user about what we just did.
   $message = t("Petitions Menu has been set as your site's Primary Menu.");
   drupal_set_message($message, 'status');
-
-  // Set homepage as <front> (from wh_petition_tool module).
-  variable_set('site_frontpage', 'homepage');
-  // Notify user about what we just did.
-  $message = t("The path !homepage has been set as your front page.", array('!homepage' => l('homepage', 'homepage')));
-  drupal_set_message($message, 'status');
 }
 
 /**
