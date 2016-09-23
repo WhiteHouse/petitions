@@ -15,6 +15,8 @@ projects[captcha][version] = 1.0
 
 projects[conditional_styles][version] = 2.1
 
+projects[logger][version] = 1.0-alpha2
+
 projects[context][version] = 3.6
 
 projects[ctools][version] = 1.9
