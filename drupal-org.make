@@ -105,21 +105,6 @@ projects[wysiwyg][version] = 2.2
 
 projects[usfedgov_google_analytics][version] = 1.0-rc1
 
-; Contrib Themes
-; ==============================================================================
-
-projects[fortyfour][download][type] = git
-projects[fortyfour][download][url] = http://git.drupal.org/project/fortyfour.git
-projects[fortyfour][type] = theme
-projects[fortyfour][subdir] = ""
-projects[fortyfour][revision] = 027674985
-
-projects[zen][type] = theme
-projects[zen][subdir] = ""
-projects[zen][version] = 5.5
-; Fix SimpleTest error.
-projects[zen][patch][2144803-1] = https://drupal.org/files/issues/zen-include_error-2144803-1.patch
-
 ; Third Party Libraries
 ; ==============================================================================
 
