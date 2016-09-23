@@ -148,17 +148,37 @@ Here is a list of modules that should be enabled for the system to run properly:
 
 If required profile fields are missing, revert Whitehouse User Profile (wh_user_profile) to default here: `admin/structure/features`
 
-10) By default petitions are not made public on the site until they clear a certain threshold of signatures. To collect these first signatures, signers must go directly to the petition's URL. Set the signature threshold here:
+9) By default petitions are not made public on the site until they clear a certain threshold of signatures. To collect these first signatures, signers must go directly to the petition's URL. Set the signature threshold here:
         `admin/config/system/petitions`
 
-11) Users won't be able to create accounts until CAPTCHA is configured. Just to get things working, all you need to do is go here and follow the link on the config page to get an API key for your site:
+10) Users won't be able to create accounts until CAPTCHA is configured. Just to get things working, all you need to do is go here and follow the link on the config page to get an API key for your site:
         `admin/config/people/captcha/recaptcha`
 
-12) For development, you may want to add this to settings.php:
+11) For development, you may want to add this to settings.php:
 
 ```php
         $conf['error_level'] = 2;         // Show all messages on your screen.
         ini_set('display_errors', TRUE);  // These lines give you content on
                                           // "white screen of death" (WSOD) pages.
        ini_set('display_startup_errors', TRUE);
+```
+Necessary Setup
+--------------
+- create taxonomy with machine name petition_type and populate with terms
+- create a menu link to add petition entities (/petition/create)
+- add terms to media type taxonomy used in Response nodes
+
+- setup signature form
+  -  create api key node and set key value to accepted.
+  - add api key to /admin/config/services/petitionssignatureform
+  - add signature form block to a page region /admin/structure/block/manage/petitionssignatureform/petitionssignatureform_form/configure
+
+Known Issues
+--------
+- signature form displays a Contact Administrator message at present.
+- /responses page gives 403
+- error presented when viewing responses
+
+```
+Error: Call to undefined function wh_petition_tool_twitter_link() in wh_response_preprocess_node() (line 868 of /var/www/petitions/docroot/profiles/petitions/modules/custom/wh_response/wh_response.module
 ```
