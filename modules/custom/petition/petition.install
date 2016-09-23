@@ -29,7 +29,6 @@ function petition_install() {
   require_once 'includes/petition.field.inc';
   // Close comments.
   variable_set('comment_petition', COMMENT_NODE_CLOSED);
-  _petition_create_taxonomies();
 
   // Build the fields and add their instances to the petition content type.
   petition_build_fields(petition_fields());
