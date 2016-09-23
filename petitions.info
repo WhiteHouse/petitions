@@ -44,6 +44,7 @@ dependencies[] = services_documentation
 dependencies[] = shunt
 dependencies[] = textcaptcha
 dependencies[] = wysiwyg
+dependencies[] = logger
 
 ; custom
 dependencies[] = api_key_manager
