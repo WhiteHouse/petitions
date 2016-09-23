@@ -19,10 +19,10 @@ function petitions_install() {
   db_update('system')
     ->fields(array('status' => 1))
     ->condition('type', 'theme')
-    ->condition('name', 'petitions44')
+    ->condition('name', 'petitions_responsive')
     ->execute();
   variable_set('admin_theme', 'seven');
-  variable_set('theme_default', 'petitions44');
+  variable_set('theme_default', 'petitions_responsive');
 
   // Enable and configure the Petitions Signature Form module.
   global $base_url;
