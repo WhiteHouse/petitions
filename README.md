@@ -12,7 +12,7 @@ President Obama is committed to creating the most open and participatory governm
 
 -- President Barack Obama, September 20, 2011
 
-Releasing the source code for this application is meant to empower other governments and organizations to use this platform to engage their own citizens and constituencies. In addition, public review and contribution to the application’s code base will help strengthen and improve the platform.
+Releasing the source code for this application is meant to empower other governments and organizations to use similar petitioning platforms to engage their own citizens and constituencies. In addition, public review and contribution to the application’s code base will help strengthen and improve the platform.
 
 ## Requirements
 
@@ -35,8 +35,6 @@ For installation instructions, see INSTALL.md.
 NOTE: Setting up the application and configuring it for use in your organization’s context requires Drupal development experience. The application ships with a similar design (theme) to what is used on petitions.whitehouse.gov and needs to be customized for use by others using standard Drupal 7 themeing conventions. The application also ships with various user interface elements, user account settings, and other configurations that users should expect to customize using standard Drupal 7 techniques and conventions.
 
 ## Roadmap
-
-Have an idea or question about future features for We the People? Let us know by opening a ticket on GitHub, emailing us directly at wethepeople@who.eop.gov, or tweeting @WHWeb.
 
 We the People is a work in progress and currently exists at a very basic level of functionality. Priorities for future development are detailed below.
 
