@@ -6,7 +6,7 @@ INSTALL.md
 * "Alpha" software status
 * Installing and configuring Petitions
 
-"Alpha" software status
+"Alpha" Software Status
 --------------------------------
 
 "Alpha" means we cannot promise to provide an upgrade path to users who build sites on the current code base.
@@ -18,7 +18,7 @@ These instructions will help you install Drupal, get Drupal talking to MySQL and
 Where the application still has dependencies on configuration stored in the site's database, these are areas where the install profile remains a work in progress. We will release improvements as we make them on GitHub. In the meanwhile, patches are welcome too.
 
 
-Installing and configuring Petitions
+Installing and Configuring Petitions
 ------------------------------------
 
 1) Install Drush
