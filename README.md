@@ -1,4 +1,4 @@
-# We The People petitions application
+# We The People Petitions Application
 
 Drupal 7 code base used to build an application that lets users create and sign petitions.
 
