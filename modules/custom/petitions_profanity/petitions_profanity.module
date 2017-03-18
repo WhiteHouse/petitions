@@ -88,17 +88,6 @@ function petitions_profanity_mail_alter(&$message) {
  *   TRUE if any filter matches any string, FALSE otherwise.
  */
 function petitions_profanity_is_profane($string, $terms = array()) {
-  // If no terms have been passed to this function, check the
-  // petitions_profanity_profane_terms function.
-  if (!$terms) {
-    $terms = petitions_profanity_profane_terms();
-  }
-  foreach ($terms as $term) {
-    $term = str_replace(',', '', $term);
-    if (stripos($string, $term) !== FALSE) {
-      return TRUE;
-    }
-  }
   return FALSE;
 }
 
