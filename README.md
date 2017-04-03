@@ -6,7 +6,7 @@ This application is under active development and will continue to be modified an
 
 ## Goals
 
-President Obama is committed to creating the most open and participatory government in our nation’s history, and this petitioning platform is a key part of that initiative. In September, 2011, the White House launched [We the People](http://petitions.whitehouse.gov), a powerful and simple way to petition the Obama Administration to take action on a range of issues. If a petition gathers a minimum number of signatures in a defined amount of time, policy officials review it and publish an official response.
+President Obama is committed to creating the most open and participatory government in our nation’s history. This petitioning platform is a key part of that initiative. In September, 2011, the White House launched [We the People](http://petitions.whitehouse.gov), a powerful and simple way to petition the Obama Administration to take action on a range of issues. If a petition gathers a minimum number of signatures in a defined amount of time, policy officials review it and publish an official response.
 
 *Among our commitments, we’re launching a new online tool -- called “We the People” -- to allow Americans to directly petition the White House, and we’ll share that technology so any government in the world can enable its citizens to do the same.*
 
@@ -26,9 +26,9 @@ Releasing the source code for this application is meant to empower other governm
 
 ## Usage
 
-Site visitors can create a user account, log in, and create petitions. Petition creators can share the URL for their petition to generate signatures. When the petition crosses a certain threshold, the petition becomes "public" and is listed as an open petition on the site's "open petitions" page.
+Site visitors can either create a user account, log in, and create petitions, or . Petition creators can share the URL for their petition to generate signatures. When the petition crosses a certain signature threshold, the petition becomes public and is listed on the site's "open petitions" page.
 
-Visitors can sign petitions. Petitions that receive a designated number of signatures (at the White House the number is 100,000 in one month) get a response.
+Visitors with the specified URLs can sign petitions. Petitions that receive a designated number of signatures (at the White House the number is 100,000 in one month) get a response.
 
 For installation instructions, see INSTALL.md.
 
